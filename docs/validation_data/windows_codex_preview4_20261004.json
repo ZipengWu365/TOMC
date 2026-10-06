@@ -1,0 +1,117 @@
+{
+  "schema": "tomc-windows-native-codex-preview4-acceptance-v1",
+  "tested_utc": "2026-10-04",
+  "status": "pass",
+  "release": "v0.1.0-assistant-preview.4",
+  "release_target_commit": "386b616161cd6e3f095e5a425307efcb101cf495",
+  "asset_bytes": 91034,
+  "asset_sha256": "96b05b516efadba2e6e7f691a8869365233aad5088e7a484d0c0e63b60a013b0",
+  "sidecar_and_release_digest_match": true,
+  "host": {
+    "platform": "Windows",
+    "codex_cli": "0.160.0",
+    "uv": "0.12.22",
+    "python": "3.11.9"
+  },
+  "installation": {
+    "permanent_native_plugin_in_actual_personal_codex_profile": true,
+    "retained_after_testing": true,
+    "fixed_bundle_directory": "~/.codex/tomc/assistant-preview.4",
+    "fixed_uv_directory": "~/.codex/tomc/tools",
+    "preflight_passed": true,
+    "full_installer_passed": true,
+    "plugin": "tomc-memory@tomc-local",
+    "enabled": true,
+    "changed_config_top_level_keys": [
+      "marketplaces",
+      "plugins"
+    ],
+    "other_plugin_settings_preserved": true,
+    "model_and_other_config_settings_preserved": true,
+    "cached_easy_mcp_and_skill_hashes_match_published_zip": true
+  },
+  "model": "gpt-6.1-sol",
+  "provider": "openai",
+  "model_settings_authentication_preserved": true,
+  "model_turns": 2,
+  "model_tomc_tool_calls": 4,
+  "config_feature_mcp_and_direct_tool_namespace_overrides": [],
+  "tools_discovered": [
+    "forget_memory",
+    "list_memories",
+    "prepare_context",
+    "recall_memory",
+    "remember_memory"
+  ],
+  "direct_default_budget": {
+    "budget": 1228,
+    "input_estimated_tokens": 1534,
+    "memory_estimated_tokens": 1223,
+    "selected_method": "tomc_raw"
+  },
+  "default_budget_formula": "max(1024, ceil(history_lexical_estimate * 0.8))",
+  "token_scope": "Memory lexical estimates only; no billed-token or quality benchmark claim",
+  "turns": [
+    {
+      "fresh_chat_without_history": false,
+      "status": "completed",
+      "tools": [
+        {
+          "tool": "prepare_context",
+          "status": "completed",
+          "budget_omitted": true,
+          "budget_returned": 1228
+        },
+        {
+          "tool": "remember_memory",
+          "status": "completed",
+          "budget_omitted": true,
+          "budget_returned": null
+        },
+        {
+          "tool": "recall_memory",
+          "status": "completed",
+          "budget_omitted": true,
+          "budget_returned": 1232
+        }
+      ],
+      "answer": {
+        "framework": "FastAPI",
+        "backup_framework": "Flask"
+      }
+    },
+    {
+      "fresh_chat_without_history": true,
+      "status": "completed",
+      "tools": [
+        {
+          "tool": "recall_memory",
+          "status": "completed",
+          "budget_omitted": true,
+          "budget_returned": 1232
+        }
+      ],
+      "answer": {
+        "framework": "FastAPI",
+        "backup_framework": "Flask"
+      }
+    }
+  ],
+  "notebook_storage": {
+    "actual_store": "~/.tomc/memory.sqlite3",
+    "initial_list_empty": true,
+    "exact_synthetic_content_saved": true,
+    "synthetic_content_contains_chinese_and_emoji": true,
+    "restart_recall_passed": true,
+    "only_named_test_notebook_deleted": true,
+    "final_entry_count_independently_checked_with_read_only_sqlite": 0,
+    "default_notebook_metadata_unchanged": false,
+    "correction_to_local_harness_intent": "The trial attempted to select a separate database using only a parent-process TOMC_MEMORY_PATH. Codex did not forward it to the native MCP subprocess. No synthetic.sqlite3 was created there. The native plugin used its default store, which was empty before saving and empty after exact test deletion. Do not interpret the local raw receipt isolation-intent field as successful isolation."
+  },
+  "personal_config_unchanged_during_model_trial": true,
+  "auth_metadata_unchanged": true,
+  "gui_installation_not_exercised": true,
+  "all_trial_app_server_processes_stopped": true,
+  "raw_receipt_sha256": "fd17b047f4ec1453efdeb3a089bf22c27241742a9e0d766cec8d0c851c90238b",
+  "scope": "Observed native personal-profile Windows installation and requested default-model tool calls; no automatic history interception or unprompted-tool-choice claim"
+}

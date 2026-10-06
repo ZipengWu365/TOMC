@@ -1,0 +1,17 @@
+{
+  "name": "tomc-memory",
+  "version": "0.1.0",
+  "description": "Task-oriented context compression for your existing assistant.",
+  "mcpServers": "./mcp.json",
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "TOMC",
+    "shortDescription": "Prepare task-specific context for your next model request.",
+    "developerName": "Zipeng Wu",
+    "category": "Productivity",
+    "defaultPrompt": [
+      "Use TOMC to prepare this history for my next task.",
+      "Recall api-refactor from TOMC for the next task."
+    ]
+  }
+}

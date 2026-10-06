@@ -1,0 +1,280 @@
+{
+  "scope": "Installed Gradio runtime dependency closure on Python 3.12; package metadata, not model weights",
+  "packages": [
+    {
+      "package": "aiofiles",
+      "version": "24.1.0",
+      "license_declaration": "OSI Approved :: Apache Software License"
+    },
+    {
+      "package": "annotated-doc",
+      "version": "0.0.5",
+      "license_declaration": "MIT"
+    },
+    {
+      "package": "annotated-types",
+      "version": "0.8.0",
+      "license_declaration": "MIT"
+    },
+    {
+      "package": "anyio",
+      "version": "4.15.1",
+      "license_declaration": "MIT"
+    },
+    {
+      "package": "brotli",
+      "version": "1.2.0",
+      "license_declaration": "MIT"
+    },
+    {
+      "package": "certifi",
+      "version": "2026.7.22",
+      "license_declaration": "OSI Approved :: Mozilla Public License 2.0 (MPL 2.0)"
+    },
+    {
+      "package": "charset-normalizer",
+      "version": "3.5.1",
+      "license_declaration": "MIT"
+    },
+    {
+      "package": "click",
+      "version": "8.5.0",
+      "license_declaration": "BSD-3-Clause"
+    },
+    {
+      "package": "fastapi",
+      "version": "0.141.1",
+      "license_declaration": "MIT"
+    },
+    {
+      "package": "ffmpy",
+      "version": "1.0.0",
+      "license_declaration": "MIT"
+    },
+    {
+      "package": "filelock",
+      "version": "3.32.5",
+      "license_declaration": "MIT"
+    },
+    {
+      "package": "fsspec",
+      "version": "2026.7.0",
+      "license_declaration": "BSD-3-Clause"
+    },
+    {
+      "package": "gradio",
+      "version": "5.49.1",
+      "license_declaration": "Apache-2.0"
+    },
+    {
+      "package": "gradio_client",
+      "version": "1.13.3",
+      "license_declaration": "Apache-2.0"
+    },
+    {
+      "package": "groovy",
+      "version": "0.1.2",
+      "license_declaration": "OSI Approved :: MIT License"
+    },
+    {
+      "package": "h11",
+      "version": "0.16.0",
+      "license_declaration": "OSI Approved :: MIT License"
+    },
+    {
+      "package": "hf-xet",
+      "version": "1.6.0",
+      "license_declaration": "Apache-2.0"
+    },
+    {
+      "package": "httpcore",
+      "version": "1.0.9",
+      "license_declaration": "BSD-3-Clause"
+    },
+    {
+      "package": "httpx",
+      "version": "0.28.1",
+      "license_declaration": "OSI Approved :: BSD License"
+    },
+    {
+      "package": "huggingface_hub",
+      "version": "0.36.2",
+      "license_declaration": "OSI Approved :: Apache Software License"
+    },
+    {
+      "package": "idna",
+      "version": "3.19",
+      "license_declaration": "BSD-3-Clause"
+    },
+    {
+      "package": "Jinja2",
+      "version": "3.1.6",
+      "license_declaration": "OSI Approved :: BSD License"
+    },
+    {
+      "package": "markdown-it-py",
+      "version": "4.2.0",
+      "license_declaration": "OSI Approved :: MIT License"
+    },
+    {
+      "package": "MarkupSafe",
+      "version": "3.0.3",
+      "license_declaration": "BSD-3-Clause"
+    },
+    {
+      "package": "mdurl",
+      "version": "0.1.2",
+      "license_declaration": "OSI Approved :: MIT License"
+    },
+    {
+      "package": "numpy",
+      "version": "2.5.3",
+      "license_declaration": "BSD-3-Clause AND 0BSD AND MIT AND Zlib AND CC0-1.0"
+    },
+    {
+      "package": "orjson",
+      "version": "3.12.0",
+      "license_declaration": "MPL-2.0 AND (Apache-2.0 OR MIT)"
+    },
+    {
+      "package": "packaging",
+      "version": "26.3",
+      "license_declaration": "Apache-2.0 OR BSD-2-Clause"
+    },
+    {
+      "package": "pandas",
+      "version": "2.3.3",
+      "license_declaration": "OSI Approved :: BSD License"
+    },
+    {
+      "package": "pillow",
+      "version": "11.3.0",
+      "license_declaration": "MIT-CMU"
+    },
+    {
+      "package": "pydantic",
+      "version": "2.11.10",
+      "license_declaration": "MIT"
+    },
+    {
+      "package": "pydantic_core",
+      "version": "2.33.2",
+      "license_declaration": "OSI Approved :: MIT License"
+    },
+    {
+      "package": "pydub",
+      "version": "0.25.1",
+      "license_declaration": "OSI Approved :: MIT License"
+    },
+    {
+      "package": "Pygments",
+      "version": "2.21.0",
+      "license_declaration": "BSD-2-Clause"
+    },
+    {
+      "package": "python-dateutil",
+      "version": "2.9.0.post0",
+      "license_declaration": "OSI Approved :: BSD License | OSI Approved :: Apache Software License"
+    },
+    {
+      "package": "python-multipart",
+      "version": "0.0.32",
+      "license_declaration": "Apache-2.0"
+    },
+    {
+      "package": "pytz",
+      "version": "2026.3.post1",
+      "license_declaration": "OSI Approved :: MIT License"
+    },
+    {
+      "package": "PyYAML",
+      "version": "6.0.3",
+      "license_declaration": "OSI Approved :: MIT License"
+    },
+    {
+      "package": "requests",
+      "version": "2.34.2",
+      "license_declaration": "OSI Approved :: Apache Software License"
+    },
+    {
+      "package": "rich",
+      "version": "15.0.0",
+      "license_declaration": "OSI Approved :: MIT License"
+    },
+    {
+      "package": "ruff",
+      "version": "0.16.6",
+      "license_declaration": "MIT"
+    },
+    {
+      "package": "safehttpx",
+      "version": "0.1.7",
+      "license_declaration": "OSI Approved :: MIT License"
+    },
+    {
+      "package": "semantic-version",
+      "version": "2.10.0",
+      "license_declaration": "OSI Approved :: BSD License"
+    },
+    {
+      "package": "shellingham",
+      "version": "1.5.4",
+      "license_declaration": "OSI Approved :: ISC License (ISCL)"
+    },
+    {
+      "package": "six",
+      "version": "1.17.0",
+      "license_declaration": "OSI Approved :: MIT License"
+    },
+    {
+      "package": "starlette",
+      "version": "0.52.1",
+      "license_declaration": "BSD-3-Clause"
+    },
+    {
+      "package": "tomlkit",
+      "version": "0.13.3",
+      "license_declaration": "OSI Approved :: MIT License"
+    },
+    {
+      "package": "tqdm",
+      "version": "4.70.0",
+      "license_declaration": "MPL-2.0 AND MIT"
+    },
+    {
+      "package": "typer",
+      "version": "0.27.2",
+      "license_declaration": "MIT"
+    },
+    {
+      "package": "typing-inspection",
+      "version": "0.4.4",
+      "license_declaration": "MIT"
+    },
+    {
+      "package": "typing_extensions",
+      "version": "4.16.0",
+      "license_declaration": "PSF-2.0"
+    },
+    {
+      "package": "tzdata",
+      "version": "2026.3",
+      "license_declaration": "Apache-2.0"
+    },
+    {
+      "package": "urllib3",
+      "version": "2.7.0",
+      "license_declaration": "MIT"
+    },
+    {
+      "package": "uvicorn",
+      "version": "0.52.4",
+      "license_declaration": "BSD-3-Clause"
+    },
+    {
+      "package": "websockets",
+      "version": "15.0.1",
+      "license_declaration": "OSI Approved :: BSD License"
+    }
+  ]
+}

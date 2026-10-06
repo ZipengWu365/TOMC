@@ -1,0 +1,107 @@
+{
+  "summary_sha256": "8f20e9845aa8f9928aa68a90740e21ebded2a7117430f775e21f296a547d8113",
+  "source_sha256": {
+    "experiments/evidence_update_20260918/reports/construction_resource_snapshot.json": "48925c1b5544cc2ed23e39e370b31e37aab67cbf88444dea59899446255784b7",
+    "experiments/evidence_update_20260918/reports/rag_construction_summary.json": "ad0319eb28d3c7e739e3c3d47976ed6e6b8345766cbe0990a6505b1bfc2c8605",
+    "experiments/light_final_20260919/reports/light_construction_final.json": "1ff53456d96cc4316d4f1605eb42f06bb25fab367df88e10f0abffc184dfacab",
+    "experiments/resource_replay_20260924/summary.json": "e95f977b731347b5b7e2bd951e81a5516117db9a141f5e17fe03c95bc6f72400",
+    "experiments/resource_replay_20260924/ll2_historical_timing.json": "382c967f19c5e0d3b710434daa9f87e937873b521f4b495e1aa935d0c6ee9eea"
+  },
+  "memory_rows": [
+    [
+      "TOMC",
+      "None",
+      "0 (CPU)",
+      "3.75"
+    ],
+    [
+      "BEAM-RAG",
+      "BGE-small",
+      "0 (CPU)",
+      "1.45"
+    ],
+    [
+      "LongLLMLingua",
+      "7B compressor",
+      "18.50",
+      "10.24"
+    ],
+    [
+      "BRIEF-Pro",
+      "3B compressor",
+      "11.81",
+      "5.45"
+    ],
+    [
+      "LIGHT (worker)",
+      "32B AWQ writer/filter",
+      "80.82",
+      "6.04"
+    ],
+    [
+      "LLMLingua-2 (direct)",
+      "BERT compressor",
+      "1.55",
+      "1.85"
+    ],
+    [
+      "LLMLingua-2 (hier.)",
+      "BERT compressor",
+      "1.55",
+      "1.62"
+    ]
+  ],
+  "timing_rows": [
+    [
+      "TOMC",
+      "Constructor replay",
+      "6 calls",
+      "4.21 s/call"
+    ],
+    [
+      "BEAM-RAG",
+      "Index construction",
+      "60 conversations",
+      "23.94 s/conversation"
+    ],
+    [
+      "BEAM-RAG",
+      "Query retrieval",
+      "600 queries",
+      "9.71 ms/query"
+    ],
+    [
+      "LongLLMLingua",
+      "Compression",
+      "600 calls",
+      "72.07 s/call"
+    ],
+    [
+      "BRIEF-Pro",
+      "Compression",
+      "600 calls",
+      "47.94 s/call"
+    ],
+    [
+      "LIGHT",
+      "Observed construction span",
+      "600 memories",
+      "41.53 h/batch"
+    ],
+    [
+      "LLMLingua-2 (direct)",
+      "Compression",
+      "60 conversations",
+      "9.16 s/conversation"
+    ],
+    [
+      "LLMLingua-2 (hier.)",
+      "Compression",
+      "60 conversations",
+      "10.19 s/conversation"
+    ]
+  ],
+  "time_column_scope": "Recorded mean per call/conversation, except LIGHT: full 600-memory batch wall time; LIGHT memory measures one writer/filter worker. BEAM-RAG construction time is index construction; query retrieval remains in the appendix.",
+  "scope": "Stage-specific descriptive measurements; not matched end-to-end latency. Compressor memory: six fresh-process replays per configuration on the same questions as TOMC. LIGHT: one configured writer/filter worker, 128 archived requests; includes its allocated KV pool, not minimum VRAM or full-pipeline resources. Memory values are observed maxima; LIGHT RSS is the maximum across process-tree samples, which may miss brief peaks. BRIEF excludes candidate construction; LIGHT excludes BGE and API summary stages. TOMC/BEAM-RAG retain existing CPU measurements. Original batch timings are retained separately.",
+  "replaces": "fig:construction_efficiency"
+}

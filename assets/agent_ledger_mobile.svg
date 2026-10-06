@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="520" height="1390" viewBox="0 0 520 1390" role="img" aria-labelledby="title desc">
+<title id="title">TOMC2: preserve observations for the next step</title><desc id="desc">Actual synthetic agent ledger: failure and test reports remain observations, full-suite status is unknown, and the verifier is omitted from reader memory at this budget.</desc>
+<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0 0L7 4L0 8" fill="none" stroke="#273343" stroke-width="1.4"/></marker></defs>
+<rect width="100%" height="100%" rx="16" fill="white"/>
+<style>text{font-family:Arial,'Noto Sans CJK SC',sans-serif;fill:#273343}.mono{font-family:ui-monospace,'DejaVu Sans Mono',monospace}</style>
+<text x="32" y="44" font-size="15" style="fill:#356da6" font-weight="700" text-anchor="start" class="label">APPLICATION / TOMC2 TRACE ADAPTER</text>
+<text x="32" y="87" font-size="29" style="fill:#273343" font-weight="700" text-anchor="start" class="label">Carry observations forward.</text>
+<rect x="32" y="130" width="456" height="457" rx="14" fill="#edf4fc" stroke="#356da6" stroke-width="1.8"/>
+<text x="54" y="168" font-size="25" style="fill:#356da6" font-weight="700" text-anchor="start" class="label">Source excerpts</text>
+<text x="54" y="207" font-size="18" style="fill:#356da6" font-weight="700" text-anchor="start" class="label">u26</text>
+<text x="54" y="234" font-size="17" style="fill:#273343" font-weight="400" text-anchor="start" class="mono">FAILED test_empty: IndexError at</text>
+<text x="54" y="259" font-size="17" style="fill:#273343" font-weight="400" text-anchor="start" class="mono">src/parser.py</text>
+<text x="54" y="301" font-size="18" style="fill:#356da6" font-weight="700" text-anchor="start" class="label">u30</text>
+<text x="54" y="328" font-size="17" style="fill:#273343" font-weight="400" text-anchor="start" class="mono">Focused test_empty passed; 8 tests</text>
+<text x="54" y="353" font-size="17" style="fill:#273343" font-weight="400" text-anchor="start" class="mono">passed.</text>
+<text x="54" y="395" font-size="18" style="fill:#356da6" font-weight="700" text-anchor="start" class="label">u31</text>
+<text x="54" y="422" font-size="17" style="fill:#273343" font-weight="400" text-anchor="start" class="mono">Need to run the full test suite. Full-</text>
+<text x="54" y="447" font-size="17" style="fill:#273343" font-weight="400" text-anchor="start" class="mono">suite status is unknown; no deployment</text>
+<text x="54" y="472" font-size="17" style="fill:#273343" font-weight="400" text-anchor="start" class="mono">has occurred.</text>
+<path d="M260 596L260 631" fill="none" stroke="#273343" stroke-width="2.4" stroke-dasharray="none" marker-end="url(#arrow)"/>
+<rect x="32" y="643" width="456" height="158" rx="14" fill="#edf6e8" stroke="#287451" stroke-width="1.8"/>
+<text x="51" y="674" font-size="22" style="fill:#287451" font-weight="700" text-anchor="start" class="label">TEST_ERROR · u26</text>
+<text x="51" y="702" font-size="17" style="fill:#273343" font-weight="400" text-anchor="start" class="label">FAILED test_empty: IndexError at</text>
+<text x="51" y="725" font-size="17" style="fill:#273343" font-weight="400" text-anchor="start" class="label">src/parser.py</text>
+<text x="51" y="788" font-size="15" style="fill:#287451" font-weight="400" text-anchor="start" class="label">Included in memory · heuristic observation</text>
+<rect x="32" y="815" width="456" height="158" rx="14" fill="#edf6e8" stroke="#287451" stroke-width="1.8"/>
+<text x="51" y="846" font-size="22" style="fill:#287451" font-weight="700" text-anchor="start" class="label">TEST_ERROR · u30</text>
+<text x="51" y="874" font-size="17" style="fill:#273343" font-weight="400" text-anchor="start" class="label">Focused test_empty passed; 8 tests</text>
+<text x="51" y="897" font-size="17" style="fill:#273343" font-weight="400" text-anchor="start" class="label">passed.</text>
+<text x="51" y="960" font-size="15" style="fill:#287451" font-weight="400" text-anchor="start" class="label">Included in memory · heuristic observation</text>
+<rect x="32" y="987" width="456" height="158" rx="14" fill="#edf6e8" stroke="#287451" stroke-width="1.8"/>
+<text x="51" y="1018" font-size="22" style="fill:#287451" font-weight="700" text-anchor="start" class="label">GOAL · u31</text>
+<text x="51" y="1046" font-size="17" style="fill:#273343" font-weight="400" text-anchor="start" class="label">Need to run the full test suite. Full-</text>
+<text x="51" y="1069" font-size="17" style="fill:#273343" font-weight="400" text-anchor="start" class="label">suite status is unknown; no deployment</text>
+<text x="51" y="1092" font-size="17" style="fill:#273343" font-weight="400" text-anchor="start" class="label">has occurred.</text>
+<text x="51" y="1132" font-size="15" style="fill:#287451" font-weight="400" text-anchor="start" class="label">Included in memory · heuristic observation</text>
+<rect x="32" y="1180" width="456" height="135" rx="14" fill="#fff5df" stroke="#97651b" stroke-width="1.8"/>
+<text x="50" y="1210" font-size="21" style="fill:#97651b" font-weight="700" text-anchor="start" class="label">VERIFIER · budget omitted</text>
+<text x="50" y="1245" font-size="19" style="fill:#273343" font-weight="400" text-anchor="start" class="mono">pytest tests/test_parser.py -q</text>
+<text x="50" y="1287" font-size="17" style="fill:#273343" font-weight="400" text-anchor="start" class="label">Audit metadata only; not sent to the reader.</text>
+<text x="32" y="1344" font-size="16" style="fill:#273343" font-weight="400" text-anchor="start" class="label">Synthetic trace · 1063 → 697 estimated tokens · budget 720</text>
+<text x="32" y="1376" font-size="16" style="fill:#273343" font-weight="400" text-anchor="start" class="label">Reports are extracted; tests are not re-run.</text>
+</svg>

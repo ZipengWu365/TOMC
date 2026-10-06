@@ -1,0 +1,738 @@
+{
+  "schema": "tomc-windows-installation-feedback-v1",
+  "summary_created_at_utc": "2026-10-02T19:23:42.461299+00:00",
+  "platform": "Windows",
+  "codex_package_test_checkout_revision": "ac42b8464aed5346de8e8658d8bf778ee31c8b95",
+  "scope": "Sanitized summary of observed checks; original streams retained locally. Receipt hashes identify files and are not independent attestations.",
+  "preview_2_full_cli_installation": {
+    "status": "pass",
+    "summarized_at_utc": "2026-10-02T18:56:03.047109+00:00",
+    "release": "v0.1.0-assistant-preview.2",
+    "platform": "Windows",
+    "asset": "tomc-memory-codex-0.1.0.zip",
+    "asset_sha256": "36242fa2362d95c23fb55eb4ab6a6102845f77a3e6d6b503e514ce7112e6973e",
+    "tests": [
+      {
+        "status": "pass",
+        "started_at_utc": "2026-10-02T18:55:04.734487+00:00",
+        "codex_version": "codex-cli 0.146.0",
+        "uv_version": "uv 0.12.19 (bea138450 2026-09-24 x86_64-pc-windows-msvc)",
+        "installer_exit_code": 0,
+        "full_install_not_configure_only": true,
+        "marketplace_registered": true,
+        "plugin_installed": true,
+        "installed_mcp_enabled": true,
+        "tools": [
+          "forget_memory",
+          "list_memories",
+          "prepare_context",
+          "recall_memory",
+          "remember_memory"
+        ],
+        "checks": [
+          "original published ZIP digest matches sidecar and recorded GitHub release digest",
+          "ZIP full installer successfully registers marketplace and installs native plugin in isolated Codex profile",
+          "installed plugin registers enabled TOMC stdio server with isolated external database",
+          "actual installed-plugin host discovers five TOMC tools",
+          "host prepare_context works without saving",
+          "Unicode notes survive full app-server restart",
+          "host deletion leaves zero independent SQLite entries",
+          "all test app-server processes stopped"
+        ],
+        "model_turns": 0,
+        "gui": "not tested",
+        "personal_config_and_default_database_unchanged": true,
+        "all_spawned_app_servers_stopped": true,
+        "local_raw_receipt": "npm_01460_20261002T185504Z 安装 测试/receipt.json",
+        "local_raw_receipt_sha256": "2d4ee60e0bd850740aeee94a9d31e7b82df0e9c257535461b09868f34c1abd51"
+      },
+      {
+        "status": "pass",
+        "started_at_utc": "2026-10-02T18:55:22.880202+00:00",
+        "codex_version": "codex-cli 0.159.2",
+        "uv_version": "uv 0.12.19 (bea138450 2026-09-24 x86_64-pc-windows-msvc)",
+        "installer_exit_code": 0,
+        "full_install_not_configure_only": true,
+        "marketplace_registered": true,
+        "plugin_installed": true,
+        "installed_mcp_enabled": true,
+        "tools": [
+          "forget_memory",
+          "list_memories",
+          "prepare_context",
+          "recall_memory",
+          "remember_memory"
+        ],
+        "checks": [
+          "original published ZIP digest matches sidecar and recorded GitHub release digest",
+          "ZIP full installer successfully registers marketplace and installs native plugin in isolated Codex profile",
+          "installed plugin registers enabled TOMC stdio server with isolated external database",
+          "actual installed-plugin host discovers five TOMC tools",
+          "host prepare_context works without saving",
+          "Unicode notes survive full app-server restart",
+          "host deletion leaves zero independent SQLite entries",
+          "all test app-server processes stopped"
+        ],
+        "model_turns": 0,
+        "gui": "not tested",
+        "personal_config_and_default_database_unchanged": true,
+        "all_spawned_app_servers_stopped": true,
+        "local_raw_receipt": "desktop_01592_20261002T185522Z 安装 测试/receipt.json",
+        "local_raw_receipt_sha256": "e900f004ecc1b011ec9a5be64a0c53ee70dacf1f6dd11af86cc20e0b61c87f74"
+      }
+    ],
+    "limits": [
+      "Native CLI installation in new isolated profiles; personal profile not installed or changed.",
+      "Actual app-server MCP calls; no model turn, GUI click, or default model tool-selection check.",
+      "Existing UV, Python, and dependency cache reused; elapsed times are not cold-install performance.",
+      "No tool namespace override was used for installed-host MCP discovery; earlier model trials required temporary direct tool exposure."
+    ],
+    "test_harness_note": "An initial attempt failed because the test harness had not created its isolated CODEX_HOME directory. The harness was corrected; this was not a package/runtime fix. Its raw diagnostic receipt remains local."
+  },
+  "preview_3_full_cli_installation": {
+    "status": "pass",
+    "summarized_at_utc": "2026-10-02T19:18:47.407899+00:00",
+    "release": "v0.1.0-assistant-preview.3",
+    "platform": "Windows",
+    "release_url": "https://github.com/ZipengWu365/TOMC/releases/tag/v0.1.0-assistant-preview.3",
+    "release_target_commit": "eae11adff69b2982b3d46a8189dd4a3d57c55487",
+    "published_at_utc": "2026-10-02T19:15:12Z",
+    "is_draft": false,
+    "is_prerelease": true,
+    "verified_download_assets": [
+      {
+        "asset": "tomc-memory-codex-0.1.0.zip",
+        "bytes": 90444,
+        "sha256": "8db8ac312d6dd5e8b07a28cc66f98027a852fbec5de447ba682363acc9bf9a10",
+        "sidecar_and_release_digest_match": true,
+        "asset_url": "https://github.com/ZipengWu365/TOMC/releases/download/v0.1.0-assistant-preview.3/tomc-memory-codex-0.1.0.zip"
+      },
+      {
+        "asset": "tomc-memory-0.1.0.mcpb",
+        "bytes": 84418,
+        "sha256": "83b1e3893d291e910f760d6f9ae091a692749e80a89bae8bb409d5e497b5528e",
+        "sidecar_and_release_digest_match": true,
+        "asset_url": "https://github.com/ZipengWu365/TOMC/releases/download/v0.1.0-assistant-preview.3/tomc-memory-0.1.0.mcpb"
+      }
+    ],
+    "tests": [
+      {
+        "status": "pass",
+        "started_at_utc": "2026-10-02T19:17:40.569202+00:00",
+        "codex_version": "codex-cli 0.159.2",
+        "uv_version": "uv 0.12.19 (bea138450 2026-09-24 x86_64-pc-windows-msvc)",
+        "preflight_exit_code": 0,
+        "preflight_mcp_json_unchanged": true,
+        "installer_exit_code": 0,
+        "full_install_not_configure_only": true,
+        "marketplace_registered": true,
+        "plugin_installed": true,
+        "printed_plugin_and_marketplace_uninstall_commands": true,
+        "installed_mcp_enabled": true,
+        "tools": [
+          "forget_memory",
+          "list_memories",
+          "prepare_context",
+          "recall_memory",
+          "remember_memory"
+        ],
+        "checks": [
+          "original published ZIP digest matches sidecar and recorded GitHub release digest",
+          "preview.3 prerequisite check passes without changing packaged mcp.json",
+          "ZIP full installer successfully registers marketplace and installs native plugin in isolated Codex profile",
+          "installed plugin registers enabled TOMC stdio server with isolated external database",
+          "actual installed-plugin host discovers five TOMC tools",
+          "host prepare_context works without saving",
+          "Unicode notes survive full app-server restart",
+          "host deletion leaves zero independent SQLite entries",
+          "all test app-server processes stopped"
+        ],
+        "model_turns": 0,
+        "gui": "not tested",
+        "personal_config_and_default_database_unchanged": true,
+        "all_spawned_app_servers_stopped": true,
+        "local_raw_receipt": "preview3_desktop_01592_20261002T191740Z 安装 测试/receipt.json",
+        "local_raw_receipt_sha256": "6a3c3f8d5138b12ddcd43d4e3ebc3cf9c8770c20b2fc4ff05d89b9ca2bd77cb2"
+      },
+      {
+        "status": "pass",
+        "started_at_utc": "2026-10-02T19:17:49.258571+00:00",
+        "codex_version": "codex-cli 0.146.0",
+        "uv_version": "uv 0.12.19 (bea138450 2026-09-24 x86_64-pc-windows-msvc)",
+        "preflight_exit_code": 0,
+        "preflight_mcp_json_unchanged": true,
+        "installer_exit_code": 0,
+        "full_install_not_configure_only": true,
+        "marketplace_registered": true,
+        "plugin_installed": true,
+        "printed_plugin_and_marketplace_uninstall_commands": true,
+        "installed_mcp_enabled": true,
+        "tools": [
+          "forget_memory",
+          "list_memories",
+          "prepare_context",
+          "recall_memory",
+          "remember_memory"
+        ],
+        "checks": [
+          "original published ZIP digest matches sidecar and recorded GitHub release digest",
+          "preview.3 prerequisite check passes without changing packaged mcp.json",
+          "ZIP full installer successfully registers marketplace and installs native plugin in isolated Codex profile",
+          "installed plugin registers enabled TOMC stdio server with isolated external database",
+          "actual installed-plugin host discovers five TOMC tools",
+          "host prepare_context works without saving",
+          "Unicode notes survive full app-server restart",
+          "host deletion leaves zero independent SQLite entries",
+          "all test app-server processes stopped"
+        ],
+        "model_turns": 0,
+        "gui": "not tested",
+        "personal_config_and_default_database_unchanged": true,
+        "all_spawned_app_servers_stopped": true,
+        "local_raw_receipt": "preview3_npm_01460_20261002T191749Z 安装 测试/receipt.json",
+        "local_raw_receipt_sha256": "281563dcf6ec57348d9463bc796ac2dc0ed8a38eb5542abe397e55eff4acf4ab"
+      }
+    ],
+    "limits": [
+      "These are new preview.3 full native CLI installations, distinct from the historical preview.2/preview.1 records.",
+      "Installed only in new isolated profiles; personal Codex profile not installed or changed.",
+      "Actual app-server MCP calls; no model turn, GUI click, or default model tool-selection check.",
+      "Existing UV, Python, and dependency cache reused; no cold-install latency or first-time download claim.",
+      "Explicit --uv and --codex paths used; no automatic profile discovery or direct-only tool namespace override.",
+      "Claude MCPB download hash was verified; its runtime was not rerun in this Windows check."
+    ]
+  },
+  "preview_1_cli_installation": {
+    "release": "v0.1.0-assistant-preview.1",
+    "asset_sha256": "51fda9431f17013d3ce64effff185faa49825216e9d90dd7c27de60fddd4ebde",
+    "installer_exit_code": 0,
+    "configuration": "isolated Codex profile",
+    "host": "Codex CLI 0.146.0 app-server stdio",
+    "status": "pass",
+    "tools": [
+      "forget_memory",
+      "list_memories",
+      "prepare_context",
+      "recall_memory",
+      "remember_memory"
+    ],
+    "checks": [
+      "host MCP initialization",
+      "five tools discovered by Codex",
+      "save through Codex",
+      "restart Codex host and recall",
+      "delete through Codex",
+      "personal configuration/database unchanged"
+    ],
+    "model_turns": 0,
+    "gui": "not tested"
+  },
+  "preview_1_personal_profile_model_diagnostics": {
+    "release": "v0.1.0-assistant-preview.1",
+    "configuration": "existing profile with temporary MCP settings and synthetic database",
+    "host_version": "0.159.2",
+    "older_host_version": "0.146.0",
+    "model": "gpt-6.1-sol",
+    "provider": "openai",
+    "authentication_type": "chatgpt",
+    "counts_including_all_diagnostic_attempts": {
+      "model_turn_requests": 7,
+      "HTTP400_rejections_from_npm_cli": 2,
+      "model_completed_but_no_TOMC_access": 1,
+      "successful_test_model_turns": 4,
+      "successful_TOMC_model_tool_calls": 8
+    },
+    "earlier_attempts": [
+      {
+        "host": "npm 0.146.0",
+        "model_turns": 2,
+        "result": "HTTP400 invalid_request_error: default gpt-6.1-sol not supported with ChatGPT account",
+        "model_tomc_tool_calls": 0
+      },
+      {
+        "host": "desktop bundle 0.159.2 without direct namespace override",
+        "model_turns": 1,
+        "result": "model completed but TOMC tools inaccessible; model reported one failed non-TOMC discovery attempt",
+        "model_tomc_tool_calls": 0,
+        "other_tool_count": "not independently captured; do not infer zero"
+      },
+      {
+        "host": "desktop bundle 0.159.2 with temporary direct TOMC namespace",
+        "model_turns": 1,
+        "result": "pass",
+        "model_tomc_tool_calls": 3
+      }
+    ],
+    "temporary_direct_only_tool_namespaces": [
+      "mcp__tomc"
+    ],
+    "successful_two_chat_results": [
+      {
+        "scenario": "prepare then save and recall synthetic history",
+        "status": "completed",
+        "tools": [
+          "prepare_context",
+          "remember_memory",
+          "recall_memory"
+        ],
+        "answer": {
+          "drink": "water",
+          "backup_drink": "tea",
+          "room_booked": false
+        }
+      },
+      {
+        "scenario": "fresh thread recalls saved notebook without supplied history",
+        "status": "completed",
+        "tools": [
+          "recall_memory"
+        ],
+        "answer": {
+          "drink": "water",
+          "backup_drink": "tea",
+          "room_booked": false
+        }
+      }
+    ],
+    "compilation": {
+      "status": "pass",
+      "ephemeral_model_turns": 1,
+      "model_selected_tomc_prepare_calls": 1,
+      "budget": 64,
+      "budget_counter": "lexical estimate for memory only; excludes task and tool envelope",
+      "selected_method": "tomc_raw",
+      "input_estimated_tokens": 93,
+      "memory_estimated_tokens": 45,
+      "compiled_state_records": [
+        "[STATE] backup_framework = Flask  <src:u0,u1>",
+        "[STATE] framework = FastAPI  <src:u2>"
+      ],
+      "retained_source_blocks": [
+        "[RAW u0] framework = Flask",
+        "[RAW u1] backup_framework copies framework",
+        "[RAW u2] framework = FastAPI"
+      ],
+      "model_answer": {
+        "framework": "FastAPI",
+        "backup_framework": "Flask"
+      },
+      "store_entries": 0
+    },
+    "personal_tomc_permanently_installed": false,
+    "personal_configuration_auth_metadata_default_database_unchanged": true,
+    "gui": "not tested",
+    "limits": [
+      "TOMC is not persistently installed in the personal profile",
+      "Personal GUI installation and clicking were not tested",
+      "Temporary direct-only TOMC exposure was needed for model-driven success",
+      "Short synthetic history used raw preservation, so this trial is not a compression benchmark"
+    ]
+  },
+  "preview_2_initial_package_checks": {
+    "release": "v0.1.0-assistant-preview.2",
+    "artifacts": {
+      "claude": {
+        "artifact": "tomc-memory-0.1.0.mcpb",
+        "bytes": 84418,
+        "sha256": "83b1e3893d291e910f760d6f9ae091a692749e80a89bae8bb409d5e497b5528e",
+        "files": 37
+      },
+      "codex": {
+        "artifact": "tomc-memory-codex-0.1.0.zip",
+        "bytes": 89242,
+        "sha256": "36242fa2362d95c23fb55eb4ab6a6102845f77a3e6d6b503e514ce7112e6973e",
+        "files": 41
+      }
+    },
+    "deterministic_two_builds": true,
+    "shared_runtime_byte_identical_files": 35,
+    "executable_mcp_ast_unchanged": true,
+    "official_manifest_validator": {
+      "name": "@anthropic-ai/mcpb",
+      "version": "2.1.2",
+      "status": "pass",
+      "scope": "packaged manifest schema"
+    },
+    "claude_stdio_status": "pass",
+    "initial_codex_check": "configure-only plus stdio; followed by the complete CLI installation checks recorded above",
+    "model_calls": 0,
+    "gui": "not tested"
+  },
+  "preview_1_claude_cursor_checks": {
+    "release": "v0.1.0-assistant-preview.1",
+    "uv_version": "uv 0.12.22 (70fe1196a 2026-10-01 x86_64-pc-windows-msvc)",
+    "trials": [
+      {
+        "label": "downloaded Claude MCPB, exact manifest launch",
+        "status": "pass",
+        "tools": [
+          "forget_memory",
+          "list_memories",
+          "prepare_context",
+          "recall_memory",
+          "remember_memory"
+        ],
+        "sessions": 3,
+        "checks": [
+          "Unicode notebook and payload",
+          "persist after server restart",
+          "notebook isolation",
+          "duplicate retry",
+          "prepare does not save",
+          "exact deletion",
+          "deletion persists after restart"
+        ]
+      },
+      {
+        "label": "generated Cursor installation-link target",
+        "status": "pass",
+        "tools": [
+          "forget_memory",
+          "list_memories",
+          "prepare_context",
+          "recall_memory",
+          "remember_memory"
+        ],
+        "sessions": 3,
+        "checks": [
+          "Unicode notebook and payload",
+          "persist after server restart",
+          "notebook isolation",
+          "duplicate retry",
+          "prepare does not save",
+          "exact deletion",
+          "deletion persists after restart"
+        ]
+      }
+    ],
+    "gui": "not tested; no native desktop control available",
+    "model_use": "not tested; no model/API call made",
+    "personal_notes": "not accessed; isolated synthetic databases"
+  },
+  "claude_code_merged_validation_report": {
+    "source_type": "Previously merged report; raw model transcripts were not archived. This is not a new independent model trial.",
+    "source_commit": "c2ac8f576a4bf321de29030e03c27363ef7e2b5a",
+    "source_document": "docs/validation.md",
+    "source_document_sha256": "5db9074617f59067a9591950bac8a0696e82d60d297e64a9b428f6fa11e36703",
+    "source_url": "https://github.com/ZipengWu365/TOMC/blob/c2ac8f576a4bf321de29030e03c27363ef7e2b5a/docs/validation.md#claude-code-on-windows--2026-10-02",
+    "release": "v0.1.0-assistant-preview.2",
+    "asset_sha256": "83b1e3893d291e910f760d6f9ae091a692749e80a89bae8bb409d5e497b5528e",
+    "host": "Claude Code 2.1.287, Windows VS Code extension bundled CLI",
+    "registration": "persistent user-scope MCP registration; trial database and runtime directory retained",
+    "connection_report": "Connected",
+    "headless_model_sessions": 5,
+    "reported_checks": [
+      "Explicit prepare_context returned six relevant source lines and the correct three target values",
+      "Unnamed-task control answered from full history without a TOMC call",
+      "remember_memory saved one entry",
+      "Fresh headless session without the history recalled the correct three values",
+      "forget_memory reported one entry deleted",
+      "list_memories model call blocked by trial allowlist; five tools discovered in stdio check"
+    ],
+    "prose_preparation": {
+      "method": "tomc_raw; selected source text without typed records",
+      "budget": 120,
+      "input_estimated_tokens": 2085,
+      "memory_estimated_tokens": 101
+    },
+    "notebook_recall": {
+      "input_estimated_tokens": 2090,
+      "memory_estimated_tokens": 101
+    },
+    "token_scope": "Lexical estimates for memory only, not whole-request or billed input",
+    "observed_first_two_session_cost_usd": [
+      0.27,
+      0.13
+    ],
+    "cost_interpretation": "Different workflows; these observations do not establish a cost saving",
+    "remaining_acceptance": [
+      "Interactive VS Code panel use",
+      "Claude Code macOS/Linux"
+    ]
+  },
+  "windows_default_encoding_repair": {
+    "schema": "tomc-windows-utf8-repair-v1",
+    "recorded_utc": "2026-10-02T19:06:59.877906+00:00",
+    "base_commit": "c2ac8f576a4bf321de29030e03c27363ef7e2b5a",
+    "source_hashes_after_repair": {
+      "demo/app.py": "5ae399e3abffed45e75e09c377843fe3241b987a0513e15e5337bf7014e04641",
+      "demo/easy.py": "20b0c74e2db95713a760c52cbc60659374ce63454590c81c1d082a25cabb3128",
+      "demo/tour.py": "52bef7ebfa25f9765679d3dd4af6cb60fc062c65cdfd7c06a4c47e8103bd2c91",
+      "tests/test_demo.py": "9b8ecc8fe0bb944d387b982aee37856ff07e1fbe819b35b10f304b21258ff7a2",
+      "tests/test_release.py": "78fbaa164455b216d445c2baa315385845684ee06a14aa11fb1543f36ec2e6c2"
+    },
+    "before_default_codepage": {
+      "started_utc": "2026-10-02T19:04:20.084826+00:00",
+      "finished_utc": "2026-10-02T19:04:26.630238+00:00",
+      "command": [
+        ".venv/Scripts/python.exe",
+        "-X",
+        "utf8=0",
+        "-m",
+        "pytest",
+        "-q"
+      ],
+      "PYTHONUTF8_for_subprocess_only": "0",
+      "exit_code": 1,
+      "log_file": "before_default_codepage.log",
+      "no_user_environment_changes": true,
+      "no_personal_configuration_changes": true,
+      "no_model_calls": true,
+      "passed": 120,
+      "failed": 6,
+      "python_process": {
+        "python": "3.11.9",
+        "utf8_mode": 0,
+        "preferred_encoding": "cp936",
+        "verified_by_separate_probe": true
+      },
+      "log_sha256": "7c5fafb55ef5c11156dd37c0625073e81901a7db16ea6d6f28f80eef870f6834"
+    },
+    "after_default_codepage": {
+      "started_utc": "2026-10-02T19:05:56.774985+00:00",
+      "finished_utc": "2026-10-02T19:06:03.577934+00:00",
+      "command": [
+        ".venv/Scripts/python.exe",
+        "-X",
+        "utf8=0",
+        "-m",
+        "pytest",
+        "-q"
+      ],
+      "PYTHONUTF8_for_subprocess_only": "0",
+      "exit_code": 0,
+      "python_process": {
+        "python": "3.11.9",
+        "utf8_mode": 0,
+        "preferred_encoding": "cp936"
+      },
+      "passed": 126,
+      "failed": 0,
+      "log_file": "after_default_codepage.log",
+      "no_user_environment_changes": true,
+      "no_personal_configuration_changes": true,
+      "no_model_calls": true,
+      "log_sha256": "e8f95e2983b298b8bdacf384e8175909cb9b124f166e2a0e902397dc944e0e35"
+    },
+    "after_utf8_mode": {
+      "started_utc": "2026-10-02T19:06:06.967243+00:00",
+      "finished_utc": "2026-10-02T19:06:13.812037+00:00",
+      "command": [
+        ".venv/Scripts/python.exe",
+        "-X",
+        "utf8=1",
+        "-m",
+        "pytest",
+        "-q"
+      ],
+      "PYTHONUTF8_for_subprocess_only": "1",
+      "exit_code": 0,
+      "python_process": {
+        "python": "3.11.9",
+        "utf8_mode": 1,
+        "preferred_encoding": "utf-8"
+      },
+      "passed": 126,
+      "failed": 0,
+      "log_file": "after_utf8_mode.log",
+      "no_user_environment_changes": true,
+      "no_personal_configuration_changes": true,
+      "no_model_calls": true,
+      "log_sha256": "5d774cbbb4d9af823294a8819a462f91f05aed86f8cecde8c39ebda564910ca5"
+    },
+    "cause": "Known UTF-8 JSON and Markdown resources were opened without an explicit encoding; Windows cp936 decoded them as GBK. The demo tour failed when it loaded the snapshot case. Release tests separately failed on Unicode punctuation in archived Markdown reports.",
+    "fix": "Explicit UTF-8 resource decoding in the three demo resource readers and the two existing test files. No algorithm, content, result, or data changes.",
+    "runtime_and_plugin_tracked_diff": "",
+    "runtime_and_plugin_tracked_files_unchanged": true,
+    "preview_2_downloaded_assets": [
+      {
+        "name": "tomc-memory-0.1.0.mcpb",
+        "bytes": 84418,
+        "sha256": "83b1e3893d291e910f760d6f9ae091a692749e80a89bae8bb409d5e497b5528e",
+        "matches_preview_2": true
+      },
+      {
+        "name": "tomc-memory-codex-0.1.0.zip",
+        "bytes": 89242,
+        "sha256": "36242fa2362d95c23fb55eb4ab6a6102845f77a3e6d6b503e514ce7112e6973e",
+        "matches_preview_2": true
+      }
+    ],
+    "packages_not_rebuilt_or_uploaded": true,
+    "no_tests_added": true,
+    "no_model_calls": true,
+    "no_user_environment_changes": true,
+    "no_personal_configuration_changes": true,
+    "ruff_changed_files": "passed",
+    "notes": "This repairs local demo/resource validation under the default Windows code page. It does not re-establish client GUI or model integration acceptance; existing versioned client receipts remain the evidence for those separate checks."
+  },
+  "windows_final_merged_suite": {
+    "schema": "tomc-final-cross-platform-windows-check-v1",
+    "recorded_utc": "2026-10-02T19:19:29.969953+00:00",
+    "upstream_macos_preview_3_main_commit": "eae11adff69b2982b3d46a8189dd4a3d57c55487",
+    "head_commit_at_check": "fb5c7f5633b2d5745ce3601bcedeb8783cd9869a",
+    "platform": "Windows",
+    "python": "3.11.9",
+    "pytest": "8.4.2",
+    "gradio": "5.49.1",
+    "checks": [
+      {
+        "started_utc": "2026-10-02T19:18:19.808764+00:00",
+        "finished_utc": "2026-10-02T19:18:26.980268+00:00",
+        "command": [
+          ".venv/Scripts/python.exe",
+          "-X",
+          "utf8=0",
+          "-m",
+          "pytest",
+          "-q"
+        ],
+        "PYTHONUTF8_for_subprocess_only": "0",
+        "exit_code": 0,
+        "python_process": {
+          "python": "3.11.9",
+          "utf8_mode": 0,
+          "preferred_encoding": "cp936"
+        },
+        "passed": 141,
+        "failed": 0,
+        "log_file": "final_cross_platform_default_codepage.log",
+        "no_user_environment_changes": true,
+        "no_personal_configuration_changes": true,
+        "no_model_calls": true,
+        "skipped": 1,
+        "total_tests": 142,
+        "log_sha256": "0963f48806703fdcd9f393b3bf3ed6b78aefcd5c12491a9eb33cf573de2d9cb1",
+        "skip_test": "tests/test_codex_installer.py::test_non_executable_uv_is_rejected",
+        "skip_reason": "POSIX executable permission bit; explicitly skipped on Windows by existing test"
+      },
+      {
+        "started_utc": "2026-10-02T19:18:33.828853+00:00",
+        "finished_utc": "2026-10-02T19:18:40.833040+00:00",
+        "command": [
+          ".venv/Scripts/python.exe",
+          "-X",
+          "utf8=1",
+          "-m",
+          "pytest",
+          "-q",
+          "-rs"
+        ],
+        "PYTHONUTF8_for_subprocess_only": "1",
+        "exit_code": 0,
+        "python_process": {
+          "python": "3.11.9",
+          "utf8_mode": 1,
+          "preferred_encoding": "utf-8"
+        },
+        "passed": 141,
+        "failed": 0,
+        "log_file": "final_cross_platform_utf8_mode.log",
+        "no_user_environment_changes": true,
+        "no_personal_configuration_changes": true,
+        "no_model_calls": true,
+        "skipped": 1,
+        "total_tests": 142,
+        "log_sha256": "8e64fd06be360fc5186b606b453ea38c17598f9b44e8ce15376d082a4a528ea1",
+        "skip_test": "tests/test_codex_installer.py::test_non_executable_uv_is_rejected",
+        "skip_reason": "POSIX executable permission bit; explicitly skipped on Windows by existing test"
+      }
+    ],
+    "source_hashes_at_check": {
+      "demo/app.py": "5ae399e3abffed45e75e09c377843fe3241b987a0513e15e5337bf7014e04641",
+      "demo/easy.py": "20b0c74e2db95713a760c52cbc60659374ce63454590c81c1d082a25cabb3128",
+      "demo/tour.py": "52bef7ebfa25f9765679d3dd4af6cb60fc062c65cdfd7c06a4c47e8103bd2c91",
+      "tests/test_demo.py": "9b8ecc8fe0bb944d387b982aee37856ff07e1fbe819b35b10f304b21258ff7a2",
+      "tests/test_release.py": "78fbaa164455b216d445c2baa315385845684ee06a14aa11fb1543f36ec2e6c2",
+      "scripts/build_plugin.py": "fd76cbc69cee8d17075b3378709fdba086560a22336fb97d94b3c917777d3c39",
+      "scripts/build_codex_plugin.py": "02a4251f6668b91ec718c40a82ab30bb8e1b7fab3fd30f8fee4f5e9d8ce453e5",
+      "scripts/plugin_smoke.py": "94ae474c2f0c6affd8d79a52bc52269453dbea9f32457cdeba8518e4354f1198",
+      "plugins/codex/install.py": "6633d6e8778887a20a1a0344530a73ce5baa26399b7b45dd684888531270016e",
+      "tests/test_plugin_bundle.py": "ae7944b88b2547f03c12bce750ab7d3a0e375d778c5574d7566b295148bce0b4",
+      "tests/test_codex_bundle.py": "01d5221cc86a0f598ae7c710d41b5872ae65075e65237ff57ad65e655ff5e7b4",
+      "tests/test_codex_installer.py": "d2862dd60cd44d1603b1860373022e85ebacfb2a6ab4fcb6d08194e41b1839c6",
+      "tests/test_plugin_smoke_environment.py": "886b3c8bac1b32566c6602052e09486d4b504301b3e7b70a1b9e7a65ce858a04",
+      ".github/workflows/ci.yml": "86f8c40d4080f40c92df196a008d2821ed185cb944b1e702143ae121a0d5d88f"
+    },
+    "runtime_and_plugin_file_count": 42,
+    "runtime_and_plugin_hash_inventory_sha256": "04f47b42c171358dd927ad0b8878e7d11fe1ee6aa8221784c6f1b4d033cbc1f4",
+    "runtime_and_plugin_tracked_diff_against_upstream": "",
+    "runtime_and_plugin_tracked_files_unchanged_from_upstream": true,
+    "rebuilt_local_bundles": [
+      {
+        "artifact": "tomc-memory-0.1.0.mcpb",
+        "bytes": 84418,
+        "sha256": "83b1e3893d291e910f760d6f9ae091a692749e80a89bae8bb409d5e497b5528e",
+        "matches_published_preview_3_sha256": true,
+        "expected_published_digest_supplied_by_parent": true,
+        "builder_utf8_mode": 0
+      },
+      {
+        "artifact": "tomc-memory-codex-0.1.0.zip",
+        "bytes": 90444,
+        "sha256": "8db8ac312d6dd5e8b07a28cc66f98027a852fbec5de447ba682363acc9bf9a10",
+        "matches_published_preview_3_sha256": true,
+        "expected_published_digest_supplied_by_parent": true,
+        "builder_utf8_mode": 0
+      }
+    ],
+    "local_output_only": true,
+    "no_published_release_changes": true,
+    "no_tracked_files_modified_by_this_verification": true,
+    "no_prior_receipts_overwritten": true,
+    "no_user_environment_changes": true,
+    "no_personal_configuration_changes": true,
+    "no_model_calls": true,
+    "notes": "After integrating Linux and macOS-main changes, the full suite collected 142 tests. Each Windows run passed 141 with the expected single POSIX permission-bit check skipped. Rebuilt local packages match the supplied preview.3 published hashes; these checks do not add GUI or model integration acceptance."
+  },
+  "local_receipt_provenance": [
+    {
+      "local_receipt": "outputs/windows_installation_feedback_20261002/full_install_summary_portable.json",
+      "sha256": "46203f0ab4690888e6319be3c0726a2ddf7aa02052fabf88ff22de3c9e505324"
+    },
+    {
+      "local_receipt": "outputs/windows_installation_feedback_20261002/preview3_full_install_summary_portable.json",
+      "sha256": "f79dc5b528ddf036443286e025c26dc951368f8faab96d78279352fea9b27ad5"
+    },
+    {
+      "local_receipt": "outputs/plugin_user_trial_20261002/codex_original_install_receipt.json",
+      "sha256": "060f5812aa8fed700f69306b1f173ef673f5eccda3b93c42f86163780c3eef9b"
+    },
+    {
+      "local_receipt": "outputs/plugin_user_trial_20261002/codex_host_receipt.json",
+      "sha256": "e7eed5a2628174dfb031a815f1749edb61f7c09fb993af48c20641da4bcb07a7"
+    },
+    {
+      "local_receipt": "outputs/plugin_user_trial_20261002/actual_profile_summary_20261002T165253Z.json",
+      "sha256": "882cf45ebd4384d00a64f894884d76a118199e4e378a44f351946389ecaf9419"
+    },
+    {
+      "local_receipt": "outputs/plugin_user_trial_20261002/actual_compilation_summary_20261002T165627Z.json",
+      "sha256": "9fe9908972d35ddec195d3774b32640eae63d72e462046e2fa5f78f6a35223aa"
+    },
+    {
+      "local_receipt": "outputs/api_plugin_preview_20261002/preview_acceptance.json",
+      "sha256": "64c8584d0e86c450548825cc5efcbb7cdf210b936584de49c4406d7a71323ca5"
+    },
+    {
+      "local_receipt": "outputs/claude_cursor_user_trial_20261002/trial_report.json",
+      "sha256": "d218eb8bc297b16be4d7013937339ca0fa7652db58865cbedffe4f9c0bf315be"
+    },
+    {
+      "local_receipt": "outputs/windows_utf8_feedback_20261002/summary.json",
+      "sha256": "979dd6d03e8d7b0e0011f9db48686be4cd7602a477efe608a06e45321c073c91"
+    },
+    {
+      "local_receipt": "outputs/windows_utf8_feedback_20261002/final_cross_platform_summary.json",
+      "sha256": "dbfe29076d9f3e88cade23342a89c69682d028743b25b8b4d1ea6468708699b6"
+    }
+  ],
+  "remaining_acceptance": [
+    "Desktop GUI installation",
+    "Permanent Codex personal-profile installation",
+    "Preview.3 Windows Codex default model-selected plugin use",
+    "Claude Desktop and Cursor model-driven use",
+    "Claude Code interactive VS Code panel and macOS/Linux use",
+    "Cold-install timing (latest tests reused dependency caches)"
+  ]
+}

@@ -1,0 +1,6 @@
+{
+  "source": "paper/EXPERIMENT_MATRIX_20260904.csv",
+  "freeze_date": "2026-09-04",
+  "sha256": "8eedafde1f1e32a5af31105ce4a6b813a2132a929d8d56ba17c530f91871bfcd",
+  "excluded_column": "evidence_location"
+}

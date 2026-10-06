@@ -1,0 +1,110 @@
+{
+  "id": "preferences",
+  "title": "01 / Preferences that change · 偏好更新",
+  "messages": [
+    {
+      "role": "user",
+      "content": "Session 1: We discussed the reading list and weekend plans.\ndrink = coffee\nseat = window\ncontact = phone"
+    },
+    {
+      "role": "assistant",
+      "content": "The notes have been saved. The library closes at six; the botanical garden has a new map. These are background notes, not preference updates."
+    },
+    {
+      "role": "user",
+      "content": "Session 2: We discussed the reading list and weekend plans.\ndrink = coffee\nseat = window\ncontact = phone"
+    },
+    {
+      "role": "assistant",
+      "content": "The notes have been saved. The library closes at six; the botanical garden has a new map. These are background notes, not preference updates."
+    },
+    {
+      "role": "user",
+      "content": "Session 3: We discussed the reading list and weekend plans.\ndrink = coffee\nseat = window\ncontact = phone"
+    },
+    {
+      "role": "assistant",
+      "content": "The notes have been saved. The library closes at six; the botanical garden has a new map. These are background notes, not preference updates."
+    },
+    {
+      "role": "user",
+      "content": "Session 4: We discussed the reading list and weekend plans.\ndrink = coffee\nseat = window\ncontact = phone"
+    },
+    {
+      "role": "assistant",
+      "content": "The notes have been saved. The library closes at six; the botanical garden has a new map. These are background notes, not preference updates."
+    },
+    {
+      "role": "user",
+      "content": "Session 5: We discussed the reading list and weekend plans.\ndrink = coffee\nseat = window\ncontact = phone"
+    },
+    {
+      "role": "assistant",
+      "content": "The notes have been saved. The library closes at six; the botanical garden has a new map. These are background notes, not preference updates."
+    },
+    {
+      "role": "user",
+      "content": "Session 6: We discussed the reading list and weekend plans.\ndrink = coffee\nseat = window\ncontact = phone"
+    },
+    {
+      "role": "assistant",
+      "content": "The notes have been saved. The library closes at six; the botanical garden has a new map. These are background notes, not preference updates."
+    },
+    {
+      "role": "user",
+      "content": "Session 7: We discussed the reading list and weekend plans.\ndrink = coffee\nseat = window\ncontact = phone"
+    },
+    {
+      "role": "assistant",
+      "content": "The notes have been saved. The library closes at six; the botanical garden has a new map. These are background notes, not preference updates."
+    },
+    {
+      "role": "user",
+      "content": "Session 8: We discussed the reading list and weekend plans.\ndrink = coffee\nseat = window\ncontact = phone"
+    },
+    {
+      "role": "assistant",
+      "content": "The notes have been saved. The library closes at six; the botanical garden has a new map. These are background notes, not preference updates."
+    },
+    {
+      "role": "user",
+      "content": "Session 9: We discussed the reading list and weekend plans.\ndrink = coffee\nseat = window\ncontact = phone"
+    },
+    {
+      "role": "assistant",
+      "content": "The notes have been saved. The library closes at six; the botanical garden has a new map. These are background notes, not preference updates."
+    },
+    {
+      "role": "user",
+      "content": "Session 10: We discussed the reading list and weekend plans.\ndrink = tea\nseat = window\ncontact = phone"
+    },
+    {
+      "role": "assistant",
+      "content": "The notes have been saved. The library closes at six; the botanical garden has a new map. These are background notes, not preference updates."
+    },
+    {
+      "role": "user",
+      "content": "Session 11: We discussed the reading list and weekend plans.\ndrink = tea\nseat = aisle\ncontact = phone"
+    },
+    {
+      "role": "assistant",
+      "content": "The notes have been saved. The library closes at six; the botanical garden has a new map. These are background notes, not preference updates."
+    },
+    {
+      "role": "user",
+      "content": "Session 12: We discussed the reading list and weekend plans.\ndrink = tea\nseat = aisle\ncontact = email"
+    },
+    {
+      "role": "assistant",
+      "content": "The notes have been saved. The library closes at six; the botanical garden has a new map. These are background notes, not preference updates."
+    },
+    {
+      "role": "user",
+      "content": "backup_drink copies drink\ndrink = decaf tea"
+    }
+  ],
+  "query": "What are the current drink, seat, contact and backup_drink preferences?",
+  "strategy": "tomc_raw",
+  "budget": 320,
+  "note": "Normalized assignments illustrate latest-write and snapshot-copy semantics. Free prose is not silently converted into preferences."
+}

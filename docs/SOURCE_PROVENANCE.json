@@ -1,0 +1,32 @@
+[
+  {
+    "file": "src/tomc/_vendor/reference.py",
+    "origin": "private evidence repository: code/tomc_reference.py",
+    "sha256": "ee14cca97d9947aa300d6e855784890f5d662fa24d47cef60784b0fcc0e74f59",
+    "modifications": "none"
+  },
+  {
+    "file": "src/tomc/_vendor/tomc2.py",
+    "origin": "tomc-code-agent-api-repro-v2/src/tomc_research/tomc2.py",
+    "sha256": "8f3874f7d25a566c5223baf90f4facc4a7760d34a87777bc9f6023c99f65e34f",
+    "modifications": "none"
+  },
+  {
+    "file": "src/tomc/_vendor/utils.py",
+    "origin": "tomc-code-agent-api-repro-v2/src/tomc_research/utils.py",
+    "sha256": "df5753d0ed91d0e34ae48c0c27b22248f6bed21ea7a6a2fe21186e50e1284083",
+    "modifications": "none"
+  },
+  {
+    "file": "src/tomc/_vendor/types.py",
+    "origin": "tomc-code-agent-api-repro-v2/src/tomc_research/types.py",
+    "sha256": "5d59672a78e85a27c1c5e778614cf937537c3641db36cd275f5d04a37f02fb16",
+    "modifications": "none"
+  },
+  {
+    "file": "LICENSE",
+    "origin": "PolyForm Noncommercial License 1.0.0, official text from polyformproject/polyform-licenses at tag 1.0.0, with the author's Required Notice line",
+    "sha256": "c003b25bbefb4321db1901456318be60402a18e9306bddf9ce73181aef7869ce",
+    "modifications": "Relicensed from MIT by the sole copyright holder on 2026-10-04; official text unchanged; Required Notice line added"
+  }
+]

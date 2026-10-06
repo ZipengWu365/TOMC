@@ -1,0 +1,247 @@
+{
+  "summary": [
+    {
+      "method": "llmlingua2_full_history_b8192_v1",
+      "name": "LLMLingua-2-D",
+      "color": "#8B929A",
+      "marker": "h",
+      "gain": 94.62944562456556,
+      "saving": -40.653951560228386,
+      "readers": [
+        {
+          "tomc_score": 0.5884375440766418,
+          "baseline_score": 0.30661732795191443,
+          "tomc_input_tokens": 4542.002506265664,
+          "baseline_input_tokens": 3212.8847117794485,
+          "reader": "gpt51",
+          "n": 399,
+          "gain": 91.91268412883832,
+          "saving": -41.36836250654281
+        },
+        {
+          "tomc_score": 0.5361923756061237,
+          "baseline_score": 0.2891730289806315,
+          "tomc_input_tokens": 5077.691729323308,
+          "baseline_input_tokens": 3600.0250626566417,
+          "reader": "dots3",
+          "n": 399,
+          "gain": 85.42267842068951,
+          "saving": -41.0460105401661
+        },
+        {
+          "tomc_score": 0.5684063527968701,
+          "baseline_score": 0.27518671888248897,
+          "tomc_input_tokens": 4649.809523809524,
+          "baseline_input_tokens": 3332.062656641604,
+          "reader": "flash",
+          "n": 399,
+          "gain": 106.55297432416884,
+          "saving": -39.547481633976254
+        }
+      ]
+    },
+    {
+      "method": "longllmlingua_recovery_b8192",
+      "name": "LongLLMLingua",
+      "color": "#8B929A",
+      "marker": "^",
+      "gain": 54.664836316631785,
+      "saving": 20.77163805079599,
+      "readers": [
+        {
+          "tomc_score": 0.5389433676870226,
+          "baseline_score": 0.33516638465877047,
+          "tomc_input_tokens": 4543.281725888325,
+          "baseline_input_tokens": 5963.700507614213,
+          "reader": "gpt51",
+          "n": 394,
+          "gain": 60.79875320304433,
+          "saving": 23.817741684250482
+        },
+        {
+          "tomc_score": 0.5014480574139665,
+          "baseline_score": 0.3383608815426997,
+          "tomc_input_tokens": 5079.093434343435,
+          "baseline_input_tokens": 6075.489898989899,
+          "reader": "dots3",
+          "n": 396,
+          "gain": 48.19918163343768,
+          "saving": 16.400265348348675
+        },
+        {
+          "tomc_score": 0.569485336914878,
+          "baseline_score": 0.3674180156383179,
+          "tomc_input_tokens": 4650.69,
+          "baseline_input_tokens": 5969.84,
+          "reader": "flash",
+          "n": 400,
+          "gain": 54.996574113413345,
+          "saving": 22.09690711978881
+        }
+      ]
+    },
+    {
+      "method": "hybrid_brief_pro_auto_b8192",
+      "name": "BRIEF-Pro",
+      "color": "#8B929A",
+      "marker": "v",
+      "gain": 46.77355643090055,
+      "saving": -238.49871863531595,
+      "readers": [
+        {
+          "tomc_score": 0.5410645050796566,
+          "baseline_score": 0.3626563251563252,
+          "tomc_input_tokens": 4538.358585858586,
+          "baseline_input_tokens": 1391.9772727272727,
+          "reader": "gpt51",
+          "n": 396,
+          "gain": 49.194834764408846,
+          "saving": -226.03683082890225
+        },
+        {
+          "tomc_score": 0.5045075621272095,
+          "baseline_score": 0.35682199832073885,
+          "tomc_input_tokens": 5071.652392947103,
+          "baseline_input_tokens": 1424.7959697732997,
+          "reader": "dots3",
+          "n": 397,
+          "gain": 41.38914206565245,
+          "saving": -255.95639660281026
+        },
+        {
+          "tomc_score": 0.569485336914878,
+          "baseline_score": 0.38032450667158013,
+          "tomc_input_tokens": 4650.69,
+          "baseline_input_tokens": 1394.4975,
+          "reader": "flash",
+          "n": 400,
+          "gain": 49.73669246264034,
+          "saving": -233.50292847423532
+        }
+      ]
+    },
+    {
+      "method": "llmlingua2_hier64k_full_history_b8192_v1",
+      "name": "LLMLingua-2-H",
+      "color": "#8B929A",
+      "marker": "p",
+      "gain": 56.444840073725125,
+      "saving": 42.36206245856455,
+      "readers": [
+        {
+          "tomc_score": 0.5889237012987013,
+          "baseline_score": 0.40323421717171715,
+          "tomc_input_tokens": 4541.5,
+          "baseline_input_tokens": 7854.5125,
+          "reader": "gpt51",
+          "n": 400,
+          "gain": 46.05003152495573,
+          "saving": 42.17973426103784
+        },
+        {
+          "tomc_score": 0.5495934444407727,
+          "baseline_score": 0.36571884787533643,
+          "tomc_input_tokens": 5076.961832061069,
+          "baseline_input_tokens": 8895.236641221374,
+          "reader": "dots3",
+          "n": 393,
+          "gain": 50.27758280265451,
+          "saving": 42.92493795461333
+        },
+        {
+          "tomc_score": 0.5731958858339506,
+          "baseline_score": 0.33131387609843976,
+          "tomc_input_tokens": 4653.853018372703,
+          "baseline_input_tokens": 8021.3280839895015,
+          "reader": "flash",
+          "n": 381,
+          "gain": 73.00690589356513,
+          "saving": 41.981515160042484
+        }
+      ]
+    },
+    {
+      "method": "rag",
+      "name": "BEAM-RAG",
+      "color": "#AC875D",
+      "marker": "D",
+      "gain": 9.415930800079268,
+      "saving": 2.5676030954682667,
+      "readers": [
+        {
+          "tomc_score": 0.577372437566886,
+          "baseline_score": 0.519178974971134,
+          "tomc_input_tokens": 4538.886934673367,
+          "baseline_input_tokens": 4854.69095477387,
+          "reader": "gpt51",
+          "n": 398,
+          "gain": 11.208747927241781,
+          "saving": 6.505131285235688
+        },
+        {
+          "tomc_score": 0.5472018601566373,
+          "baseline_score": 0.5069756921699724,
+          "tomc_input_tokens": 5076.3975,
+          "baseline_input_tokens": 4932.3125,
+          "reader": "dots3",
+          "n": 400,
+          "gain": 7.934535838293866,
+          "saving": -2.921246372771402
+        },
+        {
+          "tomc_score": 0.5626266352121543,
+          "baseline_score": 0.51567679672699,
+          "tomc_input_tokens": 4650.69,
+          "baseline_input_tokens": 4850.4775,
+          "reader": "flash",
+          "n": 400,
+          "gain": 9.104508634702157,
+          "saving": 4.118924373940514
+        }
+      ]
+    },
+    {
+      "method": "light",
+      "name": "LIGHT",
+      "color": "#657B93",
+      "marker": "s",
+      "gain": 11.000041779142748,
+      "saving": 43.14675373700743,
+      "readers": [
+        {
+          "tomc_score": 0.5809379201795004,
+          "baseline_score": 0.5036647022625843,
+          "tomc_input_tokens": 4542.7794486215535,
+          "baseline_input_tokens": 8314.443609022557,
+          "reader": "gpt51",
+          "n": 399,
+          "gain": 15.34219443407212,
+          "saving": 45.36279681190115
+        },
+        {
+          "tomc_score": 0.5472018601566373,
+          "baseline_score": 0.49106311923865315,
+          "tomc_input_tokens": 5076.3975,
+          "baseline_input_tokens": 8464.39,
+          "reader": "dots3",
+          "n": 400,
+          "gain": 11.432082499907947,
+          "saving": 40.026422459267586
+        },
+        {
+          "tomc_score": 0.5626266352121543,
+          "baseline_score": 0.5296513453818562,
+          "tomc_input_tokens": 4650.69,
+          "baseline_input_tokens": 8312.38,
+          "reader": "flash",
+          "n": 400,
+          "gain": 6.225848403448175,
+          "saving": 44.05104193985356
+        }
+      ]
+    }
+  ],
+  "summary_aggregation": "Pool valid 500K and 1M pairs within each reader/comparison; average relative changes equally over readers. Unchanged from previous panel a.",
+  "radar_aggregation": "Mean of 500K and 1M score means with equal tier weight, per reader/ability/method; three-way common valid questions within reader and tier.",
+  "radar_protocol": "A_current_Flash_native"
+}

@@ -1,0 +1,82 @@
+[
+  {
+    "reader_id": "pro",
+    "source_role": "aggregate",
+    "source_sha256": "6d6f68ca707931f66b3362ffa9b6e9721eebec12969f4379c6db6bc1ea8cffaf"
+  },
+  {
+    "reader_id": "pro",
+    "source_role": "private_input_not_distributed",
+    "source_sha256": "2bfc4b061752fa401d31481e04600ff66063b9e22e34d3f4674b020b22f90c3d"
+  },
+  {
+    "reader_id": "pro",
+    "source_role": "private_input_not_distributed",
+    "source_sha256": "b295a45f8ac824684619f97cdd70800f5e73f8eafc1571bab445d27079b18f33"
+  },
+  {
+    "reader_id": "pro",
+    "source_role": "private_input_not_distributed",
+    "source_sha256": "63e8b42e18025c696bf8c14d3fdd59ea69f3e155e71a3866a4d24d491473105a"
+  },
+  {
+    "reader_id": "uob",
+    "source_role": "aggregate",
+    "source_sha256": "3748b1189f16675a5b2c42e643e20272a1b48ebcae67aba26a1bfbf39ac5492f"
+  },
+  {
+    "reader_id": "uob",
+    "source_role": "private_input_not_distributed",
+    "source_sha256": "53f9d5411e503963415ed87cc37b6325937ba296630f3f9d04b5de60626a92ee"
+  },
+  {
+    "reader_id": "uob",
+    "source_role": "private_input_not_distributed",
+    "source_sha256": "ad7a1aeb6d3b46b5461a196cfd7ffd5541e4cf4f77d9e736d4a22d8261349b6a"
+  },
+  {
+    "reader_id": "uob",
+    "source_role": "private_input_not_distributed",
+    "source_sha256": "0a064ae7140062ad89ff8e89f55cff8d7fee5ac54975a3d92e4968d3ea08678f"
+  },
+  {
+    "reader_id": "rednote",
+    "source_role": "aggregate",
+    "source_sha256": "13728fd2f7b8d3c1ab93440bf977fb7ae15e7cb0301326b1819806e8b174e8c0"
+  },
+  {
+    "reader_id": "rednote",
+    "source_role": "private_input_not_distributed",
+    "source_sha256": "55ce53d3ce2f3fa68d233fb8622da4195ee0d0ac8625a308b6148357316d2660"
+  },
+  {
+    "reader_id": "rednote",
+    "source_role": "private_input_not_distributed",
+    "source_sha256": "6f287790b9325a17502fd6307d56a34e420a87944fe847a4a87e717f6d1653f9"
+  },
+  {
+    "reader_id": "rednote",
+    "source_role": "private_input_not_distributed",
+    "source_sha256": "620702bf473983519423c953d6ae54b6329251ebd5048c9d720cfed2a4f4630e"
+  },
+  {
+    "reader_id": "flash",
+    "source_role": "aggregate",
+    "source_sha256": "d56311dd21f26c1432d44e3770e8938d009c062a944b0d5d0993f8ba589b138d"
+  },
+  {
+    "reader_id": "flash",
+    "source_role": "private_input_not_distributed",
+    "source_sha256": "618cb63ffca5e107116f30d38f462f0b5a1a7f06e97d1e6a3b552f35a6f3d689"
+  },
+  {
+    "reader_id": "flash",
+    "source_role": "private_input_not_distributed",
+    "source_sha256": "4f370a76f5a2fcb2d55cd5c714875ff9c0ba6685a697043072bcbef60aaec55d"
+  },
+  {
+    "reader_id": "flash",
+    "source_role": "private_input_not_distributed",
+    "source_sha256": "74cbc244045248c7d3e91088295a265d6925e9147944c8842945978409f9fbe5"
+  }
+]

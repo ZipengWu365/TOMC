@@ -1,0 +1,41 @@
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[project]
+name = "tomc-memory"
+version = "0.1.0"
+description = "CPU memory construction for your existing LLM API, with source-linked records"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "PolyForm-Noncommercial-1.0.0"
+authors = [{name = "Zipeng Wu"}]
+dependencies = []
+
+[project.optional-dependencies]
+demo = ["gradio==5.49.1"]
+mcp = ["mcp==1.30.0"]
+tokenizers = ["tiktoken>=0.8,<1"]
+llmlingua = ["llmlingua==0.2.2"]
+dev = ["pytest>=8,<9", "ruff>=0.11,<1", "build>=1.2,<2", "numpy>=1.26,<3", "matplotlib>=3.8,<4", "mkdocs>=1.6,<2", "huggingface-hub>=0.34,<1"]
+
+[project.scripts]
+tomc = "tomc.cli:main"
+
+[project.urls]
+Repository = "https://github.com/ZipengWu365/TOMC"
+Demo = "https://huggingface.co/spaces/Zipeng365/tomc-agent-memory-demo"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/tomc"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+extend-exclude = ["src/tomc/_vendor"]
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "I"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

@@ -1,0 +1,35 @@
+site_name: TOMC Memory Compiler
+site_description: Task-oriented context compression before your next LLM API request
+docs_dir: docs
+site_dir: site
+markdown_extensions:
+  - md_in_html
+theme:
+  name: mkdocs
+  color_mode: light
+nav:
+  - Overview: index.md
+  - Install TOMC: assistant_plugin.md
+  - macOS setup and tips: macos_usage.md
+  - Manual MCP setup: assistant_setup.md
+  - Usage tips: usage_tips.md
+  - Windows installation feedback: windows_installation_feedback.md
+  - Codex input comparison: codex_retention_20261005.md
+  - Codex input comparison (中文): codex_retention_20261005_zh.md
+  - See the demo: quickstart.md
+  - Linux installation and feedback: linux_validation.md
+  - Platform checks: platform_checks.md
+  - Paper scope and sources: paper_scope.md
+  - Reader models and agent hosts: readers_and_agents.md
+  - Reader models and agent hosts (中文): readers_and_agents_zh.md
+  - Method: method.md
+  - API: api_reference.md
+  - Architecture: architecture.md
+  - LLMLingua comparison: comparison_with_llmlingua.md
+  - Current paper results: paper_results.md
+  - Claims and limitations: claims_and_limitations.md
+  - Reproducibility: reproducibility.md
+  - Legacy compatibility: legacy_extensions.md
+  - Data and licensing: data_and_license.md
+  - Space deployment: huggingface_space.md
+  - Validation: validation.md

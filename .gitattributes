@@ -1,0 +1,9 @@
+# Use LF for maintained text. Preserve original bytes for hash-verified sources.
+* text=auto eol=lf
+benchmarks/current_paper/** -text
+benchmarks/aggregate_results/** -text
+src/tomc/_vendor/** -text
+assets/paper_beam.svg -text
+LICENSE -text
+*.png binary
+*.pdf binary

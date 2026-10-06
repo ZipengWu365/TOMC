@@ -1,0 +1,35 @@
+name: Core, demo, evidence and release checks
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  core:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-14]
+        python: ['3.10', '3.12']
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - run: python -m pip install -e '.[demo,dev,mcp]'
+      - run: python -m pytest -q
+      - run: ruff check . && ruff format --check .
+      - run: python scripts/security_scan.py
+      - run: python scripts/release_manifest.py --check
+      - run: python benchmarks/reproduce/current.py
+      - run: python benchmarks/reproduce/results.py
+      - run: python scripts/benchmarks/codex_retention_report.py --verify-published docs/validation_data/windows_codex_retention_20261005.json
+      - run: mkdocs build --strict
+      - run: python -m build
+      - name: Check packaged MCP runtime on macOS
+        if: runner.os == 'macOS'
+        run: |
+          python -m pip install uv
+          python scripts/build_plugin.py
+          python scripts/build_codex_plugin.py
+          python scripts/plugin_smoke.py outputs/plugins/tomc-memory-0.1.0.mcpb

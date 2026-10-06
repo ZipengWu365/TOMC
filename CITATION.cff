@@ -1,0 +1,12 @@
+cff-version: 1.2.0
+message: "Cite this software release. Free for non-commercial use under the PolyForm Noncommercial License 1.0.0; commercial use requires a separate license. Paper metadata will be added after the authors finalize a public manuscript."
+type: software
+title: "TOMC: Task-Oriented Memory Compilation"
+authors:
+  - family-names: Wu
+    given-names: Zipeng
+version: 0.1.0
+date-released: '2026-09-08'
+license: PolyForm-Noncommercial-1.0.0
+repository-code: 'https://github.com/ZipengWu365/TOMC'
+abstract: "Task-oriented memory compilation for long-context language models, with source-linked records and raw evidence."

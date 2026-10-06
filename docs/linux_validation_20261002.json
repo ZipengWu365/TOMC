@@ -1,0 +1,208 @@
+{
+  "schema": "tomc-linux-validation-v1",
+  "verified_on": "2026-10-02",
+  "status": "pass",
+  "source_commit": "ac42b8464aed5346de8e8658d8bf778ee31c8b95",
+  "environment": {
+    "os": "Ubuntu 24.04.5 LTS x86_64",
+    "python": "3.12.13",
+    "gradio": "5.49.1",
+    "uv": "0.11.20",
+    "codex_cli": "codex-cli 0.159.0-alpha.12.1"
+  },
+  "installation": {
+    "fresh_checkout": true,
+    "system_python": "3.12.3",
+    "system_venv_first_attempt": "failed: ensurepip unavailable",
+    "successful_recovery": "uv venv --python 3.12 --allow-existing --seed .venv",
+    "installed_extras": [
+      "demo"
+    ],
+    "pip_check": "pass",
+    "local_http_status": 200,
+    "offline_api_example": "pass"
+  },
+  "browser": {
+    "tour": "real output on load; source expansion via keyboard; two paper examples",
+    "viewport_widths": [
+      1440,
+      390,
+      320
+    ],
+    "horizontal_overflow": false,
+    "prepare_button_visible_without_scroll": true,
+    "easy_handoff": "one-click example; exact clipboard; late old responses never reappear after editing",
+    "upload": "JSONL imported and compiled",
+    "assistant_setup": "visible",
+    "compile": "edited input produced updated state and preserved snapshot",
+    "compare": "pass",
+    "research": "history selector updates scores; limits and resource measurements visible",
+    "page_errors": [],
+    "external_requests": []
+  },
+  "api_migration_example": {
+    "counter": "default lexical estimator",
+    "memory_budget": 64,
+    "memory_before": 93,
+    "memory_after": 45,
+    "message_content_before": 138,
+    "message_content_after": 90,
+    "provider_framing_included": false,
+    "billed_usage": false
+  },
+  "plugins": {
+    "release_tag": "v0.1.0-assistant-preview.2",
+    "tag_commit": "11071dae7bfb8fac488790bd0123ae823510718f",
+    "downloaded_assets": [
+      {
+        "name": "tomc-memory-0.1.0.mcpb",
+        "bytes": 84418,
+        "sha256": "83b1e3893d291e910f760d6f9ae091a692749e80a89bae8bb409d5e497b5528e",
+        "github_digest_verified": true
+      },
+      {
+        "name": "tomc-memory-0.1.0.mcpb.sha256",
+        "bytes": 90,
+        "sha256": "9abaf0d69a994bdd5ebf2a95d41e08055605fe1e3dcf96c7d721e25b69a46910",
+        "github_digest_verified": true
+      },
+      {
+        "name": "tomc-memory-codex-0.1.0.zip",
+        "bytes": 89242,
+        "sha256": "36242fa2362d95c23fb55eb4ab6a6102845f77a3e6d6b503e514ce7112e6973e",
+        "github_digest_verified": true
+      },
+      {
+        "name": "tomc-memory-codex-0.1.0.zip.sha256",
+        "bytes": 95,
+        "sha256": "0e27b6cb697209ac5a0c36aa56fd0b3fabf4b17cfcd59fd4da80dcf4e90188d1",
+        "github_digest_verified": true
+      }
+    ],
+    "runtime_entries_match_source_commit": true,
+    "claude_extracted_runtime": {
+      "status": "pass",
+      "tools": [
+        "forget_memory",
+        "list_memories",
+        "prepare_context",
+        "recall_memory",
+        "remember_memory"
+      ],
+      "checks": "locked isolated runtime; Chinese notes; restart recall; notebook isolation; prepare; delete; external database; path with spaces and Chinese"
+    },
+    "codex_native_install": {
+      "status": "pass",
+      "cli_version": "codex-cli 0.159.0-alpha.12.1",
+      "installed": true,
+      "enabled": true,
+      "skill": "tomc-memory:tomc-memory",
+      "runtime_status": "connected",
+      "tools": [
+        "forget_memory",
+        "list_memories",
+        "prepare_context",
+        "recall_memory",
+        "remember_memory"
+      ],
+      "reinstall_checks": [
+        "same directory",
+        "moved directory",
+        "marketplace source updated",
+        "cached runtime paths updated",
+        "old directory removed"
+      ],
+      "backend_checks": [
+        "five real tools",
+        "exact retry deduplication",
+        "restart persistence",
+        "Unicode recall",
+        "notebook isolation",
+        "stateless prepare",
+        "exact deletion",
+        "missing notebook error",
+        "external database"
+      ]
+    },
+    "packaging_fix": {
+      "zip_creator_metadata": 0,
+      "regression": "compare complete bundles with simulated host creator defaults 0 and 3",
+      "checks": [
+        {
+          "artifact": "tomc-memory-0.1.0.mcpb",
+          "bytes": 84418,
+          "sha256": "83b1e3893d291e910f760d6f9ae091a692749e80a89bae8bb409d5e497b5528e",
+          "byte_identical_to_downloaded_preview_2": true,
+          "source_entries_identical": true,
+          "source_entry_count": 37
+        },
+        {
+          "artifact": "tomc-memory-codex-0.1.0.zip",
+          "bytes": 89242,
+          "sha256": "36242fa2362d95c23fb55eb4ab6a6102845f77a3e6d6b503e514ce7112e6973e",
+          "byte_identical_to_downloaded_preview_2": true,
+          "source_entries_identical": true,
+          "source_entry_count": 41
+        }
+      ]
+    }
+  },
+  "screenshots": [
+    {
+      "path": "docs/assets/linux_demo_desktop_20261002.png",
+      "bytes": 220151,
+      "sha256": "f23d5de08376120b1b1ad8e1bacae29c706e3b8d35ab3fb33d8821e3080c6b75"
+    },
+    {
+      "path": "docs/assets/linux_demo_mobile_20261002.png",
+      "bytes": 165137,
+      "sha256": "1105b95b0f0eafa127f83d9445e5d3c5231a56ced7d1dc4e36d9d836eaa10ef4"
+    }
+  ],
+  "scope": {
+    "inputs": "bundled synthetic examples and test notes only",
+    "model_calls": 0,
+    "personal_settings_changed": false,
+    "temporary_settings_and_databases": true,
+    "desktop_gui_installation_tested": false,
+    "model_automatic_tool_choice_tested": false,
+    "shell_sandbox_execution_tested": false,
+    "hosted_deployment_tested": false
+  },
+  "documented_combined_install": {
+    "status": "pass",
+    "fresh_environment": true,
+    "creation_command": "uv venv --python 3.12 --seed .venv",
+    "installed_extras": [
+      "demo",
+      "mcp"
+    ],
+    "python": "3.12.13",
+    "gradio": "5.49.1",
+    "mcp": "1.30.0",
+    "pip_check": "pass",
+    "imports": [
+      "demo.app",
+      "tomc",
+      "mcp"
+    ],
+    "offline_api_example": "pass",
+    "cursor_links": {
+      "default_store": "pass",
+      "custom_store": "pass",
+      "absolute_environment_interpreter": true,
+      "generated_database": false
+    },
+    "model_calls": 0,
+    "personal_settings_changed": false
+  },
+  "repository_checks": {
+    "pytest": "128 passed",
+    "ruff_lint": "pass",
+    "ruff_format": "pass",
+    "mkdocs_strict": "pass",
+    "wheel_and_sdist": "pass",
+    "frozen_current_results": "pass",
+    "historical_statistics": "pass"
+  }
+}

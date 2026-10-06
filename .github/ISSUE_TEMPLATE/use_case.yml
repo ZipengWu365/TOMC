@@ -1,0 +1,26 @@
+name: Share a use case or method boundary
+description: Help identify which memory operations or traces need better support.
+body:
+  - type: textarea
+    id: task
+    attributes:
+      label: What are you trying to remember or recover?
+      description: Describe the task without private data.
+    validations:
+      required: true
+  - type: textarea
+    id: example
+    attributes:
+      label: Small synthetic example
+      description: Include the query and what a useful memory representation would preserve.
+    validations:
+      required: true
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Closest task type
+      options:
+        - Explicit state updates
+        - Software-agent trace
+        - Original wording or open semantics
+        - Integration or another task

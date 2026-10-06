@@ -1,0 +1,4819 @@
+{
+  "schema_version": 1,
+  "status": "complete and audited",
+  "exported_utc": "2026-10-05T19:42:10.270453+00:00",
+  "started_utc": "2026-10-05T19:30:05.094132+00:00",
+  "finished_utc": "2026-10-05T19:34:17.382112+00:00",
+  "provenance": {
+    "results_sha256": "e0a8b77315da6abd39cbe1e7915af7732c695189490d298da518c5da32dfdc2a",
+    "corpus_sha256": "7fd26565a350cca2d36f17a06c9078ef46334e5d887c1ce74e312423fb90ff8e",
+    "report_helper_sha256": "647ad9af66c2c2cde2f4d2450794c1309986200bb2f4ea3e060ed65454e738d0",
+    "generator_design": "Three synthetic seeds at three nested history lengths; five current-value questions per case"
+  },
+  "profile": {
+    "model": "gpt-6.1-sol",
+    "provider": "openai",
+    "effort": "ultra"
+  },
+  "config_overrides": [],
+  "measurement_context": {
+    "platform": "Windows desktop",
+    "codex_cli_version": "0.160.0",
+    "python_version": "3.11.9",
+    "assistant_preview_release": "v0.1.0-assistant-preview.4",
+    "repository_source_commit": "ad89208dad0528f1a10235e7b572602e2f5f15c2",
+    "installed_sources_byte_identical_to_repository": true,
+    "runtime_source_sha256": {
+      "easy.py": "6d41ebb4eddcfb266ee94ecd10083baaacf354e0b32a76d4817c6b45f41117be",
+      "mcp_server.py": "511008a5962fca9eb6ce3d94da23b8d518072de4e9f8778c381caf26dfa6ab60",
+      "compiler.py": "b28c9ee7c7969297dcd5e7c8c6298915b6df28f8e3b46dd6b2e79706b680b0cf"
+    },
+    "preparation": "Installed native MCP tool invoked outside the answering model; no model call or notebook operation",
+    "answering": "Original model/provider/effort with one fresh ephemeral answering turn per condition",
+    "equal_temporary_thread_controls": {
+      "approvalPolicy": "never",
+      "sandbox": "read-only",
+      "environments": [],
+      "runtimeWorkspaceRoots": [],
+      "developerInstructions": "Same synthetic-benchmark instruction for all conditions"
+    }
+  },
+  "personal_config_unchanged": true,
+  "model_answering_turns": 36,
+  "task": "Answer these questions about our report project, using the latest information: (1) What is the current report deadline? (2) What is the current page limit for the report? (3) Who currently owns the evaluation section? (4) When is the weekly project sync now? (5) Where will the final presentation be held?",
+  "questions": {
+    "deadline": "What is the current report deadline?",
+    "page_limit": "What is the current page limit for the report?",
+    "eval_owner": "Who currently owns the evaluation section?",
+    "meeting": "When is the weekly project sync now?",
+    "venue": "Where will the final presentation be held?"
+  },
+  "cases": {
+    "s11-10k": {
+      "seed": 11,
+      "length": "10k",
+      "history_sha256": "3babcb72335c7c3c256f2e7e2a06c21aec56512a552dd646e73bd9b22f1d80d5",
+      "history_characters": 41776,
+      "history_lexical_tokens": 8993,
+      "history_cl100k_tokens": 9970,
+      "expected": {
+        "deadline": "May 26",
+        "page_limit": "10 pages",
+        "eval_owner": "Bob",
+        "meeting": "Friday at 2pm",
+        "venue": "Nairobi"
+      },
+      "runs": {
+        "full": {
+          "status": "completed",
+          "budget": null,
+          "budget_omitted": false,
+          "selected_method": "full_history",
+          "prompt_sha256": "021b30125da3c4df64374aa07a576c03adafbad80ccfa12a4d89cbbd564d12d1",
+          "evidence_sha256": "3babcb72335c7c3c256f2e7e2a06c21aec56512a552dd646e73bd9b22f1d80d5",
+          "evidence_lexical_tokens": 8993,
+          "retained_evidence_header_counts": {
+            "STATE": 0,
+            "REL": 0,
+            "COUNT": 0,
+            "RAW": 0
+          },
+          "actual_lexical_evidence_retention_pct": 100.0,
+          "evidence_cl100k_tokens": 9970,
+          "user_prompt_cl100k_tokens": 10071,
+          "provider_minus_cl100k_user_prompt_residual": 18886,
+          "provider_usage": {
+            "inputTokens": 28957,
+            "cachedInputTokens": 0,
+            "cacheWriteInputTokens": 0,
+            "outputTokens": 341,
+            "reasoningOutputTokens": 302,
+            "totalTokens": 29298
+          },
+          "raw_usage_updates": [
+            {
+              "total": {
+                "totalTokens": 29298,
+                "inputTokens": 28957,
+                "cachedInputTokens": 0,
+                "cacheWriteInputTokens": 0,
+                "outputTokens": 341,
+                "reasoningOutputTokens": 302
+              },
+              "last": {
+                "totalTokens": 29298,
+                "inputTokens": 28957,
+                "cachedInputTokens": 0,
+                "cacheWriteInputTokens": 0,
+                "outputTokens": 341,
+                "reasoningOutputTokens": 302
+              },
+              "modelContextWindow": 258400
+            }
+          ],
+          "item_types": [
+            "userMessage",
+            "reasoning",
+            "agentMessage"
+          ],
+          "answer": "{\"deadline\":\"May 26\",\"page_limit\":\"under 10 pages\",\"eval_owner\":\"Bob\",\"meeting\":\"Friday at 2pm\",\"venue\":\"Nairobi\"}",
+          "original_grading": {
+            "got": {
+              "deadline": "May 26",
+              "page_limit": "under 10 pages",
+              "eval_owner": "Bob",
+              "meeting": "Friday at 2pm",
+              "venue": "Nairobi"
+            },
+            "strict_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "strict_correct": 5,
+            "claude_legacy_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "claude_legacy_correct": 5
+          },
+          "regraded_value_matches": {
+            "deadline": true,
+            "page_limit": true,
+            "eval_owner": true,
+            "meeting": true,
+            "venue": true
+          },
+          "checked_value_score": 5,
+          "regraded": {
+            "got": {
+              "deadline": "May 26",
+              "page_limit": "under 10 pages",
+              "eval_owner": "Bob",
+              "meeting": "Friday at 2pm",
+              "venue": "Nairobi"
+            },
+            "value_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "value_correct": 5,
+            "claude_legacy_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "claude_legacy_correct": 5,
+            "required_values": 5
+          },
+          "duration_seconds": 7.969,
+          "paired_provider_input_decrease_pct": 0.0
+        },
+        "40": {
+          "status": "completed",
+          "budget": 3597,
+          "budget_omitted": false,
+          "selected_method": "tomc_raw",
+          "prompt_sha256": "516dd7ff8151fdee4df6cc86b0444d7230fba00a3eeb79fb84a43998aa78fb59",
+          "evidence_sha256": "1ce9c86b01a2f993c7091394a6dc01d53fb5839903969122a89e0be11b80f267",
+          "evidence_lexical_tokens": 3593,
+          "retained_evidence_header_counts": {
+            "STATE": 0,
+            "REL": 0,
+            "COUNT": 0,
+            "RAW": 213
+          },
+          "actual_lexical_evidence_retention_pct": 39.95329700878461,
+          "evidence_cl100k_tokens": 4020,
+          "user_prompt_cl100k_tokens": 4121,
+          "provider_minus_cl100k_user_prompt_residual": 19047,
+          "provider_usage": {
+            "inputTokens": 23168,
+            "cachedInputTokens": 0,
+            "cacheWriteInputTokens": 0,
+            "outputTokens": 203,
+            "reasoningOutputTokens": 164,
+            "totalTokens": 23371
+          },
+          "raw_usage_updates": [
+            {
+              "total": {
+                "totalTokens": 23371,
+                "inputTokens": 23168,
+                "cachedInputTokens": 0,
+                "cacheWriteInputTokens": 0,
+                "outputTokens": 203,
+                "reasoningOutputTokens": 164
+              },
+              "last": {
+                "totalTokens": 23371,
+                "inputTokens": 23168,
+                "cachedInputTokens": 0,
+                "cacheWriteInputTokens": 0,
+                "outputTokens": 203,
+                "reasoningOutputTokens": 164
+              },
+              "modelContextWindow": 258400
+            }
+          ],
+          "item_types": [
+            "userMessage",
+            "reasoning",
+            "agentMessage"
+          ],
+          "answer": "{\"deadline\":\"May 26\",\"page_limit\":\"Under 10 pages\",\"eval_owner\":\"Bob\",\"meeting\":\"Friday at 2pm\",\"venue\":\"Nairobi\"}",
+          "original_grading": {
+            "got": {
+              "deadline": "May 26",
+              "page_limit": "Under 10 pages",
+              "eval_owner": "Bob",
+              "meeting": "Friday at 2pm",
+              "venue": "Nairobi"
+            },
+            "strict_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "strict_correct": 5,
+            "claude_legacy_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "claude_legacy_correct": 5
+          },
+          "regraded_value_matches": {
+            "deadline": true,
+            "page_limit": true,
+            "eval_owner": true,
+            "meeting": true,
+            "venue": true
+          },
+          "checked_value_score": 5,
+          "regraded": {
+            "got": {
+              "deadline": "May 26",
+              "page_limit": "Under 10 pages",
+              "eval_owner": "Bob",
+              "meeting": "Friday at 2pm",
+              "venue": "Nairobi"
+            },
+            "value_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "value_correct": 5,
+            "claude_legacy_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "claude_legacy_correct": 5,
+            "required_values": 5
+          },
+          "duration_seconds": 6.094,
+          "paired_provider_input_decrease_pct": 19.9917118486031
+        },
+        "60": {
+          "status": "completed",
+          "budget": 5395,
+          "budget_omitted": false,
+          "selected_method": "tomc_raw",
+          "prompt_sha256": "1dfa84a8aed54abce8324e753ddc7183a24b02742a54f683c85b8190639e7332",
+          "evidence_sha256": "1d888da812e46195877ed67f9b79e6e2ed3df14a67998fbf0c1346ba8617a9b8",
+          "evidence_lexical_tokens": 5392,
+          "retained_evidence_header_counts": {
+            "STATE": 0,
+            "REL": 0,
+            "COUNT": 0,
+            "RAW": 314
+          },
+          "actual_lexical_evidence_retention_pct": 59.957744912709884,
+          "evidence_cl100k_tokens": 6005,
+          "user_prompt_cl100k_tokens": 6106,
+          "provider_minus_cl100k_user_prompt_residual": 19019,
+          "provider_usage": {
+            "inputTokens": 25125,
+            "cachedInputTokens": 0,
+            "cacheWriteInputTokens": 0,
+            "outputTokens": 207,
+            "reasoningOutputTokens": 168,
+            "totalTokens": 25332
+          },
+          "raw_usage_updates": [
+            {
+              "total": {
+                "totalTokens": 25332,
+                "inputTokens": 25125,
+                "cachedInputTokens": 0,
+                "cacheWriteInputTokens": 0,
+                "outputTokens": 207,
+                "reasoningOutputTokens": 168
+              },
+              "last": {
+                "totalTokens": 25332,
+                "inputTokens": 25125,
+                "cachedInputTokens": 0,
+                "cacheWriteInputTokens": 0,
+                "outputTokens": 207,
+                "reasoningOutputTokens": 168
+              },
+              "modelContextWindow": 258400
+            }
+          ],
+          "item_types": [
+            "userMessage",
+            "reasoning",
+            "agentMessage"
+          ],
+          "answer": "{\"deadline\":\"May 26\",\"page_limit\":\"under 10 pages\",\"eval_owner\":\"Bob\",\"meeting\":\"Friday at 2pm\",\"venue\":\"Nairobi\"}",
+          "original_grading": {
+            "got": {
+              "deadline": "May 26",
+              "page_limit": "under 10 pages",
+              "eval_owner": "Bob",
+              "meeting": "Friday at 2pm",
+              "venue": "Nairobi"
+            },
+            "strict_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "strict_correct": 5,
+            "claude_legacy_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "claude_legacy_correct": 5
+          },
+          "regraded_value_matches": {
+            "deadline": true,
+            "page_limit": true,
+            "eval_owner": true,
+            "meeting": true,
+            "venue": true
+          },
+          "checked_value_score": 5,
+          "regraded": {
+            "got": {
+              "deadline": "May 26",
+              "page_limit": "under 10 pages",
+              "eval_owner": "Bob",
+              "meeting": "Friday at 2pm",
+              "venue": "Nairobi"
+            },
+            "value_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "value_correct": 5,
+            "claude_legacy_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "claude_legacy_correct": 5,
+            "required_values": 5
+          },
+          "duration_seconds": 5.625,
+          "paired_provider_input_decrease_pct": 13.23341506371516
+        },
+        "80": {
+          "status": "completed",
+          "budget": 7195,
+          "budget_omitted": true,
+          "selected_method": "tomc_raw",
+          "prompt_sha256": "ec1b455326deb95522a053b4c4da1784c593b26b9f0b298f16ca57de735945b8",
+          "evidence_sha256": "e7b0ae9476e9da8f60498b1c78e6f52988a883ba7a4b2acfb26b9e441827210d",
+          "evidence_lexical_tokens": 7189,
+          "retained_evidence_header_counts": {
+            "STATE": 0,
+            "REL": 0,
+            "COUNT": 0,
+            "RAW": 416
+          },
+          "actual_lexical_evidence_retention_pct": 79.93995329700878,
+          "evidence_cl100k_tokens": 7995,
+          "user_prompt_cl100k_tokens": 8096,
+          "provider_minus_cl100k_user_prompt_residual": 18988,
+          "provider_usage": {
+            "inputTokens": 27084,
+            "cachedInputTokens": 0,
+            "cacheWriteInputTokens": 0,
+            "outputTokens": 182,
+            "reasoningOutputTokens": 143,
+            "totalTokens": 27266
+          },
+          "raw_usage_updates": [
+            {
+              "total": {
+                "totalTokens": 27266,
+                "inputTokens": 27084,
+                "cachedInputTokens": 0,
+                "cacheWriteInputTokens": 0,
+                "outputTokens": 182,
+                "reasoningOutputTokens": 143
+              },
+              "last": {
+                "totalTokens": 27266,
+                "inputTokens": 27084,
+                "cachedInputTokens": 0,
+                "cacheWriteInputTokens": 0,
+                "outputTokens": 182,
+                "reasoningOutputTokens": 143
+              },
+              "modelContextWindow": 258400
+            }
+          ],
+          "item_types": [
+            "userMessage",
+            "reasoning",
+            "agentMessage"
+          ],
+          "answer": "{\"deadline\":\"May 26\",\"page_limit\":\"Under 10 pages\",\"eval_owner\":\"Bob\",\"meeting\":\"Friday at 2pm\",\"venue\":\"Nairobi\"}",
+          "original_grading": {
+            "got": {
+              "deadline": "May 26",
+              "page_limit": "Under 10 pages",
+              "eval_owner": "Bob",
+              "meeting": "Friday at 2pm",
+              "venue": "Nairobi"
+            },
+            "strict_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "strict_correct": 5,
+            "claude_legacy_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "claude_legacy_correct": 5
+          },
+          "regraded_value_matches": {
+            "deadline": true,
+            "page_limit": true,
+            "eval_owner": true,
+            "meeting": true,
+            "venue": true
+          },
+          "checked_value_score": 5,
+          "regraded": {
+            "got": {
+              "deadline": "May 26",
+              "page_limit": "Under 10 pages",
+              "eval_owner": "Bob",
+              "meeting": "Friday at 2pm",
+              "venue": "Nairobi"
+            },
+            "value_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "value_correct": 5,
+            "claude_legacy_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "claude_legacy_correct": 5,
+            "required_values": 5
+          },
+          "duration_seconds": 5.141,
+          "paired_provider_input_decrease_pct": 6.468211485996478
+        }
+      }
+    },
+    "s11-20k": {
+      "seed": 11,
+      "length": "20k",
+      "history_sha256": "5e2b454f83e567fe2a35d05dc4fb7489958c0d6a4806b29da710d0b9d637d3a6",
+      "history_characters": 84238,
+      "history_lexical_tokens": 18116,
+      "history_cl100k_tokens": 20063,
+      "expected": {
+        "deadline": "March 31",
+        "page_limit": "18 pages",
+        "eval_owner": "Bob",
+        "meeting": "Tuesday at 9am",
+        "venue": "Osaka"
+      },
+      "runs": {
+        "full": {
+          "status": "completed",
+          "budget": null,
+          "budget_omitted": false,
+          "selected_method": "full_history",
+          "prompt_sha256": "b1bfa8698132ec845001e7decfdba20737f2593358f245f46744c576a57445c2",
+          "evidence_sha256": "5e2b454f83e567fe2a35d05dc4fb7489958c0d6a4806b29da710d0b9d637d3a6",
+          "evidence_lexical_tokens": 18116,
+          "retained_evidence_header_counts": {
+            "STATE": 0,
+            "REL": 0,
+            "COUNT": 0,
+            "RAW": 0
+          },
+          "actual_lexical_evidence_retention_pct": 100.0,
+          "evidence_cl100k_tokens": 20063,
+          "user_prompt_cl100k_tokens": 20164,
+          "provider_minus_cl100k_user_prompt_residual": 18622,
+          "provider_usage": {
+            "inputTokens": 38786,
+            "cachedInputTokens": 18304,
+            "cacheWriteInputTokens": 0,
+            "outputTokens": 355,
+            "reasoningOutputTokens": 316,
+            "totalTokens": 39141
+          },
+          "raw_usage_updates": [
+            {
+              "total": {
+                "totalTokens": 39141,
+                "inputTokens": 38786,
+                "cachedInputTokens": 18304,
+                "cacheWriteInputTokens": 0,
+                "outputTokens": 355,
+                "reasoningOutputTokens": 316
+              },
+              "last": {
+                "totalTokens": 39141,
+                "inputTokens": 38786,
+                "cachedInputTokens": 18304,
+                "cacheWriteInputTokens": 0,
+                "outputTokens": 355,
+                "reasoningOutputTokens": 316
+              },
+              "modelContextWindow": 258400
+            }
+          ],
+          "item_types": [
+            "userMessage",
+            "reasoning",
+            "agentMessage"
+          ],
+          "answer": "{\"deadline\":\"March 31\",\"page_limit\":\"under 18 pages\",\"eval_owner\":\"Bob\",\"meeting\":\"Tuesday at 9am\",\"venue\":\"Osaka\"}",
+          "original_grading": {
+            "got": {
+              "deadline": "March 31",
+              "page_limit": "under 18 pages",
+              "eval_owner": "Bob",
+              "meeting": "Tuesday at 9am",
+              "venue": "Osaka"
+            },
+            "strict_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "strict_correct": 5,
+            "claude_legacy_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "claude_legacy_correct": 5
+          },
+          "regraded_value_matches": {
+            "deadline": true,
+            "page_limit": true,
+            "eval_owner": true,
+            "meeting": true,
+            "venue": true
+          },
+          "checked_value_score": 5,
+          "regraded": {
+            "got": {
+              "deadline": "March 31",
+              "page_limit": "under 18 pages",
+              "eval_owner": "Bob",
+              "meeting": "Tuesday at 9am",
+              "venue": "Osaka"
+            },
+            "value_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "value_correct": 5,
+            "claude_legacy_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "claude_legacy_correct": 5,
+            "required_values": 5
+          },
+          "duration_seconds": 8.64,
+          "paired_provider_input_decrease_pct": 0.0
+        },
+        "40": {
+          "status": "completed",
+          "budget": 7246,
+          "budget_omitted": false,
+          "selected_method": "tomc_raw",
+          "prompt_sha256": "7ce22c54b7f39d57a4d2db176552fe49e186479e8d73105fe06169935ecb8e95",
+          "evidence_sha256": "219f0c8de438803546f392a09fb9cd0d241fb868dd9947672b8e0bab0f801210",
+          "evidence_lexical_tokens": 7244,
+          "retained_evidence_header_counts": {
+            "STATE": 0,
+            "REL": 0,
+            "COUNT": 0,
+            "RAW": 428
+          },
+          "actual_lexical_evidence_retention_pct": 39.98675204239346,
+          "evidence_cl100k_tokens": 8178,
+          "user_prompt_cl100k_tokens": 8279,
+          "provider_minus_cl100k_user_prompt_residual": 18956,
+          "provider_usage": {
+            "inputTokens": 27235,
+            "cachedInputTokens": 0,
+            "cacheWriteInputTokens": 0,
+            "outputTokens": 174,
+            "reasoningOutputTokens": 135,
+            "totalTokens": 27409
+          },
+          "raw_usage_updates": [
+            {
+              "total": {
+                "totalTokens": 27409,
+                "inputTokens": 27235,
+                "cachedInputTokens": 0,
+                "cacheWriteInputTokens": 0,
+                "outputTokens": 174,
+                "reasoningOutputTokens": 135
+              },
+              "last": {
+                "totalTokens": 27409,
+                "inputTokens": 27235,
+                "cachedInputTokens": 0,
+                "cacheWriteInputTokens": 0,
+                "outputTokens": 174,
+                "reasoningOutputTokens": 135
+              },
+              "modelContextWindow": 258400
+            }
+          ],
+          "item_types": [
+            "userMessage",
+            "reasoning",
+            "agentMessage"
+          ],
+          "answer": "{\"deadline\":\"March 31\",\"page_limit\":\"under 18 pages\",\"eval_owner\":\"Bob\",\"meeting\":\"Tuesday at 9am\",\"venue\":\"Osaka\"}",
+          "original_grading": {
+            "got": {
+              "deadline": "March 31",
+              "page_limit": "under 18 pages",
+              "eval_owner": "Bob",
+              "meeting": "Tuesday at 9am",
+              "venue": "Osaka"
+            },
+            "strict_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "strict_correct": 5,
+            "claude_legacy_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "claude_legacy_correct": 5
+          },
+          "regraded_value_matches": {
+            "deadline": true,
+            "page_limit": true,
+            "eval_owner": true,
+            "meeting": true,
+            "venue": true
+          },
+          "checked_value_score": 5,
+          "regraded": {
+            "got": {
+              "deadline": "March 31",
+              "page_limit": "under 18 pages",
+              "eval_owner": "Bob",
+              "meeting": "Tuesday at 9am",
+              "venue": "Osaka"
+            },
+            "value_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "value_correct": 5,
+            "claude_legacy_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "claude_legacy_correct": 5,
+            "required_values": 5
+          },
+          "duration_seconds": 6.015,
+          "paired_provider_input_decrease_pct": 29.781364409838606
+        },
+        "60": {
+          "status": "completed",
+          "budget": 10869,
+          "budget_omitted": false,
+          "selected_method": "tomc_raw",
+          "prompt_sha256": "472b7c9ef9a02b3030fbd472eb849ec2b0434a36481a5e06eb74034c6a9e2e37",
+          "evidence_sha256": "6b93d552b8479a269f46ee412c270826d51c7463316f89f67a6f752a62a5e5f3",
+          "evidence_lexical_tokens": 10863,
+          "retained_evidence_header_counts": {
+            "STATE": 0,
+            "REL": 0,
+            "COUNT": 0,
+            "RAW": 632
+          },
+          "actual_lexical_evidence_retention_pct": 59.963568116582024,
+          "evidence_cl100k_tokens": 12191,
+          "user_prompt_cl100k_tokens": 12292,
+          "provider_minus_cl100k_user_prompt_residual": 18892,
+          "provider_usage": {
+            "inputTokens": 31184,
+            "cachedInputTokens": 0,
+            "cacheWriteInputTokens": 0,
+            "outputTokens": 186,
+            "reasoningOutputTokens": 147,
+            "totalTokens": 31370
+          },
+          "raw_usage_updates": [
+            {
+              "total": {
+                "totalTokens": 31370,
+                "inputTokens": 31184,
+                "cachedInputTokens": 0,
+                "cacheWriteInputTokens": 0,
+                "outputTokens": 186,
+                "reasoningOutputTokens": 147
+              },
+              "last": {
+                "totalTokens": 31370,
+                "inputTokens": 31184,
+                "cachedInputTokens": 0,
+                "cacheWriteInputTokens": 0,
+                "outputTokens": 186,
+                "reasoningOutputTokens": 147
+              },
+              "modelContextWindow": 258400
+            }
+          ],
+          "item_types": [
+            "userMessage",
+            "reasoning",
+            "agentMessage"
+          ],
+          "answer": "{\"deadline\":\"March 31\",\"page_limit\":\"Under 18 pages\",\"eval_owner\":\"Bob\",\"meeting\":\"Tuesday at 9am\",\"venue\":\"Osaka\"}",
+          "original_grading": {
+            "got": {
+              "deadline": "March 31",
+              "page_limit": "Under 18 pages",
+              "eval_owner": "Bob",
+              "meeting": "Tuesday at 9am",
+              "venue": "Osaka"
+            },
+            "strict_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "strict_correct": 5,
+            "claude_legacy_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "claude_legacy_correct": 5
+          },
+          "regraded_value_matches": {
+            "deadline": true,
+            "page_limit": true,
+            "eval_owner": true,
+            "meeting": true,
+            "venue": true
+          },
+          "checked_value_score": 5,
+          "regraded": {
+            "got": {
+              "deadline": "March 31",
+              "page_limit": "Under 18 pages",
+              "eval_owner": "Bob",
+              "meeting": "Tuesday at 9am",
+              "venue": "Osaka"
+            },
+            "value_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "value_correct": 5,
+            "claude_legacy_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "claude_legacy_correct": 5,
+            "required_values": 5
+          },
+          "duration_seconds": 5.531,
+          "paired_provider_input_decrease_pct": 19.5998556180065
+        },
+        "80": {
+          "status": "completed",
+          "budget": 14493,
+          "budget_omitted": true,
+          "selected_method": "tomc_raw",
+          "prompt_sha256": "05ac4849e614a90d31594816186c9240c547e285c0f02a1454428666595170df",
+          "evidence_sha256": "82b9434f25d4088c2626b15bc17f56b4a888d70b30022952d9557ba3c6d12c93",
+          "evidence_lexical_tokens": 14489,
+          "retained_evidence_header_counts": {
+            "STATE": 0,
+            "REL": 0,
+            "COUNT": 0,
+            "RAW": 837
+          },
+          "actual_lexical_evidence_retention_pct": 79.97902406712298,
+          "evidence_cl100k_tokens": 16212,
+          "user_prompt_cl100k_tokens": 16313,
+          "provider_minus_cl100k_user_prompt_residual": 18823,
+          "provider_usage": {
+            "inputTokens": 35136,
+            "cachedInputTokens": 0,
+            "cacheWriteInputTokens": 0,
+            "outputTokens": 205,
+            "reasoningOutputTokens": 166,
+            "totalTokens": 35341
+          },
+          "raw_usage_updates": [
+            {
+              "total": {
+                "totalTokens": 35341,
+                "inputTokens": 35136,
+                "cachedInputTokens": 0,
+                "cacheWriteInputTokens": 0,
+                "outputTokens": 205,
+                "reasoningOutputTokens": 166
+              },
+              "last": {
+                "totalTokens": 35341,
+                "inputTokens": 35136,
+                "cachedInputTokens": 0,
+                "cacheWriteInputTokens": 0,
+                "outputTokens": 205,
+                "reasoningOutputTokens": 166
+              },
+              "modelContextWindow": 258400
+            }
+          ],
+          "item_types": [
+            "userMessage",
+            "reasoning",
+            "agentMessage"
+          ],
+          "answer": "{\"deadline\":\"March 31\",\"page_limit\":\"Under 18 pages\",\"eval_owner\":\"Bob\",\"meeting\":\"Tuesday at 9am\",\"venue\":\"Osaka\"}",
+          "original_grading": {
+            "got": {
+              "deadline": "March 31",
+              "page_limit": "Under 18 pages",
+              "eval_owner": "Bob",
+              "meeting": "Tuesday at 9am",
+              "venue": "Osaka"
+            },
+            "strict_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "strict_correct": 5,
+            "claude_legacy_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "claude_legacy_correct": 5
+          },
+          "regraded_value_matches": {
+            "deadline": true,
+            "page_limit": true,
+            "eval_owner": true,
+            "meeting": true,
+            "venue": true
+          },
+          "checked_value_score": 5,
+          "regraded": {
+            "got": {
+              "deadline": "March 31",
+              "page_limit": "Under 18 pages",
+              "eval_owner": "Bob",
+              "meeting": "Tuesday at 9am",
+              "venue": "Osaka"
+            },
+            "value_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "value_correct": 5,
+            "claude_legacy_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "claude_legacy_correct": 5,
+            "required_values": 5
+          },
+          "duration_seconds": 5.891,
+          "paired_provider_input_decrease_pct": 9.410612076522451
+        }
+      }
+    },
+    "s11-40k": {
+      "seed": 11,
+      "length": "40k",
+      "history_sha256": "65eb582564e6b4f2f5c0892e0c2a29e8c24e8230d9232ef0eca5118bf2eadd7e",
+      "history_characters": 170092,
+      "history_lexical_tokens": 36517,
+      "history_cl100k_tokens": 40451,
+      "expected": {
+        "deadline": "May 19",
+        "page_limit": "16 pages",
+        "eval_owner": "Bob",
+        "meeting": "Monday at 11am",
+        "venue": "Lisbon"
+      },
+      "runs": {
+        "full": {
+          "status": "completed",
+          "budget": null,
+          "budget_omitted": false,
+          "selected_method": "full_history",
+          "prompt_sha256": "0e8273553d3f593a4867ac1152bc4439238eaf4bd40f09909c608ecbb78a6fac",
+          "evidence_sha256": "65eb582564e6b4f2f5c0892e0c2a29e8c24e8230d9232ef0eca5118bf2eadd7e",
+          "evidence_lexical_tokens": 36517,
+          "retained_evidence_header_counts": {
+            "STATE": 0,
+            "REL": 0,
+            "COUNT": 0,
+            "RAW": 0
+          },
+          "actual_lexical_evidence_retention_pct": 100.0,
+          "evidence_cl100k_tokens": 40451,
+          "user_prompt_cl100k_tokens": 40552,
+          "provider_minus_cl100k_user_prompt_residual": 18094,
+          "provider_usage": {
+            "inputTokens": 58646,
+            "cachedInputTokens": 0,
+            "cacheWriteInputTokens": 0,
+            "outputTokens": 403,
+            "reasoningOutputTokens": 366,
+            "totalTokens": 59049
+          },
+          "raw_usage_updates": [
+            {
+              "total": {
+                "totalTokens": 59049,
+                "inputTokens": 58646,
+                "cachedInputTokens": 0,
+                "cacheWriteInputTokens": 0,
+                "outputTokens": 403,
+                "reasoningOutputTokens": 366
+              },
+              "last": {
+                "totalTokens": 59049,
+                "inputTokens": 58646,
+                "cachedInputTokens": 0,
+                "cacheWriteInputTokens": 0,
+                "outputTokens": 403,
+                "reasoningOutputTokens": 366
+              },
+              "modelContextWindow": 258400
+            }
+          ],
+          "item_types": [
+            "userMessage",
+            "reasoning",
+            "agentMessage"
+          ],
+          "answer": "{\"deadline\":\"May 19\",\"page_limit\":\"16 pages\",\"eval_owner\":\"Bob\",\"meeting\":\"Monday at 11am\",\"venue\":\"Lisbon\"}",
+          "original_grading": {
+            "got": {
+              "deadline": "May 19",
+              "page_limit": "16 pages",
+              "eval_owner": "Bob",
+              "meeting": "Monday at 11am",
+              "venue": "Lisbon"
+            },
+            "strict_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "strict_correct": 5,
+            "claude_legacy_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "claude_legacy_correct": 5
+          },
+          "regraded_value_matches": {
+            "deadline": true,
+            "page_limit": true,
+            "eval_owner": true,
+            "meeting": true,
+            "venue": true
+          },
+          "checked_value_score": 5,
+          "regraded": {
+            "got": {
+              "deadline": "May 19",
+              "page_limit": "16 pages",
+              "eval_owner": "Bob",
+              "meeting": "Monday at 11am",
+              "venue": "Lisbon"
+            },
+            "value_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "value_correct": 5,
+            "claude_legacy_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "claude_legacy_correct": 5,
+            "required_values": 5
+          },
+          "duration_seconds": 9.516,
+          "paired_provider_input_decrease_pct": 0.0
+        },
+        "40": {
+          "status": "completed",
+          "budget": 14606,
+          "budget_omitted": false,
+          "selected_method": "tomc_raw",
+          "prompt_sha256": "f4b8dc07c87f82ee656cccf99d21f969f50f9680a46be5e0efb22781d6aedd49",
+          "evidence_sha256": "aa0203e5c84379efbef986ff0151024d51b2e9724757c9b74c2b99bba7e450c0",
+          "evidence_lexical_tokens": 14598,
+          "retained_evidence_header_counts": {
+            "STATE": 0,
+            "REL": 0,
+            "COUNT": 0,
+            "RAW": 856
+          },
+          "actual_lexical_evidence_retention_pct": 39.975901634855,
+          "evidence_cl100k_tokens": 16755,
+          "user_prompt_cl100k_tokens": 16856,
+          "provider_minus_cl100k_user_prompt_residual": 18756,
+          "provider_usage": {
+            "inputTokens": 35612,
+            "cachedInputTokens": 0,
+            "cacheWriteInputTokens": 0,
+            "outputTokens": 160,
+            "reasoningOutputTokens": 123,
+            "totalTokens": 35772
+          },
+          "raw_usage_updates": [
+            {
+              "total": {
+                "totalTokens": 35772,
+                "inputTokens": 35612,
+                "cachedInputTokens": 0,
+                "cacheWriteInputTokens": 0,
+                "outputTokens": 160,
+                "reasoningOutputTokens": 123
+              },
+              "last": {
+                "totalTokens": 35772,
+                "inputTokens": 35612,
+                "cachedInputTokens": 0,
+                "cacheWriteInputTokens": 0,
+                "outputTokens": 160,
+                "reasoningOutputTokens": 123
+              },
+              "modelContextWindow": 258400
+            }
+          ],
+          "item_types": [
+            "userMessage",
+            "reasoning",
+            "agentMessage"
+          ],
+          "answer": "{\"deadline\":\"May 19\",\"page_limit\":\"16 pages\",\"eval_owner\":\"Bob\",\"meeting\":\"Monday at 11am\",\"venue\":\"Lisbon\"}",
+          "original_grading": {
+            "got": {
+              "deadline": "May 19",
+              "page_limit": "16 pages",
+              "eval_owner": "Bob",
+              "meeting": "Monday at 11am",
+              "venue": "Lisbon"
+            },
+            "strict_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "strict_correct": 5,
+            "claude_legacy_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "claude_legacy_correct": 5
+          },
+          "regraded_value_matches": {
+            "deadline": true,
+            "page_limit": true,
+            "eval_owner": true,
+            "meeting": true,
+            "venue": true
+          },
+          "checked_value_score": 5,
+          "regraded": {
+            "got": {
+              "deadline": "May 19",
+              "page_limit": "16 pages",
+              "eval_owner": "Bob",
+              "meeting": "Monday at 11am",
+              "venue": "Lisbon"
+            },
+            "value_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "value_correct": 5,
+            "claude_legacy_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "claude_legacy_correct": 5,
+            "required_values": 5
+          },
+          "duration_seconds": 5.578,
+          "paired_provider_input_decrease_pct": 39.27633598199366
+        },
+        "60": {
+          "status": "completed",
+          "budget": 21910,
+          "budget_omitted": false,
+          "selected_method": "tomc_raw",
+          "prompt_sha256": "28ae267db5e402b48b533083cd636725823f6ea3d19be29eee6cc1e5573a43b6",
+          "evidence_sha256": "a31f9fa2a4e8d030f62880a118774dd31ad54b4d0bd1c8af7c3a5c1764c723a0",
+          "evidence_lexical_tokens": 21903,
+          "retained_evidence_header_counts": {
+            "STATE": 0,
+            "REL": 0,
+            "COUNT": 0,
+            "RAW": 1270
+          },
+          "actual_lexical_evidence_retention_pct": 59.98028315579045,
+          "evidence_cl100k_tokens": 24861,
+          "user_prompt_cl100k_tokens": 24962,
+          "provider_minus_cl100k_user_prompt_residual": 18616,
+          "provider_usage": {
+            "inputTokens": 43578,
+            "cachedInputTokens": 18304,
+            "cacheWriteInputTokens": 0,
+            "outputTokens": 190,
+            "reasoningOutputTokens": 153,
+            "totalTokens": 43768
+          },
+          "raw_usage_updates": [
+            {
+              "total": {
+                "totalTokens": 43768,
+                "inputTokens": 43578,
+                "cachedInputTokens": 18304,
+                "cacheWriteInputTokens": 0,
+                "outputTokens": 190,
+                "reasoningOutputTokens": 153
+              },
+              "last": {
+                "totalTokens": 43768,
+                "inputTokens": 43578,
+                "cachedInputTokens": 18304,
+                "cacheWriteInputTokens": 0,
+                "outputTokens": 190,
+                "reasoningOutputTokens": 153
+              },
+              "modelContextWindow": 258400
+            }
+          ],
+          "item_types": [
+            "userMessage",
+            "reasoning",
+            "agentMessage"
+          ],
+          "answer": "{\"deadline\":\"May 19\",\"page_limit\":\"16 pages\",\"eval_owner\":\"Bob\",\"meeting\":\"Monday at 11am\",\"venue\":\"Lisbon\"}",
+          "original_grading": {
+            "got": {
+              "deadline": "May 19",
+              "page_limit": "16 pages",
+              "eval_owner": "Bob",
+              "meeting": "Monday at 11am",
+              "venue": "Lisbon"
+            },
+            "strict_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "strict_correct": 5,
+            "claude_legacy_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "claude_legacy_correct": 5
+          },
+          "regraded_value_matches": {
+            "deadline": true,
+            "page_limit": true,
+            "eval_owner": true,
+            "meeting": true,
+            "venue": true
+          },
+          "checked_value_score": 5,
+          "regraded": {
+            "got": {
+              "deadline": "May 19",
+              "page_limit": "16 pages",
+              "eval_owner": "Bob",
+              "meeting": "Monday at 11am",
+              "venue": "Lisbon"
+            },
+            "value_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "value_correct": 5,
+            "claude_legacy_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "claude_legacy_correct": 5,
+            "required_values": 5
+          },
+          "duration_seconds": 6.0,
+          "paired_provider_input_decrease_pct": 25.69314190226102
+        },
+        "80": {
+          "status": "completed",
+          "budget": 29214,
+          "budget_omitted": true,
+          "selected_method": "tomc_raw",
+          "prompt_sha256": "c2c629f7062935faac8e34338f91dfd56492757cde7773016d1b8c71fcf69412",
+          "evidence_sha256": "9f3a6be55be590bc0d3859dfb90712c486de94a98e8f6b4caa541274bf32d762",
+          "evidence_lexical_tokens": 29210,
+          "retained_evidence_header_counts": {
+            "STATE": 0,
+            "REL": 0,
+            "COUNT": 0,
+            "RAW": 1678
+          },
+          "actual_lexical_evidence_retention_pct": 79.99014157789523,
+          "evidence_cl100k_tokens": 33156,
+          "user_prompt_cl100k_tokens": 33257,
+          "provider_minus_cl100k_user_prompt_residual": 18474,
+          "provider_usage": {
+            "inputTokens": 51731,
+            "cachedInputTokens": 0,
+            "cacheWriteInputTokens": 0,
+            "outputTokens": 157,
+            "reasoningOutputTokens": 120,
+            "totalTokens": 51888
+          },
+          "raw_usage_updates": [
+            {
+              "total": {
+                "totalTokens": 51888,
+                "inputTokens": 51731,
+                "cachedInputTokens": 0,
+                "cacheWriteInputTokens": 0,
+                "outputTokens": 157,
+                "reasoningOutputTokens": 120
+              },
+              "last": {
+                "totalTokens": 51888,
+                "inputTokens": 51731,
+                "cachedInputTokens": 0,
+                "cacheWriteInputTokens": 0,
+                "outputTokens": 157,
+                "reasoningOutputTokens": 120
+              },
+              "modelContextWindow": 258400
+            }
+          ],
+          "item_types": [
+            "userMessage",
+            "reasoning",
+            "agentMessage"
+          ],
+          "answer": "{\"deadline\":\"May 19\",\"page_limit\":\"16 pages\",\"eval_owner\":\"Bob\",\"meeting\":\"Monday at 11am\",\"venue\":\"Lisbon\"}",
+          "original_grading": {
+            "got": {
+              "deadline": "May 19",
+              "page_limit": "16 pages",
+              "eval_owner": "Bob",
+              "meeting": "Monday at 11am",
+              "venue": "Lisbon"
+            },
+            "strict_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "strict_correct": 5,
+            "claude_legacy_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "claude_legacy_correct": 5
+          },
+          "regraded_value_matches": {
+            "deadline": true,
+            "page_limit": true,
+            "eval_owner": true,
+            "meeting": true,
+            "venue": true
+          },
+          "checked_value_score": 5,
+          "regraded": {
+            "got": {
+              "deadline": "May 19",
+              "page_limit": "16 pages",
+              "eval_owner": "Bob",
+              "meeting": "Monday at 11am",
+              "venue": "Lisbon"
+            },
+            "value_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "value_correct": 5,
+            "claude_legacy_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "claude_legacy_correct": 5,
+            "required_values": 5
+          },
+          "duration_seconds": 5.078,
+          "paired_provider_input_decrease_pct": 11.791085496027009
+        }
+      }
+    },
+    "s23-10k": {
+      "seed": 23,
+      "length": "10k",
+      "history_sha256": "2ee7e1d1495b0405f541f79710af9e11b5186a90765248899be6114fe7437148",
+      "history_characters": 42527,
+      "history_lexical_tokens": 9163,
+      "history_cl100k_tokens": 10158,
+      "expected": {
+        "deadline": "May 5",
+        "page_limit": "8 pages",
+        "eval_owner": "Chen",
+        "meeting": "Tuesday at 2pm",
+        "venue": "Porto"
+      },
+      "runs": {
+        "full": {
+          "status": "completed",
+          "budget": null,
+          "budget_omitted": false,
+          "selected_method": "full_history",
+          "prompt_sha256": "ca5f01d51116a4db03418cd8508360e2b47870e9942a4de7221509fda04944d3",
+          "evidence_sha256": "2ee7e1d1495b0405f541f79710af9e11b5186a90765248899be6114fe7437148",
+          "evidence_lexical_tokens": 9163,
+          "retained_evidence_header_counts": {
+            "STATE": 0,
+            "REL": 0,
+            "COUNT": 0,
+            "RAW": 0
+          },
+          "actual_lexical_evidence_retention_pct": 100.0,
+          "evidence_cl100k_tokens": 10158,
+          "user_prompt_cl100k_tokens": 10259,
+          "provider_minus_cl100k_user_prompt_residual": 18868,
+          "provider_usage": {
+            "inputTokens": 29127,
+            "cachedInputTokens": 18304,
+            "cacheWriteInputTokens": 0,
+            "outputTokens": 173,
+            "reasoningOutputTokens": 136,
+            "totalTokens": 29300
+          },
+          "raw_usage_updates": [
+            {
+              "total": {
+                "totalTokens": 29300,
+                "inputTokens": 29127,
+                "cachedInputTokens": 18304,
+                "cacheWriteInputTokens": 0,
+                "outputTokens": 173,
+                "reasoningOutputTokens": 136
+              },
+              "last": {
+                "totalTokens": 29300,
+                "inputTokens": 29127,
+                "cachedInputTokens": 18304,
+                "cacheWriteInputTokens": 0,
+                "outputTokens": 173,
+                "reasoningOutputTokens": 136
+              },
+              "modelContextWindow": 258400
+            }
+          ],
+          "item_types": [
+            "userMessage",
+            "reasoning",
+            "agentMessage"
+          ],
+          "answer": "{\"deadline\":\"May 5\",\"page_limit\":\"8 pages\",\"eval_owner\":\"Chen\",\"meeting\":\"Tuesday at 2pm\",\"venue\":\"Porto\"}",
+          "original_grading": {
+            "got": {
+              "deadline": "May 5",
+              "page_limit": "8 pages",
+              "eval_owner": "Chen",
+              "meeting": "Tuesday at 2pm",
+              "venue": "Porto"
+            },
+            "strict_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "strict_correct": 5,
+            "claude_legacy_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "claude_legacy_correct": 5
+          },
+          "regraded_value_matches": {
+            "deadline": true,
+            "page_limit": true,
+            "eval_owner": true,
+            "meeting": true,
+            "venue": true
+          },
+          "checked_value_score": 5,
+          "regraded": {
+            "got": {
+              "deadline": "May 5",
+              "page_limit": "8 pages",
+              "eval_owner": "Chen",
+              "meeting": "Tuesday at 2pm",
+              "venue": "Porto"
+            },
+            "value_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "value_correct": 5,
+            "claude_legacy_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "claude_legacy_correct": 5,
+            "required_values": 5
+          },
+          "duration_seconds": 5.265,
+          "paired_provider_input_decrease_pct": 0.0
+        },
+        "40": {
+          "status": "completed",
+          "budget": 3665,
+          "budget_omitted": false,
+          "selected_method": "tomc_raw",
+          "prompt_sha256": "ee97be09ae1ded060185a2918b389e6abe60a8589ba547af158893c48ac8da7c",
+          "evidence_sha256": "5cba6ca221e79f533235677b0605f4bebbe277a22d48f30b638676046e88a4d8",
+          "evidence_lexical_tokens": 3665,
+          "retained_evidence_header_counts": {
+            "STATE": 0,
+            "REL": 0,
+            "COUNT": 0,
+            "RAW": 212
+          },
+          "actual_lexical_evidence_retention_pct": 39.99781730874168,
+          "evidence_cl100k_tokens": 4123,
+          "user_prompt_cl100k_tokens": 4224,
+          "provider_minus_cl100k_user_prompt_residual": 19023,
+          "provider_usage": {
+            "inputTokens": 23247,
+            "cachedInputTokens": 18304,
+            "cacheWriteInputTokens": 0,
+            "outputTokens": 152,
+            "reasoningOutputTokens": 115,
+            "totalTokens": 23399
+          },
+          "raw_usage_updates": [
+            {
+              "total": {
+                "totalTokens": 23399,
+                "inputTokens": 23247,
+                "cachedInputTokens": 18304,
+                "cacheWriteInputTokens": 0,
+                "outputTokens": 152,
+                "reasoningOutputTokens": 115
+              },
+              "last": {
+                "totalTokens": 23399,
+                "inputTokens": 23247,
+                "cachedInputTokens": 18304,
+                "cacheWriteInputTokens": 0,
+                "outputTokens": 152,
+                "reasoningOutputTokens": 115
+              },
+              "modelContextWindow": 258400
+            }
+          ],
+          "item_types": [
+            "userMessage",
+            "reasoning",
+            "agentMessage"
+          ],
+          "answer": "{\"deadline\":\"May 5\",\"page_limit\":\"8 pages\",\"eval_owner\":\"Chen\",\"meeting\":\"Tuesday at 2pm\",\"venue\":\"Porto\"}",
+          "original_grading": {
+            "got": {
+              "deadline": "May 5",
+              "page_limit": "8 pages",
+              "eval_owner": "Chen",
+              "meeting": "Tuesday at 2pm",
+              "venue": "Porto"
+            },
+            "strict_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "strict_correct": 5,
+            "claude_legacy_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "claude_legacy_correct": 5
+          },
+          "regraded_value_matches": {
+            "deadline": true,
+            "page_limit": true,
+            "eval_owner": true,
+            "meeting": true,
+            "venue": true
+          },
+          "checked_value_score": 5,
+          "regraded": {
+            "got": {
+              "deadline": "May 5",
+              "page_limit": "8 pages",
+              "eval_owner": "Chen",
+              "meeting": "Tuesday at 2pm",
+              "venue": "Porto"
+            },
+            "value_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "value_correct": 5,
+            "claude_legacy_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "claude_legacy_correct": 5,
+            "required_values": 5
+          },
+          "duration_seconds": 4.812,
+          "paired_provider_input_decrease_pct": 20.187454938716655
+        },
+        "60": {
+          "status": "completed",
+          "budget": 5497,
+          "budget_omitted": false,
+          "selected_method": "tomc_raw",
+          "prompt_sha256": "f5ae1f13346d720eb79cebfd3e36acfc96581cb42c29277c34953261aeaf50fe",
+          "evidence_sha256": "3a3c291a4fc5a304c4556ef22b30af85a4339f50c0d4964f704f9592f44c2159",
+          "evidence_lexical_tokens": 5492,
+          "retained_evidence_header_counts": {
+            "STATE": 0,
+            "REL": 0,
+            "COUNT": 0,
+            "RAW": 314
+          },
+          "actual_lexical_evidence_retention_pct": 59.936701953508674,
+          "evidence_cl100k_tokens": 6138,
+          "user_prompt_cl100k_tokens": 6239,
+          "provider_minus_cl100k_user_prompt_residual": 18996,
+          "provider_usage": {
+            "inputTokens": 25235,
+            "cachedInputTokens": 18304,
+            "cacheWriteInputTokens": 0,
+            "outputTokens": 149,
+            "reasoningOutputTokens": 111,
+            "totalTokens": 25384
+          },
+          "raw_usage_updates": [
+            {
+              "total": {
+                "totalTokens": 25384,
+                "inputTokens": 25235,
+                "cachedInputTokens": 18304,
+                "cacheWriteInputTokens": 0,
+                "outputTokens": 149,
+                "reasoningOutputTokens": 111
+              },
+              "last": {
+                "totalTokens": 25384,
+                "inputTokens": 25235,
+                "cachedInputTokens": 18304,
+                "cacheWriteInputTokens": 0,
+                "outputTokens": 149,
+                "reasoningOutputTokens": 111
+              },
+              "modelContextWindow": 258400
+            }
+          ],
+          "item_types": [
+            "userMessage",
+            "reasoning",
+            "agentMessage"
+          ],
+          "answer": "{\"deadline\":\"May 5\",\"page_limit\":\"8 pages maximum\",\"eval_owner\":\"Chen\",\"meeting\":\"Tuesday at 2pm\",\"venue\":\"Porto\"}",
+          "original_grading": {
+            "got": {
+              "deadline": "May 5",
+              "page_limit": "8 pages maximum",
+              "eval_owner": "Chen",
+              "meeting": "Tuesday at 2pm",
+              "venue": "Porto"
+            },
+            "strict_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "strict_correct": 5,
+            "claude_legacy_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "claude_legacy_correct": 5
+          },
+          "regraded_value_matches": {
+            "deadline": true,
+            "page_limit": true,
+            "eval_owner": true,
+            "meeting": true,
+            "venue": true
+          },
+          "checked_value_score": 5,
+          "regraded": {
+            "got": {
+              "deadline": "May 5",
+              "page_limit": "8 pages maximum",
+              "eval_owner": "Chen",
+              "meeting": "Tuesday at 2pm",
+              "venue": "Porto"
+            },
+            "value_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "value_correct": 5,
+            "claude_legacy_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "claude_legacy_correct": 5,
+            "required_values": 5
+          },
+          "duration_seconds": 5.687,
+          "paired_provider_input_decrease_pct": 13.362172554674355
+        },
+        "80": {
+          "status": "completed",
+          "budget": 7331,
+          "budget_omitted": true,
+          "selected_method": "tomc_raw",
+          "prompt_sha256": "d5a1dde72b69709803d5ddc97f88dd2340e4b67c1221419b37885f704746dd8b",
+          "evidence_sha256": "d764ceca4b499f5ee1029861ccca25f8b34a3958c7503e23a047d5b81cb398c1",
+          "evidence_lexical_tokens": 7328,
+          "retained_evidence_header_counts": {
+            "STATE": 0,
+            "REL": 0,
+            "COUNT": 0,
+            "RAW": 417
+          },
+          "actual_lexical_evidence_retention_pct": 79.97380770490014,
+          "evidence_cl100k_tokens": 8167,
+          "user_prompt_cl100k_tokens": 8268,
+          "provider_minus_cl100k_user_prompt_residual": 18959,
+          "provider_usage": {
+            "inputTokens": 27227,
+            "cachedInputTokens": 18304,
+            "cacheWriteInputTokens": 0,
+            "outputTokens": 120,
+            "reasoningOutputTokens": 82,
+            "totalTokens": 27347
+          },
+          "raw_usage_updates": [
+            {
+              "total": {
+                "totalTokens": 27347,
+                "inputTokens": 27227,
+                "cachedInputTokens": 18304,
+                "cacheWriteInputTokens": 0,
+                "outputTokens": 120,
+                "reasoningOutputTokens": 82
+              },
+              "last": {
+                "totalTokens": 27347,
+                "inputTokens": 27227,
+                "cachedInputTokens": 18304,
+                "cacheWriteInputTokens": 0,
+                "outputTokens": 120,
+                "reasoningOutputTokens": 82
+              },
+              "modelContextWindow": 258400
+            }
+          ],
+          "item_types": [
+            "userMessage",
+            "reasoning",
+            "agentMessage"
+          ],
+          "answer": "{\"deadline\":\"May 5\",\"page_limit\":\"8 pages maximum\",\"eval_owner\":\"Chen\",\"meeting\":\"Tuesday at 2pm\",\"venue\":\"Porto\"}",
+          "original_grading": {
+            "got": {
+              "deadline": "May 5",
+              "page_limit": "8 pages maximum",
+              "eval_owner": "Chen",
+              "meeting": "Tuesday at 2pm",
+              "venue": "Porto"
+            },
+            "strict_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "strict_correct": 5,
+            "claude_legacy_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "claude_legacy_correct": 5
+          },
+          "regraded_value_matches": {
+            "deadline": true,
+            "page_limit": true,
+            "eval_owner": true,
+            "meeting": true,
+            "venue": true
+          },
+          "checked_value_score": 5,
+          "regraded": {
+            "got": {
+              "deadline": "May 5",
+              "page_limit": "8 pages maximum",
+              "eval_owner": "Chen",
+              "meeting": "Tuesday at 2pm",
+              "venue": "Porto"
+            },
+            "value_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "value_correct": 5,
+            "claude_legacy_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "claude_legacy_correct": 5,
+            "required_values": 5
+          },
+          "duration_seconds": 5.578,
+          "paired_provider_input_decrease_pct": 6.523157208088715
+        }
+      }
+    },
+    "s23-20k": {
+      "seed": 23,
+      "length": "20k",
+      "history_sha256": "efb1156225e88acd4adb7cd8e998043021bac1362d217149ca9b242c5b0b7c76",
+      "history_characters": 84629,
+      "history_lexical_tokens": 18247,
+      "history_cl100k_tokens": 20199,
+      "expected": {
+        "deadline": "April 21",
+        "page_limit": "14 pages",
+        "eval_owner": "Alice",
+        "meeting": "Friday at 9am",
+        "venue": "Berlin"
+      },
+      "runs": {
+        "full": {
+          "status": "completed",
+          "budget": null,
+          "budget_omitted": false,
+          "selected_method": "full_history",
+          "prompt_sha256": "6f897f61c1616014b0eee2e5d626e9b783f84485d2c02e5ab2dbf058e8a873d2",
+          "evidence_sha256": "efb1156225e88acd4adb7cd8e998043021bac1362d217149ca9b242c5b0b7c76",
+          "evidence_lexical_tokens": 18247,
+          "retained_evidence_header_counts": {
+            "STATE": 0,
+            "REL": 0,
+            "COUNT": 0,
+            "RAW": 0
+          },
+          "actual_lexical_evidence_retention_pct": 100.0,
+          "evidence_cl100k_tokens": 20199,
+          "user_prompt_cl100k_tokens": 20300,
+          "provider_minus_cl100k_user_prompt_residual": 18608,
+          "provider_usage": {
+            "inputTokens": 38908,
+            "cachedInputTokens": 18304,
+            "cacheWriteInputTokens": 0,
+            "outputTokens": 278,
+            "reasoningOutputTokens": 242,
+            "totalTokens": 39186
+          },
+          "raw_usage_updates": [
+            {
+              "total": {
+                "totalTokens": 39186,
+                "inputTokens": 38908,
+                "cachedInputTokens": 18304,
+                "cacheWriteInputTokens": 0,
+                "outputTokens": 278,
+                "reasoningOutputTokens": 242
+              },
+              "last": {
+                "totalTokens": 39186,
+                "inputTokens": 38908,
+                "cachedInputTokens": 18304,
+                "cacheWriteInputTokens": 0,
+                "outputTokens": 278,
+                "reasoningOutputTokens": 242
+              },
+              "modelContextWindow": 258400
+            }
+          ],
+          "item_types": [
+            "userMessage",
+            "reasoning",
+            "agentMessage"
+          ],
+          "answer": "{\"deadline\":\"April 21\",\"page_limit\":\"14 pages\",\"eval_owner\":\"Alice\",\"meeting\":\"Friday at 9am\",\"venue\":\"Berlin\"}",
+          "original_grading": {
+            "got": {
+              "deadline": "April 21",
+              "page_limit": "14 pages",
+              "eval_owner": "Alice",
+              "meeting": "Friday at 9am",
+              "venue": "Berlin"
+            },
+            "strict_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "strict_correct": 5,
+            "claude_legacy_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "claude_legacy_correct": 5
+          },
+          "regraded_value_matches": {
+            "deadline": true,
+            "page_limit": true,
+            "eval_owner": true,
+            "meeting": true,
+            "venue": true
+          },
+          "checked_value_score": 5,
+          "regraded": {
+            "got": {
+              "deadline": "April 21",
+              "page_limit": "14 pages",
+              "eval_owner": "Alice",
+              "meeting": "Friday at 9am",
+              "venue": "Berlin"
+            },
+            "value_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "value_correct": 5,
+            "claude_legacy_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "claude_legacy_correct": 5,
+            "required_values": 5
+          },
+          "duration_seconds": 16.016,
+          "paired_provider_input_decrease_pct": 0.0
+        },
+        "40": {
+          "status": "completed",
+          "budget": 7298,
+          "budget_omitted": false,
+          "selected_method": "tomc_raw",
+          "prompt_sha256": "976152f2ca0491949d6c5dd31936257210a1dbf3b371211e350be44b38ac2ae2",
+          "evidence_sha256": "68ed76a66659361f521819b6524f3f871a790c930ebb551796a15979d94d346d",
+          "evidence_lexical_tokens": 7291,
+          "retained_evidence_header_counts": {
+            "STATE": 0,
+            "REL": 0,
+            "COUNT": 0,
+            "RAW": 426
+          },
+          "actual_lexical_evidence_retention_pct": 39.957253247109115,
+          "evidence_cl100k_tokens": 8276,
+          "user_prompt_cl100k_tokens": 8377,
+          "provider_minus_cl100k_user_prompt_residual": 18923,
+          "provider_usage": {
+            "inputTokens": 27300,
+            "cachedInputTokens": 0,
+            "cacheWriteInputTokens": 0,
+            "outputTokens": 163,
+            "reasoningOutputTokens": 127,
+            "totalTokens": 27463
+          },
+          "raw_usage_updates": [
+            {
+              "total": {
+                "totalTokens": 27463,
+                "inputTokens": 27300,
+                "cachedInputTokens": 0,
+                "cacheWriteInputTokens": 0,
+                "outputTokens": 163,
+                "reasoningOutputTokens": 127
+              },
+              "last": {
+                "totalTokens": 27463,
+                "inputTokens": 27300,
+                "cachedInputTokens": 0,
+                "cacheWriteInputTokens": 0,
+                "outputTokens": 163,
+                "reasoningOutputTokens": 127
+              },
+              "modelContextWindow": 258400
+            }
+          ],
+          "item_types": [
+            "userMessage",
+            "reasoning",
+            "agentMessage"
+          ],
+          "answer": "{\"deadline\":\"April 21\",\"page_limit\":\"14 pages\",\"eval_owner\":\"Alice\",\"meeting\":\"Friday at 9am\",\"venue\":\"Berlin\"}",
+          "original_grading": {
+            "got": {
+              "deadline": "April 21",
+              "page_limit": "14 pages",
+              "eval_owner": "Alice",
+              "meeting": "Friday at 9am",
+              "venue": "Berlin"
+            },
+            "strict_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "strict_correct": 5,
+            "claude_legacy_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "claude_legacy_correct": 5
+          },
+          "regraded_value_matches": {
+            "deadline": true,
+            "page_limit": true,
+            "eval_owner": true,
+            "meeting": true,
+            "venue": true
+          },
+          "checked_value_score": 5,
+          "regraded": {
+            "got": {
+              "deadline": "April 21",
+              "page_limit": "14 pages",
+              "eval_owner": "Alice",
+              "meeting": "Friday at 9am",
+              "venue": "Berlin"
+            },
+            "value_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "value_correct": 5,
+            "claude_legacy_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "claude_legacy_correct": 5,
+            "required_values": 5
+          },
+          "duration_seconds": 13.109,
+          "paired_provider_input_decrease_pct": 29.83448134059834
+        },
+        "60": {
+          "status": "completed",
+          "budget": 10948,
+          "budget_omitted": false,
+          "selected_method": "tomc_raw",
+          "prompt_sha256": "395c6158e9c23460e839f93d738dc2383bc0f20f2dc461b3e1ec3d95ddfe2b43",
+          "evidence_sha256": "f52c9d07ee2162960abd314e431a99f6402b873c42bbe4852eb38dd60aade0f1",
+          "evidence_lexical_tokens": 10947,
+          "retained_evidence_header_counts": {
+            "STATE": 0,
+            "REL": 0,
+            "COUNT": 0,
+            "RAW": 631
+          },
+          "actual_lexical_evidence_retention_pct": 59.99342357647833,
+          "evidence_cl100k_tokens": 12319,
+          "user_prompt_cl100k_tokens": 12420,
+          "provider_minus_cl100k_user_prompt_residual": 18857,
+          "provider_usage": {
+            "inputTokens": 31277,
+            "cachedInputTokens": 18304,
+            "cacheWriteInputTokens": 0,
+            "outputTokens": 182,
+            "reasoningOutputTokens": 146,
+            "totalTokens": 31459
+          },
+          "raw_usage_updates": [
+            {
+              "total": {
+                "totalTokens": 31459,
+                "inputTokens": 31277,
+                "cachedInputTokens": 18304,
+                "cacheWriteInputTokens": 0,
+                "outputTokens": 182,
+                "reasoningOutputTokens": 146
+              },
+              "last": {
+                "totalTokens": 31459,
+                "inputTokens": 31277,
+                "cachedInputTokens": 18304,
+                "cacheWriteInputTokens": 0,
+                "outputTokens": 182,
+                "reasoningOutputTokens": 146
+              },
+              "modelContextWindow": 258400
+            }
+          ],
+          "item_types": [
+            "userMessage",
+            "reasoning",
+            "agentMessage"
+          ],
+          "answer": "{\"deadline\":\"April 21\",\"page_limit\":\"14 pages\",\"eval_owner\":\"Alice\",\"meeting\":\"Friday at 9am\",\"venue\":\"Berlin\"}",
+          "original_grading": {
+            "got": {
+              "deadline": "April 21",
+              "page_limit": "14 pages",
+              "eval_owner": "Alice",
+              "meeting": "Friday at 9am",
+              "venue": "Berlin"
+            },
+            "strict_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "strict_correct": 5,
+            "claude_legacy_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "claude_legacy_correct": 5
+          },
+          "regraded_value_matches": {
+            "deadline": true,
+            "page_limit": true,
+            "eval_owner": true,
+            "meeting": true,
+            "venue": true
+          },
+          "checked_value_score": 5,
+          "regraded": {
+            "got": {
+              "deadline": "April 21",
+              "page_limit": "14 pages",
+              "eval_owner": "Alice",
+              "meeting": "Friday at 9am",
+              "venue": "Berlin"
+            },
+            "value_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "value_correct": 5,
+            "claude_legacy_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "claude_legacy_correct": 5,
+            "required_values": 5
+          },
+          "duration_seconds": 5.765,
+          "paired_provider_input_decrease_pct": 19.612933072889895
+        },
+        "80": {
+          "status": "completed",
+          "budget": 14598,
+          "budget_omitted": true,
+          "selected_method": "tomc_raw",
+          "prompt_sha256": "28769adb3f76ed7919f92d22383d3138387d8ec383cf59d138d25a3c08605636",
+          "evidence_sha256": "e3e7a99ae018a250f3371a74cbd0ec2cbaa84a922ec52792c4ca61ec3f6dc245",
+          "evidence_lexical_tokens": 14586,
+          "retained_evidence_header_counts": {
+            "STATE": 0,
+            "REL": 0,
+            "COUNT": 0,
+            "RAW": 836
+          },
+          "actual_lexical_evidence_retention_pct": 79.93642790595715,
+          "evidence_cl100k_tokens": 16350,
+          "user_prompt_cl100k_tokens": 16451,
+          "provider_minus_cl100k_user_prompt_residual": 18786,
+          "provider_usage": {
+            "inputTokens": 35237,
+            "cachedInputTokens": 0,
+            "cacheWriteInputTokens": 0,
+            "outputTokens": 202,
+            "reasoningOutputTokens": 166,
+            "totalTokens": 35439
+          },
+          "raw_usage_updates": [
+            {
+              "total": {
+                "totalTokens": 35439,
+                "inputTokens": 35237,
+                "cachedInputTokens": 0,
+                "cacheWriteInputTokens": 0,
+                "outputTokens": 202,
+                "reasoningOutputTokens": 166
+              },
+              "last": {
+                "totalTokens": 35439,
+                "inputTokens": 35237,
+                "cachedInputTokens": 0,
+                "cacheWriteInputTokens": 0,
+                "outputTokens": 202,
+                "reasoningOutputTokens": 166
+              },
+              "modelContextWindow": 258400
+            }
+          ],
+          "item_types": [
+            "userMessage",
+            "reasoning",
+            "agentMessage"
+          ],
+          "answer": "{\"deadline\":\"April 21\",\"page_limit\":\"14 pages\",\"eval_owner\":\"Alice\",\"meeting\":\"Friday at 9am\",\"venue\":\"Berlin\"}",
+          "original_grading": {
+            "got": {
+              "deadline": "April 21",
+              "page_limit": "14 pages",
+              "eval_owner": "Alice",
+              "meeting": "Friday at 9am",
+              "venue": "Berlin"
+            },
+            "strict_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "strict_correct": 5,
+            "claude_legacy_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "claude_legacy_correct": 5
+          },
+          "regraded_value_matches": {
+            "deadline": true,
+            "page_limit": true,
+            "eval_owner": true,
+            "meeting": true,
+            "venue": true
+          },
+          "checked_value_score": 5,
+          "regraded": {
+            "got": {
+              "deadline": "April 21",
+              "page_limit": "14 pages",
+              "eval_owner": "Alice",
+              "meeting": "Friday at 9am",
+              "venue": "Berlin"
+            },
+            "value_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "value_correct": 5,
+            "claude_legacy_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "claude_legacy_correct": 5,
+            "required_values": 5
+          },
+          "duration_seconds": 5.766,
+          "paired_provider_input_decrease_pct": 9.435077618998665
+        }
+      }
+    },
+    "s23-40k": {
+      "seed": 23,
+      "length": "40k",
+      "history_sha256": "5e8fcb045e7fe86c0c197532d1615b50cc4379065cafbf4ba49273256e0e1b17",
+      "history_characters": 170127,
+      "history_lexical_tokens": 36659,
+      "history_cl100k_tokens": 40596,
+      "expected": {
+        "deadline": "March 31",
+        "page_limit": "18 pages",
+        "eval_owner": "Bob",
+        "meeting": "Friday at 11am",
+        "venue": "Porto"
+      },
+      "runs": {
+        "full": {
+          "status": "completed",
+          "budget": null,
+          "budget_omitted": false,
+          "selected_method": "full_history",
+          "prompt_sha256": "d0a1c3a40cc01e3e7943075f71c3ad4b80cbc20c5e9553f0b59a561c18653456",
+          "evidence_sha256": "5e8fcb045e7fe86c0c197532d1615b50cc4379065cafbf4ba49273256e0e1b17",
+          "evidence_lexical_tokens": 36659,
+          "retained_evidence_header_counts": {
+            "STATE": 0,
+            "REL": 0,
+            "COUNT": 0,
+            "RAW": 0
+          },
+          "actual_lexical_evidence_retention_pct": 100.0,
+          "evidence_cl100k_tokens": 40596,
+          "user_prompt_cl100k_tokens": 40697,
+          "provider_minus_cl100k_user_prompt_residual": 18115,
+          "provider_usage": {
+            "inputTokens": 58812,
+            "cachedInputTokens": 28928,
+            "cacheWriteInputTokens": 0,
+            "outputTokens": 354,
+            "reasoningOutputTokens": 317,
+            "totalTokens": 59166
+          },
+          "raw_usage_updates": [
+            {
+              "total": {
+                "totalTokens": 59166,
+                "inputTokens": 58812,
+                "cachedInputTokens": 28928,
+                "cacheWriteInputTokens": 0,
+                "outputTokens": 354,
+                "reasoningOutputTokens": 317
+              },
+              "last": {
+                "totalTokens": 59166,
+                "inputTokens": 58812,
+                "cachedInputTokens": 28928,
+                "cacheWriteInputTokens": 0,
+                "outputTokens": 354,
+                "reasoningOutputTokens": 317
+              },
+              "modelContextWindow": 258400
+            }
+          ],
+          "item_types": [
+            "userMessage",
+            "reasoning",
+            "agentMessage"
+          ],
+          "answer": "{\"deadline\":\"March 31\",\"page_limit\":\"18 pages\",\"eval_owner\":\"Bob\",\"meeting\":\"Friday at 11am\",\"venue\":\"Porto\"}",
+          "original_grading": {
+            "got": {
+              "deadline": "March 31",
+              "page_limit": "18 pages",
+              "eval_owner": "Bob",
+              "meeting": "Friday at 11am",
+              "venue": "Porto"
+            },
+            "strict_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "strict_correct": 5,
+            "claude_legacy_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "claude_legacy_correct": 5
+          },
+          "regraded_value_matches": {
+            "deadline": true,
+            "page_limit": true,
+            "eval_owner": true,
+            "meeting": true,
+            "venue": true
+          },
+          "checked_value_score": 5,
+          "regraded": {
+            "got": {
+              "deadline": "March 31",
+              "page_limit": "18 pages",
+              "eval_owner": "Bob",
+              "meeting": "Friday at 11am",
+              "venue": "Porto"
+            },
+            "value_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "value_correct": 5,
+            "claude_legacy_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "claude_legacy_correct": 5,
+            "required_values": 5
+          },
+          "duration_seconds": 12.032,
+          "paired_provider_input_decrease_pct": 0.0
+        },
+        "40": {
+          "status": "completed",
+          "budget": 14663,
+          "budget_omitted": false,
+          "selected_method": "tomc_raw",
+          "prompt_sha256": "6ab527cc4632bc2fd52eece3a80e55249cc1994b19c19c6729b06b2a253269bd",
+          "evidence_sha256": "ad8c1e0aafb36460cb6c7f6ac182d57e1c039a2706227928a83892ca4f4f0b0f",
+          "evidence_lexical_tokens": 14663,
+          "retained_evidence_header_counts": {
+            "STATE": 0,
+            "REL": 0,
+            "COUNT": 0,
+            "RAW": 861
+          },
+          "actual_lexical_evidence_retention_pct": 39.998363294143324,
+          "evidence_cl100k_tokens": 16965,
+          "user_prompt_cl100k_tokens": 17066,
+          "provider_minus_cl100k_user_prompt_residual": 18725,
+          "provider_usage": {
+            "inputTokens": 35791,
+            "cachedInputTokens": 18304,
+            "cacheWriteInputTokens": 0,
+            "outputTokens": 185,
+            "reasoningOutputTokens": 148,
+            "totalTokens": 35976
+          },
+          "raw_usage_updates": [
+            {
+              "total": {
+                "totalTokens": 35976,
+                "inputTokens": 35791,
+                "cachedInputTokens": 18304,
+                "cacheWriteInputTokens": 0,
+                "outputTokens": 185,
+                "reasoningOutputTokens": 148
+              },
+              "last": {
+                "totalTokens": 35976,
+                "inputTokens": 35791,
+                "cachedInputTokens": 18304,
+                "cacheWriteInputTokens": 0,
+                "outputTokens": 185,
+                "reasoningOutputTokens": 148
+              },
+              "modelContextWindow": 258400
+            }
+          ],
+          "item_types": [
+            "userMessage",
+            "reasoning",
+            "agentMessage"
+          ],
+          "answer": "{\"deadline\":\"March 31\",\"page_limit\":\"18 pages\",\"eval_owner\":\"Bob\",\"meeting\":\"Friday at 11am\",\"venue\":\"Porto\"}",
+          "original_grading": {
+            "got": {
+              "deadline": "March 31",
+              "page_limit": "18 pages",
+              "eval_owner": "Bob",
+              "meeting": "Friday at 11am",
+              "venue": "Porto"
+            },
+            "strict_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "strict_correct": 5,
+            "claude_legacy_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "claude_legacy_correct": 5
+          },
+          "regraded_value_matches": {
+            "deadline": true,
+            "page_limit": true,
+            "eval_owner": true,
+            "meeting": true,
+            "venue": true
+          },
+          "checked_value_score": 5,
+          "regraded": {
+            "got": {
+              "deadline": "March 31",
+              "page_limit": "18 pages",
+              "eval_owner": "Bob",
+              "meeting": "Friday at 11am",
+              "venue": "Porto"
+            },
+            "value_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "value_correct": 5,
+            "claude_legacy_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "claude_legacy_correct": 5,
+            "required_values": 5
+          },
+          "duration_seconds": 8.578,
+          "paired_provider_input_decrease_pct": 39.143372100931785
+        },
+        "60": {
+          "status": "completed",
+          "budget": 21995,
+          "budget_omitted": false,
+          "selected_method": "tomc_raw",
+          "prompt_sha256": "08d89d960008aa7157d6675f2c61c99b9f81ca14db33088a2cf398480692f1ad",
+          "evidence_sha256": "48d3f83fbbd66c40b0f004122c9494493c6bb783a484d7262ac3e280c31ac65d",
+          "evidence_lexical_tokens": 21982,
+          "retained_evidence_header_counts": {
+            "STATE": 0,
+            "REL": 0,
+            "COUNT": 0,
+            "RAW": 1272
+          },
+          "actual_lexical_evidence_retention_pct": 59.963446902534166,
+          "evidence_cl100k_tokens": 25067,
+          "user_prompt_cl100k_tokens": 25168,
+          "provider_minus_cl100k_user_prompt_residual": 18583,
+          "provider_usage": {
+            "inputTokens": 43751,
+            "cachedInputTokens": 0,
+            "cacheWriteInputTokens": 0,
+            "outputTokens": 197,
+            "reasoningOutputTokens": 160,
+            "totalTokens": 43948
+          },
+          "raw_usage_updates": [
+            {
+              "total": {
+                "totalTokens": 43948,
+                "inputTokens": 43751,
+                "cachedInputTokens": 0,
+                "cacheWriteInputTokens": 0,
+                "outputTokens": 197,
+                "reasoningOutputTokens": 160
+              },
+              "last": {
+                "totalTokens": 43948,
+                "inputTokens": 43751,
+                "cachedInputTokens": 0,
+                "cacheWriteInputTokens": 0,
+                "outputTokens": 197,
+                "reasoningOutputTokens": 160
+              },
+              "modelContextWindow": 258400
+            }
+          ],
+          "item_types": [
+            "userMessage",
+            "reasoning",
+            "agentMessage"
+          ],
+          "answer": "{\"deadline\":\"March 31\",\"page_limit\":\"18 pages\",\"eval_owner\":\"Bob\",\"meeting\":\"Friday at 11am\",\"venue\":\"Porto\"}",
+          "original_grading": {
+            "got": {
+              "deadline": "March 31",
+              "page_limit": "18 pages",
+              "eval_owner": "Bob",
+              "meeting": "Friday at 11am",
+              "venue": "Porto"
+            },
+            "strict_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "strict_correct": 5,
+            "claude_legacy_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "claude_legacy_correct": 5
+          },
+          "regraded_value_matches": {
+            "deadline": true,
+            "page_limit": true,
+            "eval_owner": true,
+            "meeting": true,
+            "venue": true
+          },
+          "checked_value_score": 5,
+          "regraded": {
+            "got": {
+              "deadline": "March 31",
+              "page_limit": "18 pages",
+              "eval_owner": "Bob",
+              "meeting": "Friday at 11am",
+              "venue": "Porto"
+            },
+            "value_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "value_correct": 5,
+            "claude_legacy_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "claude_legacy_correct": 5,
+            "required_values": 5
+          },
+          "duration_seconds": 5.75,
+          "paired_provider_input_decrease_pct": 25.60871930898456
+        },
+        "80": {
+          "status": "completed",
+          "budget": 29328,
+          "budget_omitted": true,
+          "selected_method": "tomc_raw",
+          "prompt_sha256": "367e7dd3e283221dbbf6ff2244b2594236b58824cb02c267873c43510a1c05d2",
+          "evidence_sha256": "41973f5abbfb2de79023858213a463c01c82e3bb9b8b14889b8ab10af18045ee",
+          "evidence_lexical_tokens": 29327,
+          "retained_evidence_header_counts": {
+            "STATE": 0,
+            "REL": 0,
+            "COUNT": 0,
+            "RAW": 1684
+          },
+          "actual_lexical_evidence_retention_pct": 79.99945443138111,
+          "evidence_cl100k_tokens": 33347,
+          "user_prompt_cl100k_tokens": 33448,
+          "provider_minus_cl100k_user_prompt_residual": 18437,
+          "provider_usage": {
+            "inputTokens": 51885,
+            "cachedInputTokens": 18304,
+            "cacheWriteInputTokens": 0,
+            "outputTokens": 153,
+            "reasoningOutputTokens": 115,
+            "totalTokens": 52038
+          },
+          "raw_usage_updates": [
+            {
+              "total": {
+                "totalTokens": 52038,
+                "inputTokens": 51885,
+                "cachedInputTokens": 18304,
+                "cacheWriteInputTokens": 0,
+                "outputTokens": 153,
+                "reasoningOutputTokens": 115
+              },
+              "last": {
+                "totalTokens": 52038,
+                "inputTokens": 51885,
+                "cachedInputTokens": 18304,
+                "cacheWriteInputTokens": 0,
+                "outputTokens": 153,
+                "reasoningOutputTokens": 115
+              },
+              "modelContextWindow": 258400
+            }
+          ],
+          "item_types": [
+            "userMessage",
+            "reasoning",
+            "agentMessage"
+          ],
+          "answer": "{\"deadline\":\"March 31\",\"page_limit\":\"18 pages maximum\",\"eval_owner\":\"Bob\",\"meeting\":\"Friday at 11am\",\"venue\":\"Porto\"}",
+          "original_grading": {
+            "got": {
+              "deadline": "March 31",
+              "page_limit": "18 pages maximum",
+              "eval_owner": "Bob",
+              "meeting": "Friday at 11am",
+              "venue": "Porto"
+            },
+            "strict_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "strict_correct": 5,
+            "claude_legacy_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "claude_legacy_correct": 5
+          },
+          "regraded_value_matches": {
+            "deadline": true,
+            "page_limit": true,
+            "eval_owner": true,
+            "meeting": true,
+            "venue": true
+          },
+          "checked_value_score": 5,
+          "regraded": {
+            "got": {
+              "deadline": "March 31",
+              "page_limit": "18 pages maximum",
+              "eval_owner": "Bob",
+              "meeting": "Friday at 11am",
+              "venue": "Porto"
+            },
+            "value_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "value_correct": 5,
+            "claude_legacy_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "claude_legacy_correct": 5,
+            "required_values": 5
+          },
+          "duration_seconds": 5.531,
+          "paired_provider_input_decrease_pct": 11.778208528871659
+        }
+      }
+    },
+    "s37-10k": {
+      "seed": 37,
+      "length": "10k",
+      "history_sha256": "758e842499bb9761d80cf3b86c123ab5e8550121cc68722ea41d17e54b9ac0de",
+      "history_characters": 42088,
+      "history_lexical_tokens": 8999,
+      "history_cl100k_tokens": 10012,
+      "expected": {
+        "deadline": "May 26",
+        "page_limit": "16 pages",
+        "eval_owner": "Lena",
+        "meeting": "Thursday at 2pm",
+        "venue": "Osaka"
+      },
+      "runs": {
+        "full": {
+          "status": "completed",
+          "budget": null,
+          "budget_omitted": false,
+          "selected_method": "full_history",
+          "prompt_sha256": "d47006db9a8e9f495a1ff4be45322b2f8f65602761e707d55918ec7938e04e1c",
+          "evidence_sha256": "758e842499bb9761d80cf3b86c123ab5e8550121cc68722ea41d17e54b9ac0de",
+          "evidence_lexical_tokens": 8999,
+          "retained_evidence_header_counts": {
+            "STATE": 0,
+            "REL": 0,
+            "COUNT": 0,
+            "RAW": 0
+          },
+          "actual_lexical_evidence_retention_pct": 100.0,
+          "evidence_cl100k_tokens": 10012,
+          "user_prompt_cl100k_tokens": 10113,
+          "provider_minus_cl100k_user_prompt_residual": 18872,
+          "provider_usage": {
+            "inputTokens": 28985,
+            "cachedInputTokens": 18304,
+            "cacheWriteInputTokens": 0,
+            "outputTokens": 225,
+            "reasoningOutputTokens": 187,
+            "totalTokens": 29210
+          },
+          "raw_usage_updates": [
+            {
+              "total": {
+                "totalTokens": 29210,
+                "inputTokens": 28985,
+                "cachedInputTokens": 18304,
+                "cacheWriteInputTokens": 0,
+                "outputTokens": 225,
+                "reasoningOutputTokens": 187
+              },
+              "last": {
+                "totalTokens": 29210,
+                "inputTokens": 28985,
+                "cachedInputTokens": 18304,
+                "cacheWriteInputTokens": 0,
+                "outputTokens": 225,
+                "reasoningOutputTokens": 187
+              },
+              "modelContextWindow": 258400
+            }
+          ],
+          "item_types": [
+            "userMessage",
+            "reasoning",
+            "agentMessage"
+          ],
+          "answer": "{\"deadline\":\"May 26\",\"page_limit\":\"16 pages\",\"eval_owner\":\"Lena\",\"meeting\":\"Thursday at 2pm\",\"venue\":\"Osaka\"}",
+          "original_grading": {
+            "got": {
+              "deadline": "May 26",
+              "page_limit": "16 pages",
+              "eval_owner": "Lena",
+              "meeting": "Thursday at 2pm",
+              "venue": "Osaka"
+            },
+            "strict_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "strict_correct": 5,
+            "claude_legacy_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "claude_legacy_correct": 5
+          },
+          "regraded_value_matches": {
+            "deadline": true,
+            "page_limit": true,
+            "eval_owner": true,
+            "meeting": true,
+            "venue": true
+          },
+          "checked_value_score": 5,
+          "regraded": {
+            "got": {
+              "deadline": "May 26",
+              "page_limit": "16 pages",
+              "eval_owner": "Lena",
+              "meeting": "Thursday at 2pm",
+              "venue": "Osaka"
+            },
+            "value_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "value_correct": 5,
+            "claude_legacy_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "claude_legacy_correct": 5,
+            "required_values": 5
+          },
+          "duration_seconds": 6.516,
+          "paired_provider_input_decrease_pct": 0.0
+        },
+        "40": {
+          "status": "completed",
+          "budget": 3599,
+          "budget_omitted": false,
+          "selected_method": "tomc_raw",
+          "prompt_sha256": "80940cb67a9820490ab7963114ca024992ac32d4fd76d789ba043063bc412c87",
+          "evidence_sha256": "5305394147a503822ac3e11984c2f4f6cbe18559a575cccaa31473c1d06b7d9b",
+          "evidence_lexical_tokens": 3598,
+          "retained_evidence_header_counts": {
+            "STATE": 0,
+            "REL": 0,
+            "COUNT": 0,
+            "RAW": 210
+          },
+          "actual_lexical_evidence_retention_pct": 39.98222024669408,
+          "evidence_cl100k_tokens": 4044,
+          "user_prompt_cl100k_tokens": 4145,
+          "provider_minus_cl100k_user_prompt_residual": 19025,
+          "provider_usage": {
+            "inputTokens": 23170,
+            "cachedInputTokens": 18304,
+            "cacheWriteInputTokens": 0,
+            "outputTokens": 147,
+            "reasoningOutputTokens": 109,
+            "totalTokens": 23317
+          },
+          "raw_usage_updates": [
+            {
+              "total": {
+                "totalTokens": 23317,
+                "inputTokens": 23170,
+                "cachedInputTokens": 18304,
+                "cacheWriteInputTokens": 0,
+                "outputTokens": 147,
+                "reasoningOutputTokens": 109
+              },
+              "last": {
+                "totalTokens": 23317,
+                "inputTokens": 23170,
+                "cachedInputTokens": 18304,
+                "cacheWriteInputTokens": 0,
+                "outputTokens": 147,
+                "reasoningOutputTokens": 109
+              },
+              "modelContextWindow": 258400
+            }
+          ],
+          "item_types": [
+            "userMessage",
+            "reasoning",
+            "agentMessage"
+          ],
+          "answer": "{\"deadline\":\"May 26\",\"page_limit\":\"16 pages\",\"eval_owner\":\"Lena\",\"meeting\":\"Thursday at 2pm\",\"venue\":\"Osaka\"}",
+          "original_grading": {
+            "got": {
+              "deadline": "May 26",
+              "page_limit": "16 pages",
+              "eval_owner": "Lena",
+              "meeting": "Thursday at 2pm",
+              "venue": "Osaka"
+            },
+            "strict_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "strict_correct": 5,
+            "claude_legacy_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "claude_legacy_correct": 5
+          },
+          "regraded_value_matches": {
+            "deadline": true,
+            "page_limit": true,
+            "eval_owner": true,
+            "meeting": true,
+            "venue": true
+          },
+          "checked_value_score": 5,
+          "regraded": {
+            "got": {
+              "deadline": "May 26",
+              "page_limit": "16 pages",
+              "eval_owner": "Lena",
+              "meeting": "Thursday at 2pm",
+              "venue": "Osaka"
+            },
+            "value_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "value_correct": 5,
+            "claude_legacy_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "claude_legacy_correct": 5,
+            "required_values": 5
+          },
+          "duration_seconds": 4.89,
+          "paired_provider_input_decrease_pct": 20.06210108676901
+        },
+        "60": {
+          "status": "completed",
+          "budget": 5399,
+          "budget_omitted": false,
+          "selected_method": "tomc_raw",
+          "prompt_sha256": "6ae6ada771fd313644671c89caead84886848cac5febffc5904048982a76d85c",
+          "evidence_sha256": "a6f59390e32d7d73877ee3fc9b77a52e18dfd5b4bbaa32ee033ee1388d5ad470",
+          "evidence_lexical_tokens": 5388,
+          "retained_evidence_header_counts": {
+            "STATE": 0,
+            "REL": 0,
+            "COUNT": 0,
+            "RAW": 312
+          },
+          "actual_lexical_evidence_retention_pct": 59.8733192576953,
+          "evidence_cl100k_tokens": 6029,
+          "user_prompt_cl100k_tokens": 6130,
+          "provider_minus_cl100k_user_prompt_residual": 18990,
+          "provider_usage": {
+            "inputTokens": 25120,
+            "cachedInputTokens": 18304,
+            "cacheWriteInputTokens": 0,
+            "outputTokens": 195,
+            "reasoningOutputTokens": 157,
+            "totalTokens": 25315
+          },
+          "raw_usage_updates": [
+            {
+              "total": {
+                "totalTokens": 25315,
+                "inputTokens": 25120,
+                "cachedInputTokens": 18304,
+                "cacheWriteInputTokens": 0,
+                "outputTokens": 195,
+                "reasoningOutputTokens": 157
+              },
+              "last": {
+                "totalTokens": 25315,
+                "inputTokens": 25120,
+                "cachedInputTokens": 18304,
+                "cacheWriteInputTokens": 0,
+                "outputTokens": 195,
+                "reasoningOutputTokens": 157
+              },
+              "modelContextWindow": 258400
+            }
+          ],
+          "item_types": [
+            "userMessage",
+            "reasoning",
+            "agentMessage"
+          ],
+          "answer": "{\"deadline\":\"May 26\",\"page_limit\":\"16 pages\",\"eval_owner\":\"Lena\",\"meeting\":\"Thursday at 2pm\",\"venue\":\"Osaka\"}",
+          "original_grading": {
+            "got": {
+              "deadline": "May 26",
+              "page_limit": "16 pages",
+              "eval_owner": "Lena",
+              "meeting": "Thursday at 2pm",
+              "venue": "Osaka"
+            },
+            "strict_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "strict_correct": 5,
+            "claude_legacy_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "claude_legacy_correct": 5
+          },
+          "regraded_value_matches": {
+            "deadline": true,
+            "page_limit": true,
+            "eval_owner": true,
+            "meeting": true,
+            "venue": true
+          },
+          "checked_value_score": 5,
+          "regraded": {
+            "got": {
+              "deadline": "May 26",
+              "page_limit": "16 pages",
+              "eval_owner": "Lena",
+              "meeting": "Thursday at 2pm",
+              "venue": "Osaka"
+            },
+            "value_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "value_correct": 5,
+            "claude_legacy_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "claude_legacy_correct": 5,
+            "required_values": 5
+          },
+          "duration_seconds": 6.61,
+          "paired_provider_input_decrease_pct": 13.334483353458682
+        },
+        "80": {
+          "status": "completed",
+          "budget": 7200,
+          "budget_omitted": true,
+          "selected_method": "tomc_raw",
+          "prompt_sha256": "964e0879088ad4572d5fd0e08a18bc74f70e0cdd98ef51cf5349d8e60f0313f6",
+          "evidence_sha256": "a02a89a3a83c3fcfdd79c6440244a456916d41fe56bad4fa3a0be6ee87a2ff78",
+          "evidence_lexical_tokens": 7194,
+          "retained_evidence_header_counts": {
+            "STATE": 0,
+            "REL": 0,
+            "COUNT": 0,
+            "RAW": 414
+          },
+          "actual_lexical_evidence_retention_pct": 79.94221580175575,
+          "evidence_cl100k_tokens": 8041,
+          "user_prompt_cl100k_tokens": 8142,
+          "provider_minus_cl100k_user_prompt_residual": 18950,
+          "provider_usage": {
+            "inputTokens": 27092,
+            "cachedInputTokens": 18304,
+            "cacheWriteInputTokens": 0,
+            "outputTokens": 159,
+            "reasoningOutputTokens": 121,
+            "totalTokens": 27251
+          },
+          "raw_usage_updates": [
+            {
+              "total": {
+                "totalTokens": 27251,
+                "inputTokens": 27092,
+                "cachedInputTokens": 18304,
+                "cacheWriteInputTokens": 0,
+                "outputTokens": 159,
+                "reasoningOutputTokens": 121
+              },
+              "last": {
+                "totalTokens": 27251,
+                "inputTokens": 27092,
+                "cachedInputTokens": 18304,
+                "cacheWriteInputTokens": 0,
+                "outputTokens": 159,
+                "reasoningOutputTokens": 121
+              },
+              "modelContextWindow": 258400
+            }
+          ],
+          "item_types": [
+            "userMessage",
+            "reasoning",
+            "agentMessage"
+          ],
+          "answer": "{\"deadline\":\"May 26\",\"page_limit\":\"16 pages\",\"eval_owner\":\"Lena\",\"meeting\":\"Thursday at 2pm\",\"venue\":\"Osaka\"}",
+          "original_grading": {
+            "got": {
+              "deadline": "May 26",
+              "page_limit": "16 pages",
+              "eval_owner": "Lena",
+              "meeting": "Thursday at 2pm",
+              "venue": "Osaka"
+            },
+            "strict_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "strict_correct": 5,
+            "claude_legacy_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "claude_legacy_correct": 5
+          },
+          "regraded_value_matches": {
+            "deadline": true,
+            "page_limit": true,
+            "eval_owner": true,
+            "meeting": true,
+            "venue": true
+          },
+          "checked_value_score": 5,
+          "regraded": {
+            "got": {
+              "deadline": "May 26",
+              "page_limit": "16 pages",
+              "eval_owner": "Lena",
+              "meeting": "Thursday at 2pm",
+              "venue": "Osaka"
+            },
+            "value_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "value_correct": 5,
+            "claude_legacy_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "claude_legacy_correct": 5,
+            "required_values": 5
+          },
+          "duration_seconds": 6.485,
+          "paired_provider_input_decrease_pct": 6.530964291875108
+        }
+      }
+    },
+    "s37-20k": {
+      "seed": 37,
+      "length": "20k",
+      "history_sha256": "a361c3035a194e7e47be2b52793f43c6f8f0c8e82ac071b64d7f2dd9b02a18d5",
+      "history_characters": 84454,
+      "history_lexical_tokens": 18083,
+      "history_cl100k_tokens": 20127,
+      "expected": {
+        "deadline": "June 16",
+        "page_limit": "12 pages",
+        "eval_owner": "Sofia",
+        "meeting": "Thursday at 4pm",
+        "venue": "Seoul"
+      },
+      "runs": {
+        "full": {
+          "status": "completed",
+          "budget": null,
+          "budget_omitted": false,
+          "selected_method": "full_history",
+          "prompt_sha256": "9ee85597937264ca79e6319916952809427779cfc8e90c493df67c43f90d1079",
+          "evidence_sha256": "a361c3035a194e7e47be2b52793f43c6f8f0c8e82ac071b64d7f2dd9b02a18d5",
+          "evidence_lexical_tokens": 18083,
+          "retained_evidence_header_counts": {
+            "STATE": 0,
+            "REL": 0,
+            "COUNT": 0,
+            "RAW": 0
+          },
+          "actual_lexical_evidence_retention_pct": 100.0,
+          "evidence_cl100k_tokens": 20127,
+          "user_prompt_cl100k_tokens": 20228,
+          "provider_minus_cl100k_user_prompt_residual": 18616,
+          "provider_usage": {
+            "inputTokens": 38844,
+            "cachedInputTokens": 18304,
+            "cacheWriteInputTokens": 0,
+            "outputTokens": 237,
+            "reasoningOutputTokens": 199,
+            "totalTokens": 39081
+          },
+          "raw_usage_updates": [
+            {
+              "total": {
+                "totalTokens": 39081,
+                "inputTokens": 38844,
+                "cachedInputTokens": 18304,
+                "cacheWriteInputTokens": 0,
+                "outputTokens": 237,
+                "reasoningOutputTokens": 199
+              },
+              "last": {
+                "totalTokens": 39081,
+                "inputTokens": 38844,
+                "cachedInputTokens": 18304,
+                "cacheWriteInputTokens": 0,
+                "outputTokens": 237,
+                "reasoningOutputTokens": 199
+              },
+              "modelContextWindow": 258400
+            }
+          ],
+          "item_types": [
+            "userMessage",
+            "reasoning",
+            "agentMessage"
+          ],
+          "answer": "{\"deadline\":\"June 16\",\"page_limit\":\"12 pages\",\"eval_owner\":\"Sofia\",\"meeting\":\"Thursday at 4pm\",\"venue\":\"Seoul\"}",
+          "original_grading": {
+            "got": {
+              "deadline": "June 16",
+              "page_limit": "12 pages",
+              "eval_owner": "Sofia",
+              "meeting": "Thursday at 4pm",
+              "venue": "Seoul"
+            },
+            "strict_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "strict_correct": 5,
+            "claude_legacy_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "claude_legacy_correct": 5
+          },
+          "regraded_value_matches": {
+            "deadline": true,
+            "page_limit": true,
+            "eval_owner": true,
+            "meeting": true,
+            "venue": true
+          },
+          "checked_value_score": 5,
+          "regraded": {
+            "got": {
+              "deadline": "June 16",
+              "page_limit": "12 pages",
+              "eval_owner": "Sofia",
+              "meeting": "Thursday at 4pm",
+              "venue": "Seoul"
+            },
+            "value_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "value_correct": 5,
+            "claude_legacy_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "claude_legacy_correct": 5,
+            "required_values": 5
+          },
+          "duration_seconds": 7.219,
+          "paired_provider_input_decrease_pct": 0.0
+        },
+        "40": {
+          "status": "completed",
+          "budget": 7233,
+          "budget_omitted": false,
+          "selected_method": "tomc_raw",
+          "prompt_sha256": "fac6d11dd2dc174dc6c2ead06e1024dc4a36068b1f5b1595da96e5deec1d5c06",
+          "evidence_sha256": "50400d7a35da1a3f3ecaab5f8e5d9c1f5620c3d58670a93070ef01a5aa2b01d2",
+          "evidence_lexical_tokens": 7221,
+          "retained_evidence_header_counts": {
+            "STATE": 0,
+            "REL": 0,
+            "COUNT": 0,
+            "RAW": 424
+          },
+          "actual_lexical_evidence_retention_pct": 39.932533318586515,
+          "evidence_cl100k_tokens": 8211,
+          "user_prompt_cl100k_tokens": 8312,
+          "provider_minus_cl100k_user_prompt_residual": 18926,
+          "provider_usage": {
+            "inputTokens": 27238,
+            "cachedInputTokens": 18304,
+            "cacheWriteInputTokens": 0,
+            "outputTokens": 131,
+            "reasoningOutputTokens": 92,
+            "totalTokens": 27369
+          },
+          "raw_usage_updates": [
+            {
+              "total": {
+                "totalTokens": 27369,
+                "inputTokens": 27238,
+                "cachedInputTokens": 18304,
+                "cacheWriteInputTokens": 0,
+                "outputTokens": 131,
+                "reasoningOutputTokens": 92
+              },
+              "last": {
+                "totalTokens": 27369,
+                "inputTokens": 27238,
+                "cachedInputTokens": 18304,
+                "cacheWriteInputTokens": 0,
+                "outputTokens": 131,
+                "reasoningOutputTokens": 92
+              },
+              "modelContextWindow": 258400
+            }
+          ],
+          "item_types": [
+            "userMessage",
+            "reasoning",
+            "agentMessage"
+          ],
+          "answer": "{\"deadline\":\"June 16\",\"page_limit\":\"12 pages maximum\",\"eval_owner\":\"Sofia\",\"meeting\":\"Thursday at 4pm\",\"venue\":\"Seoul\"}",
+          "original_grading": {
+            "got": {
+              "deadline": "June 16",
+              "page_limit": "12 pages maximum",
+              "eval_owner": "Sofia",
+              "meeting": "Thursday at 4pm",
+              "venue": "Seoul"
+            },
+            "strict_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "strict_correct": 5,
+            "claude_legacy_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "claude_legacy_correct": 5
+          },
+          "regraded_value_matches": {
+            "deadline": true,
+            "page_limit": true,
+            "eval_owner": true,
+            "meeting": true,
+            "venue": true
+          },
+          "checked_value_score": 5,
+          "regraded": {
+            "got": {
+              "deadline": "June 16",
+              "page_limit": "12 pages maximum",
+              "eval_owner": "Sofia",
+              "meeting": "Thursday at 4pm",
+              "venue": "Seoul"
+            },
+            "value_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "value_correct": 5,
+            "claude_legacy_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "claude_legacy_correct": 5,
+            "required_values": 5
+          },
+          "duration_seconds": 12.844,
+          "paired_provider_input_decrease_pct": 29.87848831222325
+        },
+        "60": {
+          "status": "completed",
+          "budget": 10849,
+          "budget_omitted": false,
+          "selected_method": "tomc_raw",
+          "prompt_sha256": "4192c3f9c4fbb84ea70f303e5d7835368f3b6be85399bc9742aab780c6bb51bb",
+          "evidence_sha256": "b6118a94ae1a2e07776323d1d6aa71a8b9608e6848b67876f726d6e031662c9c",
+          "evidence_lexical_tokens": 10847,
+          "retained_evidence_header_counts": {
+            "STATE": 0,
+            "REL": 0,
+            "COUNT": 0,
+            "RAW": 629
+          },
+          "actual_lexical_evidence_retention_pct": 59.98451584361002,
+          "evidence_cl100k_tokens": 12250,
+          "user_prompt_cl100k_tokens": 12351,
+          "provider_minus_cl100k_user_prompt_residual": 18847,
+          "provider_usage": {
+            "inputTokens": 31198,
+            "cachedInputTokens": 18304,
+            "cacheWriteInputTokens": 0,
+            "outputTokens": 178,
+            "reasoningOutputTokens": 140,
+            "totalTokens": 31376
+          },
+          "raw_usage_updates": [
+            {
+              "total": {
+                "totalTokens": 31376,
+                "inputTokens": 31198,
+                "cachedInputTokens": 18304,
+                "cacheWriteInputTokens": 0,
+                "outputTokens": 178,
+                "reasoningOutputTokens": 140
+              },
+              "last": {
+                "totalTokens": 31376,
+                "inputTokens": 31198,
+                "cachedInputTokens": 18304,
+                "cacheWriteInputTokens": 0,
+                "outputTokens": 178,
+                "reasoningOutputTokens": 140
+              },
+              "modelContextWindow": 258400
+            }
+          ],
+          "item_types": [
+            "userMessage",
+            "reasoning",
+            "agentMessage"
+          ],
+          "answer": "{\"deadline\":\"June 16\",\"page_limit\":\"12 pages\",\"eval_owner\":\"Sofia\",\"meeting\":\"Thursday at 4pm\",\"venue\":\"Seoul\"}",
+          "original_grading": {
+            "got": {
+              "deadline": "June 16",
+              "page_limit": "12 pages",
+              "eval_owner": "Sofia",
+              "meeting": "Thursday at 4pm",
+              "venue": "Seoul"
+            },
+            "strict_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "strict_correct": 5,
+            "claude_legacy_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "claude_legacy_correct": 5
+          },
+          "regraded_value_matches": {
+            "deadline": true,
+            "page_limit": true,
+            "eval_owner": true,
+            "meeting": true,
+            "venue": true
+          },
+          "checked_value_score": 5,
+          "regraded": {
+            "got": {
+              "deadline": "June 16",
+              "page_limit": "12 pages",
+              "eval_owner": "Sofia",
+              "meeting": "Thursday at 4pm",
+              "venue": "Seoul"
+            },
+            "value_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "value_correct": 5,
+            "claude_legacy_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "claude_legacy_correct": 5,
+            "required_values": 5
+          },
+          "duration_seconds": 12.438,
+          "paired_provider_input_decrease_pct": 19.683863659767276
+        },
+        "80": {
+          "status": "completed",
+          "budget": 14467,
+          "budget_omitted": true,
+          "selected_method": "tomc_raw",
+          "prompt_sha256": "71be0e02cc883bbcf8139fa13f3fd58e0b2539f957dd2ac25417e08ceeac8b3a",
+          "evidence_sha256": "ef36f5e4adac771cd0ca83ea94d9203cf3504c82b56c4ea297962fb3f93c6d73",
+          "evidence_lexical_tokens": 14466,
+          "retained_evidence_header_counts": {
+            "STATE": 0,
+            "REL": 0,
+            "COUNT": 0,
+            "RAW": 835
+          },
+          "actual_lexical_evidence_retention_pct": 79.99778797765858,
+          "evidence_cl100k_tokens": 16276,
+          "user_prompt_cl100k_tokens": 16377,
+          "provider_minus_cl100k_user_prompt_residual": 18770,
+          "provider_usage": {
+            "inputTokens": 35147,
+            "cachedInputTokens": 18304,
+            "cacheWriteInputTokens": 0,
+            "outputTokens": 124,
+            "reasoningOutputTokens": 85,
+            "totalTokens": 35271
+          },
+          "raw_usage_updates": [
+            {
+              "total": {
+                "totalTokens": 35271,
+                "inputTokens": 35147,
+                "cachedInputTokens": 18304,
+                "cacheWriteInputTokens": 0,
+                "outputTokens": 124,
+                "reasoningOutputTokens": 85
+              },
+              "last": {
+                "totalTokens": 35271,
+                "inputTokens": 35147,
+                "cachedInputTokens": 18304,
+                "cacheWriteInputTokens": 0,
+                "outputTokens": 124,
+                "reasoningOutputTokens": 85
+              },
+              "modelContextWindow": 258400
+            }
+          ],
+          "item_types": [
+            "userMessage",
+            "reasoning",
+            "agentMessage"
+          ],
+          "answer": "{\"deadline\":\"June 16\",\"page_limit\":\"12 pages maximum\",\"eval_owner\":\"Sofia\",\"meeting\":\"Thursday at 4pm\",\"venue\":\"Seoul\"}",
+          "original_grading": {
+            "got": {
+              "deadline": "June 16",
+              "page_limit": "12 pages maximum",
+              "eval_owner": "Sofia",
+              "meeting": "Thursday at 4pm",
+              "venue": "Seoul"
+            },
+            "strict_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "strict_correct": 5,
+            "claude_legacy_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "claude_legacy_correct": 5
+          },
+          "regraded_value_matches": {
+            "deadline": true,
+            "page_limit": true,
+            "eval_owner": true,
+            "meeting": true,
+            "venue": true
+          },
+          "checked_value_score": 5,
+          "regraded": {
+            "got": {
+              "deadline": "June 16",
+              "page_limit": "12 pages maximum",
+              "eval_owner": "Sofia",
+              "meeting": "Thursday at 4pm",
+              "venue": "Seoul"
+            },
+            "value_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "value_correct": 5,
+            "claude_legacy_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "claude_legacy_correct": 5,
+            "required_values": 5
+          },
+          "duration_seconds": 11.953,
+          "paired_provider_input_decrease_pct": 9.517557409123679
+        }
+      }
+    },
+    "s37-40k": {
+      "seed": 37,
+      "length": "40k",
+      "history_sha256": "9b5fce01e8ec5c028a913bbe90a4ef994b39fc2c66e9947157454698da614daf",
+      "history_characters": 170331,
+      "history_lexical_tokens": 36459,
+      "history_cl100k_tokens": 40468,
+      "expected": {
+        "deadline": "June 9",
+        "page_limit": "8 pages",
+        "eval_owner": "Chen",
+        "meeting": "Monday at 4pm",
+        "venue": "Berlin"
+      },
+      "runs": {
+        "full": {
+          "status": "completed",
+          "budget": null,
+          "budget_omitted": false,
+          "selected_method": "full_history",
+          "prompt_sha256": "1b39c08804aff2103595feeaf2d56bfc120b0872d33c8284868854ed0f584d96",
+          "evidence_sha256": "9b5fce01e8ec5c028a913bbe90a4ef994b39fc2c66e9947157454698da614daf",
+          "evidence_lexical_tokens": 36459,
+          "retained_evidence_header_counts": {
+            "STATE": 0,
+            "REL": 0,
+            "COUNT": 0,
+            "RAW": 0
+          },
+          "actual_lexical_evidence_retention_pct": 100.0,
+          "evidence_cl100k_tokens": 40468,
+          "user_prompt_cl100k_tokens": 40569,
+          "provider_minus_cl100k_user_prompt_residual": 18088,
+          "provider_usage": {
+            "inputTokens": 58657,
+            "cachedInputTokens": 0,
+            "cacheWriteInputTokens": 0,
+            "outputTokens": 710,
+            "reasoningOutputTokens": 674,
+            "totalTokens": 59367
+          },
+          "raw_usage_updates": [
+            {
+              "total": {
+                "totalTokens": 59367,
+                "inputTokens": 58657,
+                "cachedInputTokens": 0,
+                "cacheWriteInputTokens": 0,
+                "outputTokens": 710,
+                "reasoningOutputTokens": 674
+              },
+              "last": {
+                "totalTokens": 59367,
+                "inputTokens": 58657,
+                "cachedInputTokens": 0,
+                "cacheWriteInputTokens": 0,
+                "outputTokens": 710,
+                "reasoningOutputTokens": 674
+              },
+              "modelContextWindow": 258400
+            }
+          ],
+          "item_types": [
+            "userMessage",
+            "reasoning",
+            "reasoning",
+            "agentMessage"
+          ],
+          "answer": "{\"deadline\":\"June 9\",\"page_limit\":\"8 pages\",\"eval_owner\":\"Chen\",\"meeting\":\"Monday at 4pm\",\"venue\":\"Berlin\"}",
+          "original_grading": {
+            "got": {
+              "deadline": "June 9",
+              "page_limit": "8 pages",
+              "eval_owner": "Chen",
+              "meeting": "Monday at 4pm",
+              "venue": "Berlin"
+            },
+            "strict_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "strict_correct": 5,
+            "claude_legacy_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "claude_legacy_correct": 5
+          },
+          "regraded_value_matches": {
+            "deadline": true,
+            "page_limit": true,
+            "eval_owner": true,
+            "meeting": true,
+            "venue": true
+          },
+          "checked_value_score": 5,
+          "regraded": {
+            "got": {
+              "deadline": "June 9",
+              "page_limit": "8 pages",
+              "eval_owner": "Chen",
+              "meeting": "Monday at 4pm",
+              "venue": "Berlin"
+            },
+            "value_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "value_correct": 5,
+            "claude_legacy_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "claude_legacy_correct": 5,
+            "required_values": 5
+          },
+          "duration_seconds": 15.453,
+          "paired_provider_input_decrease_pct": 0.0
+        },
+        "40": {
+          "status": "completed",
+          "budget": 14583,
+          "budget_omitted": false,
+          "selected_method": "tomc_raw",
+          "prompt_sha256": "4e2024624ada0811fc7a7f9ffed0e3d538e6a325019f5cd8d822cdf21b1c7e2b",
+          "evidence_sha256": "591f1f4f487abea29ce17d66decb6270cdc1f365539f46d2770fa5126d4c4a89",
+          "evidence_lexical_tokens": 14581,
+          "retained_evidence_header_counts": {
+            "STATE": 0,
+            "REL": 0,
+            "COUNT": 0,
+            "RAW": 857
+          },
+          "actual_lexical_evidence_retention_pct": 39.99286870182945,
+          "evidence_cl100k_tokens": 16861,
+          "user_prompt_cl100k_tokens": 16962,
+          "provider_minus_cl100k_user_prompt_residual": 18695,
+          "provider_usage": {
+            "inputTokens": 35657,
+            "cachedInputTokens": 0,
+            "cacheWriteInputTokens": 0,
+            "outputTokens": 172,
+            "reasoningOutputTokens": 135,
+            "totalTokens": 35829
+          },
+          "raw_usage_updates": [
+            {
+              "total": {
+                "totalTokens": 35829,
+                "inputTokens": 35657,
+                "cachedInputTokens": 0,
+                "cacheWriteInputTokens": 0,
+                "outputTokens": 172,
+                "reasoningOutputTokens": 135
+              },
+              "last": {
+                "totalTokens": 35829,
+                "inputTokens": 35657,
+                "cachedInputTokens": 0,
+                "cacheWriteInputTokens": 0,
+                "outputTokens": 172,
+                "reasoningOutputTokens": 135
+              },
+              "modelContextWindow": 258400
+            }
+          ],
+          "item_types": [
+            "userMessage",
+            "reasoning",
+            "agentMessage"
+          ],
+          "answer": "{\"deadline\":\"June 9\",\"page_limit\":\"8 pages maximum\",\"eval_owner\":\"Chen\",\"meeting\":\"Monday at 4pm\",\"venue\":\"Berlin\"}",
+          "original_grading": {
+            "got": {
+              "deadline": "June 9",
+              "page_limit": "8 pages maximum",
+              "eval_owner": "Chen",
+              "meeting": "Monday at 4pm",
+              "venue": "Berlin"
+            },
+            "strict_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "strict_correct": 5,
+            "claude_legacy_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "claude_legacy_correct": 5
+          },
+          "regraded_value_matches": {
+            "deadline": true,
+            "page_limit": true,
+            "eval_owner": true,
+            "meeting": true,
+            "venue": true
+          },
+          "checked_value_score": 5,
+          "regraded": {
+            "got": {
+              "deadline": "June 9",
+              "page_limit": "8 pages maximum",
+              "eval_owner": "Chen",
+              "meeting": "Monday at 4pm",
+              "venue": "Berlin"
+            },
+            "value_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "value_correct": 5,
+            "claude_legacy_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "claude_legacy_correct": 5,
+            "required_values": 5
+          },
+          "duration_seconds": 5.937,
+          "paired_provider_input_decrease_pct": 39.21100635900233
+        },
+        "60": {
+          "status": "completed",
+          "budget": 21875,
+          "budget_omitted": false,
+          "selected_method": "tomc_raw",
+          "prompt_sha256": "150746de99e1d07b9a193e875d1de289127ec17dff49b6f7c1db27b50ea54fb6",
+          "evidence_sha256": "016fd1223d57957b944f43c0a4eb44f157528d9838abaac333cb08fe944efa7d",
+          "evidence_lexical_tokens": 21874,
+          "retained_evidence_header_counts": {
+            "STATE": 0,
+            "REL": 0,
+            "COUNT": 0,
+            "RAW": 1272
+          },
+          "actual_lexical_evidence_retention_pct": 59.99616007021586,
+          "evidence_cl100k_tokens": 24975,
+          "user_prompt_cl100k_tokens": 25076,
+          "provider_minus_cl100k_user_prompt_residual": 18548,
+          "provider_usage": {
+            "inputTokens": 43624,
+            "cachedInputTokens": 0,
+            "cacheWriteInputTokens": 0,
+            "outputTokens": 175,
+            "reasoningOutputTokens": 139,
+            "totalTokens": 43799
+          },
+          "raw_usage_updates": [
+            {
+              "total": {
+                "totalTokens": 43799,
+                "inputTokens": 43624,
+                "cachedInputTokens": 0,
+                "cacheWriteInputTokens": 0,
+                "outputTokens": 175,
+                "reasoningOutputTokens": 139
+              },
+              "last": {
+                "totalTokens": 43799,
+                "inputTokens": 43624,
+                "cachedInputTokens": 0,
+                "cacheWriteInputTokens": 0,
+                "outputTokens": 175,
+                "reasoningOutputTokens": 139
+              },
+              "modelContextWindow": 258400
+            }
+          ],
+          "item_types": [
+            "userMessage",
+            "reasoning",
+            "agentMessage"
+          ],
+          "answer": "{\"deadline\":\"June 9\",\"page_limit\":\"8 pages\",\"eval_owner\":\"Chen\",\"meeting\":\"Monday at 4pm\",\"venue\":\"Berlin\"}",
+          "original_grading": {
+            "got": {
+              "deadline": "June 9",
+              "page_limit": "8 pages",
+              "eval_owner": "Chen",
+              "meeting": "Monday at 4pm",
+              "venue": "Berlin"
+            },
+            "strict_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "strict_correct": 5,
+            "claude_legacy_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "claude_legacy_correct": 5
+          },
+          "regraded_value_matches": {
+            "deadline": true,
+            "page_limit": true,
+            "eval_owner": true,
+            "meeting": true,
+            "venue": true
+          },
+          "checked_value_score": 5,
+          "regraded": {
+            "got": {
+              "deadline": "June 9",
+              "page_limit": "8 pages",
+              "eval_owner": "Chen",
+              "meeting": "Monday at 4pm",
+              "venue": "Berlin"
+            },
+            "value_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "value_correct": 5,
+            "claude_legacy_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "claude_legacy_correct": 5,
+            "required_values": 5
+          },
+          "duration_seconds": 6.438,
+          "paired_provider_input_decrease_pct": 25.628654721516607
+        },
+        "80": {
+          "status": "completed",
+          "budget": 29168,
+          "budget_omitted": true,
+          "selected_method": "tomc_raw",
+          "prompt_sha256": "0eb981c8f7e1d811e252b7dc4324954bc513640e14ebd679b656e537f7d37bb3",
+          "evidence_sha256": "ad951404c5a134deb75706461a6571fb6a95da2d4a67eea4b570fc17b6f4bbe3",
+          "evidence_lexical_tokens": 29164,
+          "retained_evidence_header_counts": {
+            "STATE": 0,
+            "REL": 0,
+            "COUNT": 0,
+            "RAW": 1681
+          },
+          "actual_lexical_evidence_retention_pct": 79.99122301763624,
+          "evidence_cl100k_tokens": 33261,
+          "user_prompt_cl100k_tokens": 33362,
+          "provider_minus_cl100k_user_prompt_residual": 18412,
+          "provider_usage": {
+            "inputTokens": 51774,
+            "cachedInputTokens": 18304,
+            "cacheWriteInputTokens": 0,
+            "outputTokens": 194,
+            "reasoningOutputTokens": 158,
+            "totalTokens": 51968
+          },
+          "raw_usage_updates": [
+            {
+              "total": {
+                "totalTokens": 51968,
+                "inputTokens": 51774,
+                "cachedInputTokens": 18304,
+                "cacheWriteInputTokens": 0,
+                "outputTokens": 194,
+                "reasoningOutputTokens": 158
+              },
+              "last": {
+                "totalTokens": 51968,
+                "inputTokens": 51774,
+                "cachedInputTokens": 18304,
+                "cacheWriteInputTokens": 0,
+                "outputTokens": 194,
+                "reasoningOutputTokens": 158
+              },
+              "modelContextWindow": 258400
+            }
+          ],
+          "item_types": [
+            "userMessage",
+            "reasoning",
+            "agentMessage"
+          ],
+          "answer": "{\"deadline\":\"June 9\",\"page_limit\":\"8 pages\",\"eval_owner\":\"Chen\",\"meeting\":\"Monday at 4pm\",\"venue\":\"Berlin\"}",
+          "original_grading": {
+            "got": {
+              "deadline": "June 9",
+              "page_limit": "8 pages",
+              "eval_owner": "Chen",
+              "meeting": "Monday at 4pm",
+              "venue": "Berlin"
+            },
+            "strict_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "strict_correct": 5,
+            "claude_legacy_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "claude_legacy_correct": 5
+          },
+          "regraded_value_matches": {
+            "deadline": true,
+            "page_limit": true,
+            "eval_owner": true,
+            "meeting": true,
+            "venue": true
+          },
+          "checked_value_score": 5,
+          "regraded": {
+            "got": {
+              "deadline": "June 9",
+              "page_limit": "8 pages",
+              "eval_owner": "Chen",
+              "meeting": "Monday at 4pm",
+              "venue": "Berlin"
+            },
+            "value_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "value_correct": 5,
+            "claude_legacy_marks": {
+              "deadline": true,
+              "page_limit": true,
+              "eval_owner": true,
+              "meeting": true,
+              "venue": true
+            },
+            "claude_legacy_correct": 5,
+            "required_values": 5
+          },
+          "duration_seconds": 6.094,
+          "paired_provider_input_decrease_pct": 11.734319859522312
+        }
+      }
+    }
+  },
+  "per_length": {
+    "10k": {
+      "case_keys": [
+        "s11-10k",
+        "s23-10k",
+        "s37-10k"
+      ],
+      "conditions": {
+        "full": {
+          "case_count": 3,
+          "question_count": 15,
+          "checked_values_correct": 15,
+          "checked_value_accuracy_pct": 100.0,
+          "claude_legacy_correct": 15,
+          "claude_legacy_accuracy_pct": 100.0,
+          "mean_provider_usage": {
+            "inputTokens": 29023,
+            "cachedInputTokens": 12202.666666666666,
+            "cacheWriteInputTokens": 0,
+            "outputTokens": 246.33333333333334,
+            "reasoningOutputTokens": 208.33333333333334,
+            "totalTokens": 29269.333333333332
+          },
+          "equal_case_mean_paired_input_decrease_pct": 0.0,
+          "input_decrease_from_ratio_of_means_pct": 0.0,
+          "paired_input_decrease_range_pct": [
+            0.0,
+            0.0
+          ],
+          "mean_actual_lexical_evidence_retention_pct": 100.0,
+          "mean_cl100k_user_prompt_tokens_descriptive": 10147.666666666666,
+          "mean_provider_minus_cl100k_user_prompt_residual": 18875.333333333332,
+          "mean_observed_duration_seconds": 6.583333333333333
+        },
+        "40": {
+          "case_count": 3,
+          "question_count": 15,
+          "checked_values_correct": 15,
+          "checked_value_accuracy_pct": 100.0,
+          "claude_legacy_correct": 15,
+          "claude_legacy_accuracy_pct": 100.0,
+          "mean_provider_usage": {
+            "inputTokens": 23195,
+            "cachedInputTokens": 12202.666666666666,
+            "cacheWriteInputTokens": 0,
+            "outputTokens": 167.33333333333334,
+            "reasoningOutputTokens": 129.33333333333334,
+            "totalTokens": 23362.333333333332
+          },
+          "equal_case_mean_paired_input_decrease_pct": 20.080422624696258,
+          "input_decrease_from_ratio_of_means_pct": 20.080625710643286,
+          "paired_input_decrease_range_pct": [
+            19.9917118486031,
+            20.187454938716655
+          ],
+          "mean_actual_lexical_evidence_retention_pct": 39.97777818807346,
+          "mean_cl100k_user_prompt_tokens_descriptive": 4163.333333333333,
+          "mean_provider_minus_cl100k_user_prompt_residual": 19031.666666666668,
+          "mean_observed_duration_seconds": 5.265333333333333
+        },
+        "60": {
+          "case_count": 3,
+          "question_count": 15,
+          "checked_values_correct": 15,
+          "checked_value_accuracy_pct": 100.0,
+          "claude_legacy_correct": 15,
+          "claude_legacy_accuracy_pct": 100.0,
+          "mean_provider_usage": {
+            "inputTokens": 25160,
+            "cachedInputTokens": 12202.666666666666,
+            "cacheWriteInputTokens": 0,
+            "outputTokens": 183.66666666666666,
+            "reasoningOutputTokens": 145.33333333333334,
+            "totalTokens": 25343.666666666668
+          },
+          "equal_case_mean_paired_input_decrease_pct": 13.310023657282732,
+          "input_decrease_from_ratio_of_means_pct": 13.310133342521446,
+          "paired_input_decrease_range_pct": [
+            13.23341506371516,
+            13.362172554674355
+          ],
+          "mean_actual_lexical_evidence_retention_pct": 59.922588707971286,
+          "mean_cl100k_user_prompt_tokens_descriptive": 6158.333333333333,
+          "mean_provider_minus_cl100k_user_prompt_residual": 19001.666666666668,
+          "mean_observed_duration_seconds": 5.974
+        },
+        "80": {
+          "case_count": 3,
+          "question_count": 15,
+          "checked_values_correct": 15,
+          "checked_value_accuracy_pct": 100.0,
+          "claude_legacy_correct": 15,
+          "claude_legacy_accuracy_pct": 100.0,
+          "mean_provider_usage": {
+            "inputTokens": 27134.333333333332,
+            "cachedInputTokens": 12202.666666666666,
+            "cacheWriteInputTokens": 0,
+            "outputTokens": 153.66666666666666,
+            "reasoningOutputTokens": 115.33333333333333,
+            "totalTokens": 27288
+          },
+          "equal_case_mean_paired_input_decrease_pct": 6.507444328653433,
+          "input_decrease_from_ratio_of_means_pct": 6.507482571294032,
+          "paired_input_decrease_range_pct": [
+            6.468211485996478,
+            6.530964291875108
+          ],
+          "mean_actual_lexical_evidence_retention_pct": 79.95199226788823,
+          "mean_cl100k_user_prompt_tokens_descriptive": 8168.666666666667,
+          "mean_provider_minus_cl100k_user_prompt_residual": 18965.666666666668,
+          "mean_observed_duration_seconds": 5.734666666666667
+        }
+      }
+    },
+    "20k": {
+      "case_keys": [
+        "s11-20k",
+        "s23-20k",
+        "s37-20k"
+      ],
+      "conditions": {
+        "full": {
+          "case_count": 3,
+          "question_count": 15,
+          "checked_values_correct": 15,
+          "checked_value_accuracy_pct": 100.0,
+          "claude_legacy_correct": 15,
+          "claude_legacy_accuracy_pct": 100.0,
+          "mean_provider_usage": {
+            "inputTokens": 38846,
+            "cachedInputTokens": 18304,
+            "cacheWriteInputTokens": 0,
+            "outputTokens": 290,
+            "reasoningOutputTokens": 252.33333333333334,
+            "totalTokens": 39136
+          },
+          "equal_case_mean_paired_input_decrease_pct": 0.0,
+          "input_decrease_from_ratio_of_means_pct": 0.0,
+          "paired_input_decrease_range_pct": [
+            0.0,
+            0.0
+          ],
+          "mean_actual_lexical_evidence_retention_pct": 100.0,
+          "mean_cl100k_user_prompt_tokens_descriptive": 20230.666666666668,
+          "mean_provider_minus_cl100k_user_prompt_residual": 18615.333333333332,
+          "mean_observed_duration_seconds": 10.625
+        },
+        "40": {
+          "case_count": 3,
+          "question_count": 15,
+          "checked_values_correct": 15,
+          "checked_value_accuracy_pct": 100.0,
+          "claude_legacy_correct": 15,
+          "claude_legacy_accuracy_pct": 100.0,
+          "mean_provider_usage": {
+            "inputTokens": 27257.666666666668,
+            "cachedInputTokens": 6101.333333333333,
+            "cacheWriteInputTokens": 0,
+            "outputTokens": 156,
+            "reasoningOutputTokens": 118,
+            "totalTokens": 27413.666666666668
+          },
+          "equal_case_mean_paired_input_decrease_pct": 29.8314446875534,
+          "input_decrease_from_ratio_of_means_pct": 29.83147127975424,
+          "paired_input_decrease_range_pct": [
+            29.781364409838606,
+            29.87848831222325
+          ],
+          "mean_actual_lexical_evidence_retention_pct": 39.958846202696364,
+          "mean_cl100k_user_prompt_tokens_descriptive": 8322.666666666666,
+          "mean_provider_minus_cl100k_user_prompt_residual": 18935,
+          "mean_observed_duration_seconds": 10.655999999999999
+        },
+        "60": {
+          "case_count": 3,
+          "question_count": 15,
+          "checked_values_correct": 15,
+          "checked_value_accuracy_pct": 100.0,
+          "claude_legacy_correct": 15,
+          "claude_legacy_accuracy_pct": 100.0,
+          "mean_provider_usage": {
+            "inputTokens": 31219.666666666668,
+            "cachedInputTokens": 12202.666666666666,
+            "cacheWriteInputTokens": 0,
+            "outputTokens": 182,
+            "reasoningOutputTokens": 144.33333333333334,
+            "totalTokens": 31401.666666666668
+          },
+          "equal_case_mean_paired_input_decrease_pct": 19.632217450221223,
+          "input_decrease_from_ratio_of_means_pct": 19.632222965899537,
+          "paired_input_decrease_range_pct": [
+            19.5998556180065,
+            19.683863659767276
+          ],
+          "mean_actual_lexical_evidence_retention_pct": 59.98050251222346,
+          "mean_cl100k_user_prompt_tokens_descriptive": 12354.333333333334,
+          "mean_provider_minus_cl100k_user_prompt_residual": 18865.333333333332,
+          "mean_observed_duration_seconds": 7.911333333333333
+        },
+        "80": {
+          "case_count": 3,
+          "question_count": 15,
+          "checked_values_correct": 15,
+          "checked_value_accuracy_pct": 100.0,
+          "claude_legacy_correct": 15,
+          "claude_legacy_accuracy_pct": 100.0,
+          "mean_provider_usage": {
+            "inputTokens": 35173.333333333336,
+            "cachedInputTokens": 6101.333333333333,
+            "cacheWriteInputTokens": 0,
+            "outputTokens": 177,
+            "reasoningOutputTokens": 139,
+            "totalTokens": 35350.333333333336
+          },
+          "equal_case_mean_paired_input_decrease_pct": 9.454415701548264,
+          "input_decrease_from_ratio_of_means_pct": 9.45442688221867,
+          "paired_input_decrease_range_pct": [
+            9.410612076522451,
+            9.517557409123679
+          ],
+          "mean_actual_lexical_evidence_retention_pct": 79.97107998357957,
+          "mean_cl100k_user_prompt_tokens_descriptive": 16380.333333333334,
+          "mean_provider_minus_cl100k_user_prompt_residual": 18793,
+          "mean_observed_duration_seconds": 7.87
+        }
+      }
+    },
+    "40k": {
+      "case_keys": [
+        "s11-40k",
+        "s23-40k",
+        "s37-40k"
+      ],
+      "conditions": {
+        "full": {
+          "case_count": 3,
+          "question_count": 15,
+          "checked_values_correct": 15,
+          "checked_value_accuracy_pct": 100.0,
+          "claude_legacy_correct": 15,
+          "claude_legacy_accuracy_pct": 100.0,
+          "mean_provider_usage": {
+            "inputTokens": 58705,
+            "cachedInputTokens": 9642.666666666666,
+            "cacheWriteInputTokens": 0,
+            "outputTokens": 489,
+            "reasoningOutputTokens": 452.3333333333333,
+            "totalTokens": 59194
+          },
+          "equal_case_mean_paired_input_decrease_pct": 0.0,
+          "input_decrease_from_ratio_of_means_pct": 0.0,
+          "paired_input_decrease_range_pct": [
+            0.0,
+            0.0
+          ],
+          "mean_actual_lexical_evidence_retention_pct": 100.0,
+          "mean_cl100k_user_prompt_tokens_descriptive": 40606,
+          "mean_provider_minus_cl100k_user_prompt_residual": 18099,
+          "mean_observed_duration_seconds": 12.333666666666666
+        },
+        "40": {
+          "case_count": 3,
+          "question_count": 15,
+          "checked_values_correct": 15,
+          "checked_value_accuracy_pct": 100.0,
+          "claude_legacy_correct": 15,
+          "claude_legacy_accuracy_pct": 100.0,
+          "mean_provider_usage": {
+            "inputTokens": 35686.666666666664,
+            "cachedInputTokens": 6101.333333333333,
+            "cacheWriteInputTokens": 0,
+            "outputTokens": 172.33333333333334,
+            "reasoningOutputTokens": 135.33333333333334,
+            "totalTokens": 35859
+          },
+          "equal_case_mean_paired_input_decrease_pct": 39.210238147309255,
+          "input_decrease_from_ratio_of_means_pct": 39.21017516963349,
+          "paired_input_decrease_range_pct": [
+            39.143372100931785,
+            39.27633598199366
+          ],
+          "mean_actual_lexical_evidence_retention_pct": 39.98904454360926,
+          "mean_cl100k_user_prompt_tokens_descriptive": 16961.333333333332,
+          "mean_provider_minus_cl100k_user_prompt_residual": 18725.333333333332,
+          "mean_observed_duration_seconds": 6.697666666666667
+        },
+        "60": {
+          "case_count": 3,
+          "question_count": 15,
+          "checked_values_correct": 15,
+          "checked_value_accuracy_pct": 100.0,
+          "claude_legacy_correct": 15,
+          "claude_legacy_accuracy_pct": 100.0,
+          "mean_provider_usage": {
+            "inputTokens": 43651,
+            "cachedInputTokens": 6101.333333333333,
+            "cacheWriteInputTokens": 0,
+            "outputTokens": 187.33333333333334,
+            "reasoningOutputTokens": 150.66666666666666,
+            "totalTokens": 43838.333333333336
+          },
+          "equal_case_mean_paired_input_decrease_pct": 25.643505310920727,
+          "input_decrease_from_ratio_of_means_pct": 25.643471595264455,
+          "paired_input_decrease_range_pct": [
+            25.60871930898456,
+            25.69314190226102
+          ],
+          "mean_actual_lexical_evidence_retention_pct": 59.97996337618016,
+          "mean_cl100k_user_prompt_tokens_descriptive": 25068.666666666668,
+          "mean_provider_minus_cl100k_user_prompt_residual": 18582.333333333332,
+          "mean_observed_duration_seconds": 6.062666666666667
+        },
+        "80": {
+          "case_count": 3,
+          "question_count": 15,
+          "checked_values_correct": 15,
+          "checked_value_accuracy_pct": 100.0,
+          "claude_legacy_correct": 15,
+          "claude_legacy_accuracy_pct": 100.0,
+          "mean_provider_usage": {
+            "inputTokens": 51796.666666666664,
+            "cachedInputTokens": 12202.666666666666,
+            "cacheWriteInputTokens": 0,
+            "outputTokens": 168,
+            "reasoningOutputTokens": 131,
+            "totalTokens": 51964.666666666664
+          },
+          "equal_case_mean_paired_input_decrease_pct": 11.767871294806993,
+          "input_decrease_from_ratio_of_means_pct": 11.767878942736287,
+          "paired_input_decrease_range_pct": [
+            11.734319859522312,
+            11.791085496027009
+          ],
+          "mean_actual_lexical_evidence_retention_pct": 79.99360634230419,
+          "mean_cl100k_user_prompt_tokens_descriptive": 33355.666666666664,
+          "mean_provider_minus_cl100k_user_prompt_residual": 18441,
+          "mean_observed_duration_seconds": 5.567666666666667
+        }
+      }
+    }
+  },
+  "overall": {
+    "case_keys": [
+      "s11-10k",
+      "s11-20k",
+      "s11-40k",
+      "s23-10k",
+      "s23-20k",
+      "s23-40k",
+      "s37-10k",
+      "s37-20k",
+      "s37-40k"
+    ],
+    "conditions": {
+      "full": {
+        "case_count": 9,
+        "question_count": 45,
+        "checked_values_correct": 45,
+        "checked_value_accuracy_pct": 100.0,
+        "claude_legacy_correct": 45,
+        "claude_legacy_accuracy_pct": 100.0,
+        "mean_provider_usage": {
+          "inputTokens": 42191.333333333336,
+          "cachedInputTokens": 13383.111111111111,
+          "cacheWriteInputTokens": 0,
+          "outputTokens": 341.77777777777777,
+          "reasoningOutputTokens": 304.3333333333333,
+          "totalTokens": 42533.11111111111
+        },
+        "equal_case_mean_paired_input_decrease_pct": 0.0,
+        "input_decrease_from_ratio_of_means_pct": 0.0,
+        "paired_input_decrease_range_pct": [
+          0.0,
+          0.0
+        ],
+        "mean_actual_lexical_evidence_retention_pct": 100.0,
+        "mean_cl100k_user_prompt_tokens_descriptive": 23661.444444444445,
+        "mean_provider_minus_cl100k_user_prompt_residual": 18529.88888888889,
+        "mean_observed_duration_seconds": 9.847333333333333
+      },
+      "40": {
+        "case_count": 9,
+        "question_count": 45,
+        "checked_values_correct": 45,
+        "checked_value_accuracy_pct": 100.0,
+        "claude_legacy_correct": 45,
+        "claude_legacy_accuracy_pct": 100.0,
+        "mean_provider_usage": {
+          "inputTokens": 28713.11111111111,
+          "cachedInputTokens": 8135.111111111111,
+          "cacheWriteInputTokens": 0,
+          "outputTokens": 165.22222222222223,
+          "reasoningOutputTokens": 127.55555555555556,
+          "totalTokens": 28878.333333333332
+        },
+        "equal_case_mean_paired_input_decrease_pct": 29.707368486519638,
+        "input_decrease_from_ratio_of_means_pct": 31.945475900790587,
+        "paired_input_decrease_range_pct": [
+          19.9917118486031,
+          39.27633598199366
+        ],
+        "mean_actual_lexical_evidence_retention_pct": 39.97522297812636,
+        "mean_cl100k_user_prompt_tokens_descriptive": 9815.777777777777,
+        "mean_provider_minus_cl100k_user_prompt_residual": 18897.333333333332,
+        "mean_observed_duration_seconds": 7.539666666666666
+      },
+      "60": {
+        "case_count": 9,
+        "question_count": 45,
+        "checked_values_correct": 45,
+        "checked_value_accuracy_pct": 100.0,
+        "claude_legacy_correct": 45,
+        "claude_legacy_accuracy_pct": 100.0,
+        "mean_provider_usage": {
+          "inputTokens": 33343.555555555555,
+          "cachedInputTokens": 10168.888888888889,
+          "cacheWriteInputTokens": 0,
+          "outputTokens": 184.33333333333334,
+          "reasoningOutputTokens": 146.77777777777777,
+          "totalTokens": 33527.88888888889
+        },
+        "equal_case_mean_paired_input_decrease_pct": 19.528582139474896,
+        "input_decrease_from_ratio_of_means_pct": 20.97060481088797,
+        "paired_input_decrease_range_pct": [
+          13.23341506371516,
+          25.69314190226102
+        ],
+        "mean_actual_lexical_evidence_retention_pct": 59.961018198791635,
+        "mean_cl100k_user_prompt_tokens_descriptive": 14527.111111111111,
+        "mean_provider_minus_cl100k_user_prompt_residual": 18816.444444444445,
+        "mean_observed_duration_seconds": 6.649333333333334
+      },
+      "80": {
+        "case_count": 9,
+        "question_count": 45,
+        "checked_values_correct": 45,
+        "checked_value_accuracy_pct": 100.0,
+        "claude_legacy_correct": 45,
+        "claude_legacy_accuracy_pct": 100.0,
+        "mean_provider_usage": {
+          "inputTokens": 38034.77777777778,
+          "cachedInputTokens": 10168.888888888889,
+          "cacheWriteInputTokens": 0,
+          "outputTokens": 166.22222222222223,
+          "reasoningOutputTokens": 128.44444444444446,
+          "totalTokens": 38201
+        },
+        "equal_case_mean_paired_input_decrease_pct": 9.243243775002897,
+        "input_decrease_from_ratio_of_means_pct": 9.851680966601883,
+        "paired_input_decrease_range_pct": [
+          6.468211485996478,
+          11.791085496027009
+        ],
+        "mean_actual_lexical_evidence_retention_pct": 79.972226197924,
+        "mean_cl100k_user_prompt_tokens_descriptive": 19301.555555555555,
+        "mean_provider_minus_cl100k_user_prompt_residual": 18733.222222222223,
+        "mean_observed_duration_seconds": 6.390777777777778
+      }
+    }
+  },
+  "limitations": [
+    "One observed tool-free answering turn per condition; telemetry cannot rule out hidden transport retries.",
+    "Preparation is an external zero-model MCP call; this is request-evidence replacement, not an entire in-chat compression workflow.",
+    "Provider input includes Codex host instructions and tools. cl100k_base is a descriptive counter and is not asserted to be the provider tokenizer.",
+    "Provider minus cl100k prompt counts are residuals combining host overhead and counting differences; they are not exact system-token measurements.",
+    "Three seeds and nested lengths are correlated synthetic cases, not independent real user projects or a general coding benchmark.",
+    "Value scoring checks strings and recognized cap paraphrases; it does not evaluate the distinction between inclusive and exclusive page limits.",
+    "The natural-language histories use the tomc_raw route and retain RAW source blocks without STATE/REL/COUNT records. This run does not independently validate typed-record compilation.",
+    "The earlier substring-based Claude score is retained for transparency, alongside checked current-value scoring.",
+    "Budget percentages refer to lexical memory caps. Achieved retention and complete provider-input changes are reported separately.",
+    "Concurrent answering and cache state can affect duration and cached-input counts. No cash-cost or speedup claim follows from this run."
+  ]
+}

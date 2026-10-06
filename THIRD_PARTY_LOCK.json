@@ -1,0 +1,66 @@
+{
+  "schema": "tomc-third-party-review-v1",
+  "reviewed_on": "2026-09-09",
+  "vendored_third_party_source": [],
+  "model_weights_distributed": [],
+  "projects": [
+    {
+      "name": "LLMLingua / LongLLMLingua / LLMLingua-2",
+      "url": "https://github.com/microsoft/LLMLingua",
+      "revision": "e0e9d99beb94098bbd924aa53c2c112eac41c758",
+      "code_license": "MIT",
+      "license_url": "https://github.com/microsoft/LLMLingua/blob/e0e9d99beb94098bbd924aa53c2c112eac41c758/LICENSE",
+      "integration": "optional installed dependency llmlingua==0.2.2; caller supplies model",
+      "weights_license": "review the explicitly chosen model card separately"
+    },
+    {
+      "name": "Selective Context",
+      "url": "https://github.com/liyucheng09/Selective_Context",
+      "revision": "3074343653bbf3559a87a588667e843744bc6f2a",
+      "code_license": "README declares MIT; linked LICENSE returned 404",
+      "integration": "reference only; no source or dependency bundled"
+    },
+    {
+      "name": "Mem0",
+      "url": "https://github.com/mem0ai/mem0",
+      "revision": "02f7a9b2c4fe38dedb96631e48c85c74ad58b605",
+      "code_license": "Apache-2.0",
+      "integration": "reference only"
+    },
+    {
+      "name": "Letta",
+      "url": "https://github.com/letta-ai/letta",
+      "revision": "4511fa0bc91f68fbab32b91f694617271ea9012b",
+      "code_license": "Apache-2.0",
+      "integration": "reference only"
+    },
+    {
+      "name": "Gradio",
+      "url": "https://github.com/gradio-app/gradio",
+      "version": "5.49.1",
+      "code_license": "Apache-2.0",
+      "integration": "optional installed UI dependency"
+    },
+    {
+      "name": "tiktoken",
+      "url": "https://github.com/openai/tiktoken",
+      "version_constraint": ">=0.8,<1",
+      "code_license": "MIT",
+      "integration": "optional explicitly selected encoding; first setup may fetch vocabulary"
+    },
+    {
+      "name": "Official MCP Python SDK",
+      "url": "https://github.com/modelcontextprotocol/python-sdk",
+      "version": "1.30.0",
+      "code_license": "MIT",
+      "integration": "optional installed stdio tool dependency; no vendored source or model weights",
+      "license_url": "https://github.com/modelcontextprotocol/python-sdk/blob/v1.30.0/LICENSE"
+    }
+  ],
+  "lockfiles": [
+    "requirements-core.lock",
+    "requirements-demo.lock",
+    "requirements-mcp.lock"
+  ],
+  "note": "Project revision records are provenance, not dependency pins for reference-only projects. See lockfiles for the tested demo dependency graph."
+}

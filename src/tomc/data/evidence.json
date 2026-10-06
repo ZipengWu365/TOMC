@@ -1,0 +1,94 @@
+{
+  "id": "evidence",
+  "title": "04 / A reason needs a quote · 原文证据",
+  "messages": [
+    {
+      "role": "user",
+      "content": "The community archive is organizing an evening exhibition. Mira first suggested using the garden because the natural light would suit the photographs."
+    },
+    {
+      "role": "assistant",
+      "content": "Exhibition note 1: The catalogue needs a contents page. The team discussed labels, frame sizes, volunteer badges, ticket designs and a sign-in table."
+    },
+    {
+      "role": "assistant",
+      "content": "Exhibition note 2: The catalogue needs a contents page. The team discussed labels, frame sizes, volunteer badges, ticket designs and a sign-in table."
+    },
+    {
+      "role": "assistant",
+      "content": "Exhibition note 3: The catalogue needs a contents page. The team discussed labels, frame sizes, volunteer badges, ticket designs and a sign-in table."
+    },
+    {
+      "role": "assistant",
+      "content": "Exhibition note 4: The catalogue needs a contents page. The team discussed labels, frame sizes, volunteer badges, ticket designs and a sign-in table."
+    },
+    {
+      "role": "assistant",
+      "content": "Exhibition note 5: The catalogue needs a contents page. The team discussed labels, frame sizes, volunteer badges, ticket designs and a sign-in table."
+    },
+    {
+      "role": "assistant",
+      "content": "Exhibition note 6: The catalogue needs a contents page. The team discussed labels, frame sizes, volunteer badges, ticket designs and a sign-in table."
+    },
+    {
+      "role": "assistant",
+      "content": "Exhibition note 7: The catalogue needs a contents page. The team discussed labels, frame sizes, volunteer badges, ticket designs and a sign-in table."
+    },
+    {
+      "role": "assistant",
+      "content": "Exhibition note 8: The catalogue needs a contents page. The team discussed labels, frame sizes, volunteer badges, ticket designs and a sign-in table."
+    },
+    {
+      "role": "assistant",
+      "content": "Exhibition note 9: The catalogue needs a contents page. The team discussed labels, frame sizes, volunteer badges, ticket designs and a sign-in table."
+    },
+    {
+      "role": "assistant",
+      "content": "Exhibition note 10: The catalogue needs a contents page. The team discussed labels, frame sizes, volunteer badges, ticket designs and a sign-in table."
+    },
+    {
+      "role": "assistant",
+      "content": "Exhibition note 11: The catalogue needs a contents page. The team discussed labels, frame sizes, volunteer badges, ticket designs and a sign-in table."
+    },
+    {
+      "role": "assistant",
+      "content": "Exhibition note 12: The catalogue needs a contents page. The team discussed labels, frame sizes, volunteer badges, ticket designs and a sign-in table."
+    },
+    {
+      "role": "assistant",
+      "content": "Exhibition note 13: The catalogue needs a contents page. The team discussed labels, frame sizes, volunteer badges, ticket designs and a sign-in table."
+    },
+    {
+      "role": "assistant",
+      "content": "Exhibition note 14: The catalogue needs a contents page. The team discussed labels, frame sizes, volunteer badges, ticket designs and a sign-in table."
+    },
+    {
+      "role": "assistant",
+      "content": "Exhibition note 15: The catalogue needs a contents page. The team discussed labels, frame sizes, volunteer badges, ticket designs and a sign-in table."
+    },
+    {
+      "role": "assistant",
+      "content": "Exhibition note 16: The catalogue needs a contents page. The team discussed labels, frame sizes, volunteer badges, ticket designs and a sign-in table."
+    },
+    {
+      "role": "assistant",
+      "content": "Exhibition note 17: The catalogue needs a contents page. The team discussed labels, frame sizes, volunteer badges, ticket designs and a sign-in table."
+    },
+    {
+      "role": "assistant",
+      "content": "Exhibition note 18: The catalogue needs a contents page. The team discussed labels, frame sizes, volunteer badges, ticket designs and a sign-in table."
+    },
+    {
+      "role": "user",
+      "content": "Mira changed the venue to the library. Her exact explanation was: \"The garden path becomes slippery after rain, and the library has a step-free entrance.\""
+    },
+    {
+      "role": "assistant",
+      "content": "venue = library\nDo not infer that lighting caused the final venue change; Mira's explanation is about access and rain."
+    }
+  ],
+  "query": "Why did Mira change the venue? Quote her exact explanation.",
+  "strategy": "hybrid",
+  "budget": 260,
+  "note": "A venue=library state row cannot preserve the reason. The router retains source evidence."
+}
