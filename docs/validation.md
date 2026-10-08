@@ -394,6 +394,10 @@ The original saved message content was preserved exactly. This checked installed
 
 中文：在 Windows 上，用已安装的 Codex 与 Claude Code 插件服务入口，通过 MCP stdio 在独立合成数据库中完成双向保存、读取、更新、重启和并发追加。7 个进程、11 次工具调用通过；原始笔记保留完整。没有调用模型或验证原生界面的自动接续，真实配置和默认数据库未改动。共享记忆本仍需显式保存、取回，以及一致的数据库路径。
 
+In a separate user-guided round trip on 2026-10-08, the owner reported that Claude Code read a Codex-saved notebook and appended an update. The current Codex session then called `list_memories` and `recall_memory`: two saved entries were returned, including the appended update. This directly confirms that Codex could read the newer stored note; the Claude Code call stream was not independently captured here. The short notebook was returned intact, so this check does not measure compression or billing savings. A status written in a note is not independent evidence that the underlying project tests ran or passed.
+
+中文：另一次用户引导检查中，用户报告 Claude Code 读取了 Codex 保存的记忆本并追加更新；随后当前 Codex 会话实际调用列表和取回工具，读到了两条记录及最新更新。此处直接观察到的是 Codex 读取结果，没有独立记录 Claude Code 的调用流。短笔记原样返回，未测量压缩或费用节省，也没有重新执行笔记中提到的项目测试。
+
 ## Initial staging, 2026-09-08
 
 The initial checks used Python 3.12.13 and Gradio 5.49.1. The GitHub workflow was configured for Python 3.10 and 3.12.

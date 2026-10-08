@@ -26,6 +26,8 @@ These figures are refreshed with `scripts/sync_paper.py`, not the synthetic-diag
 
 ## Original demo diagrams and historical result plots
 
+`shared_notebook_handoff*.svg` illustrates explicit project-note handoff from Codex to Claude Code and back through one shared TOMC notebook on the same computer. Desktop and mobile variants use English and Chinese labels, with the existing TOMC mark and original terminal icons. Client names identify the intended integrations; these are conceptual diagrams, not screenshots or a claim of native chat migration. Regenerate with `python scripts/make_shared_notebook_diagram.py`.
+
 The earlier demo figures below are original SVG diagrams and a Matplotlib evidence plot. Their labels and layout were informed by an inspection of the official LLMLingua README and figures; no upstream logo, figure, screenshot or model-provider mark is included in these assets.
 
 | Asset | Purpose | Source |
