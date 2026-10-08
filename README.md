@@ -14,6 +14,8 @@ TOMC is a task-oriented context compression tool for LLMs, available through an 
 
 Use the plugin in Codex, Cursor, Claude Desktop or Claude Code, or add the Python API to your own application. Savings depend on the history and task; short histories can stay intact. The default keeps about 80% of a long history. Compare 40% or 60% budgets on your own tasks when you need smaller requests; see the separate [Codex and Claude results](#measured-savings).
 
+**Carry project context between Codex and Claude Code.** Save useful notes in one assistant, then recall them for the next task in the other. Both TOMC servers must use the same database on the same computer. [Shared-notebook setup and prompts](docs/usage_tips.md#reuse-notebooks).
+
 <a href="assets/plugin_usage_api_20261003.png">
   <img src="assets/plugin_usage_api_20261003.png" alt="Install TOMC in Codex, Cursor, Claude Desktop or Claude Code. Supply history, task and budget; TOMC prepares context for the same assistant." width="1280">
 </a>
@@ -170,17 +172,17 @@ With the same instructions and task, this example's message text goes from **147
 
 The notebook stores supplied text in its original form. `recall_memory` prepares that history for the requested task; direct `prepare_context` calls need no notebook and write nothing to it.
 
-#### Try memory across two chats
+#### Try memory across two chats or assistants
 
-In the first chat:
+In the first chat, for example in Codex:
 
 > Use TOMC to remember this as api-refactor: keep the public API routes and response fields unchanged. Pagination tests still need to be written.
 
-In a new chat:
+In a new chat, for example in Claude Code using the same database:
 
 > Recall api-refactor from TOMC. Before we continue, remind me of the constraints and unfinished work.
 
-The default database is `~/.tomc/memory.sqlite3`. Clients on the same computer using that database share notebooks. TOMC sees the notes passed to its tools; installing it does not automatically capture every chat. The assistant decides which tools to call under its permission settings.
+The default database is `~/.tomc/memory.sqlite3`. Both servers must resolve to the same file; a custom `--store` or `TOMC_MEMORY_PATH` can keep a client separate. [Check the paths and try the handoff](docs/usage_tips.md#reuse-notebooks). TOMC sees the notes passed to its tools; installing it does not automatically capture every chat. The assistant decides which tools to call under its permission settings.
 
 </details>
 

@@ -14,6 +14,8 @@ TOMC 是面向任务的大模型上下文压缩工具，提供 MCP 服务和 Pyt
 
 可以在 Codex、Cursor、Claude Desktop 或 Claude Code 中安装插件，也可以把 Python API 接进自己的应用。节省量取决于历史和任务；短历史可以保持完整。默认保留长历史的约 80%。需要更小的请求时，可以用自己的任务比较 40% 或 60% 预算；参见分别记录的 [Codex 与 Claude 实测](#实测节省)。
 
+**把项目上下文带到另一个助手。** 在 Codex 保存要复用的笔记，再到 Claude Code 按下一步任务取回，也可以反过来。两边的 TOMC 服务需要使用同一台电脑上的同一数据库。[共享记忆本设置与提示词](docs/usage_tips_zh.md#reuse-notebooks)。
+
 <a href="assets/plugin_usage_api_20261003.png">
   <img src="assets/plugin_usage_api_20261003.png" alt="在 Codex、Cursor、Claude Desktop 或 Claude Code 中安装 TOMC，传入历史、任务和预算；TOMC 准备上下文，再交给原来的助手。" width="1280">
 </a>
@@ -170,17 +172,17 @@ Wednesday notes: the team checked the release checklist, added a rollback task, 
 
 记忆本保存传入的原始文本，`recall_memory` 在取回时为任务准备上下文。直接调用 `prepare_context` 不需要记忆本，也不写入它。
 
-#### 用两次聊天试一下记忆
+#### 换个聊天或助手，继续同一项任务
 
-第一段聊天：
+第一段聊天，例如在 Codex 中：
 
 > 请用 TOMC 把这些项目笔记保存到 api-refactor：公开 API 路由与返回字段保持不变，分页测试还没补上。
 
-新开一段聊天：
+新开一段聊天，例如在使用同一数据库的 Claude Code 中：
 
 > 从 TOMC 取回 api-refactor。继续开发前，提醒我有哪些约束和待办。
 
-默认数据库是 `~/.tomc/memory.sqlite3`。同一台电脑上使用该数据库的客户端可以共享记忆本。TOMC 只看到传给工具的笔记；安装插件不会自动捕获全部聊天。助手遵循客户端权限设置，决定何时调用工具。
+默认数据库是 `~/.tomc/memory.sqlite3`。两边的服务必须打开同一个文件；自定义 `--store` 或 `TOMC_MEMORY_PATH` 可能让某个客户端使用独立记忆本。[核对路径并试一次接续](docs/usage_tips_zh.md#reuse-notebooks)。TOMC 只看到传给工具的笔记；安装插件不会自动捕获全部聊天。助手遵循客户端权限设置，决定何时调用工具。
 
 </details>
 

@@ -134,9 +134,11 @@ def render(results: list[dict]) -> None:
         "normalized parser or lexical BM25 baseline. See [boundaries](../docs/claims_and_limitations.md).",
         "",
     ]
-    (ROOT / "benchmarks/HISTORICAL_BEAM.md").write_text("\n".join(lines))
+    (ROOT / "benchmarks/HISTORICAL_BEAM.md").write_text(
+        "\n".join(lines), encoding="utf-8", newline="\n"
+    )
     (ROOT / "benchmarks/aggregate_results/recomputed.json").write_text(
-        json.dumps(results, indent=2) + "\n"
+        json.dumps(results, indent=2) + "\n", encoding="utf-8", newline="\n"
     )
     import matplotlib
 

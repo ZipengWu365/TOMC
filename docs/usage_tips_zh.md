@@ -103,16 +103,24 @@ ledger 中的行是候选记录，只有 `included=True` 的记录进入 memory�
 
 TOMC 从 `u0` 开始分配源编号，对应第一条非空行。历史原文里已有的 `u1:` 等标签只是原文内容，不是 TOMC 的编号。用返回的源文本核对对应关系，不要假定两套编号一致。
 
+<a id="reuse-notebooks"></a>
+
 ## 6. 只把需要复用的内容存进 notebook
 
 每个项目或主题使用一个名字，例如 `api-refactor`。适合保存下一次还要用的约束、已确认决策和未完成工作。安装插件不会自动收集你的所有聊天。
 
-可以按需要复制这些提示词：
+### 换个助手，继续同一项任务
+
+两个客户端都能调用 TOMC 时，可以在 Codex 保存项目笔记，再到新的 Claude Code 聊天中按下一步任务取回，也可以反过来。记忆本保留原始笔记；取回时，TOMC 再按新任务和预算准备上下文。短笔记可以保持完整。
+
+两边的 TOMC 进程必须打开同一个 SQLite 文件。默认是 `~/.tomc/memory.sqlite3`，但自定义配置、不同系统用户、WSL 或容器可能解析到不同文件。需要显式共享时，向 [Codex 安装助手的 `--store` 选项](assistant_plugin_zh.md#codex)和 [Claude Code 服务的 `TOMC_MEMORY_PATH`](assistant_plugin_zh.md#claude-code)传入同一绝对路径。服务命令中显式设置的 `--store` 优先于环境变量。也要检查 Claude Code 当前项目的注册配置，它可能选用另一项服务。调整路径时保留原数据库；选择新路径不会迁移原笔记。
+
+确认两边打开同一个文件后，试这两段提示词：
 
 | 操作 | 提示词 |
 |---|---|
-| 保存 | “请用 TOMC 的 remember_memory 把这些内容保存到 api-refactor：公共 API 路由和返回字段保持不变。分页测试尚未编写，也没有运行。” |
-| 新聊天继续 | “请用 TOMC 的 recall_memory 读取 api-refactor。task：继续之前，提醒我 API 的约束和还没完成的测试。budget：1024。” |
+| 在 Codex 保存 | “请调用 TOMC 的 remember_memory，name 为 api-refactor，content 为：公共 API 路由和返回字段保持不变。分页测试尚未编写，也没有运行。只保存这些笔记，并确认工具返回的保存结果。” |
+| 到 Claude Code 接续 | “请调用 tomc-memory 的 recall_memory，name 为 api-refactor，task 为：继续之前，提醒我 API 的约束和还没完成的测试，budget 为 1024。先展示返回的 memory，再依据它回答。” |
 | 查找名字 | “请用 TOMC 的 list_memories 列出 notebook 名称。” |
 | 补充已确认的纠正 | “请用 remember_memory 向 api-refactor 追加这条已确认更新：framework = FastAPI。保留之前的历史，这是最新确认的框架。” |
 | 删除 | “请用 TOMC 的 forget_memory 删除名称恰好为 api-refactor 的 notebook。” |
@@ -120,6 +128,10 @@ TOMC 从 `u0` 开始分配源编号，对应第一条非空行。历史原文里
 `remember_memory` 是追加，不会编辑某条旧记录。把已纠正的值和顺序说清楚，并检查下一次 recall。`forget_memory` 删除整个指定 notebook，工具不能撤销删除。如果要完全重建，先保留需要的原文，明确要求删除该名称，再保存替换内容。
 
 notebook 以明文保存传给工具的内容。使用同一数据库的客户端会共享它，卸载插件不会删除数据库。只想临时准备一次上下文时，直接使用 `prepare_context`。
+
+如果一个助手找不到记忆本，先在两边调用 `list_memories`，核对正在使用的服务和数据库路径。同名记忆本不代表两边打开了同一个文件。[Windows MCP 检查](validation.md#cross-assistant-notebooks)在独立数据库中验证了双向读取、更新、重启和并发追加。
+
+共享的只是明确传给工具的笔记，不会自动同步原生聊天记录，也不提供跨设备云端服务。取回的笔记会进入接收方助手的上下文，遵循该宿主的数据政策。
 
 ## 7. 先比较实际请求，再检查答案
 

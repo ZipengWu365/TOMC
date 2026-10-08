@@ -76,13 +76,13 @@
     },
     {
       "path": "README.md",
-      "bytes": 30890,
-      "sha256": "fa65c6795e5635829644ab9ce4f8c53dd25c5f54e82f68a8373ab02a20a14412"
+      "bytes": 31383,
+      "sha256": "f0e90d9ea1d5f3cce74f96f0b374251db8b898e27110dc59c8848d87dcee850b"
     },
     {
       "path": "README_zh.md",
-      "bytes": 28830,
-      "sha256": "cd97b149e64f19d07b4c9e7ba6143933d498b8ed1c09b1b856194ea1175c2122"
+      "bytes": 29359,
+      "sha256": "f87530093ee87d6f6584b3445255f9b3f22e7f195c5ca03750dc4826478f5b22"
     },
     {
       "path": "SECURITY.md",
@@ -436,8 +436,8 @@
     },
     {
       "path": "benchmarks/reproduce/results.py",
-      "bytes": 8371,
-      "sha256": "ebbf00dad6569cd6cb18857d1336d59554e1913898fda4a2ea079ab83f463195"
+      "bytes": 8449,
+      "sha256": "5bc3a0ae29519fdd53e193b205f7da3b2bf9b55ed914b592e830bae83e4bc3ae"
     },
     {
       "path": "demo/__init__.py",
@@ -566,13 +566,13 @@
     },
     {
       "path": "docs/assistant_plugin.md",
-      "bytes": 22885,
-      "sha256": "4a7d46e17edd933278dbf907a25a5e39efb8f31326056ccf3ca0a6d4d0ded095"
+      "bytes": 23094,
+      "sha256": "b408eec21ade2ef323434ed6ee8e1fed688636cbfb8433f8a8dc0699d4cb113b"
     },
     {
       "path": "docs/assistant_plugin_zh.md",
-      "bytes": 23118,
-      "sha256": "2a4483313931b58d5e427fe3e68189e6e439e39ead2049320c701c812f04c1e8"
+      "bytes": 23338,
+      "sha256": "42acc5cc3cd4799546a943350a152d5cf77d0cf8a0a75c07fc09824e22d67894"
     },
     {
       "path": "docs/assistant_setup.md",
@@ -681,18 +681,18 @@
     },
     {
       "path": "docs/usage_tips.md",
-      "bytes": 10679,
-      "sha256": "7c1cafdc397f4658e6d8b056d8bfb72cbe77b617f189283d75a7fee0611ebb88"
+      "bytes": 12440,
+      "sha256": "3700117e2986da3c302564208568b0c30d84605b7f4bf3339d48e99fbfe90c22"
     },
     {
       "path": "docs/usage_tips_zh.md",
-      "bytes": 10103,
-      "sha256": "7eaac9fbceed03cc1d5e2ec3dfc07b72133ed58bafdc6fe16b08d671abf443f5"
+      "bytes": 11779,
+      "sha256": "27c125fe88e568e571096f590fee9c691610bd0b1167814c2166e8a432557570"
     },
     {
       "path": "docs/validation.md",
-      "bytes": 63009,
-      "sha256": "faacd25bff66ba16c18bf76de90b44096a496a22c1e7da35e1bf9ef8495ba7ed"
+      "bytes": 64559,
+      "sha256": "a1b59cb2c04bb467e7f135ad48df690b9c3864033366aef3f69a228f9806c04a"
     },
     {
       "path": "docs/validation/macos-20261002-preview2.json",
@@ -703,6 +703,11 @@
       "path": "docs/validation/macos-20261002-preview3.json",
       "bytes": 3126,
       "sha256": "62ca34c06d3252fa69befb54f4bb9b6e79e260a0db9348f1350401f3aaf069c9"
+    },
+    {
+      "path": "docs/validation_data/cross_client_memory_20261008.json",
+      "bytes": 1407,
+      "sha256": "0d90cc5ac0e5b0fbff3f61395492c1a9d283a4632f1519cda5992945f3ab43dc"
     },
     {
       "path": "docs/validation_data/windows_codex_foreground_20261005.json",
@@ -1180,7 +1185,7 @@
       "sha256": "17c605bde43040d24896c39084ccbddf0274e282420cd9bffa10fb691992f141"
     }
   ],
-  "total_bytes": 17610183,
+  "total_bytes": 17618106,
   "self_excluded": [
     "PUBLIC_RELEASE_MANIFEST.json",
     "SHA256SUMS"

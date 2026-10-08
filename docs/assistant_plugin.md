@@ -241,6 +241,8 @@ The host chooses whether to call tools and applies its own permission settings. 
 
 ## Storage and capability
 
+To continue from Codex in Claude Code, or the reverse, point both TOMC servers at the same database and use the same notebook name. [Shared-path setup and two handoff prompts](usage_tips.md#reuse-notebooks).
+
 The default database is `~/.tomc/memory.sqlite3`, outside the installation bundle. Clients using the same database share notebooks; separate paths keep notebooks separate. The database stores submitted notes as local plaintext. Recalled notes enter the assistant's context and follow that host's data policy. Uninstalling the plugin does not itself delete this database.
 
 The plugin sees only content passed to its tools. It does not read every chat, automatically intercept API requests or replace the host's context window. This assistant helper uses the demo's task routing and local notebook interface; it is not the exact BEAM evaluation configuration from the paper. The paper's results should not be treated as measured guarantees for this plugin workflow.
