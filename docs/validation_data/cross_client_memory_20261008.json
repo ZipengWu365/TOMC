@@ -1,0 +1,34 @@
+{
+  "checked_utc": "2026-10-08T12:41:31.713921+00:00",
+  "source_commit": "888322349b7f4b253e301902fd2b8e73b340ca80",
+  "platform": "Windows",
+  "scope": "Installed Codex and Claude Code MCP server entrypoints, with an isolated shared SQLite path supplied only to test subprocesses",
+  "status": "pass",
+  "server_processes": 7,
+  "mcp_tool_calls": 11,
+  "paid_model_calls": 0,
+  "native_model_or_GUI_handoff_tested": false,
+  "tests": {
+    "Codex_save_Claude_Code_recall": "pass",
+    "Claude_Code_update_restarted_Codex_recall": "pass",
+    "current_value_and_copy_snapshot": "Starlette and Flask",
+    "pending_test_status_remained_unconfirmed": true,
+    "Claude_Code_preview5_project_entry_compatible": true,
+    "concurrent_appends_after_restart": "Both markers present",
+    "original_saved_content_preserved_exactly": true,
+    "final_synthetic_entry_count": 4
+  },
+  "real_database_contents_read": false,
+  "real_database_and_config_metadata_unchanged": true,
+  "conditions": [
+    "Both TOMC servers open the same SQLite file",
+    "The same notebook name is supplied",
+    "Explicit remember_memory and recall_memory calls",
+    "The receiving client can access the database"
+  ],
+  "limits": [
+    "No native model-generated handoff or GUI interaction was measured",
+    "No cross-device cloud synchronization",
+    "Memory-token estimates do not establish request-level billing savings"
+  ]
+}

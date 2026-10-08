@@ -103,16 +103,24 @@ Ledger rows are candidates; only rows with `included=True` reach the memory. Che
 
 TOMC assigns source IDs from `u0`, the first non-empty line. Labels such as `u1:` already written in your history remain part of its text; they are not TOMC's IDs. Use the returned source text to resolve the mapping rather than assuming those two numbering systems match.
 
+<a id="reuse-notebooks"></a>
+
 ## 6. Use notebooks only for material you want to reuse
 
 Choose one notebook per project/topic, such as `api-refactor`, and save constraints, confirmed decisions and unfinished work you need in a later chat. Installation does not automatically collect your conversations.
 
-Copy these prompts when needed:
+### Continue in another assistant
+
+With TOMC available in both clients, save project notes in Codex and recall them for the next task in a new Claude Code chat, or reverse the direction. The notebook keeps the original notes; recall prepares that history for the new task and budget. Short notes can stay intact.
+
+Both TOMC processes must open the same SQLite file. The default is `~/.tomc/memory.sqlite3`, but custom settings, another OS user, WSL or a container can resolve to a different file. For an explicit shared path, pass the same absolute path to the [Codex installer's `--store` option](assistant_plugin.md#codex) and the [Claude Code server's `TOMC_MEMORY_PATH`](assistant_plugin.md#claude-code). An explicit server `--store` takes precedence over that environment variable. Check Claude Code's current project registration as well: it can select a different server from the user-level one. Keep the original databases when changing paths; selecting a new path does not migrate their notes.
+
+Try this handoff after confirming the shared file:
 
 | Action | Prompt |
 |---|---|
-| Save | “Use TOMC's remember_memory to save this in api-refactor: keep public API routes and response fields unchanged. Pagination tests have not been written or run.” |
-| Resume in a new chat | “Use TOMC's recall_memory for api-refactor. Task: remind me of the API constraints and unfinished testing before we continue. Budget: 1024.” |
+| Save in Codex | “Use TOMC's remember_memory with name api-refactor and content: keep public API routes and response fields unchanged. Pagination tests have not been written or run. Save only these notes and confirm the tool result.” |
+| Resume in Claude Code | “Use tomc-memory's recall_memory with name api-refactor, task: remind me of the API constraints and unfinished testing before we continue, and budget: 1024. Show the returned memory before answering.” |
 | Find a name | “Use TOMC's list_memories to show the notebook names.” |
 | Add a confirmed correction | “Append this confirmed update to api-refactor with remember_memory: framework = FastAPI. Preserve the earlier history; this is the latest confirmed framework.” |
 | Delete | “Use TOMC's forget_memory to delete the exact notebook api-refactor.” |
@@ -120,6 +128,10 @@ Copy these prompts when needed:
 `remember_memory` appends; it does not edit an individual old entry. Supply corrected values and their order explicitly, and check the next recall. `forget_memory` deletes the entire named notebook and cannot undo that deletion through the tool. To replace a notebook completely, keep the wanted source material, explicitly request deletion of that name, then save the replacement.
 
 Notebooks store submitted text as plaintext. Clients using the same database share them, and uninstalling the plugin does not delete that database. Use direct `prepare_context` when you only want a one-time preparation.
+
+If one assistant cannot find the notebook, call `list_memories` in both clients and check their active server and database paths. A matching notebook name alone does not mean the file is shared. The [Windows MCP check](validation.md#cross-assistant-notebooks) verified bidirectional reads, updates, restarts and concurrent appends in an isolated database.
+
+Only explicitly supplied notes are shared. This does not synchronize complete native chats or provide a cross-device cloud service. Recalled notes enter the receiving assistant's context and follow that host's data policy.
 
 ## 7. Measure the request, then check the answer
 

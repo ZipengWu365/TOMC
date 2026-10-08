@@ -384,6 +384,16 @@ The private hosted demo was tested with requests outside its exact `hf.space` ho
 
 No first-use study, propagation/conversion experiment or model-driven cross-chat evaluation was run. Those questions remain outside these engineering checks.
 
+<a id="cross-assistant-notebooks"></a>
+
+## Cross-assistant notebooks, 2026-10-08
+
+On Windows, the installed Codex and Claude Code TOMC server commands were launched over MCP stdio with a test-only `TOMC_MEMORY_PATH` pointing to one synthetic SQLite database. Seven fresh processes completed eleven tool calls. Codex saved a state-copy history; Claude Code recalled the current FastAPI value and earlier Flask snapshot, appended a Starlette update, and a restarted Codex process read that update. The registered Claude Code preview.5 project entry also read the same notebook. Concurrent appends from both clients remained present after another restart.
+
+The original saved message content was preserved exactly. This checked installed plugin-server interoperability and persistence, with no model calls or native GUI/chat handoff. The real client configurations and default databases were not modified. Clients sharing a database still need explicit save/recall requests; this is not automatic chat or cross-device synchronization. [Sanitized check record](validation_data/cross_client_memory_20261008.json).
+
+中文：在 Windows 上，用已安装的 Codex 与 Claude Code 插件服务入口，通过 MCP stdio 在独立合成数据库中完成双向保存、读取、更新、重启和并发追加。7 个进程、11 次工具调用通过；原始笔记保留完整。没有调用模型或验证原生界面的自动接续，真实配置和默认数据库未改动。共享记忆本仍需显式保存、取回，以及一致的数据库路径。
+
 ## Initial staging, 2026-09-08
 
 The initial checks used Python 3.12.13 and Gradio 5.49.1. The GitHub workflow was configured for Python 3.10 and 3.12.

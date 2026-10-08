@@ -272,6 +272,8 @@ Wednesday notes: the team checked the release checklist, added a rollback task, 
 
 ## 存储与能力范围
 
+要从 Codex 切到 Claude Code 继续，或反过来，让两边的 TOMC 服务使用同一数据库，并传入同一记忆本名称。[共享路径设置与两段接续提示词](usage_tips_zh.md#reuse-notebooks)。
+
 默认记忆存放在用户目录的 `~/.tomc/memory.sqlite3`，不放在安装包中。同一台电脑上使用同一数据库的客户端可以共享记忆；不同路径则相互独立。笔记以本地明文存储，取回后进入助手上下文，遵循助手平台的数据政策；卸载插件不会自动删除数据库。
 
 插件只看到传给工具的内容，不会自动读取全部聊天、拦截 API 请求或替换客户端的上下文窗口。这个日常使用接口采用 Demo 的任务路由和本地记忆本，并非论文 BEAM 实验的精确配置；论文分数不能直接当作此插件流程的效果保证。
