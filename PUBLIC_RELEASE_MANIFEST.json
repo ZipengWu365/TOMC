@@ -76,13 +76,13 @@
     },
     {
       "path": "README.md",
-      "bytes": 31383,
-      "sha256": "f0e90d9ea1d5f3cce74f96f0b374251db8b898e27110dc59c8848d87dcee850b"
+      "bytes": 33381,
+      "sha256": "fc359df7fcc95803c50f68922f6efda5f09b1124462a7ac9641acb9581b6aa18"
     },
     {
       "path": "README_zh.md",
-      "bytes": 29359,
-      "sha256": "f87530093ee87d6f6584b3445255f9b3f22e7f195c5ca03750dc4826478f5b22"
+      "bytes": 31290,
+      "sha256": "d5661fa2b1293088d94c78e5e5ca22795f208b08af18fae44bb51d9db7c39200"
     },
     {
       "path": "SECURITY.md",
@@ -101,8 +101,8 @@
     },
     {
       "path": "assets/README.md",
-      "bytes": 6513,
-      "sha256": "c6e5cb638dbf34c9bdf2f30d59218068a62d11cdec3ac68d3982470bbdf70b12"
+      "bytes": 6993,
+      "sha256": "dc70d0c5d6c84ed6d8d8ed66263a30cc6ad506e66a7aee3293b908aeca12cced"
     },
     {
       "path": "assets/agent_ledger.png",
@@ -273,6 +273,26 @@
       "path": "assets/results_overview.svg",
       "bytes": 100051,
       "sha256": "0637cf553262a5e86e68b665ca92933b163f650749232471c1be69b338274c2a"
+    },
+    {
+      "path": "assets/shared_notebook_handoff.svg",
+      "bytes": 4605,
+      "sha256": "21dafd22fab16ed21a423f406a7ca6bdff67cd365efdb6499de07e660386fdb0"
+    },
+    {
+      "path": "assets/shared_notebook_handoff_mobile.svg",
+      "bytes": 4665,
+      "sha256": "da98e6e7fce66d408dcbd97f8981ae4f95c0bc55163c5093cde49d382b318bd2"
+    },
+    {
+      "path": "assets/shared_notebook_handoff_zh.svg",
+      "bytes": 4621,
+      "sha256": "ff443f655385fe36fc01eee691233fab97ddd5393ba09829b8570d090c222bef"
+    },
+    {
+      "path": "assets/shared_notebook_handoff_zh_mobile.svg",
+      "bytes": 4681,
+      "sha256": "b9c2a62f21ae0e9fb07fd95ef2b643f9617f4b429612315b2c04c694f05cd5cd"
     },
     {
       "path": "assets/snapshot_semantics.png",
@@ -611,8 +631,8 @@
     },
     {
       "path": "docs/index.md",
-      "bytes": 6000,
-      "sha256": "1b72f99edb7271977b870159ffbb36d6181e3ab4de94cf7a770d2d98aa695ca5"
+      "bytes": 6365,
+      "sha256": "8013915cdad3552b85fd05700f42b3376d9dd9adf5dd87d7e72234f6ac5bc932"
     },
     {
       "path": "docs/legacy_extensions.md",
@@ -691,8 +711,8 @@
     },
     {
       "path": "docs/validation.md",
-      "bytes": 64559,
-      "sha256": "a1b59cb2c04bb467e7f135ad48df690b9c3864033366aef3f69a228f9806c04a"
+      "bytes": 65606,
+      "sha256": "b39832588b99855cbeb62f4fe0640bd97cc9707229a1a75ab85575c46921bb53"
     },
     {
       "path": "docs/validation/macos-20261002-preview2.json",
@@ -706,8 +726,8 @@
     },
     {
       "path": "docs/validation_data/cross_client_memory_20261008.json",
-      "bytes": 1407,
-      "sha256": "0d90cc5ac0e5b0fbff3f61395492c1a9d283a4632f1519cda5992945f3ab43dc"
+      "bytes": 4051,
+      "sha256": "ecc8b0984d257902fd6359759a2cd60a0d234533b4762773eca4f9a02d69fa62"
     },
     {
       "path": "docs/validation_data/windows_codex_foreground_20261005.json",
@@ -928,6 +948,11 @@
       "path": "scripts/launch_assets.py",
       "bytes": 7614,
       "sha256": "1a0b53df9c8078b18490e41e0f7d3f7e8ee5a0bdbe72333c481e2dbfa8786540"
+    },
+    {
+      "path": "scripts/make_shared_notebook_diagram.py",
+      "bytes": 6003,
+      "sha256": "36b319a51f30fdd8d1d93ac09b2bc459043c9a04bd151e2744ebf8de3c374252"
     },
     {
       "path": "scripts/plugin_smoke.py",
@@ -1185,7 +1210,7 @@
       "sha256": "17c605bde43040d24896c39084ccbddf0274e282420cd9bffa10fb691992f141"
     }
   ],
-  "total_bytes": 17618106,
+  "total_bytes": 17651146,
   "self_excluded": [
     "PUBLIC_RELEASE_MANIFEST.json",
     "SHA256SUMS"

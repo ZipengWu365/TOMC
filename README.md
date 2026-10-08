@@ -2,7 +2,8 @@
   <img src="assets/tomc_logo_20261002.png" alt="TOMC" width="380">
   <h1>Send less context to your LLM API</h1>
   <h3>Task-oriented context compression for the model you already use.</h3>
-  <p><a href="#install-in-your-assistant"><strong>Install TOMC</strong></a> · <a href="#use-before-your-api-call">Use with your API</a> · <a href="#try-the-demo">See the demo</a> · <a href="#paper-explained">Paper explained</a> · <a href="#same-reader-baseline-memory-vs-tomc-memory">Paper results</a> · <a href="README_zh.md">中文</a></p>
+  <p><strong>Save in Codex. Continue in Claude Code. Bring updated notes back.</strong></p>
+  <p><a href="#install-in-your-assistant"><strong>Install TOMC</strong></a> · <a href="#switch-assistants">Switch assistants</a> · <a href="#use-before-your-api-call">Use with your API</a> · <a href="#try-the-demo">See the demo</a> · <a href="#paper-explained">Paper explained</a> · <a href="#same-reader-baseline-memory-vs-tomc-memory">Paper results</a> · <a href="README_zh.md">中文</a></p>
   <p><strong>CPU preparation</strong> · No training or extra model service · Plain-text output · Free for non-commercial use</p>
 </div>
 
@@ -14,7 +15,7 @@ TOMC is a task-oriented context compression tool for LLMs, available through an 
 
 Use the plugin in Codex, Cursor, Claude Desktop or Claude Code, or add the Python API to your own application. Savings depend on the history and task; short histories can stay intact. The default keeps about 80% of a long history. Compare 40% or 60% budgets on your own tasks when you need smaller requests; see the separate [Codex and Claude results](#measured-savings).
 
-**Carry project context between Codex and Claude Code.** Save useful notes in one assistant, then recall them for the next task in the other. Both TOMC servers must use the same database on the same computer. [Shared-notebook setup and prompts](docs/usage_tips.md#reuse-notebooks).
+**Keep the project brief when you switch assistants.** With both clients using the same TOMC database on one computer, you can reuse saved decisions, constraints and next steps. [Try the Codex → Claude Code → Codex handoff](#switch-assistants).
 
 <a href="assets/plugin_usage_api_20261003.png">
   <img src="assets/plugin_usage_api_20261003.png" alt="Install TOMC in Codex, Cursor, Claude Desktop or Claude Code. Supply history, task and budget; TOMC prepares context for the same assistant." width="1280">
@@ -102,6 +103,32 @@ In the VS Code extension trial with Claude Opus 5.5, with budget 8,192, recallin
 **Tested on Windows, macOS and Linux, and in Claude Code.** Installation and tool checks passed on all three systems; real model calls passed in Codex on [Windows with preview.4](docs/validation.md#windows-codex-preview4) and macOS and in Claude Code with Claude Opus 5.5. GUI installation in Claude Desktop, Cursor and the Codex app is still unverified. [Platform checks and dates](docs/platform_checks.md)
 
 [Usage tips (English)](docs/usage_tips.md) · [中文使用技巧](docs/usage_tips_zh.md) · [Windows installation feedback](docs/windows_installation_feedback.md) · [Full installation guide](docs/assistant_plugin.md) · [Validation record](docs/validation.md) · [Claude checksum](https://github.com/ZipengWu365/TOMC/releases/download/v0.1.0-assistant-preview.5/tomc-memory-0.1.0.mcpb.sha256) · [Codex checksum](https://github.com/ZipengWu365/TOMC/releases/download/v0.1.0-assistant-preview.5/tomc-memory-codex-0.1.0.zip.sha256).
+
+<a id="switch-assistants"></a>
+
+### Switch assistants, keep your project notes
+
+Save a project brief in Codex, continue from it in Claude Code, then bring the updated notes back. Install TOMC in both clients and make both servers open the same SQLite file. Each save and recall is an explicit tool call. [Shared-path setup](docs/usage_tips.md#reuse-notebooks).
+
+<picture>
+  <source media="(max-width: 700px)" srcset="assets/shared_notebook_handoff_mobile.svg">
+  <img src="assets/shared_notebook_handoff.svg" alt="Codex saves project notes; Claude Code recalls and updates them; Codex reads the latest notes. One shared TOMC notebook on the same computer, with explicit save and recall." width="1280">
+</picture>
+
+<details>
+<summary>Try the handoff with three prompts</summary>
+
+This example saves a planning note, not a claim that tests have run.
+
+| Where | Ask your assistant |
+|---|---|
+| Codex | Use TOMC's `remember_memory` to save this as `api-refactor`: keep public API routes and response fields unchanged. Pagination tests have not been written or run. |
+| New Claude Code chat | Use TOMC's `recall_memory` for `api-refactor`, with task: plan the pagination tests, and budget: 1024. Then use `remember_memory` to append: test plan — cover empty results, the last page and invalid page parameters. Tests remain unrun. Show both tool results. |
+| New Codex chat | Use TOMC's `recall_memory` for `api-refactor`, with task: summarize the API constraints, latest test plan and unfinished work, and budget: 1024. Show the returned memory before answering. |
+
+</details>
+
+The notebook keeps the original notes and appended updates; recall prepares that history for the next task. This shares saved notes, rather than migrating native chat histories or providing cross-device cloud sync. [MCP interoperability and user-guided checks](docs/validation.md#cross-assistant-notebooks).
 
 ### Use before your API call
 

@@ -2,7 +2,8 @@
   <img src="assets/tomc_logo_20261002.png" alt="TOMC" width="380">
   <h1>为下一次模型调用，发送更少的上下文</h1>
   <h3>面向任务的上下文压缩，交给你已经使用的模型。</h3>
-  <p><a href="#接入常用助手"><strong>安装 TOMC</strong></a> · <a href="#接在你的-api-调用之前">接入 API</a> · <a href="#试用演示">查看 Demo</a> · <a href="#paper-explained">论文详解</a> · <a href="#同一个模型基线记忆与-tomc-记忆">论文结果</a> · <a href="README.md">English</a></p>
+  <p><strong>在 Codex 保存，到 Claude Code 接续，再把更新带回来。</strong></p>
+  <p><a href="#接入常用助手"><strong>安装 TOMC</strong></a> · <a href="#switch-assistants">换助手继续</a> · <a href="#接在你的-api-调用之前">接入 API</a> · <a href="#试用演示">查看 Demo</a> · <a href="#paper-explained">论文详解</a> · <a href="#同一个模型基线记忆与-tomc-记忆">论文结果</a> · <a href="README.md">English</a></p>
   <p><strong>CPU 准备上下文</strong> · 无需训练或额外模型服务 · 输出普通文本 · 非商业用途免费</p>
 </div>
 
@@ -14,7 +15,7 @@ TOMC 是面向任务的大模型上下文压缩工具，提供 MCP 服务和 Pyt
 
 可以在 Codex、Cursor、Claude Desktop 或 Claude Code 中安装插件，也可以把 Python API 接进自己的应用。节省量取决于历史和任务；短历史可以保持完整。默认保留长历史的约 80%。需要更小的请求时，可以用自己的任务比较 40% 或 60% 预算；参见分别记录的 [Codex 与 Claude 实测](#实测节省)。
 
-**把项目上下文带到另一个助手。** 在 Codex 保存要复用的笔记，再到 Claude Code 按下一步任务取回，也可以反过来。两边的 TOMC 服务需要使用同一台电脑上的同一数据库。[共享记忆本设置与提示词](docs/usage_tips_zh.md#reuse-notebooks)。
+**换个助手，项目背景接着用。** 两个客户端使用同一台电脑上的同一 TOMC 数据库时，可以复用已保存的决策、约束和下一步任务。[试一次 Codex → Claude Code → Codex 接续](#switch-assistants)。
 
 <a href="assets/plugin_usage_api_20261003.png">
   <img src="assets/plugin_usage_api_20261003.png" alt="在 Codex、Cursor、Claude Desktop 或 Claude Code 中安装 TOMC，传入历史、任务和预算；TOMC 准备上下文，再交给原来的助手。" width="1280">
@@ -102,6 +103,32 @@ VS Code 扩展实测中（模型为 Claude Opus 5.5），预算设为 8,192 时�
 **已在 Windows、macOS、Linux 和 Claude Code 中实测。** 三个系统都通过了安装和工具检查；Codex（[Windows preview.4](docs/validation.md#windows-codex-preview4)、macOS）和 Claude Code（Claude Opus 5.5）通过了真实模型调用。Claude Desktop、Cursor 和 Codex 桌面应用的图形界面安装仍待验证。[各平台检查记录](docs/platform_checks_zh.md)
 
 [Usage tips (English)](docs/usage_tips.md) · [中文使用技巧](docs/usage_tips_zh.md) · [Windows 安装反馈](docs/windows_installation_feedback_zh.md) · [完整中文安装指南](docs/assistant_plugin_zh.md) · [验证记录](docs/validation.md) · [Claude 校验文件](https://github.com/ZipengWu365/TOMC/releases/download/v0.1.0-assistant-preview.5/tomc-memory-0.1.0.mcpb.sha256) · [Codex 校验文件](https://github.com/ZipengWu365/TOMC/releases/download/v0.1.0-assistant-preview.5/tomc-memory-codex-0.1.0.zip.sha256)。
+
+<a id="switch-assistants"></a>
+
+### 换助手，保留项目笔记
+
+在 Codex 保存项目背景，到 Claude Code 接着做，再把更新后的笔记带回 Codex。两边都安装 TOMC，并让服务打开同一个 SQLite 文件。保存和取回都需要明确调用工具。[共享路径设置](docs/usage_tips_zh.md#reuse-notebooks)。
+
+<picture>
+  <source media="(max-width: 700px)" srcset="assets/shared_notebook_handoff_zh_mobile.svg">
+  <img src="assets/shared_notebook_handoff_zh.svg" alt="Codex 保存项目笔记；Claude Code 取回并追加更新；Codex 再读取最新笔记。同一台电脑共用一个 TOMC 记忆本，并显式保存、取回。" width="1280">
+</picture>
+
+<details>
+<summary>用三段提示词试一次接续</summary>
+
+这个例子保存测试计划，不宣称测试已经运行。
+
+| 在哪里 | 告诉助手 |
+|---|---|
+| Codex | 请用 TOMC 的 `remember_memory` 保存到 `api-refactor`：公共 API 路由与返回字段保持不变。分页测试尚未编写，也没有运行。 |
+| 新的 Claude Code 聊天 | 请用 TOMC 的 `recall_memory` 读取 `api-refactor`，task 为：规划分页测试，budget 为 1024。然后用 `remember_memory` 追加：测试计划覆盖空结果、最后一页和无效分页参数。测试仍未运行。展示两次工具返回的结果。 |
+| 新的 Codex 聊天 | 请用 TOMC 的 `recall_memory` 读取 `api-refactor`，task 为：总结 API 约束、最新测试计划和未完成工作，budget 为 1024。先展示返回的 memory，再依据它回答。 |
+
+</details>
+
+记忆本保留原始笔记和追加更新，取回时为下一步任务准备上下文。共享的是明确保存的笔记，不会迁移原生聊天记录，也不提供跨设备云同步。[MCP 互操作和用户引导检查](docs/validation.md#cross-assistant-notebooks)。
 
 ### 接在你的 API 调用之前
 

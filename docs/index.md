@@ -4,7 +4,9 @@
 
 TOMC prepares context before your next LLM API call. Give it a history, a task and a memory budget. It selects source text and computes supported state, relation or count records. Send the result in place of the full history to reduce the input your model receives. Preparation runs on CPU without training or an extra model service.
 
-Install the plugin in Codex, Cursor or Claude Desktop, or use the Python API in your application. It processes only supplied content. Savings depend on the input and task; short histories can stay unchanged, and records plus prompt overhead can increase a request.
+Install the plugin in Codex, Cursor, Claude Desktop or Claude Code, or use the Python API in your application. It processes only supplied content. Savings depend on the input and task; short histories can stay unchanged, and records plus prompt overhead can increase a request.
+
+**Save in Codex. Continue in Claude Code. Bring updated notes back.** Both TOMC servers must use the same database on the same computer. [Shared-notebook setup and prompts](usage_tips.md#reuse-notebooks).
 
 <a href="assets/plugin_usage_api_20261003.png">
   <img src="assets/plugin_usage_api_20261003.png" alt="Install TOMC in Codex, Cursor, Claude Desktop or Claude Code. Supply history, task and budget; TOMC prepares context for the same assistant." width="1280">
@@ -12,7 +14,8 @@ Install the plugin in Codex, Cursor or Claude Desktop, or use the Python API in 
 
 ## Start here
 
-- [Install TOMC](assistant_plugin.md): choose Codex, Cursor or Claude Desktop.
+- [Install TOMC](assistant_plugin.md): choose Codex, Cursor, Claude Desktop or Claude Code.
+- [Switch assistants](usage_tips.md#reuse-notebooks): save project notes in one client and recall them for the next task in another.
 - [Prepare context](assistant_plugin.md#prepare-context): supply history, task and budget through the installed tool.
 - [Use before an API call](api_reference.md#prepare-context-before-your-api-call): replace the original history with prepared messages using your existing client.
 - [Manual MCP setup](assistant_setup.md): register an installed environment in your client.

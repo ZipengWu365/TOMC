@@ -30,5 +30,52 @@
     "No native model-generated handoff or GUI interaction was measured",
     "No cross-device cloud synchronization",
     "Memory-token estimates do not establish request-level billing savings"
-  ]
+  ],
+  "user_guided_round_trip_20261008": {
+    "recorded_on": "2026-10-08",
+    "record_type": "user_guided_cross_client_round_trip",
+    "status": "sharing observed with a user-reported Claude Code step",
+    "scope": "User-guided use of the installed TOMC notebook tools between Codex and Claude Code, followed by direct observation of a live Codex recall. This is separate from the isolated subprocess test.",
+    "evidence_source": "Owner conversation context and the root agent's already observed live Codex list_memories/recall_memory results; no additional notebook read performed for this record.",
+    "independently_observed": {
+      "receiving_endpoint": "live Codex TOMC notebook tools",
+      "tools": [
+        "list_memories",
+        "recall_memory"
+      ],
+      "saved_entry_count": 2,
+      "latest_appended_status_update_visible": true,
+      "selected_method": "raw",
+      "returned_memory_estimated_tokens": 58,
+      "compression_exercised": false
+    },
+    "reported_by_user": {
+      "Claude_Code_read_the_saved_notebook": true,
+      "Claude_Code_appended_a_follow_up_update": true,
+      "independently_instrumented_Claude_Code_call_stream": false
+    },
+    "claims_supported": [
+      "The newer saved notebook update was available to live Codex after the user-reported Claude Code read/append step.",
+      "Explicitly saved project context can be reused across these installed clients when they share the TOMC database."
+    ],
+    "limits": [
+      "The stored status assertion was read back as text; the record does not independently establish that any project tests were written, run or passed.",
+      "This is explicit notebook storage and recall, not migration of complete native chat history, tools, permissions or execution state.",
+      "The 58-token memory was returned raw; this round trip did not measure a compression benefit.",
+      "No provider request usage, billing saving, cash cost or general answer-quality result was collected.",
+      "No cross-device or cloud synchronization was tested.",
+      "The receiving-client write is a user report; only the resulting live Codex list/recall was directly observed by the root agent."
+    ],
+    "privacy": {
+      "notebook_name_included": false,
+      "project_name_included": false,
+      "raw_saved_text_included": false,
+      "personal_paths_or_config_included": false
+    },
+    "historical_test_kept_separate": {
+      "server_processes": 7,
+      "mcp_tool_calls": 11,
+      "scope": "The prior isolated shared-SQLite process test only; no counts or no-model/isolation assertions are carried into this user-guided round trip."
+    }
+  }
 }

@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="480" height="750" viewBox="0 0 480 750" role="img" aria-labelledby="title desc">
+<title id="title">换个助手，项目接着做</title><desc id="desc">Codex 保存项目笔记，Claude Code 取回并追加更新，Codex 再读取最新笔记。两边在同一台电脑打开同一个 TOMC 记忆本，并显式调用存取工具。</desc>
+<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0 0L7 4L0 8" fill="none" stroke="#1b604a" stroke-width="1.5"/></marker></defs>
+<style>text{font-family:Arial,'Microsoft YaHei','Noto Sans CJK SC',sans-serif}</style>
+<rect width="100%" height="100%" rx="18" fill="white"/>
+<text x="24" y="44" font-size="34" font-weight="700" fill="#172a27">换个助手，项目接着做</text>
+<rect x="24" y="80" width="432" height="144" rx="14" fill="#eef6f0" stroke="#d8ded5" stroke-width="1.5"/>
+<circle cx="52" cy="112" r="15" fill="#1b604a"/>
+<text x="52" y="119" text-anchor="middle" font-size="20" font-weight="700" fill="white">1</text>
+<text x="78" y="121" font-size="28" font-weight="700" fill="#172a27">Codex</text>
+<rect x="389" y="96" width="44" height="34" rx="7" fill="white" stroke="#1b604a" stroke-width="2"/><path d="M400 107l6 6-6 6m12 0h9" fill="none" stroke="#1b604a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="48" y="164" font-size="26" font-weight="600" fill="#172a27">保存项目笔记</text>
+<text x="48" y="197" font-size="22" font-weight="500" fill="#172a27">决策、约束与下一步</text>
+<path d="M240 235V248" fill="none" stroke="#1b604a" stroke-width="2.5" marker-end="url(#arrow)"/>
+<rect x="24" y="258" width="432" height="144" rx="14" fill="#fff8e9" stroke="#d8ded5" stroke-width="1.5"/>
+<circle cx="52" cy="290" r="15" fill="#97651b"/>
+<text x="52" y="297" text-anchor="middle" font-size="20" font-weight="700" fill="white">2</text>
+<text x="78" y="299" font-size="28" font-weight="700" fill="#172a27">Claude Code</text>
+<rect x="389" y="274" width="44" height="34" rx="7" fill="white" stroke="#97651b" stroke-width="2"/><path d="M400 285l6 6-6 6m12 0h9" fill="none" stroke="#97651b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="48" y="342" font-size="26" font-weight="600" fill="#172a27">取回并追加更新</text>
+<text x="48" y="375" font-size="22" font-weight="500" fill="#172a27">继续同一项任务</text>
+<path d="M240 413V426" fill="none" stroke="#1b604a" stroke-width="2.5" marker-end="url(#arrow)"/>
+<rect x="24" y="436" width="432" height="144" rx="14" fill="#eef6f0" stroke="#d8ded5" stroke-width="1.5"/>
+<circle cx="52" cy="468" r="15" fill="#1b604a"/>
+<text x="52" y="475" text-anchor="middle" font-size="20" font-weight="700" fill="white">3</text>
+<text x="78" y="477" font-size="28" font-weight="700" fill="#172a27">Codex</text>
+<rect x="389" y="452" width="44" height="34" rx="7" fill="white" stroke="#1b604a" stroke-width="2"/><path d="M400 463l6 6-6 6m12 0h9" fill="none" stroke="#1b604a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="48" y="520" font-size="26" font-weight="600" fill="#172a27">读取最新笔记</text>
+<text x="48" y="553" font-size="22" font-weight="500" fill="#172a27">接着上次的进度继续</text>
+<ns0:svg xmlns:ns0="http://www.w3.org/2000/svg" x="24" y="602" width="48" height="48" viewBox="0 0 128 128">
+<ns0:rect width="100%" height="100%" rx="16" fill="white" />
+<ns0:rect x="15" y="17" width="78" height="89" rx="12" fill="#edf4fc" stroke="#356da6" stroke-width="1.8" />
+<ns0:rect x="25" y="26" width="78" height="89" rx="12" fill="#fff5df" stroke="#97651b" stroke-width="1.8" />
+<ns0:rect x="35" y="35" width="78" height="80" rx="12" fill="#edf6e8" stroke="#287451" stroke-width="1.8" />
+<ns0:path d="M51 57h42" stroke="#287451" stroke-width="5" stroke-linecap="round" />
+<ns0:path d="M51 74h29" stroke="#287451" stroke-width="5" stroke-linecap="round" />
+<ns0:path d="M51 91h35" stroke="#287451" stroke-width="5" stroke-linecap="round" />
+<ns0:path d="M10 57H35" stroke="#356da6" stroke-width="2.5" /><ns0:circle cx="10" cy="57" r="5" fill="white" stroke="#356da6" stroke-width="2.5" />
+<ns0:path d="M10 91H35" stroke="#356da6" stroke-width="2.5" /><ns0:circle cx="10" cy="91" r="5" fill="white" stroke="#356da6" stroke-width="2.5" />
+</ns0:svg>
+<text x="84" y="635" font-size="26" font-weight="700" fill="#172a27">同一个 TOMC 记忆本</text>
+<text x="24" y="687" font-size="22" font-weight="500" fill="#172a27">同一台电脑 · 共用记忆库</text>
+<text x="24" y="718" font-size="22" font-weight="500" fill="#172a27">显式保存和取回</text>
+</svg>
