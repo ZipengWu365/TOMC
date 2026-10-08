@@ -76,13 +76,13 @@
     },
     {
       "path": "README.md",
-      "bytes": 33381,
-      "sha256": "fc359df7fcc95803c50f68922f6efda5f09b1124462a7ac9641acb9581b6aa18"
+      "bytes": 33368,
+      "sha256": "0b6206533176bde6a365534d379f68d81b82dfc89c2bc2209ead3812d8dde463"
     },
     {
       "path": "README_zh.md",
-      "bytes": 31290,
-      "sha256": "d5661fa2b1293088d94c78e5e5ca22795f208b08af18fae44bb51d9db7c39200"
+      "bytes": 31281,
+      "sha256": "178b6162afc52fdbe26b24d5e9e2808e93783f941520ddc9a860c49106f6f07e"
     },
     {
       "path": "SECURITY.md",
@@ -631,8 +631,8 @@
     },
     {
       "path": "docs/index.md",
-      "bytes": 6365,
-      "sha256": "8013915cdad3552b85fd05700f42b3376d9dd9adf5dd87d7e72234f6ac5bc932"
+      "bytes": 6357,
+      "sha256": "f49cda0f827ccb06ce7db705a018fef920a6db6b6a96464f37d11a83d300b375"
     },
     {
       "path": "docs/legacy_extensions.md",
@@ -1210,7 +1210,7 @@
       "sha256": "17c605bde43040d24896c39084ccbddf0274e282420cd9bffa10fb691992f141"
     }
   ],
-  "total_bytes": 17651146,
+  "total_bytes": 17651116,
   "self_excluded": [
     "PUBLIC_RELEASE_MANIFEST.json",
     "SHA256SUMS"

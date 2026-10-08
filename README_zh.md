@@ -2,8 +2,8 @@
   <img src="assets/tomc_logo_20261002.png" alt="TOMC" width="380">
   <h1>为下一次模型调用，发送更少的上下文</h1>
   <h3>面向任务的上下文压缩，交给你已经使用的模型。</h3>
-  <p><strong>在 Codex 保存，到 Claude Code 接续，再把更新带回来。</strong></p>
-  <p><a href="#接入常用助手"><strong>安装 TOMC</strong></a> · <a href="#switch-assistants">换助手继续</a> · <a href="#接在你的-api-调用之前">接入 API</a> · <a href="#试用演示">查看 Demo</a> · <a href="#paper-explained">论文详解</a> · <a href="#同一个模型基线记忆与-tomc-记忆">论文结果</a> · <a href="README.md">English</a></p>
+  <p><strong>在下一次 API 调用之前，先在 CPU 上准备长历史。</strong></p>
+  <p><a href="#接在你的-api-调用之前"><strong>接入 API</strong></a> · <a href="#接入常用助手">安装 TOMC</a> · <a href="#switch-assistants">换助手继续</a> · <a href="#试用演示">查看 Demo</a> · <a href="#paper-explained">论文详解</a> · <a href="#同一个模型基线记忆与-tomc-记忆">论文结果</a> · <a href="README.md">English</a></p>
   <p><strong>CPU 准备上下文</strong> · 无需训练或额外模型服务 · 输出普通文本 · 非商业用途免费</p>
 </div>
 
@@ -13,9 +13,9 @@
 
 TOMC 是面向任务的大模型上下文压缩工具，提供 MCP 服务和 Python API。给它一段历史、下一步任务和记忆预算。它选择原文，对支持的状态、关系或计数操作计算记录，让你的应用用准备后的上下文替换完整历史。准备过程在 CPU 上运行，无需训练或额外模型服务。
 
-可以在 Codex、Cursor、Claude Desktop 或 Claude Code 中安装插件，也可以把 Python API 接进自己的应用。节省量取决于历史和任务；短历史可以保持完整。默认保留长历史的约 80%。需要更小的请求时，可以用自己的任务比较 40% 或 60% 预算；参见分别记录的 [Codex 与 Claude 实测](#实测节省)。
+可以把 Python API 接进自己的应用，也可以在 Codex、Cursor、Claude Desktop 或 Claude Code 中安装插件。节省量取决于历史和任务；短历史可以保持完整。默认保留长历史的约 80%。需要更小的请求时，可以用自己的任务比较 40% 或 60% 预算；参见分别记录的 [Codex 与 Claude 实测](#实测节省)。
 
-**换个助手，项目背景接着用。** 两个客户端使用同一台电脑上的同一 TOMC 数据库时，可以复用已保存的决策、约束和下一步任务。[试一次 Codex → Claude Code → Codex 接续](#switch-assistants)。
+换个助手，项目背景接着用。两个客户端使用同一台电脑上的同一 TOMC 数据库时，可以复用已保存的决策、约束和下一步任务。[试一次 Codex → Claude Code → Codex 接续](#switch-assistants)。
 
 <a href="assets/plugin_usage_api_20261003.png">
   <img src="assets/plugin_usage_api_20261003.png" alt="在 Codex、Cursor、Claude Desktop 或 Claude Code 中安装 TOMC，传入历史、任务和预算；TOMC 准备上下文，再交给原来的助手。" width="1280">

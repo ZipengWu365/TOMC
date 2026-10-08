@@ -2,8 +2,8 @@
   <img src="assets/tomc_logo_20261002.png" alt="TOMC" width="380">
   <h1>Send less context to your LLM API</h1>
   <h3>Task-oriented context compression for the model you already use.</h3>
-  <p><strong>Save in Codex. Continue in Claude Code. Bring updated notes back.</strong></p>
-  <p><a href="#install-in-your-assistant"><strong>Install TOMC</strong></a> · <a href="#switch-assistants">Switch assistants</a> · <a href="#use-before-your-api-call">Use with your API</a> · <a href="#try-the-demo">See the demo</a> · <a href="#paper-explained">Paper explained</a> · <a href="#same-reader-baseline-memory-vs-tomc-memory">Paper results</a> · <a href="README_zh.md">中文</a></p>
+  <p><strong>Prepare long histories on CPU before your next API call.</strong></p>
+  <p><a href="#use-before-your-api-call"><strong>Use with your API</strong></a> · <a href="#install-in-your-assistant">Install TOMC</a> · <a href="#switch-assistants">Switch assistants</a> · <a href="#try-the-demo">See the demo</a> · <a href="#paper-explained">Paper explained</a> · <a href="#same-reader-baseline-memory-vs-tomc-memory">Paper results</a> · <a href="README_zh.md">中文</a></p>
   <p><strong>CPU preparation</strong> · No training or extra model service · Plain-text output · Free for non-commercial use</p>
 </div>
 
@@ -13,9 +13,9 @@
 
 TOMC is a task-oriented context compression tool for LLMs, available through an MCP server and a Python API. Give it a history, the next task and a memory budget. It selects source text and computes supported state, relation or count records, so your application can send the prepared context in place of the full history. Preparation runs on CPU, with no training or extra model service.
 
-Use the plugin in Codex, Cursor, Claude Desktop or Claude Code, or add the Python API to your own application. Savings depend on the history and task; short histories can stay intact. The default keeps about 80% of a long history. Compare 40% or 60% budgets on your own tasks when you need smaller requests; see the separate [Codex and Claude results](#measured-savings).
+Add the Python API to your own application, or use the plugin in Codex, Cursor, Claude Desktop or Claude Code. Savings depend on the history and task; short histories can stay intact. The default keeps about 80% of a long history. Compare 40% or 60% budgets on your own tasks when you need smaller requests; see the separate [Codex and Claude results](#measured-savings).
 
-**Keep the project brief when you switch assistants.** With both clients using the same TOMC database on one computer, you can reuse saved decisions, constraints and next steps. [Try the Codex → Claude Code → Codex handoff](#switch-assistants).
+Keep the project brief when you switch assistants. With both clients using the same TOMC database on one computer, you can reuse saved decisions, constraints and next steps. [Try the Codex → Claude Code → Codex handoff](#switch-assistants).
 
 <a href="assets/plugin_usage_api_20261003.png">
   <img src="assets/plugin_usage_api_20261003.png" alt="Install TOMC in Codex, Cursor, Claude Desktop or Claude Code. Supply history, task and budget; TOMC prepares context for the same assistant." width="1280">
