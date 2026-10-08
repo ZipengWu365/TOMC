@@ -4,9 +4,9 @@
 
 TOMC prepares context before your next LLM API call. Give it a history, a task and a memory budget. It selects source text and computes supported state, relation or count records. Send the result in place of the full history to reduce the input your model receives. Preparation runs on CPU without training or an extra model service.
 
-Install the plugin in Codex, Cursor, Claude Desktop or Claude Code, or use the Python API in your application. It processes only supplied content. Savings depend on the input and task; short histories can stay unchanged, and records plus prompt overhead can increase a request.
+Use the Python API in your application, or install the plugin in Codex, Cursor, Claude Desktop or Claude Code. It processes only supplied content. Savings depend on the input and task; short histories can stay unchanged, and records plus prompt overhead can increase a request.
 
-**Save in Codex. Continue in Claude Code. Bring updated notes back.** Both TOMC servers must use the same database on the same computer. [Shared-notebook setup and prompts](usage_tips.md#reuse-notebooks).
+You can also save notes in Codex and continue in Claude Code. Both TOMC servers must use the same database on the same computer. [Shared-notebook setup and prompts](usage_tips.md#reuse-notebooks).
 
 <a href="assets/plugin_usage_api_20261003.png">
   <img src="assets/plugin_usage_api_20261003.png" alt="Install TOMC in Codex, Cursor, Claude Desktop or Claude Code. Supply history, task and budget; TOMC prepares context for the same assistant." width="1280">
