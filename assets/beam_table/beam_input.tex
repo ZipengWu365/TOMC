@@ -1,0 +1,36 @@
+\documentclass[border=10pt]{standalone}
+\usepackage[T1]{fontenc}
+\usepackage{times}
+\usepackage{amsmath,amssymb,booktabs,xcolor}
+\definecolor{beamgain}{HTML}{176B47}
+\definecolor{beamloss}{HTML}{B43B32}
+\begin{document}
+\begin{minipage}{4.6in}
+
+Reader-input change of TOMC relative to each baseline (\%). Negative values mean TOMC sends fewer API input tokens; Mean averages the three readers.\par\medskip
+{\small\setlength{\tabcolsep}{1pt}\renewcommand{\arraystretch}{1.12}
+\begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}lrrrr@{}}
+\toprule
+Baseline & GPT-5.1 & Rednote preview & DeepSeek 4.1 Flash & Mean \\
+\midrule
+\multicolumn{5}{l}{\textbf{Overall (all lengths)}}\\
+LLMLingua-2-D (2024) & $-$9.14 & $-$11.70 & $-$12.02 & $-$10.95 \\
+LongLLMLingua (2024) & $-$14.52 & $-$7.99 & $-$12.73 & $-$11.75 \\
+BRIEF-Pro (2026) & $+$268.88 & $+$295.32 & $+$276.92 & $+$280.37 \\
+LLMLingua-2-H (2024) & $-$36.22 & $-$39.11 & $-$36.81 & $-$37.38 \\
+BEAM-RAG (2026) & $+$5.21 & $+$13.57 & $+$7.60 & $+$8.79 \\
+LIGHT (2026) & $-$38.64 & $-$33.75 & $-$37.32 & $-$36.57 \\
+\midrule
+\multicolumn{5}{l}{\textbf{10M tokens}}\\
+LLMLingua-2-D (2024) & $-$41.59 & $-$43.47 & $-$46.37 & $-$43.81 \\
+LongLLMLingua (2024) & $-$22.70 & $-$13.84 & $-$20.55 & $-$19.03 \\
+BRIEF-Pro (2026) & $+$280.41 & $+$322.49 & $+$290.69 & $+$297.87 \\
+LLMLingua-2-H (2024) & $-$43.43 & $-$48.05 & $-$45.48 & $-$45.65 \\
+BEAM-RAG (2026) & $-$7.73 & $+$3.09 & $-$5.18 & $-$3.27 \\
+LIGHT (2026) & $-$44.76 & $-$37.84 & $-$43.36 & $-$41.99 \\
+\bottomrule
+\end{tabular*}}
+\par\smallskip{\footnotesize\raggedright
+Input is mean API reader input, including prompt overhead. The direct LLMLingua-2 1M run produced 200 empty memories, so its low input there is not successful compression.\par}
+\end{minipage}
+\end{document}

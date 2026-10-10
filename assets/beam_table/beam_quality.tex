@@ -1,0 +1,70 @@
+\documentclass[border=10pt]{standalone}
+\usepackage[T1]{fontenc}
+\usepackage{times}
+\usepackage{amsmath,amssymb,booktabs,xcolor}
+\definecolor{beamgain}{HTML}{176B47}
+\definecolor{beamloss}{HTML}{B43B32}
+\begin{document}
+\begin{minipage}{5.5in}
+
+BEAM answer quality across history lengths. Cells pair baseline / full TOMC scores (0--100); dashed rows pair TOMC w/o compilation / full TOMC from separate matched batches. Bold marks the higher paired score.\par\medskip
+{\small\setlength{\tabcolsep}{1pt}\renewcommand{\arraystretch}{1.12}
+\begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}lrlrlrll@{}}
+\toprule
+ & \multicolumn{2}{c}{GPT-5.1} & \multicolumn{2}{c}{Rednote preview} & \multicolumn{2}{c}{DeepSeek 4.1 Flash} & Mean \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}
+Baseline & {\fontsize{8}{9}\selectfont Base. / TOMC} & $\Delta$ (\%) & {\fontsize{8}{9}\selectfont Base. / TOMC} & $\Delta$ (\%) & {\fontsize{8}{9}\selectfont Base. / TOMC} & $\Delta$ (\%) & $\Delta$ (\%) \\
+\midrule
+\multicolumn{8}{l}{\textbf{Overall (all lengths)}}\\
+LLMLingua-2-D (2024) & 34.60\,/\,\textbf{55.75} & \textcolor{beamgain}{$\uparrow61.1$} & 31.23\,/\,\textbf{50.75} & \textcolor{beamgain}{$\uparrow62.5$} & 29.90\,/\,\textbf{53.48} & \textcolor{beamgain}{$\uparrow78.8$} & \textcolor{beamgain}{$\uparrow67.5$} \\
+LongLLMLingua (2024) & 32.77\,/\,\textbf{51.68} & \textcolor{beamgain}{$\uparrow57.7$} & 32.75\,/\,\textbf{47.73} & \textcolor{beamgain}{$\uparrow45.7$} & 36.32\,/\,\textbf{53.45} & \textcolor{beamgain}{$\uparrow47.2$} & \textcolor{beamgain}{$\uparrow50.2$} \\
+BRIEF-Pro (2026) & 34.85\,/\,\textbf{51.41} & \textcolor{beamgain}{$\uparrow47.5$} & 33.87\,/\,\textbf{48.04} & \textcolor{beamgain}{$\uparrow41.9$} & 37.51\,/\,\textbf{53.29} & \textcolor{beamgain}{$\uparrow42.1$} & \textcolor{beamgain}{$\uparrow43.8$} \\
+LLMLingua-2-H (2024) & 40.98\,/\,\textbf{56.25} & \textcolor{beamgain}{$\uparrow37.3$} & 36.50\,/\,\textbf{51.76} & \textcolor{beamgain}{$\uparrow41.8$} & 33.36\,/\,\textbf{53.08} & \textcolor{beamgain}{$\uparrow59.1$} & \textcolor{beamgain}{$\uparrow46.1$} \\
+BEAM-RAG (2026) & 47.94\,/\,\textbf{54.90} & \textcolor{beamgain}{$\uparrow14.5$} & 48.10\,/\,\textbf{51.90} & \textcolor{beamgain}{$\uparrow7.9$} & 47.48\,/\,\textbf{53.26} & \textcolor{beamgain}{$\uparrow12.2$} & \textcolor{beamgain}{$\uparrow11.5$} \\
+LIGHT (2026) & 48.65\,/\,\textbf{55.32} & \textcolor{beamgain}{$\uparrow13.7$} & 47.32\,/\,\textbf{51.63} & \textcolor{beamgain}{$\uparrow9.1$} & 51.44\,/\,\textbf{53.16} & \textcolor{beamgain}{$\uparrow3.3$} & \textcolor{beamgain}{$\uparrow8.7$} \\
+\noalign{\vskip2pt\hbox to\linewidth{\leaders\hbox{\vrule width2.5pt height.35pt\hskip2pt}\hfill}\vskip2pt}
+TOMC w/o compilation & 55.00\,/\,\textbf{56.20} & \textcolor{beamgain}{$\uparrow2.2$} & \textbf{51.25}\,/\,50.34 & \textcolor{beamloss}{$\downarrow1.8$} & 49.74\,/\,\textbf{52.74} & \textcolor{beamgain}{$\uparrow6.0$} & \textcolor{beamgain}{$\uparrow2.1$} \\
+\midrule
+\multicolumn{8}{l}{\textbf{100K tokens}}\\
+LLMLingua-2-D (2024) & 51.70\,/\,\textbf{62.78} & \textcolor{beamgain}{$\uparrow21.4$} & 45.03\,/\,\textbf{56.24} & \textcolor{beamgain}{$\uparrow24.9$} & 44.73\,/\,\textbf{58.22} & \textcolor{beamgain}{$\uparrow30.1$} & \textcolor{beamgain}{$\uparrow25.5$} \\
+LongLLMLingua (2024) & 39.23\,/\,\textbf{57.29} & \textcolor{beamgain}{$\uparrow46.0$} & 35.36\,/\,\textbf{50.53} & \textcolor{beamgain}{$\uparrow42.9$} & 43.55\,/\,\textbf{57.63} & \textcolor{beamgain}{$\uparrow32.3$} & \textcolor{beamgain}{$\uparrow40.4$} \\
+BRIEF-Pro (2026) & 36.67\,/\,\textbf{55.90} & \textcolor{beamgain}{$\uparrow52.5$} & 34.54\,/\,\textbf{52.18} & \textcolor{beamgain}{$\uparrow51.1$} & 44.43\,/\,\textbf{57.63} & \textcolor{beamgain}{$\uparrow29.7$} & \textcolor{beamgain}{$\uparrow44.4$} \\
+LLMLingua-2-H (2024) & 53.37\,/\,\textbf{63.58} & \textcolor{beamgain}{$\uparrow19.1$} & 45.19\,/\,\textbf{58.53} & \textcolor{beamgain}{$\uparrow29.5$} & 45.05\,/\,\textbf{56.65} & \textcolor{beamgain}{$\uparrow25.7$} & \textcolor{beamgain}{$\uparrow24.8$} \\
+BEAM-RAG (2026) & 53.58\,/\,\textbf{62.26} & \textcolor{beamgain}{$\uparrow16.2$} & 53.48\,/\,\textbf{58.25} & \textcolor{beamgain}{$\uparrow8.9$} & 51.57\,/\,\textbf{58.21} & \textcolor{beamgain}{$\uparrow12.9$} & \textcolor{beamgain}{$\uparrow12.7$} \\
+LIGHT (2026) & 60.50\,/\,\textbf{62.26} & \textcolor{beamgain}{$\uparrow2.9$} & 57.05\,/\,\textbf{58.25} & \textcolor{beamgain}{$\uparrow2.1$} & \textbf{61.01}\,/\,58.21 & \textcolor{beamloss}{$\downarrow4.6$} & \textcolor{beamgain}{$\uparrow0.1$} \\
+\noalign{\vskip2pt\hbox to\linewidth{\leaders\hbox{\vrule width2.5pt height.35pt\hskip2pt}\hfill}\vskip2pt}
+TOMC w/o compilation & 57.89\,/\,\textbf{58.45} & \textcolor{beamgain}{$\uparrow1.0$} & \textbf{55.78}\,/\,52.78 & \textcolor{beamloss}{$\downarrow5.4$} & 53.05\,/\,\textbf{53.19} & \textcolor{beamgain}{$\uparrow0.3$} & \textcolor{beamloss}{$\downarrow1.4$} \\
+\midrule
+\multicolumn{8}{l}{\textbf{500K tokens}}\\
+LLMLingua-2-D (2024) & 36.68\,/\,\textbf{58.99} & \textcolor{beamgain}{$\uparrow60.8$} & 33.96\,/\,\textbf{56.71} & \textcolor{beamgain}{$\uparrow67.0$} & 30.49\,/\,\textbf{59.22} & \textcolor{beamgain}{$\uparrow94.3$} & \textcolor{beamgain}{$\uparrow74.0$} \\
+LongLLMLingua (2024) & 34.36\,/\,\textbf{56.82} & \textcolor{beamgain}{$\uparrow65.4$} & 34.86\,/\,\textbf{54.54} & \textcolor{beamgain}{$\uparrow56.5$} & 36.54\,/\,\textbf{59.43} & \textcolor{beamgain}{$\uparrow62.6$} & \textcolor{beamgain}{$\uparrow61.5$} \\
+BRIEF-Pro (2026) & 37.42\,/\,\textbf{55.18} & \textcolor{beamgain}{$\uparrow47.5$} & 35.71\,/\,\textbf{54.00} & \textcolor{beamgain}{$\uparrow51.2$} & 39.49\,/\,\textbf{59.43} & \textcolor{beamgain}{$\uparrow50.5$} & \textcolor{beamgain}{$\uparrow49.7$} \\
+LLMLingua-2-H (2024) & 37.31\,/\,\textbf{59.00} & \textcolor{beamgain}{$\uparrow58.1$} & 37.13\,/\,\textbf{57.94} & \textcolor{beamgain}{$\uparrow56.0$} & 33.53\,/\,\textbf{59.58} & \textcolor{beamgain}{$\uparrow77.7$} & \textcolor{beamgain}{$\uparrow63.9$} \\
+BEAM-RAG (2026) & 53.09\,/\,\textbf{59.10} & \textcolor{beamgain}{$\uparrow11.3$} & 52.88\,/\,\textbf{56.04} & \textcolor{beamgain}{$\uparrow6.0$} & 53.08\,/\,\textbf{59.46} & \textcolor{beamgain}{$\uparrow12.0$} & \textcolor{beamgain}{$\uparrow9.8$} \\
+LIGHT (2026) & 49.48\,/\,\textbf{59.60} & \textcolor{beamgain}{$\uparrow20.4$} & 52.38\,/\,\textbf{56.04} & \textcolor{beamgain}{$\uparrow7.0$} & 54.78\,/\,\textbf{59.46} & \textcolor{beamgain}{$\uparrow8.5$} & \textcolor{beamgain}{$\uparrow12.0$} \\
+\noalign{\vskip2pt\hbox to\linewidth{\leaders\hbox{\vrule width2.5pt height.35pt\hskip2pt}\hfill}\vskip2pt}
+TOMC w/o compilation & 56.13\,/\,\textbf{57.47} & \textcolor{beamgain}{$\uparrow2.4$} & \textbf{50.99}\,/\,50.85 & \textcolor{beamloss}{$\downarrow0.3$} & 50.25\,/\,\textbf{56.02} & \textcolor{beamgain}{$\uparrow11.5$} & \textcolor{beamgain}{$\uparrow4.5$} \\
+\midrule
+\multicolumn{8}{l}{\textbf{1M tokens}}\\
+LLMLingua-2-D (2024) & 24.67\,/\,\textbf{58.69} & \textcolor{beamgain}{$\uparrow137.9$} & 23.90\,/\,\textbf{50.54} & \textcolor{beamgain}{$\uparrow111.5$} & 24.56\,/\,\textbf{54.47} & \textcolor{beamgain}{$\uparrow121.7$} & \textcolor{beamgain}{$\uparrow123.7$} \\
+LongLLMLingua (2024) & 32.66\,/\,\textbf{50.91} & \textcolor{beamgain}{$\uparrow55.9$} & 32.81\,/\,\textbf{45.75} & \textcolor{beamgain}{$\uparrow39.4$} & 36.94\,/\,\textbf{54.47} & \textcolor{beamgain}{$\uparrow47.5$} & \textcolor{beamgain}{$\uparrow47.6$} \\
+BRIEF-Pro (2026) & 35.10\,/\,\textbf{53.03} & \textcolor{beamgain}{$\uparrow51.1$} & 35.66\,/\,\textbf{46.88} & \textcolor{beamgain}{$\uparrow31.5$} & 36.58\,/\,\textbf{54.47} & \textcolor{beamgain}{$\uparrow48.9$} & \textcolor{beamgain}{$\uparrow43.8$} \\
+LLMLingua-2-H (2024) & 43.34\,/\,\textbf{58.78} & \textcolor{beamgain}{$\uparrow35.6$} & 36.01\,/\,\textbf{51.97} & \textcolor{beamgain}{$\uparrow44.3$} & 32.74\,/\,\textbf{55.10} & \textcolor{beamgain}{$\uparrow68.3$} & \textcolor{beamgain}{$\uparrow49.4$} \\
+BEAM-RAG (2026) & 50.75\,/\,\textbf{56.38} & \textcolor{beamgain}{$\uparrow11.1$} & 48.51\,/\,\textbf{53.40} & \textcolor{beamgain}{$\uparrow10.1$} & 50.05\,/\,\textbf{53.06} & \textcolor{beamgain}{$\uparrow6.0$} & \textcolor{beamgain}{$\uparrow9.1$} \\
+LIGHT (2026) & 51.25\,/\,\textbf{56.59} & \textcolor{beamgain}{$\uparrow10.4$} & 45.83\,/\,\textbf{53.40} & \textcolor{beamgain}{$\uparrow16.5$} & 51.15\,/\,\textbf{53.06} & \textcolor{beamgain}{$\uparrow3.7$} & \textcolor{beamgain}{$\uparrow10.2$} \\
+\noalign{\vskip2pt\hbox to\linewidth{\leaders\hbox{\vrule width2.5pt height.35pt\hskip2pt}\hfill}\vskip2pt}
+TOMC w/o compilation & 50.96\,/\,\textbf{52.68} & \textcolor{beamgain}{$\uparrow3.4$} & 46.92\,/\,\textbf{47.34} & \textcolor{beamgain}{$\uparrow0.9$} & 45.90\,/\,\textbf{49.02} & \textcolor{beamgain}{$\uparrow6.8$} & \textcolor{beamgain}{$\uparrow3.7$} \\
+\midrule
+\multicolumn{8}{l}{\textbf{10M tokens}}\\
+LLMLingua-2-D (2024) & 25.36\,/\,\textbf{42.57} & \textcolor{beamgain}{$\uparrow67.8$} & 22.05\,/\,\textbf{39.54} & \textcolor{beamgain}{$\uparrow79.3$} & 20.35\,/\,\textbf{42.20} & \textcolor{beamgain}{$\uparrow107.4$} & \textcolor{beamgain}{$\uparrow84.8$} \\
+LongLLMLingua (2024) & 24.86\,/\,\textbf{41.74} & \textcolor{beamgain}{$\uparrow67.9$} & 27.97\,/\,\textbf{40.10} & \textcolor{beamgain}{$\uparrow43.4$} & 28.25\,/\,\textbf{42.28} & \textcolor{beamgain}{$\uparrow49.7$} & \textcolor{beamgain}{$\uparrow53.7$} \\
+BRIEF-Pro (2026) & 30.25\,/\,\textbf{41.59} & \textcolor{beamgain}{$\uparrow37.5$} & 29.60\,/\,\textbf{39.13} & \textcolor{beamgain}{$\uparrow32.2$} & 29.52\,/\,\textbf{41.63} & \textcolor{beamgain}{$\uparrow41.0$} & \textcolor{beamgain}{$\uparrow36.9$} \\
+LLMLingua-2-H (2024) & 29.88\,/\,\textbf{43.65} & \textcolor{beamgain}{$\uparrow46.1$} & 27.66\,/\,\textbf{38.66} & \textcolor{beamgain}{$\uparrow39.8$} & 22.56\,/\,\textbf{41.58} & \textcolor{beamgain}{$\uparrow84.3$} & \textcolor{beamgain}{$\uparrow56.7$} \\
+BEAM-RAG (2026) & 34.39\,/\,\textbf{41.89} & \textcolor{beamgain}{$\uparrow21.8$} & 37.46\,/\,\textbf{39.83} & \textcolor{beamgain}{$\uparrow6.3$} & 35.20\,/\,\textbf{42.29} & \textcolor{beamgain}{$\uparrow20.1$} & \textcolor{beamgain}{$\uparrow16.1$} \\
+LIGHT (2026) & 33.38\,/\,\textbf{42.87} & \textcolor{beamgain}{$\uparrow28.4$} & 34.02\,/\,\textbf{38.81} & \textcolor{beamgain}{$\uparrow14.1$} & 38.76\,/\,\textbf{41.86} & \textcolor{beamgain}{$\uparrow8.0$} & \textcolor{beamgain}{$\uparrow16.8$} \\
+\bottomrule
+\end{tabular*}}
+\par\smallskip{\footnotesize\raggedright
+\textbf{Reading.} $\Delta=100(T/B-1)$; Mean averages reader-wise changes before rounding. Green $\uparrow$/red $\downarrow$: improvement/decline. D/H: direct/hierarchical LLMLingua-2. \textbf{Comparisons.} Overall pools each reader's valid pairs across the four lengths descriptively; paired sets and scoring protocols vary. w/o compilation removes compiled records/instructions, retaining source text and routing; compilation ablations cover 100K--1M only. 10M: 200 questions from 10 sessions, 3,596 of 3,600 pairs valid.\par}
+\end{minipage}
+\end{document}

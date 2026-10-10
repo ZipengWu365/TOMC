@@ -16,6 +16,6 @@ The combined set covers 800 distinct questions in 70 sessions: the original 600 
 python scripts/make_beam_table.py --check
 ```
 
-The script reads this CSV and the per-tier aggregates in [`benchmarks/current_paper/beam_comparisons.csv`](../current_paper/beam_comparisons.csv). It recomputes every score pair, relative change, mean and input change, then checks that the README tables match. Without `--check` it rewrites the marked table blocks in `README.md` and `README_zh.md`. It makes no network or model calls.
+The script reads this CSV and the per-tier aggregates in [`benchmarks/current_paper/beam_comparisons.csv`](../current_paper/beam_comparisons.csv). It recomputes every score pair, relative change, mean and input change, then checks that the booktabs LaTeX sources in [`assets/beam_table/`](../../assets/beam_table/), the table images rendered from them and the README blocks are up to date. `python scripts/make_beam_table.py --render` rewrites them; rendering needs `pdflatex` and Poppler's `pdftocairo`/`pdftoppm`. It makes no network or model calls.
 
 Per reader and baseline, Overall pools the original valid pairs with the 10M pairs before taking means. Δ is `100 × (TOMC / baseline − 1)`, and the mean column averages the three readers before rounding. Input change uses the same reader-wise ratio of mean API reader-input tokens, then an equal average across readers.
