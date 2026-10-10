@@ -26,8 +26,8 @@
     },
     {
       "path": ".github/workflows/ci.yml",
-      "bytes": 1299,
-      "sha256": "1466393a0ce4d878f667b744946ffff9ac6212ca7f2dc47fa70d7baac578dc6f"
+      "bytes": 1354,
+      "sha256": "e01731f82a1f482886fb164c30bc3dfd3fda67a28d4f2e12bae17dfc1e08a25c"
     },
     {
       "path": ".gitignore",
@@ -76,13 +76,13 @@
     },
     {
       "path": "README.md",
-      "bytes": 35125,
-      "sha256": "16cc072b8d8cd33bd41bc6342fe622b0beaa39229169834edb1e134f298449e1"
+      "bytes": 43661,
+      "sha256": "03b76158957d6fb58e8007befe498ddec19160f3d7db5194906573a59f8e9880"
     },
     {
       "path": "README_zh.md",
-      "bytes": 32876,
-      "sha256": "d2618e2f2c84c4815b03556881814b7f8974a51cb9675c19f6850d67b0180893"
+      "bytes": 41511,
+      "sha256": "0377bde0ac58af943250eeb6cd35f628475f04784e9cfbeca3f3903d5d7f10c2"
     },
     {
       "path": "SECURITY.md",
@@ -393,6 +393,16 @@
       "path": "benchmarks/aggregate_results/source_hashes.json",
       "bytes": 2715,
       "sha256": "644346c0bd04f12695b44d9475dc06317f39297eb4739cbacb5578888b5241ce"
+    },
+    {
+      "path": "benchmarks/beam_10m_20261010/README.md",
+      "bytes": 2784,
+      "sha256": "c06aa7804f276614084750f1ed8c3f8d1d9223e32572a9bf6c473a1fcb42f8a0"
+    },
+    {
+      "path": "benchmarks/beam_10m_20261010/paired_scores_10m.csv",
+      "bytes": 1249125,
+      "sha256": "c8cdf90bce560acf6ddbb4a3ccb48e5a90f2802871166f0df2821ec18d36df0a"
     },
     {
       "path": "benchmarks/current_paper/README.md",
@@ -1215,6 +1225,11 @@
       "sha256": "1a0b53df9c8078b18490e41e0f7d3f7e8ee5a0bdbe72333c481e2dbfa8786540"
     },
     {
+      "path": "scripts/make_beam_table.py",
+      "bytes": 7275,
+      "sha256": "25ea85dc01f5942e4b48b8804932321635fba60f4b0c1749dea0fb98b2a5fa00"
+    },
+    {
       "path": "scripts/make_shared_notebook_diagram.py",
       "bytes": 6003,
       "sha256": "36b319a51f30fdd8d1d93ac09b2bc459043c9a04bd151e2744ebf8de3c374252"
@@ -1475,7 +1490,7 @@
       "sha256": "17c605bde43040d24896c39084ccbddf0274e282420cd9bffa10fb691992f141"
     }
   ],
-  "total_bytes": 68930390,
+  "total_bytes": 70206800,
   "self_excluded": [
     "PUBLIC_RELEASE_MANIFEST.json",
     "SHA256SUMS"

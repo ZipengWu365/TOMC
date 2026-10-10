@@ -344,24 +344,78 @@ print(result.ledger)  # 记录及其来源
 
 ### 同一个模型，基线记忆与 TOMC 记忆
 
-BEAM 实验使用 **GPT-5.1、Rednote preview 和 DeepSeek 4.1 Flash**，回答 100K、500K 和 1M-token 历史上的问题。每个模型分别使用 TOMC 记忆和六种基线配置的记忆。
+BEAM 实验使用 **GPT-5.1、Rednote preview 和 DeepSeek 4.1 Flash**，回答 100K、500K、1M 和 10M-token 历史上的问题。每个模型分别使用 TOMC 记忆和六种基线配置的记忆。
 
-- **回答质量：** 在 500K 和 1M 的 **36 个模型 × 基线 × 长度组合**中，TOMC 的均值都更高；整体 18 个比较的均值也都更高。
-- **模型输入：** 各模型的变化等权平均后，整体输入比 LIGHT 少 **34.77%**，比分层 LLMLingua-2 少 **34.35%**。其他部分基线的输入比 TOMC 更少。
+- **回答质量：** 在 500K、1M 和 10M 的 **54 个模型 × 基线 × 长度组合**中，TOMC 的均值都更高；整体 18 个比较的均值也都更高。
+- **模型输入：** 在 100K–10M 范围内，各模型的变化等权平均后，整体输入比 LIGHT 少 **36.57%**，比分层 LLMLingua-2 少 **37.38%**。其他部分基线的输入比 TOMC 更少。
 - **CPU 构建：** 六次重放的实测阶段平均 **4.21 秒/次**，CUDA 分配为 **0 GiB**，进程峰值 RSS 为 **3.75 GiB**。记录的每次构建耗时为 BRIEF-Pro 的 1/11.4、LongLLMLingua 的 1/17.1；这些是构建阶段的时间比，不包含回答模型推理。
 
-**每个分数对按 Baseline / TOMC 排列，分值为 0–100。** 同一个模型分别使用该行基线构建的记忆和 TOMC 构建的记忆，每对使用匹配的问题和评分。有效问题集合及评分协议可能因行而异，应在同一单元格内比较。粗体标出 TOMC 分数。
+**每格为 基线 / TOMC 分数（0–100），后接 Δ = 100(TOMC / 基线 − 1)。** 同一个模型分别使用该行基线构建的记忆和 TOMC 构建的记忆，每对使用匹配的问题和评分。“平均”是三个模型相对变化的等权平均，最后才舍入。粗体标出每对中较高的分数。*TOMC w/o compilation* 行把消融版本与完整 TOMC 配对，来自单独的匹配批次。
 
-| 基线记忆方法 | GPT-5.1<br>Baseline / **TOMC** | Rednote preview<br>Baseline / **TOMC** | DeepSeek 4.1 Flash<br>Baseline / **TOMC** | 平均输入变化 |
-|---|---:|---:|---:|---:|
-| LLMLingua-2-D | 37.69 / **60.16** | 34.30 / **54.49** | 33.13 / **57.29** | +7.87% |
-| LongLLMLingua | 35.43 / **55.03** | 34.34 / **50.28** | 39.01 / **57.18** | -9.32% |
-| BRIEF-Pro | 36.40 / **54.71** | 35.30 / **51.03** | 40.17 / **57.18** | +275.45% |
-| LLMLingua-2-H | 44.67 / **60.45** | 39.47 / **56.16** | 37.13 / **57.09** | -34.35% |
-| BEAM-RAG | 52.47 / **59.25** | 51.63 / **55.90** | 51.57 / **56.91** | +12.96% |
-| LIGHT | 53.75 / **59.48** | 51.75 / **55.90** | 55.65 / **56.91** | -34.77% |
+<!-- BEAM_TABLE_START -->
+| 基线 | GPT-5.1<br>基线 / TOMC | Δ (%) | Rednote preview<br>基线 / TOMC | Δ (%) | DeepSeek 4.1 Flash<br>基线 / TOMC | Δ (%) | 平均<br>Δ (%) |
+|---|---:|:---|---:|:---|---:|:---|:---|
+| **整体（全部长度）** | | | | | | | |
+| LLMLingua-2-D (2024) | 34.60 / **55.75** | ${\color{#176B47}\uparrow}$ 61.1 | 31.23 / **50.75** | ${\color{#176B47}\uparrow}$ 62.5 | 29.90 / **53.48** | ${\color{#176B47}\uparrow}$ 78.8 | ${\color{#176B47}\uparrow}$ 67.5 |
+| LongLLMLingua (2024) | 32.77 / **51.68** | ${\color{#176B47}\uparrow}$ 57.7 | 32.75 / **47.73** | ${\color{#176B47}\uparrow}$ 45.7 | 36.32 / **53.45** | ${\color{#176B47}\uparrow}$ 47.2 | ${\color{#176B47}\uparrow}$ 50.2 |
+| BRIEF-Pro (2026) | 34.85 / **51.41** | ${\color{#176B47}\uparrow}$ 47.5 | 33.87 / **48.04** | ${\color{#176B47}\uparrow}$ 41.9 | 37.51 / **53.29** | ${\color{#176B47}\uparrow}$ 42.1 | ${\color{#176B47}\uparrow}$ 43.8 |
+| LLMLingua-2-H (2024) | 40.98 / **56.25** | ${\color{#176B47}\uparrow}$ 37.3 | 36.50 / **51.76** | ${\color{#176B47}\uparrow}$ 41.8 | 33.36 / **53.08** | ${\color{#176B47}\uparrow}$ 59.1 | ${\color{#176B47}\uparrow}$ 46.1 |
+| BEAM-RAG (2026) | 47.94 / **54.90** | ${\color{#176B47}\uparrow}$ 14.5 | 48.10 / **51.90** | ${\color{#176B47}\uparrow}$ 7.9 | 47.48 / **53.26** | ${\color{#176B47}\uparrow}$ 12.2 | ${\color{#176B47}\uparrow}$ 11.5 |
+| LIGHT (2026) | 48.65 / **55.32** | ${\color{#176B47}\uparrow}$ 13.7 | 47.32 / **51.63** | ${\color{#176B47}\uparrow}$ 9.1 | 51.44 / **53.16** | ${\color{#176B47}\uparrow}$ 3.3 | ${\color{#176B47}\uparrow}$ 8.7 |
+| *TOMC w/o compilation（去掉编译记录）* | 55.00 / **56.20** | ${\color{#176B47}\uparrow}$ 2.2 | **51.25** / 50.34 | ${\color{#B43B32}\downarrow}$ 1.8 | 49.74 / **52.74** | ${\color{#176B47}\uparrow}$ 6.0 | ${\color{#176B47}\uparrow}$ 2.1 |
+| **10M tokens** | | | | | | | |
+| LLMLingua-2-D (2024) | 25.36 / **42.57** | ${\color{#176B47}\uparrow}$ 67.8 | 22.05 / **39.54** | ${\color{#176B47}\uparrow}$ 79.3 | 20.35 / **42.20** | ${\color{#176B47}\uparrow}$ 107.4 | ${\color{#176B47}\uparrow}$ 84.8 |
+| LongLLMLingua (2024) | 24.86 / **41.74** | ${\color{#176B47}\uparrow}$ 67.9 | 27.97 / **40.10** | ${\color{#176B47}\uparrow}$ 43.4 | 28.25 / **42.28** | ${\color{#176B47}\uparrow}$ 49.7 | ${\color{#176B47}\uparrow}$ 53.7 |
+| BRIEF-Pro (2026) | 30.25 / **41.59** | ${\color{#176B47}\uparrow}$ 37.5 | 29.60 / **39.13** | ${\color{#176B47}\uparrow}$ 32.2 | 29.52 / **41.63** | ${\color{#176B47}\uparrow}$ 41.0 | ${\color{#176B47}\uparrow}$ 36.9 |
+| LLMLingua-2-H (2024) | 29.88 / **43.65** | ${\color{#176B47}\uparrow}$ 46.1 | 27.66 / **38.66** | ${\color{#176B47}\uparrow}$ 39.8 | 22.56 / **41.58** | ${\color{#176B47}\uparrow}$ 84.3 | ${\color{#176B47}\uparrow}$ 56.7 |
+| BEAM-RAG (2026) | 34.39 / **41.89** | ${\color{#176B47}\uparrow}$ 21.8 | 37.46 / **39.83** | ${\color{#176B47}\uparrow}$ 6.3 | 35.20 / **42.29** | ${\color{#176B47}\uparrow}$ 20.1 | ${\color{#176B47}\uparrow}$ 16.1 |
+| LIGHT (2026) | 33.38 / **42.87** | ${\color{#176B47}\uparrow}$ 28.4 | 34.02 / **38.81** | ${\color{#176B47}\uparrow}$ 14.1 | 38.76 / **41.86** | ${\color{#176B47}\uparrow}$ 8.0 | ${\color{#176B47}\uparrow}$ 16.8 |
 
-*D/H 表示直接/分层 LLMLingua-2。输入变化以基线为分母，负值表示 TOMC 输入更少。均值更高不等于统计显著。直接 LLMLingua-2 的 1M 实验出现 200 个空记忆；保留其分数，但不把这部分低输入解释成成功压缩。*
+<details>
+<summary>100K、500K 和 1M tokens</summary>
+
+| 基线 | GPT-5.1<br>基线 / TOMC | Δ (%) | Rednote preview<br>基线 / TOMC | Δ (%) | DeepSeek 4.1 Flash<br>基线 / TOMC | Δ (%) | 平均<br>Δ (%) |
+|---|---:|:---|---:|:---|---:|:---|:---|
+| **100K tokens** | | | | | | | |
+| LLMLingua-2-D (2024) | 51.70 / **62.78** | ${\color{#176B47}\uparrow}$ 21.4 | 45.03 / **56.24** | ${\color{#176B47}\uparrow}$ 24.9 | 44.73 / **58.22** | ${\color{#176B47}\uparrow}$ 30.1 | ${\color{#176B47}\uparrow}$ 25.5 |
+| LongLLMLingua (2024) | 39.23 / **57.29** | ${\color{#176B47}\uparrow}$ 46.0 | 35.36 / **50.53** | ${\color{#176B47}\uparrow}$ 42.9 | 43.55 / **57.63** | ${\color{#176B47}\uparrow}$ 32.3 | ${\color{#176B47}\uparrow}$ 40.4 |
+| BRIEF-Pro (2026) | 36.67 / **55.90** | ${\color{#176B47}\uparrow}$ 52.5 | 34.54 / **52.18** | ${\color{#176B47}\uparrow}$ 51.1 | 44.43 / **57.63** | ${\color{#176B47}\uparrow}$ 29.7 | ${\color{#176B47}\uparrow}$ 44.4 |
+| LLMLingua-2-H (2024) | 53.37 / **63.58** | ${\color{#176B47}\uparrow}$ 19.1 | 45.19 / **58.53** | ${\color{#176B47}\uparrow}$ 29.5 | 45.05 / **56.65** | ${\color{#176B47}\uparrow}$ 25.7 | ${\color{#176B47}\uparrow}$ 24.8 |
+| BEAM-RAG (2026) | 53.58 / **62.26** | ${\color{#176B47}\uparrow}$ 16.2 | 53.48 / **58.25** | ${\color{#176B47}\uparrow}$ 8.9 | 51.57 / **58.21** | ${\color{#176B47}\uparrow}$ 12.9 | ${\color{#176B47}\uparrow}$ 12.7 |
+| LIGHT (2026) | 60.50 / **62.26** | ${\color{#176B47}\uparrow}$ 2.9 | 57.05 / **58.25** | ${\color{#176B47}\uparrow}$ 2.1 | **61.01** / 58.21 | ${\color{#B43B32}\downarrow}$ 4.6 | ${\color{#176B47}\uparrow}$ 0.1 |
+| *TOMC w/o compilation（去掉编译记录）* | 57.89 / **58.45** | ${\color{#176B47}\uparrow}$ 1.0 | **55.78** / 52.78 | ${\color{#B43B32}\downarrow}$ 5.4 | 53.05 / **53.19** | ${\color{#176B47}\uparrow}$ 0.3 | ${\color{#B43B32}\downarrow}$ 1.4 |
+| **500K tokens** | | | | | | | |
+| LLMLingua-2-D (2024) | 36.68 / **58.99** | ${\color{#176B47}\uparrow}$ 60.8 | 33.96 / **56.71** | ${\color{#176B47}\uparrow}$ 67.0 | 30.49 / **59.22** | ${\color{#176B47}\uparrow}$ 94.3 | ${\color{#176B47}\uparrow}$ 74.0 |
+| LongLLMLingua (2024) | 34.36 / **56.82** | ${\color{#176B47}\uparrow}$ 65.4 | 34.86 / **54.54** | ${\color{#176B47}\uparrow}$ 56.5 | 36.54 / **59.43** | ${\color{#176B47}\uparrow}$ 62.6 | ${\color{#176B47}\uparrow}$ 61.5 |
+| BRIEF-Pro (2026) | 37.42 / **55.18** | ${\color{#176B47}\uparrow}$ 47.5 | 35.71 / **54.00** | ${\color{#176B47}\uparrow}$ 51.2 | 39.49 / **59.43** | ${\color{#176B47}\uparrow}$ 50.5 | ${\color{#176B47}\uparrow}$ 49.7 |
+| LLMLingua-2-H (2024) | 37.31 / **59.00** | ${\color{#176B47}\uparrow}$ 58.1 | 37.13 / **57.94** | ${\color{#176B47}\uparrow}$ 56.0 | 33.53 / **59.58** | ${\color{#176B47}\uparrow}$ 77.7 | ${\color{#176B47}\uparrow}$ 63.9 |
+| BEAM-RAG (2026) | 53.09 / **59.10** | ${\color{#176B47}\uparrow}$ 11.3 | 52.88 / **56.04** | ${\color{#176B47}\uparrow}$ 6.0 | 53.08 / **59.46** | ${\color{#176B47}\uparrow}$ 12.0 | ${\color{#176B47}\uparrow}$ 9.8 |
+| LIGHT (2026) | 49.48 / **59.60** | ${\color{#176B47}\uparrow}$ 20.4 | 52.38 / **56.04** | ${\color{#176B47}\uparrow}$ 7.0 | 54.78 / **59.46** | ${\color{#176B47}\uparrow}$ 8.5 | ${\color{#176B47}\uparrow}$ 12.0 |
+| *TOMC w/o compilation（去掉编译记录）* | 56.13 / **57.47** | ${\color{#176B47}\uparrow}$ 2.4 | **50.99** / 50.85 | ${\color{#B43B32}\downarrow}$ 0.3 | 50.25 / **56.02** | ${\color{#176B47}\uparrow}$ 11.5 | ${\color{#176B47}\uparrow}$ 4.5 |
+| **1M tokens** | | | | | | | |
+| LLMLingua-2-D (2024) | 24.67 / **58.69** | ${\color{#176B47}\uparrow}$ 137.9 | 23.90 / **50.54** | ${\color{#176B47}\uparrow}$ 111.5 | 24.56 / **54.47** | ${\color{#176B47}\uparrow}$ 121.7 | ${\color{#176B47}\uparrow}$ 123.7 |
+| LongLLMLingua (2024) | 32.66 / **50.91** | ${\color{#176B47}\uparrow}$ 55.9 | 32.81 / **45.75** | ${\color{#176B47}\uparrow}$ 39.4 | 36.94 / **54.47** | ${\color{#176B47}\uparrow}$ 47.5 | ${\color{#176B47}\uparrow}$ 47.6 |
+| BRIEF-Pro (2026) | 35.10 / **53.03** | ${\color{#176B47}\uparrow}$ 51.1 | 35.66 / **46.88** | ${\color{#176B47}\uparrow}$ 31.5 | 36.58 / **54.47** | ${\color{#176B47}\uparrow}$ 48.9 | ${\color{#176B47}\uparrow}$ 43.8 |
+| LLMLingua-2-H (2024) | 43.34 / **58.78** | ${\color{#176B47}\uparrow}$ 35.6 | 36.01 / **51.97** | ${\color{#176B47}\uparrow}$ 44.3 | 32.74 / **55.10** | ${\color{#176B47}\uparrow}$ 68.3 | ${\color{#176B47}\uparrow}$ 49.4 |
+| BEAM-RAG (2026) | 50.75 / **56.38** | ${\color{#176B47}\uparrow}$ 11.1 | 48.51 / **53.40** | ${\color{#176B47}\uparrow}$ 10.1 | 50.05 / **53.06** | ${\color{#176B47}\uparrow}$ 6.0 | ${\color{#176B47}\uparrow}$ 9.1 |
+| LIGHT (2026) | 51.25 / **56.59** | ${\color{#176B47}\uparrow}$ 10.4 | 45.83 / **53.40** | ${\color{#176B47}\uparrow}$ 16.5 | 51.15 / **53.06** | ${\color{#176B47}\uparrow}$ 3.7 | ${\color{#176B47}\uparrow}$ 10.2 |
+| *TOMC w/o compilation（去掉编译记录）* | 50.96 / **52.68** | ${\color{#176B47}\uparrow}$ 3.4 | 46.92 / **47.34** | ${\color{#176B47}\uparrow}$ 0.9 | 45.90 / **49.02** | ${\color{#176B47}\uparrow}$ 6.8 | ${\color{#176B47}\uparrow}$ 3.7 |
+
+</details>
+
+| 基线 | 整体输入变化 | 10M 输入变化 |
+|---|---:|---:|
+| LLMLingua-2-D (2024) | -10.95% | -43.81% |
+| LongLLMLingua (2024) | -11.75% | -19.03% |
+| BRIEF-Pro (2026) | +280.37% | +297.87% |
+| LLMLingua-2-H (2024) | -37.38% | -45.65% |
+| BEAM-RAG (2026) | +8.79% | -3.27% |
+| LIGHT (2026) | -36.57% | -41.99% |
+<!-- BEAM_TABLE_END -->
+
+*D/H 表示直接/分层 LLMLingua-2。“整体”在每个模型内合并全部长度的有效配对；各行的配对集合与评分协议不同，应在同一单元格内比较。均值更高不等于统计显著。输入变化以基线为分母，负值表示 TOMC 输入更少。直接 LLMLingua-2 的 1M 实验出现 200 个空记忆；保留其分数，但不把这部分低输入解释成成功压缩。*
+
+*10M 于 2026-10-10 加入：来自 10 个会话的 200 道 BEAM 题，3,600 个配对中 3,596 个有效，使用匿名、位置平衡的成对评分标准。两种 LLMLingua-2 的 10M 结果来自修复后的批次，记忆均非空。w/o compilation 行覆盖 100K–1M；10M 消融仍在运行。[10M 数据与评分](benchmarks/beam_10m_20261010/README.md)。*
 
 <a href="assets/paper_beam.png">
   <img src="assets/paper_beam.svg" alt="BEAM 长历史比较、各模型能力分数和编译消融。" width="1280">
