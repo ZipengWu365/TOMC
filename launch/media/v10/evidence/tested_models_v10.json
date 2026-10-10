@@ -1,0 +1,44 @@
+{
+  "version": "v10",
+  "models": [
+    {
+      "name": "DeepSeek 4.1 Flash",
+      "group": "API models",
+      "source": "evidence/v7_sources/readers_and_agents.md; user confirmation 2026-10-10",
+      "evidence": "Current paper API reader; no new test in v10"
+    },
+    {
+      "name": "DeepSeek 4 PRO",
+      "group": "API models",
+      "source": "user confirmation 2026-10-10",
+      "evidence": "Tested-with claim confirmed by user; protocol/results not supplied; API grouping describes integration use, not independently verified protocol"
+    },
+    {
+      "name": "Rednote Red preview",
+      "zh_name": "小红书 Red preview",
+      "group": "API models",
+      "source": "evidence/v7_sources/readers_and_agents.md (Rednote preview); user updated display name 2026-10-10",
+      "evidence": "Recorded paper reader alias is Rednote preview; user supplies exact display name"
+    },
+    {
+      "name": "Claude 5.5 Opus",
+      "host": "Claude Code",
+      "group": "Native code agents",
+      "source": "evidence/v7_sources/validation.md; user confirmation 2026-10-10",
+      "evidence": "Native recall trial with separate reported-cost protocol"
+    },
+    {
+      "name": "ChatGPT Codex 6.1 Sol",
+      "host": "Codex",
+      "provider_record": "gpt-6.1-sol",
+      "group": "Native code agents",
+      "source": "evidence/v7_sources/windows_codex_retention_20261005.json; user confirmation 2026-10-10",
+      "evidence": "Single answering-turn input comparison; display name supplied by user"
+    }
+  ],
+  "common_benchmark": false,
+  "new_model_calls": false,
+  "new_product_tests": false,
+  "license_unchanged": "PolyForm Noncommercial 1.0.0",
+  "final_card": "Purpose labels explain TOMC use; no unverified performance, common benchmark or official endorsement claim."
+}

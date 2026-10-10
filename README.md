@@ -4,7 +4,7 @@
   <h3>Task-oriented context compression for the model you already use.</h3>
   <p><strong>Prepare long histories on CPU before your next API call.</strong></p>
   <p><a href="#use-before-your-api-call"><strong>Use with your API</strong></a> · <a href="#install-in-your-assistant">Install TOMC</a> · <a href="#switch-assistants">Switch assistants</a> · <a href="#try-the-demo">See the demo</a> · <a href="#paper-explained">Paper explained</a> · <a href="#same-reader-baseline-memory-vs-tomc-memory">Paper results</a> · <a href="README_zh.md">中文</a></p>
-  <p><strong>CPU preparation</strong> · No training or extra model service · Plain-text output · Free for non-commercial use</p>
+  <p><strong>CPU preparation</strong> · No training or extra model service · Plain-text output · Research preview</p>
 </div>
 
 <a id="use-tomc"></a>
@@ -22,6 +22,16 @@ Keep the project brief when you switch assistants. With both clients using the s
 </a>
 
 This is a preview, version **0.1.0**. Download the plugins from the [assistant preview release](https://github.com/ZipengWu365/TOMC/releases/tag/v0.1.0-assistant-preview.5). There is no PyPI package or public marketplace listing.
+
+### 30-second demo
+
+[![TOMC: context compression and compilation, with saved project notes](launch/media/v10/gifs/TOMC_CodeAgent_Complete_EN.gif)](launch/media/v10/videos/TOMC_CodeAgent_Complete_EN.mp4)
+
+[Landscape video](launch/media/v10/videos/TOMC_CodeAgent_Complete_EN.mp4) · [Portrait video](launch/media/v10/videos_vertical/TOMC_CodeAgent_Complete_EN_9x16.mp4) · [中文视频](launch/media/v10/videos/TOMC_CodeAgent_Complete_ZH.mp4) · [Media and test scope](launch/media/v10/README.md)
+
+The ending labels **models tested with TOMC** and explains their use: API models receive prepared context; Codex and Claude Code call TOMC tools. The list includes DeepSeek 4.1 Flash, DeepSeek 4 PRO, Rednote Red preview, Claude 5.5 Opus and ChatGPT Codex 6.1 Sol. The five-model list combines recorded tests and the author's reported tests; the demo's token and cost measurements retain their separate protocols. It does not imply a uniform five-model benchmark or provider endorsement.
+
+TOMC is a research preview. Feedback, issues, pull requests and research collaboration are welcome. Device choice and assistant choice are independent; cross-device notebook transfer uses manual Git.
 
 ### Install in your assistant
 
@@ -290,7 +300,7 @@ In the paper, GPT-5.1, Rednote preview and DeepSeek V4.1 Flash are API reader mo
 
 Long conversations contain changed facts, earlier copies, and evidence scattered across messages. TOMC prepares memory for the current question before you call the LLM. It computes state, relation, or count records and combines them with selected source text under a token budget.
 
-<p><strong>CPU construction</strong> · No training or auxiliary neural model · Plain-text output · Free for non-commercial use</p>
+<p><strong>CPU construction</strong> · No training or auxiliary neural model · Plain-text output · Research preview</p>
 
 <a href="assets/paper_method.png">
   <img src="assets/paper_method.png" alt="TOMC selects evidence, computes task records, and combines them with source text for the same API reader." width="1280">
@@ -449,3 +459,4 @@ Maintainer drafts: [launch copy](launch/CONTENT_KIT.md) · [launch plan](launch/
 [Hugging Face deployment settings](docs/huggingface_space.md).
 
 </details>
+

@@ -76,13 +76,13 @@
     },
     {
       "path": "README.md",
-      "bytes": 33368,
-      "sha256": "0b6206533176bde6a365534d379f68d81b82dfc89c2bc2209ead3812d8dde463"
+      "bytes": 34533,
+      "sha256": "f816fc3e03004409598e159a71c9b9fa43b24a7e4e2c8d8d8215ab0761ba795a"
     },
     {
       "path": "README_zh.md",
-      "bytes": 31281,
-      "sha256": "178b6162afc52fdbe26b24d5e9e2808e93783f941520ddc9a860c49106f6f07e"
+      "bytes": 32374,
+      "sha256": "4319c320ff5fc09159ec9e06c44350ffce2a92f28ea4dc6913181523a4f5e6a9"
     },
     {
       "path": "SECURITY.md",
@@ -820,6 +820,136 @@
       "sha256": "c201ac380b20c8a54f623a61fd60338548777ff7b09e5213f2488243d8064d26"
     },
     {
+      "path": "launch/media/v10/MODEL_TEST_SCOPE.md",
+      "bytes": 2381,
+      "sha256": "f5dc629f4ab9549ab269568a91c4b6245816bf06f9ca4cd06ad687cb57864cf5"
+    },
+    {
+      "path": "launch/media/v10/README.md",
+      "bytes": 2389,
+      "sha256": "190bbc7f7be65c65db5c32ae33b4f312634955cefc4b220548882f6e70dfb3eb"
+    },
+    {
+      "path": "launch/media/v10/covers/TOMC_CodeAgent_Complete_EN.png",
+      "bytes": 438549,
+      "sha256": "a9834a7a40e157a6dac75b41ff20d436729ff8d602b68778617253f07883befa"
+    },
+    {
+      "path": "launch/media/v10/covers/TOMC_CodeAgent_Complete_ZH.png",
+      "bytes": 410745,
+      "sha256": "e60f23bc27b37c484b47c9243543326e9e81daf54df532fcacbb773b22fe190f"
+    },
+    {
+      "path": "launch/media/v10/covers_vertical/TOMC_CodeAgent_Complete_EN_9x16.png",
+      "bytes": 465348,
+      "sha256": "ba82a7b49202df5ab3f7a47f933267bfa51c49178830390fac7733d714a771cc"
+    },
+    {
+      "path": "launch/media/v10/covers_vertical/TOMC_CodeAgent_Complete_ZH_9x16.png",
+      "bytes": 448855,
+      "sha256": "b6c0a1dcf1ff932175e68e52c2fed0d593c02a2c23af98580dd7a263cad204b0"
+    },
+    {
+      "path": "launch/media/v10/evidence/TOMC_CodeAgent_Complete_EN_29.5_source_v10.png",
+      "bytes": 446452,
+      "sha256": "44d7ab7ed8e3bd7a307c9696c25fd84092962c9560165e19a7fd243f12b10f3e"
+    },
+    {
+      "path": "launch/media/v10/evidence/TOMC_CodeAgent_Complete_EN_29.967_final_encoded_v10.png",
+      "bytes": 661938,
+      "sha256": "38e16db6ce269c482664b9eef4dd134797aeabb9a0cf63cd06b59069ddf74752"
+    },
+    {
+      "path": "launch/media/v10/evidence/TOMC_CodeAgent_Complete_EN_9x16_29.5_source_v10.png",
+      "bytes": 472540,
+      "sha256": "3849936503cc64eb15d3fc5e35e44086f0149e5e3c222f5749075e4375c6f05c"
+    },
+    {
+      "path": "launch/media/v10/evidence/TOMC_CodeAgent_Complete_EN_9x16_29.967_final_encoded_v10.png",
+      "bytes": 665928,
+      "sha256": "1eae70b3c632bf272e721560cf0b5b345230eb418d5a5e7df2196359053ecc07"
+    },
+    {
+      "path": "launch/media/v10/evidence/TOMC_CodeAgent_Complete_ZH_29.5_source_v10.png",
+      "bytes": 453358,
+      "sha256": "b1b4d5712ec8d0785fc92960a79c017778447e93277d92bce7537f69d877ecd1"
+    },
+    {
+      "path": "launch/media/v10/evidence/TOMC_CodeAgent_Complete_ZH_29.967_final_encoded_v10.png",
+      "bytes": 606069,
+      "sha256": "f3ccbd9d68a3ad9f0272bd646ac6572ac1d0df2cc8510c62ed8c3536b56b38c2"
+    },
+    {
+      "path": "launch/media/v10/evidence/TOMC_CodeAgent_Complete_ZH_9x16_29.5_source_v10.png",
+      "bytes": 454141,
+      "sha256": "93bfcc37cc1b6d7aa5cdbcaff1e784a95a983db764ac5f91ce9057f13cca5403"
+    },
+    {
+      "path": "launch/media/v10/evidence/TOMC_CodeAgent_Complete_ZH_9x16_29.967_final_encoded_v10.png",
+      "bytes": 597875,
+      "sha256": "b91e0c2f9e97701906f788bd8af3f778b9ab9c378a0da4d23b30ff77357c37bd"
+    },
+    {
+      "path": "launch/media/v10/evidence/complete_v10_media_check.json",
+      "bytes": 2304,
+      "sha256": "8abc34fd6e7127856b6117719ecdfcedce92498b3853c8955cb963df6b79c415"
+    },
+    {
+      "path": "launch/media/v10/evidence/tested_models_v10.json",
+      "bytes": 1790,
+      "sha256": "78882fd7a2b91e1fe5fe1eeff4f15145f80a89a2ff90a5d97243bc9c56d934f5"
+    },
+    {
+      "path": "launch/media/v10/gifs/TOMC_CodeAgent_Complete_EN.gif",
+      "bytes": 3788802,
+      "sha256": "3b488fcef490be96829fdca960f539c73360040e30b48f722dd88d7754b38b01"
+    },
+    {
+      "path": "launch/media/v10/gifs/TOMC_CodeAgent_Complete_ZH.gif",
+      "bytes": 3742761,
+      "sha256": "aef1fba1e65aa1195e7a06abef8898919dc5aa39853b3696e1c7d0fa743351da"
+    },
+    {
+      "path": "launch/media/v10/subtitles/TOMC_CodeAgent_Complete_EN.srt",
+      "bytes": 988,
+      "sha256": "b439a51760f7704ef70ab7659308dda108aa5286c24ec1bec5d407c93a3cd81b"
+    },
+    {
+      "path": "launch/media/v10/subtitles/TOMC_CodeAgent_Complete_EN_9x16.srt",
+      "bytes": 988,
+      "sha256": "b439a51760f7704ef70ab7659308dda108aa5286c24ec1bec5d407c93a3cd81b"
+    },
+    {
+      "path": "launch/media/v10/subtitles/TOMC_CodeAgent_Complete_ZH.srt",
+      "bytes": 1037,
+      "sha256": "927b562ba213dffd9960f154e3499715752ece02cca84fcabdfce26ed639f4bb"
+    },
+    {
+      "path": "launch/media/v10/subtitles/TOMC_CodeAgent_Complete_ZH_9x16.srt",
+      "bytes": 1037,
+      "sha256": "927b562ba213dffd9960f154e3499715752ece02cca84fcabdfce26ed639f4bb"
+    },
+    {
+      "path": "launch/media/v10/videos/TOMC_CodeAgent_Complete_EN.mp4",
+      "bytes": 3005440,
+      "sha256": "6271f00c1ea331d206dcc652787f1c1046da01b91267f804e93246947ef0a775"
+    },
+    {
+      "path": "launch/media/v10/videos/TOMC_CodeAgent_Complete_ZH.mp4",
+      "bytes": 2919218,
+      "sha256": "5c5d3a592a3b736e6cfa8b74af603b90a261fa5aa68f47395acd31fc0f352c53"
+    },
+    {
+      "path": "launch/media/v10/videos_vertical/TOMC_CodeAgent_Complete_EN_9x16.mp4",
+      "bytes": 3002388,
+      "sha256": "69816aa939ca424d265747988a0e6659e8d4ec5339e6a1ef7d57104bafb5e32f"
+    },
+    {
+      "path": "launch/media/v10/videos_vertical/TOMC_CodeAgent_Complete_ZH_9x16.mp4",
+      "bytes": 2882204,
+      "sha256": "6a5493fc74d3fc936bc2e5218554aef7c61e1a870d22fb06fd49558fc5744650"
+    },
+    {
       "path": "mkdocs.yml",
       "bytes": 1333,
       "sha256": "df9879b6b3ffb86346ffb7d4f8d884d75e5d7ca36909f32fef7a67a0508efd02"
@@ -1210,7 +1340,7 @@
       "sha256": "17c605bde43040d24896c39084ccbddf0274e282420cd9bffa10fb691992f141"
     }
   ],
-  "total_bytes": 17651116,
+  "total_bytes": 43128899,
   "self_excluded": [
     "PUBLIC_RELEASE_MANIFEST.json",
     "SHA256SUMS"

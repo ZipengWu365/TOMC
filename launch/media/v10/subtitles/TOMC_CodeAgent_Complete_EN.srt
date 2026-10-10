@@ -1,0 +1,39 @@
+1
+00:00:00,000 --> 00:00:03,000
+Task unfinished. Usage limit reached.
+Illustrated quota scene.
+
+2
+00:00:03,000 --> 00:00:04,000
+Replay. With TOMC.
+
+3
+00:00:04,000 --> 00:00:09,000
+Codex Demo test: 38,786 → 27,235 input tokens.
+29.8% less input. Synthetic latest-state task.
+
+4
+00:00:09,000 --> 00:00:14,000
+Claude Code Demo test: US$0.400 → US$0.249 session cost.
+About 38% lower reported cost. Separate synthetic trial.
+
+5
+00:00:14,000 --> 00:00:17,000
+Compress & compile context before the API call.
+Replace the original history.
+
+6
+00:00:17,000 --> 00:00:22,000
+Same device. Either assistant.
+Shared local saved notes, explicit recall. No Git. Illustration.
+
+7
+00:00:22,000 --> 00:00:27,000
+Another device. Either assistant.
+Manual Git, then explicit recall. Local-checkout test; illustration.
+
+8
+00:00:27,000 --> 00:00:30,000
+Compile compact context. Keep project memory.
+Tested with TOMC: API context / native agent tools.
+Research preview · Feedback and collaboration welcome.

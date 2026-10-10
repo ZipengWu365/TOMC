@@ -1,0 +1,92 @@
+{
+  "status": "PASS",
+  "videos": [
+    {
+      "file": "videos/TOMC_CodeAgent_Complete_EN.mp4",
+      "sha256": "6271f00c1ea331d206dcc652787f1c1046da01b91267f804e93246947ef0a775",
+      "bytes": 3005440,
+      "duration": 30,
+      "dimensions": [
+        1920,
+        1080
+      ],
+      "frames": 900,
+      "fps": 30,
+      "av_duration_delta": 0.0,
+      "full_decode_pass": true
+    },
+    {
+      "file": "videos/TOMC_CodeAgent_Complete_ZH.mp4",
+      "sha256": "5c5d3a592a3b736e6cfa8b74af603b90a261fa5aa68f47395acd31fc0f352c53",
+      "bytes": 2919218,
+      "duration": 30,
+      "dimensions": [
+        1920,
+        1080
+      ],
+      "frames": 900,
+      "fps": 30,
+      "av_duration_delta": 0.0,
+      "full_decode_pass": true
+    },
+    {
+      "file": "videos_vertical/TOMC_CodeAgent_Complete_EN_9x16.mp4",
+      "sha256": "69816aa939ca424d265747988a0e6659e8d4ec5339e6a1ef7d57104bafb5e32f",
+      "bytes": 3002388,
+      "duration": 30,
+      "dimensions": [
+        1080,
+        1920
+      ],
+      "frames": 900,
+      "fps": 30,
+      "av_duration_delta": 0.0,
+      "full_decode_pass": true
+    },
+    {
+      "file": "videos_vertical/TOMC_CodeAgent_Complete_ZH_9x16.mp4",
+      "sha256": "6a5493fc74d3fc936bc2e5218554aef7c61e1a870d22fb06fd49558fc5744650",
+      "bytes": 2882204,
+      "duration": 30,
+      "dimensions": [
+        1080,
+        1920
+      ],
+      "frames": 900,
+      "fps": 30,
+      "av_duration_delta": 0.0,
+      "full_decode_pass": true
+    }
+  ],
+  "gifs": [
+    {
+      "file": "gifs/TOMC_CodeAgent_Complete_EN.gif",
+      "bytes": 3788802,
+      "sha256": "3b488fcef490be96829fdca960f539c73360040e30b48f722dd88d7754b38b01",
+      "frames": 300,
+      "milliseconds": 30000,
+      "dimensions": [
+        960,
+        540
+      ],
+      "loop": true
+    },
+    {
+      "file": "gifs/TOMC_CodeAgent_Complete_ZH.gif",
+      "bytes": 3742761,
+      "sha256": "aef1fba1e65aa1195e7a06abef8898919dc5aa39853b3696e1c7d0fa743351da",
+      "frames": 300,
+      "milliseconds": 30000,
+      "dimensions": [
+        960,
+        540
+      ],
+      "loop": true
+    }
+  ],
+  "ending_seconds": 3,
+  "new_product_tests": false,
+  "new_model_calls": false,
+  "claim_provenance": "evidence/tested_models_v10.json",
+  "license_unchanged": "PolyForm Noncommercial 1.0.0"
+}

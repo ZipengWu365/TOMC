@@ -4,7 +4,7 @@
   <h3>面向任务的上下文压缩，交给你已经使用的模型。</h3>
   <p><strong>在下一次 API 调用之前，先在 CPU 上准备长历史。</strong></p>
   <p><a href="#接在你的-api-调用之前"><strong>接入 API</strong></a> · <a href="#接入常用助手">安装 TOMC</a> · <a href="#switch-assistants">换助手继续</a> · <a href="#试用演示">查看 Demo</a> · <a href="#paper-explained">论文详解</a> · <a href="#同一个模型基线记忆与-tomc-记忆">论文结果</a> · <a href="README.md">English</a></p>
-  <p><strong>CPU 准备上下文</strong> · 无需训练或额外模型服务 · 输出普通文本 · 非商业用途免费</p>
+  <p><strong>CPU 准备上下文</strong> · 无需训练或额外模型服务 · 输出普通文本 · 研究预览</p>
 </div>
 
 <a id="use-tomc"></a>
@@ -22,6 +22,16 @@ TOMC 是面向任务的大模型上下文压缩工具，提供 MCP 服务和 Pyt
 </a>
 
 当前是 **v0.1.0 预览版**。插件可从[助手插件预览版](https://github.com/ZipengWu365/TOMC/releases/tag/v0.1.0-assistant-preview.5)下载。尚无 PyPI 发布版或公开插件市场条目。
+
+### 30 秒演示
+
+[![TOMC：上下文压缩编译与项目笔记续接](launch/media/v10/gifs/TOMC_CodeAgent_Complete_ZH.gif)](launch/media/v10/videos/TOMC_CodeAgent_Complete_ZH.mp4)
+
+[横版视频](launch/media/v10/videos/TOMC_CodeAgent_Complete_ZH.mp4) · [竖版视频](launch/media/v10/videos_vertical/TOMC_CodeAgent_Complete_ZH_9x16.mp4) · [English video](launch/media/v10/videos/TOMC_CodeAgent_Complete_EN.mp4) · [素材与测试范围](launch/media/v10/README.md)
+
+结尾明确标注**已使用 TOMC 测试的模型**及用途：API 模型接收准备好的上下文，Codex 和 Claude Code 调用 TOMC 工具。名单包含 DeepSeek 4.1 Flash、DeepSeek 4 PRO、小红书 Red preview、Claude 5.5 Opus、ChatGPT Codex 6.1 Sol。这份名单综合已有测试记录与作者提供的测试情况；视频中的 token 和费用结果各有独立协议，不能解释为五模型统一基准或提供商背书。
+
+TOMC 目前是研究预览。欢迎试用、反馈、提交 Issue 和 PR，以及交流与研究合作。换设备与换助手可以独立选择；跨设备笔记传递采用手动 Git。
 
 ### 接入常用助手
 
@@ -285,7 +295,7 @@ python -m demo.app
 
 长对话里，事实会更新，早先的副本可能仍然有效，回答所需的证据也可能分散在多条消息中。TOMC 在调用大模型之前，根据当前问题计算状态、关系或计数记录，再在 token 预算内结合选中的原文。
 
-<p><strong>CPU 构建</strong> · 无需训练或辅助神经模型 · 输出普通文本 · 非商业用途免费</p>
+<p><strong>CPU 构建</strong> · 无需训练或辅助神经模型 · 输出普通文本 · 研究预览</p>
 
 <a href="assets/paper_method.png">
   <img src="assets/paper_method.png" alt="TOMC 选择证据，计算任务记录，与原文组合后交给同一个 API 模型。" width="1280">
@@ -444,3 +454,4 @@ TOMC 的源码以 [PolyForm Noncommercial License 1.0.0](LICENSE) 公开：研�
 [Hugging Face 部署配置](docs/huggingface_space.md)。
 
 </details>
+
