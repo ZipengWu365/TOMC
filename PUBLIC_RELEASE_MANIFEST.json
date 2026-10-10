@@ -1191,8 +1191,8 @@
     },
     {
       "path": "plugins/downloads/README.md",
-      "bytes": 2042,
-      "sha256": "23b4b4d258a537e52d5f6e69d89bf8967cb1456f1d0da436bb83a346c9e5389a"
+      "bytes": 1919,
+      "sha256": "cdd2d4b863fe734c5e022fccfe89ae1596063ce380d770a2cbb1e42899d26e1a"
     },
     {
       "path": "plugins/downloads/build_receipt.json",
@@ -1560,7 +1560,7 @@
       "sha256": "17c605bde43040d24896c39084ccbddf0274e282420cd9bffa10fb691992f141"
     }
   ],
-  "total_bytes": 72040077,
+  "total_bytes": 72039954,
   "self_excluded": [
     "PUBLIC_RELEASE_MANIFEST.json",
     "SHA256SUMS"

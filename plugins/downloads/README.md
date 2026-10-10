@@ -11,7 +11,7 @@ Install with the [English guide](../../docs/assistant_plugin.md) or [中文安�
 
 TOMC's original code and synthetic examples are free to use, including commercially, under MIT. Modification, redistribution and closed-source integration are allowed; copies or substantial portions of the software must retain the copyright and license notice. Research citation is encouraged. Third-party dependencies, model services and provider marks retain their own terms and ownership.
 
-Earlier GitHub release assets retain their original embedded notices and are preserved as historical snapshots. Use these packages or the current source for the MIT-licensed distribution. The repository remains private until its owner separately authorizes publication.
+The [preview.5 release](https://github.com/ZipengWu365/TOMC/releases/tag/v0.1.0-assistant-preview.5) distributes these same MIT-licensed packages.
 
 To rebuild from the repository root:
 
