@@ -229,10 +229,6 @@ The default database is `~/.tomc/memory.sqlite3`. Both servers must resolve to t
 
 The demo shows how TOMC prepares context for a task. It does not create notebooks across chats.
 
-#### Hosted preview
-
-Open the [private Hugging Face demo](https://huggingface.co/spaces/Zipeng365/tomc-agent-memory-demo), enter a history and the next task, and prepare the context. Copy the resulting prompt into your usual model. No reader API key is needed for preparation. Access to this Space is separate from GitHub access; if it is unavailable to you, run the demo locally below. The hosted preview may precede this release; the local checkout contains the current English interface.
-
 #### Run locally
 
 The Gradio interface requires Python 3.10–3.13. Clone the repository:
@@ -510,7 +506,17 @@ To run your own reader, pass `result.reader_messages(query)` to your client or u
 
 TOMC's source code and original synthetic examples are freely available under the [MIT License](LICENSE), including for commercial use, modification, redistribution and integration into other projects. Copies or substantial portions of the software must retain the copyright and license notice. Feedback, contributions and collaboration are welcome.
 
-If TOMC supports your research, please cite the software using [CITATION.cff](CITATION.cff). Citation is encouraged, not an additional license condition. The paper is titled *Task-Oriented Memory Compilation: Executable State Representations for Long-Context Language Models*; a public paper link will be added when available. Contact Zipeng Wu (zxw365@student.bham.ac.uk) for feedback and collaboration.
+If TOMC supports your research, please cite the paper. Citation is encouraged, not an additional license condition. The paper is a preprint by Zipeng Wu, Yanjun Zhao, Fabian Spill and James Andrews; the arXiv identifier will be added when available. [CITATION.cff](CITATION.cff) provides the same entry for GitHub's *Cite this repository* button. Contact Zipeng Wu (zxw365@student.bham.ac.uk) for feedback and collaboration.
+
+```bibtex
+@misc{wu2026tomc,
+  title  = {Task-Oriented Memory Compilation: Executable State Representations for Long-Context Language Models},
+  author = {Wu, Zipeng and Zhao, Yanjun and Spill, Fabian and Andrews, James},
+  year   = {2026},
+  note   = {Preprint},
+  url    = {https://github.com/ZipengWu365/TOMC}
+}
+```
 
 Examples are synthetic. The repository distributes numeric benchmark aggregates without question text, reader answers, or private API payloads. [Data provenance](DATA_PROVENANCE.md) · [Data and licensing](docs/data_and_license.md).
 

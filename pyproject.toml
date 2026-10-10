@@ -24,7 +24,7 @@ tomc = "tomc.cli:main"
 
 [project.urls]
 Repository = "https://github.com/ZipengWu365/TOMC"
-Demo = "https://huggingface.co/spaces/Zipeng365/tomc-agent-memory-demo"
+Demo = "https://github.com/ZipengWu365/TOMC#try-the-demo"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/tomc"]
