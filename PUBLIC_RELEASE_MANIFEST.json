@@ -76,13 +76,13 @@
     },
     {
       "path": "README.md",
-      "bytes": 43661,
-      "sha256": "03b76158957d6fb58e8007befe498ddec19160f3d7db5194906573a59f8e9880"
+      "bytes": 40351,
+      "sha256": "aeec9e29fa757c9c4932d210368e92eb82ec1a23326aed310eac46a9f614fc94"
     },
     {
       "path": "README_zh.md",
-      "bytes": 41511,
-      "sha256": "0377bde0ac58af943250eeb6cd35f628475f04784e9cfbeca3f3903d5d7f10c2"
+      "bytes": 38068,
+      "sha256": "19ad6c101466f77adf3768bf5ad7160bd2e396034a58cddd48738f96f3c64f76"
     },
     {
       "path": "SECURITY.md",
@@ -143,6 +143,41 @@
       "path": "assets/beam_readers.svg",
       "bytes": 63433,
       "sha256": "5ddea5ca88081df4bb73b5801fbedeb9daaf8e5dbce3c1aec0e51d96c1c5aec9"
+    },
+    {
+      "path": "assets/beam_table/RENDERED_FROM.sha256",
+      "bytes": 164,
+      "sha256": "4c7e9be6e425d939d477155dd4f99531b7ab0078cc35432ea0e4d5b32d42db0d"
+    },
+    {
+      "path": "assets/beam_table/beam_input.png",
+      "bytes": 196827,
+      "sha256": "426d282d7b8a928bbf4730030e596ec81fa7cba730d3f0d886881c639bb9a1d3"
+    },
+    {
+      "path": "assets/beam_table/beam_input.svg",
+      "bytes": 164379,
+      "sha256": "2c88cbb71cfda20a3b4b50be7bc1a047f8b2c63b24620f640e71171e2a08bf29"
+    },
+    {
+      "path": "assets/beam_table/beam_input.tex",
+      "bytes": 1783,
+      "sha256": "63dd02dab57c9e2fe539df0b1fea27b782708c66322b76c56aecc95e60c5eabf"
+    },
+    {
+      "path": "assets/beam_table/beam_quality.png",
+      "bytes": 768812,
+      "sha256": "316d7db22a3b4900cf679261bdf27737f0a1f89687bd19801a704a8f0f19e6a8"
+    },
+    {
+      "path": "assets/beam_table/beam_quality.svg",
+      "bytes": 514534,
+      "sha256": "c691fa3b6ba38385227cbc3460722950aea2b63c88b3f34cb9c25e23efd18307"
+    },
+    {
+      "path": "assets/beam_table/beam_quality.tex",
+      "bytes": 11089,
+      "sha256": "cd5f1a48fa104a57c1c23c231c075ab667fd1ba9c80dec994cfe124c89710fdc"
     },
     {
       "path": "assets/demo_desktop.png",
@@ -396,8 +431,8 @@
     },
     {
       "path": "benchmarks/beam_10m_20261010/README.md",
-      "bytes": 2784,
-      "sha256": "c06aa7804f276614084750f1ed8c3f8d1d9223e32572a9bf6c473a1fcb42f8a0"
+      "bytes": 2950,
+      "sha256": "bce82ef8e2f7417acc61862c6834cd57b591e49673f14d3744ebfb3f3e412fa6"
     },
     {
       "path": "benchmarks/beam_10m_20261010/paired_scores_10m.csv",
@@ -1226,8 +1261,8 @@
     },
     {
       "path": "scripts/make_beam_table.py",
-      "bytes": 7275,
-      "sha256": "25ea85dc01f5942e4b48b8804932321635fba60f4b0c1749dea0fb98b2a5fa00"
+      "bytes": 14589,
+      "sha256": "9d12e7be63561ad0e66c7d35f6ec21c0a638dd73efa3ef90d399ae37b23bf5de"
     },
     {
       "path": "scripts/make_shared_notebook_diagram.py",
@@ -1490,7 +1525,7 @@
       "sha256": "17c605bde43040d24896c39084ccbddf0274e282420cd9bffa10fb691992f141"
     }
   ],
-  "total_bytes": 70203199,
+  "total_bytes": 71861514,
   "self_excluded": [
     "PUBLIC_RELEASE_MANIFEST.json",
     "SHA256SUMS"
