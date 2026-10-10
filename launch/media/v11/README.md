@@ -24,4 +24,4 @@ The recorded Codex synthetic answering case reports input tokens **38,786 → 27
 
 Task memory requires explicit save and recall. Moving notes does not automatically move every task file, software environment or credential. The five model names are supplied or confirmed by the author; the DeepSeek 4 PRO entry has no independently supplied per-run protocol. Brand marks identify tools and models and imply no official endorsement.
 
-This is a research preview, welcoming trials, feedback and collaboration. The repository's actual [LICENSE](../../../LICENSE) remains PolyForm Noncommercial 1.0.0. This revision changes presentation and does not change licensing terms.
+This is a research preview, welcoming trials, feedback and collaboration. The repository now uses the [MIT License](../../../LICENSE), including commercial use. The v11 media audit records the license in place when the media was generated; the copyright holder authorized the subsequent MIT change on 2026-10-10. The recorded audit files are preserved.

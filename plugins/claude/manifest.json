@@ -7,7 +7,7 @@
   "long_description": "Give TOMC a history, the next task and a memory budget. It prepares context on CPU using selected source text and supported task records; your existing assistant writes the answer. No extra model API key or model service is required. Optional notebooks keep supplied history across chats. An API application can send prepared context instead of the full history in its next request; a tool call does not remove existing host history or intercept every request. Counts and the budget cover memory text under a lexical estimate, excluding task text, tool envelopes and provider framing. Short histories can stay intact, and savings depend on the context sent. The first installation needs network access to download the runtime and dependencies.",
   "author": {"name": "Zipeng Wu"},
   "repository": {"type": "git", "url": "https://github.com/ZipengWu365/TOMC.git"},
-  "license": "PolyForm-Noncommercial-1.0.0",
+  "license": "MIT",
   "server": {
     "type": "uv",
     "entry_point": "src/server.py",

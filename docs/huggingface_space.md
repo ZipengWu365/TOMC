@@ -21,9 +21,7 @@ sdk_version: 5.49.1
 python_version: '3.10'
 app_file: app.py
 fullWidth: true
-license: other
-license_name: polyform-noncommercial-1.0.0
-license_link: LICENSE
+license: mit
 short_description: CPU memory for your existing LLM API.
 tags: [llm-memory, long-context, context-compression, reproducibility]
 ---

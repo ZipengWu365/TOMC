@@ -15,7 +15,7 @@ TOMC 按任务准备上下文，让你用结果替换较长的历史。传入历
 | Cursor | 生成 Add to Cursor 链接 | 需要先安装 TOMC MCP 环境，链接负责注册 |
 | Codex | 运行 ZIP 内的安装助手 | preview.4 已通过 Windows 个人配置中的原生安装与默认模型调用；此前 macOS 试用使用 preview.2 |
 
-从[插件预览 Release](https://github.com/ZipengWu365/TOMC/releases/tag/v0.1.0-assistant-preview.5)下载：[Claude `.mcpb`](https://github.com/ZipengWu365/TOMC/releases/download/v0.1.0-assistant-preview.5/tomc-memory-0.1.0.mcpb)（[校验文件](https://github.com/ZipengWu365/TOMC/releases/download/v0.1.0-assistant-preview.5/tomc-memory-0.1.0.mcpb.sha256)）、[Codex ZIP](https://github.com/ZipengWu365/TOMC/releases/download/v0.1.0-assistant-preview.5/tomc-memory-codex-0.1.0.zip)（[校验文件](https://github.com/ZipengWu365/TOMC/releases/download/v0.1.0-assistant-preview.5/tomc-memory-codex-0.1.0.zip.sha256)）。
+从[MIT 许可插件预览包](https://github.com/ZipengWu365/TOMC/tree/main/plugins/downloads)下载：[Claude `.mcpb`](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-0.1.0.mcpb)（[校验文件](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-0.1.0.mcpb.sha256)）、[Codex ZIP](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-codex-0.1.0.zip)（[校验文件](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-codex-0.1.0.zip.sha256)）。这些包于 2026-10-10 按 MIT 许可重新构建；旧 Release 文件及已有验证记录保留历史内容。
 
 尚未发布到 PyPI 或公开插件市场。新版本需要手动重新安装。[Claude 官方安装与私下分发说明](https://support.claude.com/en/articles/10949351-getting-started-with-local-mcp-servers-on-claude-desktop)
 

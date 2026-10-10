@@ -23,7 +23,7 @@ Reuse saved task notes in a new chat with the same assistant or another assistan
   <img src="assets/plugin_usage_api_20261003.png" alt="Install TOMC in Codex, Cursor, Claude Desktop or Claude Code. Supply history, task and budget; TOMC prepares context for the same assistant." width="1280">
 </a>
 
-This is a preview, version **0.1.0**. Download the plugins from the [assistant preview release](https://github.com/ZipengWu365/TOMC/releases/tag/v0.1.0-assistant-preview.5). There is no PyPI package or public marketplace listing.
+This is a preview, version **0.1.0**. Download the plugins from the [MIT-licensed assistant preview](https://github.com/ZipengWu365/TOMC/tree/main/plugins/downloads). There is no PyPI package or public marketplace listing.
 
 ### 30-second demo
 
@@ -41,10 +41,10 @@ Choose the setup for your client. TOMC prepares context locally on CPU; your ass
 
 | Client | Start here | Prerequisites |
 |---|---|---|
-| Codex CLI | [Download the plugin ZIP](https://github.com/ZipengWu365/TOMC/releases/download/v0.1.0-assistant-preview.5/tomc-memory-codex-0.1.0.zip) | Current Codex CLI with plugin commands, plus [`uv`](https://docs.astral.sh/uv/getting-started/installation/) on PATH or supplied with `--uv` |
+| Codex CLI | [Download the plugin ZIP](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-codex-0.1.0.zip) | Current Codex CLI with plugin commands, plus [`uv`](https://docs.astral.sh/uv/getting-started/installation/) on PATH or supplied with `--uv` |
 | Codex IDE extension | [Configure the local MCP server](docs/assistant_setup.md) | Local TOMC environment with `.[mcp]` installed |
 | Cursor | Generate an installation link with the commands below | Local TOMC environment with `.[mcp]` installed |
-| Claude Desktop | [Download the `.mcpb` extension](https://github.com/ZipengWu365/TOMC/releases/download/v0.1.0-assistant-preview.5/tomc-memory-0.1.0.mcpb) | Updated Claude Desktop with UV extension support; network access for the first install |
+| Claude Desktop | [Download the `.mcpb` extension](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-0.1.0.mcpb) | Updated Claude Desktop with UV extension support; network access for the first install |
 | Claude Code | [Register the `.mcpb` runtime](docs/assistant_plugin.md#claude-code) with `claude mcp add` | [`uv`](https://docs.astral.sh/uv/getting-started/installation/); tested with the Claude Code VS Code extension |
 
 <details>
@@ -114,7 +114,7 @@ In the VS Code extension trial with Claude Opus 5.5, with budget 8,192, recallin
 
 **Tested on Windows, macOS and Linux, and in Claude Code.** Installation and tool checks passed on all three systems; real model calls passed in Codex on [Windows with preview.4](docs/validation.md#windows-codex-preview4) and macOS and in Claude Code with Claude Opus 5.5. GUI installation in Claude Desktop, Cursor and the Codex app is still unverified. [Platform checks and dates](docs/platform_checks.md)
 
-[Usage tips (English)](docs/usage_tips.md) · [中文使用技巧](docs/usage_tips_zh.md) · [Windows installation feedback](docs/windows_installation_feedback.md) · [Full installation guide](docs/assistant_plugin.md) · [Validation record](docs/validation.md) · [Claude checksum](https://github.com/ZipengWu365/TOMC/releases/download/v0.1.0-assistant-preview.5/tomc-memory-0.1.0.mcpb.sha256) · [Codex checksum](https://github.com/ZipengWu365/TOMC/releases/download/v0.1.0-assistant-preview.5/tomc-memory-codex-0.1.0.zip.sha256).
+[Usage tips (English)](docs/usage_tips.md) · [中文使用技巧](docs/usage_tips_zh.md) · [Windows installation feedback](docs/windows_installation_feedback.md) · [Full installation guide](docs/assistant_plugin.md) · [Validation record](docs/validation.md) · [Claude checksum](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-0.1.0.mcpb.sha256) · [Codex checksum](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-codex-0.1.0.zip.sha256).
 
 <a id="switch-assistants"></a>
 
@@ -508,7 +508,9 @@ To run your own reader, pass `result.reader_messages(query)` to your client or u
 
 ### Citation and license
 
-TOMC's source code is available under the [PolyForm Noncommercial License 1.0.0](LICENSE): it is free for research, teaching, personal and other non-commercial use. Commercial use requires a separate license; contact Zipeng Wu (zxw365@student.bham.ac.uk). Use [CITATION.cff](CITATION.cff) to cite the software. The paper is titled *Task-Oriented Memory Compilation: Executable State Representations for Long-Context Language Models*; a public paper link will be added when available.
+TOMC's source code and original synthetic examples are freely available under the [MIT License](LICENSE), including for commercial use, modification, redistribution and integration into other projects. Copies or substantial portions of the software must retain the copyright and license notice. Feedback, contributions and collaboration are welcome.
+
+If TOMC supports your research, please cite the software using [CITATION.cff](CITATION.cff). Citation is encouraged, not an additional license condition. The paper is titled *Task-Oriented Memory Compilation: Executable State Representations for Long-Context Language Models*; a public paper link will be added when available. Contact Zipeng Wu (zxw365@student.bham.ac.uk) for feedback and collaboration.
 
 Examples are synthetic. The repository distributes numeric benchmark aggregates without question text, reader answers, or private API payloads. [Data provenance](DATA_PROVENANCE.md) · [Data and licensing](docs/data_and_license.md).
 

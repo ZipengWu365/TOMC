@@ -2,6 +2,8 @@
 
 Prepare task-specific context for the assistant you already use. TOMC selects source text and computes supported task records on CPU, without another model service. This private preview contains a native plugin, a context-preparation skill and a locked MCP runtime.
 
+TOMC is free to use, including commercially, under the MIT License in `plugins/tomc-memory/LICENSE`. Modification and redistribution are welcome; retain the copyright and license notice. Third-party dependencies retain their own licenses.
+
 ## Install
 
 Install a current Codex CLI with plugin support and [UV](https://docs.astral.sh/uv/getting-started/installation/). Extract `tomc-memory-codex-0.1.0.zip` to a permanent directory, open a terminal in that directory, then run:

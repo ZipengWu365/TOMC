@@ -23,7 +23,7 @@ TOMC 为 AI 助手压缩编译上下文，并通过明确保存的笔记提供�
   <img src="assets/plugin_usage_api_20261003.png" alt="在 Codex、Cursor、Claude Desktop 或 Claude Code 中安装 TOMC，传入历史、任务和预算；TOMC 准备上下文，再交给原来的助手。" width="1280">
 </a>
 
-当前是 **v0.1.0 预览版**。插件可从[助手插件预览版](https://github.com/ZipengWu365/TOMC/releases/tag/v0.1.0-assistant-preview.5)下载。尚无 PyPI 发布版或公开插件市场条目。
+当前是 **v0.1.0 预览版**。插件可从[MIT 许可助手插件预览包](https://github.com/ZipengWu365/TOMC/tree/main/plugins/downloads)下载。尚无 PyPI 发布版或公开插件市场条目。
 
 ### 30 秒演示
 
@@ -41,10 +41,10 @@ TOMC 目前是研究预览。欢迎试用、反馈、提交 Issue 和 PR，以�
 
 | 客户端 | 从哪里开始 | 前提条件 |
 |---|---|---|
-| Codex CLI | [下载插件 ZIP](https://github.com/ZipengWu365/TOMC/releases/download/v0.1.0-assistant-preview.5/tomc-memory-codex-0.1.0.zip) | 支持插件命令的新版 Codex CLI，且 [`uv`](https://docs.astral.sh/uv/getting-started/installation/) 在 PATH 中或通过 `--uv` 指定 |
+| Codex CLI | [下载插件 ZIP](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-codex-0.1.0.zip) | 支持插件命令的新版 Codex CLI，且 [`uv`](https://docs.astral.sh/uv/getting-started/installation/) 在 PATH 中或通过 `--uv` 指定 |
 | Codex IDE extension | [配置本地 MCP 服务](docs/assistant_setup.md) | 本地 TOMC 环境已安装 `.[mcp]` |
 | Cursor | 用下面的命令生成安装链接 | 本地 TOMC 环境已安装 `.[mcp]` |
-| Claude Desktop | [下载 `.mcpb` 扩展](https://github.com/ZipengWu365/TOMC/releases/download/v0.1.0-assistant-preview.5/tomc-memory-0.1.0.mcpb) | 支持 UV 扩展的新版 Claude Desktop；首次安装需要联网 |
+| Claude Desktop | [下载 `.mcpb` 扩展](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-0.1.0.mcpb) | 支持 UV 扩展的新版 Claude Desktop；首次安装需要联网 |
 | Claude Code | 用 `claude mcp add` [注册 `.mcpb` 中的运行环境](docs/assistant_plugin_zh.md#claude-code) | [`uv`](https://docs.astral.sh/uv/getting-started/installation/)；已在 Claude Code 的 VS Code 扩展中测试 |
 
 <details>
@@ -114,7 +114,7 @@ VS Code 扩展实测中（模型为 Claude Opus 5.5），预算设为 8,192 时�
 
 **已在 Windows、macOS、Linux 和 Claude Code 中实测。** 三个系统都通过了安装和工具检查；Codex（[Windows preview.4](docs/validation.md#windows-codex-preview4)、macOS）和 Claude Code（Claude Opus 5.5）通过了真实模型调用。Claude Desktop、Cursor 和 Codex 桌面应用的图形界面安装仍待验证。[各平台检查记录](docs/platform_checks_zh.md)
 
-[Usage tips (English)](docs/usage_tips.md) · [中文使用技巧](docs/usage_tips_zh.md) · [Windows 安装反馈](docs/windows_installation_feedback_zh.md) · [完整中文安装指南](docs/assistant_plugin_zh.md) · [验证记录](docs/validation.md) · [Claude 校验文件](https://github.com/ZipengWu365/TOMC/releases/download/v0.1.0-assistant-preview.5/tomc-memory-0.1.0.mcpb.sha256) · [Codex 校验文件](https://github.com/ZipengWu365/TOMC/releases/download/v0.1.0-assistant-preview.5/tomc-memory-codex-0.1.0.zip.sha256)。
+[Usage tips (English)](docs/usage_tips.md) · [中文使用技巧](docs/usage_tips_zh.md) · [Windows 安装反馈](docs/windows_installation_feedback_zh.md) · [完整中文安装指南](docs/assistant_plugin_zh.md) · [验证记录](docs/validation.md) · [Claude 校验文件](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-0.1.0.mcpb.sha256) · [Codex 校验文件](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-codex-0.1.0.zip.sha256)。
 
 <a id="switch-assistants"></a>
 
@@ -503,7 +503,9 @@ python -m mkdocs build --strict
 
 ### 引用与许可
 
-TOMC 的源码以 [PolyForm Noncommercial License 1.0.0](LICENSE) 公开：研究、教学、个人及其他非商业用途免费。商业使用需另行授权，请联系 Zipeng Wu（zxw365@student.bham.ac.uk）。软件引用信息见 [CITATION.cff](CITATION.cff)。论文标题为 *Task-Oriented Memory Compilation: Executable State Representations for Long-Context Language Models*，公开链接可用后会补充。
+TOMC 的源码和原创合成示例采用 [MIT 许可证](LICENSE)，可免费用于研究、教学、个人及商业用途，允许修改、二次开发、再发布和集成到其他项目。复制或分发软件的全部或实质性部分时，须保留版权声明和许可证。欢迎试用、反馈、贡献与合作。
+
+如果 TOMC 支持了你的研究，欢迎使用 [CITATION.cff](CITATION.cff) 引用软件；论文引用是推荐做法，不是额外的许可条件。论文标题为 *Task-Oriented Memory Compilation: Executable State Representations for Long-Context Language Models*，公开链接可用后会补充。反馈与合作可联系 Zipeng Wu（zxw365@student.bham.ac.uk）。
 
 案例均为合成输入。仓库提供数值聚合，不分发基准题目、模型答案或私有 API payload。[数据来源](DATA_PROVENANCE.md) · [数据与许可](docs/data_and_license.md)。
 

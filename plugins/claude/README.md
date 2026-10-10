@@ -2,6 +2,8 @@
 
 Prepare task-specific context for your existing assistant. TOMC selects source text and computes supported task records on CPU, without another model service. This is the source template for the private installation preview.
 
+TOMC is free to use, including commercially, under the MIT License included in the bundle. Modification and redistribution are welcome; retain the copyright and license notice. Third-party dependencies retain their own licenses.
+
 Build it from the TOMC checkout:
 
 ```bash

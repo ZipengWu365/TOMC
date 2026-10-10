@@ -4,6 +4,10 @@ These posts are drafts. GitHub and the Hugging Face demo are private; their link
 
 ## One sentence
 
+License for current launch material: TOMC is free to use under the MIT License, including commercially. Modification and redistribution are welcome; retain the copyright and license notice. Research citation is encouraged. Third-party dependencies and provider marks retain their own terms and ownership.
+
+当前许可口径：TOMC 采用 MIT 许可证，允许免费商业使用、修改、二次开发与再发布；复制或分发时保留版权声明和许可证。欢迎试用、反馈、贡献与合作，研究使用欢迎引用。第三方依赖和提供商标识保留各自条款与权利。
+
 EN: **TOMC is a CPU memory module for your existing LLM API.** It computes supported state updates, relations and counts, then gives the same model records and source text to answer from.
 
 中文：**TOMC 是可以接在现有 LLM API 前面的 CPU 记忆模块。** 它先执行支持的状态更新、关系连接和计数，再把记录与原文交给同一个模型回答。

@@ -1,0 +1,8 @@
+{
+  "artifact": "tomc-memory-0.1.0.mcpb",
+  "bytes": 85135,
+  "sha256": "c4ea4aae5ec5995a72f3e0891e0708f880035ff7dc7e3d91f57393de3c8ad4ac",
+  "files": 37,
+  "runtime": "MCPB 0.4 UV; first installation downloads Python and dependencies",
+  "status": "private installation candidate; desktop GUI acceptance pending"
+}

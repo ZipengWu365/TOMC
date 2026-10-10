@@ -16,7 +16,7 @@ The earlier film metrics remain the recorded Codex and Claude Code synthetic cas
 
 片末明确说明这些名称是“已使用 TOMC 测试的模型”。模型 API 使用压缩后的上下文；Agent 助手调用 TOMC 工具。DeepSeek 4 PRO 来自作者本轮确认，未提供逐次协议与原始结果；不能据此声称五个模型参加了同一 benchmark。名称清单见 `evidence/tested_models_v11.json`。
 
-片末与封面改为研究预览及试用、反馈、合作邀请。实际 `LICENSE` 仍是 **PolyForm Noncommercial 1.0.0**，本轮未改许可证，也不声称允许免费商业使用或已经完成开放源代码许可变更。
+片末与封面改为研究预览及试用、反馈、合作邀请。视频生成时仍采用 PolyForm Noncommercial 1.0.0，视频本身未改变许可。作者随后于 2026-10-10 授权仓库改用 [MIT 许可证](../../../LICENSE)，允许免费商业使用和二次开发；生成时的审计记录保留原样。
 
 ## Media revision
 

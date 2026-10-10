@@ -2,7 +2,11 @@
 
 ## Project material
 
-Project code and original synthetic examples use the PolyForm Noncommercial License 1.0.0: free for research, teaching, personal and other non-commercial use. Commercial use requires a separate license from the author (zxw365@student.bham.ac.uk). The root `LICENSE` contains the official license text and the required copyright notice.
+Project code and original synthetic examples use the MIT License. They are free to use for research, teaching, personal and commercial purposes, including modification, redistribution and closed-source integration. Copies or substantial portions of the software must retain the copyright and license notice. The root `LICENSE` contains the license text and the author's copyright notice.
+
+Research citation through `CITATION.cff` is encouraged, not an additional license condition. Feedback, contributions and collaboration are welcome at zxw365@student.bham.ac.uk.
+
+The copyright holder authorized the change from PolyForm Noncommercial 1.0.0 to MIT on 2026-10-10. Current MIT-licensed [assistant packages](https://github.com/ZipengWu365/TOMC/tree/main/plugins/downloads) include the new license. Earlier tags and release assets retain their original embedded notices and are preserved as historical snapshots; use the current source or MIT packages for the updated distribution. This change does not relicense third-party dependencies, datasets, model weights or provider marks.
 
 The supplied paper reference and three archived research files retain their original bytes. `SOURCE_PROVENANCE.json` records their origins and hashes. The [legacy compatibility extension](legacy_extensions.md) is documented separately from the paper method. Selected manuscript figures were approved for this repository and have separate source hashes. Provider and method marks belong to their owners and do not imply endorsement.
 

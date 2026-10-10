@@ -19,5 +19,5 @@ The flow illustrates explicit save/recall of TOMC project notes. Same-device con
 
 TOMC 目前是研究预览。欢迎试用、反馈、提交 Issue/PR，以及交流与研究合作。
 
-The repository remains a private preview as of this update. Its [current license](../../../LICENSE) is PolyForm Noncommercial 1.0.0. The welcome message does not change that license. Model-service fees still apply; provider logos do not imply endorsement. License and public-release choices are being discussed separately.
+The repository was a private preview under PolyForm Noncommercial 1.0.0 when this media revision was prepared. The copyright holder subsequently authorized the [MIT License](../../../LICENSE) on 2026-10-10, including commercial use. The media audit retains its original preparation-time license record. Model-service fees still apply; provider logos do not imply endorsement. Repository visibility remains a separate release decision.
 

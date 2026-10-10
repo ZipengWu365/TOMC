@@ -14,7 +14,7 @@ The table below describes the preserved older four-reader Hybrid-RAG batch, whos
 
 | Artifact | Source | Transformation | Public content |
 |---|---|---|---|
-| `demo/examples/*.json`, `src/tomc/data/*.json` | Original scenarios in `scripts/generate_examples.py` | Deterministic generation | Synthetic text only; PolyForm Noncommercial 1.0.0 |
+| `demo/examples/*.json`, `src/tomc/data/*.json` | Original scenarios in `scripts/generate_examples.py` | Deterministic generation | Synthetic text only; MIT License |
 | `beam_readers.csv` | Four frozen BEAM primary machine analyses | Allowlisted scores, CIs, p values, provider totals and configuration names | Reader-level numerical aggregates |
 | `beam_clusters.csv` | The same frozen judge jobs/results | Average criterion scores; sum within 60 conversations per reader; remove original IDs and all text | 240 numeric cluster aggregates and length tiers |
 | `source_hashes.json` | Frozen analyses and inputs | File SHA-256 only | Hashes and source roles, no payload or paths |

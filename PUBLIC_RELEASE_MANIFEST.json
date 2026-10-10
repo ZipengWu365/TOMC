@@ -36,8 +36,8 @@
     },
     {
       "path": "CITATION.cff",
-      "bytes": 632,
-      "sha256": "75af9543a613ab3d69c382d23379946cb170e87de966a3d4af2ac6c307d5c616"
+      "bytes": 612,
+      "sha256": "679e258999a996da5eb8d5f2498dc35f87ae99f6a82fafe290777f255e7310d7"
     },
     {
       "path": "CODE_OF_CONDUCT.md",
@@ -51,8 +51,8 @@
     },
     {
       "path": "DATA_PROVENANCE.md",
-      "bytes": 4034,
-      "sha256": "87ebb6809245c19508fce13351a8c3153cfb9366cfeb18d4ae5c6521b0f67474"
+      "bytes": 4017,
+      "sha256": "ced6b1a4825c679a08dc2a2f818040f28faf3354d6fe1323fc537abc68c9a506"
     },
     {
       "path": "DEPENDENCY_LICENSES.json",
@@ -66,8 +66,8 @@
     },
     {
       "path": "LICENSE",
-      "bytes": 4648,
-      "sha256": "c003b25bbefb4321db1901456318be60402a18e9306bddf9ce73181aef7869ce"
+      "bytes": 1066,
+      "sha256": "dedbfad5f06f66e0696f2b69c4b66d5481f7960cd8eeb14d164644681fb11a39"
     },
     {
       "path": "Makefile",
@@ -76,13 +76,13 @@
     },
     {
       "path": "README.md",
-      "bytes": 40351,
-      "sha256": "aeec9e29fa757c9c4932d210368e92eb82ec1a23326aed310eac46a9f614fc94"
+      "bytes": 40580,
+      "sha256": "a97a446384d82f4ce22a51258f82d37e534732a52d184b67114fae1c1339de2c"
     },
     {
       "path": "README_zh.md",
-      "bytes": 38068,
-      "sha256": "19ad6c101466f77adf3768bf5ad7160bd2e396034a58cddd48738f96f3c64f76"
+      "bytes": 38317,
+      "sha256": "640da91c9e69deefc67eb58a53a39f5e752c5958ef697505c18da07f6f496c65"
     },
     {
       "path": "SECURITY.md",
@@ -571,8 +571,8 @@
     },
     {
       "path": "docs/SOURCE_PROVENANCE.json",
-      "bytes": 1349,
-      "sha256": "6bf7ea519b94ae8dd17ab6f16d7569c798e09d14e4107b7cddb96402960820f2"
+      "bytes": 1380,
+      "sha256": "7ac382fac8d9a7f0bb26fb45fb03d919e79b1bea618f3c51f655e6f0d3a28f3a"
     },
     {
       "path": "docs/WRITING_REVIEW_SOURCES.json",
@@ -631,13 +631,13 @@
     },
     {
       "path": "docs/assistant_plugin.md",
-      "bytes": 23094,
-      "sha256": "b408eec21ade2ef323434ed6ee8e1fed688636cbfb8433f8a8dc0699d4cb113b"
+      "bytes": 23207,
+      "sha256": "cf23559670037934984b0ce748cf68a160fb8535f3f6c6664975a838f349d788"
     },
     {
       "path": "docs/assistant_plugin_zh.md",
-      "bytes": 23338,
-      "sha256": "42acc5cc3cd4799546a943350a152d5cf77d0cf8a0a75c07fc09824e22d67894"
+      "bytes": 23416,
+      "sha256": "8cb36de45799e044ac3abd47147ec2530b1ae4e1343bdf7e6801e665d81e4d3e"
     },
     {
       "path": "docs/assistant_setup.md",
@@ -666,13 +666,13 @@
     },
     {
       "path": "docs/data_and_license.md",
-      "bytes": 3219,
-      "sha256": "4cd4557560bcc7e5419e6f5494a0905f4dfa610f1460c24a958feb0e8c03252e"
+      "bytes": 3964,
+      "sha256": "d9d750c79d047a7482990e84c56d0ec192510df94da0e1b42b91c10522dc9c95"
     },
     {
       "path": "docs/huggingface_space.md",
-      "bytes": 1368,
-      "sha256": "ce2f77abf2036ab6339e6d054cc902e7c8082cbba6816fd5d6675b73965faef3"
+      "bytes": 1301,
+      "sha256": "8bb22d6af183808b20250e6412ca0abe4e44577ab3b3d11b23d9060acca71392"
     },
     {
       "path": "docs/index.md",
@@ -831,8 +831,8 @@
     },
     {
       "path": "launch/CONTENT_KIT.md",
-      "bytes": 12683,
-      "sha256": "7b78bce6246322357193427fb47c44347f3ea87780fe0dab09eba2b6b9bf1911"
+      "bytes": 13286,
+      "sha256": "a1b13bdb559b331bc14890be1a6f3ba4829c954e926f7b75421fd1df5a5a47d5"
     },
     {
       "path": "launch/PILOT_ZH.md",
@@ -866,13 +866,13 @@
     },
     {
       "path": "launch/media/v10/MODEL_TEST_SCOPE.md",
-      "bytes": 2381,
-      "sha256": "f5dc629f4ab9549ab269568a91c4b6245816bf06f9ca4cd06ad687cb57864cf5"
+      "bytes": 2466,
+      "sha256": "fd0f50e5503a7f9c8fb840a3408c80815bfe3134122da7068ed391b5ef5f6c44"
     },
     {
       "path": "launch/media/v10/README.md",
-      "bytes": 2389,
-      "sha256": "190bbc7f7be65c65db5c32ae33b4f312634955cefc4b220548882f6e70dfb3eb"
+      "bytes": 2501,
+      "sha256": "360f02813ecbdd83ad412375efd62a8a8d70c900392270afa6f1b811abaf824f"
     },
     {
       "path": "launch/media/v10/covers/TOMC_CodeAgent_Complete_EN.png",
@@ -996,13 +996,13 @@
     },
     {
       "path": "launch/media/v11/MODEL_TEST_SCOPE_v11.md",
-      "bytes": 3302,
-      "sha256": "47bbb57c57ac68834d48353ceeca263a5cc103d1368abc66b7611575f6ddacde"
+      "bytes": 3387,
+      "sha256": "b781d626b17ceb36c1d566d07a0e802d8d375702cff49f078fb4337ffbd3f816"
     },
     {
       "path": "launch/media/v11/README.md",
-      "bytes": 3015,
-      "sha256": "68447c89e9c85a97c1f532ad5cb28cc6e2b2203cb8f705a2a02678c4e93a6fb4"
+      "bytes": 3132,
+      "sha256": "6103e9d0efb67664a1ec0a53ac75a439cd938d775bf52ff3f3ce557492640904"
     },
     {
       "path": "launch/media/v11/covers/TOMC_Agent_Complete_EN.png",
@@ -1136,18 +1136,18 @@
     },
     {
       "path": "plugins/claude/README.md",
-      "bytes": 3135,
-      "sha256": "253bcb5d62a2f7a9d8efd9f10468733c6bb031242e545fc7f6648d986582b25c"
+      "bytes": 3365,
+      "sha256": "d6734e06499b4cf607239c535c193ffcfd94ef1e8963dfae8cf40e4f1d1ad36b"
     },
     {
       "path": "plugins/claude/manifest.json",
-      "bytes": 2080,
-      "sha256": "5a952d14f23cc83344242928fb8ec63f47c7b4fc12cf56d8440328f6033f3e2e"
+      "bytes": 2055,
+      "sha256": "908d55c483a74779f973626b05f1456941193f2894174c2df0689f0b79e31651"
     },
     {
       "path": "plugins/claude/pyproject.toml",
-      "bytes": 212,
-      "sha256": "959d53310efb9d4e2393dd914830ae8fb8b0261004b42ba5646a0a37c7462bed"
+      "bytes": 228,
+      "sha256": "5e42fb26d41b147460859ed4cd0b59de4ffda335b9734b23be8ea3061fc904d6"
     },
     {
       "path": "plugins/claude/src/server.py",
@@ -1166,8 +1166,8 @@
     },
     {
       "path": "plugins/codex/README.md",
-      "bytes": 6184,
-      "sha256": "833ce0d834b5e19373260f86fd9b5509344199e06832ca81a4956dacf4516b22"
+      "bytes": 6424,
+      "sha256": "656511d80e1e44ad53c00f5ba21c8a8271dc80d0e27020fd8e184257e913ded4"
     },
     {
       "path": "plugins/codex/install.py",
@@ -1190,9 +1190,44 @@
       "sha256": "adf5ad7ec2225578d0e0a5e6ac36f189f7e98fefa4f5cdba2b1a09f0f86bc41b"
     },
     {
+      "path": "plugins/downloads/README.md",
+      "bytes": 2042,
+      "sha256": "23b4b4d258a537e52d5f6e69d89bf8967cb1456f1d0da436bb83a346c9e5389a"
+    },
+    {
+      "path": "plugins/downloads/build_receipt.json",
+      "bytes": 316,
+      "sha256": "27893370252d648c26062aaf867b8f8bdfca5983353f8d1079aafde9f1be0ce7"
+    },
+    {
+      "path": "plugins/downloads/codex_build_receipt.json",
+      "bytes": 324,
+      "sha256": "823ccbc73a5cf0241ccad67adf83cd8ec29a81bf65f44c6d5ff00f1cf687bfe1"
+    },
+    {
+      "path": "plugins/downloads/tomc-memory-0.1.0.mcpb",
+      "bytes": 85135,
+      "sha256": "c4ea4aae5ec5995a72f3e0891e0708f880035ff7dc7e3d91f57393de3c8ad4ac"
+    },
+    {
+      "path": "plugins/downloads/tomc-memory-0.1.0.mcpb.sha256",
+      "bytes": 89,
+      "sha256": "7d01ac11725c0526c88c1fd9de3cb94b9c9d3453296b5ccaed2e3637d3dd32c7"
+    },
+    {
+      "path": "plugins/downloads/tomc-memory-codex-0.1.0.zip",
+      "bytes": 91166,
+      "sha256": "a7b3aa22451f4769cfccfff47d00c6cb09e5782af45e048160823c7fcf131c34"
+    },
+    {
+      "path": "plugins/downloads/tomc-memory-codex-0.1.0.zip.sha256",
+      "bytes": 94,
+      "sha256": "7e17bdf58461ea7fc612164301ba0414a5178c954e1984d9114a4b01bffc9b68"
+    },
+    {
       "path": "pyproject.toml",
-      "bytes": 1093,
-      "sha256": "dd86cff083bdd65a8da5a7c6131f64ce3387685218957f02735d9775204bc989"
+      "bytes": 1068,
+      "sha256": "a432a909b0f0c36271e3a9ce71a29c7829ffc580516cb3c88e5ef10d5ac8f67c"
     },
     {
       "path": "requirements-core.lock",
@@ -1525,7 +1560,7 @@
       "sha256": "17c605bde43040d24896c39084ccbddf0274e282420cd9bffa10fb691992f141"
     }
   ],
-  "total_bytes": 71861514,
+  "total_bytes": 72039877,
   "self_excluded": [
     "PUBLIC_RELEASE_MANIFEST.json",
     "SHA256SUMS"
