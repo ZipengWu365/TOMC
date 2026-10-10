@@ -294,7 +294,7 @@ Fresh downloads passed [Linux installation and browser checks](docs/linux_valida
 
 ## Part 2 · The paper explained
 
-The paper is *Task-Oriented Memory Compilation: Executable State Representations for Long-Context Language Models*. An arXiv link will be added after upload. This section explains its method and archived results.
+The paper is *Task-Oriented Memory Compilation: Executable State Representations for Long-Context Language Models*. An arXiv link will be added soon. This section explains its method and archived results.
 
 In the paper, GPT-5.1, Rednote preview and DeepSeek V4.1 Flash are API reader models. Each paired baseline and TOMC comparison keeps the same reader. Codex and Claude Code are assistant hosts for the plugin trials, using `gpt-6.1-sol` and Claude Opus 5.5 respectively; those trials are separate from the paper benchmark. [Reader models and assistant hosts](docs/readers_and_agents.md)
 
