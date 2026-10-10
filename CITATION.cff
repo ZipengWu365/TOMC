@@ -1,5 +1,5 @@
 cff-version: 1.2.0
-message: "If TOMC supports your research, please cite this software release. The software is freely available under the MIT License, including for commercial use. Paper metadata will be added after the authors finalize a public manuscript."
+message: "If TOMC supports your research, please cite the paper below. The software is freely available under the MIT License, including for commercial use. An arXiv identifier will be added when available."
 type: software
 title: "TOMC: Task-Oriented Memory Compilation"
 authors:
@@ -10,3 +10,22 @@ date-released: '2026-09-08'
 license: MIT
 repository-code: 'https://github.com/ZipengWu365/TOMC'
 abstract: "Task-oriented memory compilation for long-context language models, with source-linked records and raw evidence."
+preferred-citation:
+  type: article
+  status: preprint
+  title: "Task-Oriented Memory Compilation: Executable State Representations for Long-Context Language Models"
+  authors:
+    - family-names: Wu
+      given-names: Zipeng
+      affiliation: University of Birmingham
+    - family-names: Zhao
+      given-names: Yanjun
+      affiliation: University of Illinois Urbana-Champaign
+    - family-names: Spill
+      given-names: Fabian
+      affiliation: University of Birmingham
+    - family-names: Andrews
+      given-names: James
+      affiliation: University of Birmingham
+  year: 2026
+  url: 'https://github.com/ZipengWu365/TOMC'

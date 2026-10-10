@@ -1,11 +1,11 @@
 # Hugging Face deployment settings
 
-The GitHub homepage is `README.md`. Space configuration is kept here so GitHub does not render it as a large table above the product introduction. The running Space retains its existing configuration.
+The GitHub homepage is `README.md`. Space configuration is kept here so GitHub does not render it as a large table above the product introduction. No Space is currently deployed: the earlier private demo Space was removed on 2026-10-10, and the demo runs locally from this repository.
 
 Hugging Face requires these settings as YAML front matter at the **start of the Space's root `README.md`**. They cannot be moved to the end of that file. The staging command copies the verified release files, prepends this block to the GitHub README, and generates checksums for the resulting Space files. It leaves the GitHub README and release inventory intact.
 
 ```bash
-python scripts/stage_hf.py --repo-id Zipeng365/tomc-agent-memory-demo
+python scripts/stage_hf.py --repo-id <user>/<space>
 ```
 
 Do not upload the unmodified GitHub README as the Space README.
@@ -27,4 +27,4 @@ tags: [llm-memory, long-context, context-compression, reproducibility]
 ---
 ```
 
-The private Space is [Zipeng365/tomc-agent-memory-demo](https://huggingface.co/spaces/Zipeng365/tomc-agent-memory-demo). These settings preserve its SDK, Python version and entry point. They do not change access or hardware.
+These settings set the SDK, Python version and entry point of a new Space. They do not set access or hardware.

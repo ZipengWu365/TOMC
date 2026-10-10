@@ -36,8 +36,8 @@
     },
     {
       "path": "CITATION.cff",
-      "bytes": 612,
-      "sha256": "679e258999a996da5eb8d5f2498dc35f87ae99f6a82fafe290777f255e7310d7"
+      "bytes": 1210,
+      "sha256": "23680d229865dea6fdbc59305826e32e311587755779e8790ccb31ae9fbd2817"
     },
     {
       "path": "CODE_OF_CONDUCT.md",
@@ -76,13 +76,13 @@
     },
     {
       "path": "README.md",
-      "bytes": 40580,
-      "sha256": "a97a446384d82f4ce22a51258f82d37e534732a52d184b67114fae1c1339de2c"
+      "bytes": 40427,
+      "sha256": "f626638ff146f146d89d9eb786a0b589fb86710c187db8924b841202a42127ef"
     },
     {
       "path": "README_zh.md",
-      "bytes": 38317,
-      "sha256": "640da91c9e69deefc67eb58a53a39f5e752c5958ef697505c18da07f6f496c65"
+      "bytes": 38211,
+      "sha256": "54391ed0c4523920b785f4779c7b8d50938c98cfbc5eab622d231643f680e189"
     },
     {
       "path": "SECURITY.md",
@@ -671,8 +671,8 @@
     },
     {
       "path": "docs/huggingface_space.md",
-      "bytes": 1301,
-      "sha256": "8bb22d6af183808b20250e6412ca0abe4e44577ab3b3d11b23d9060acca71392"
+      "bytes": 1253,
+      "sha256": "ef3b25ac75d260439e31884617442eeeb996baeaeb186bfdf981f3dd30c6c255"
     },
     {
       "path": "docs/index.md",
@@ -831,8 +831,8 @@
     },
     {
       "path": "launch/CONTENT_KIT.md",
-      "bytes": 13286,
-      "sha256": "a1b13bdb559b331bc14890be1a6f3ba4829c954e926f7b75421fd1df5a5a47d5"
+      "bytes": 13209,
+      "sha256": "f94cd22e0844c1bde78e0fd9b4418ae3791633e661a5c0f9d6e60cf3821ed6cf"
     },
     {
       "path": "launch/PILOT_ZH.md",
@@ -1226,8 +1226,8 @@
     },
     {
       "path": "pyproject.toml",
-      "bytes": 1068,
-      "sha256": "a432a909b0f0c36271e3a9ce71a29c7829ffc580516cb3c88e5ef10d5ac8f67c"
+      "bytes": 1054,
+      "sha256": "1571435d89b776f5abfb1541cb28b95de880609d8d984ade67e190ee690f80cb"
     },
     {
       "path": "requirements-core.lock",
@@ -1560,7 +1560,7 @@
       "sha256": "17c605bde43040d24896c39084ccbddf0274e282420cd9bffa10fb691992f141"
     }
   ],
-  "total_bytes": 72039877,
+  "total_bytes": 72040077,
   "self_excluded": [
     "PUBLIC_RELEASE_MANIFEST.json",
     "SHA256SUMS"

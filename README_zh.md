@@ -229,10 +229,6 @@ Wednesday notes: the team checked the release checklist, added a rollback task, 
 
 Demo 用于查看 TOMC 如何为任务准备上下文，不创建跨聊天记忆本。
 
-#### 托管预览
-
-打开[私有 Hugging Face Demo](https://huggingface.co/spaces/Zipeng365/tomc-agent-memory-demo)，输入历史和下一步任务，准备上下文，再把 prompt 复制到你常用的模型。准备上下文不需要回答模型的 API key。Space 的权限与 GitHub 权限相互独立；如果打不开，可以按下面的步骤在本地运行。托管预览可能早于本次发布版本，本地最新代码提供当前英文界面。
-
 #### 本地运行
 
 Gradio 界面需要 Python 3.10–3.13。先克隆仓库：
@@ -505,7 +501,17 @@ python -m mkdocs build --strict
 
 TOMC 的源码和原创合成示例采用 [MIT 许可证](LICENSE)，可免费用于研究、教学、个人及商业用途，允许修改、二次开发、再发布和集成到其他项目。复制或分发软件的全部或实质性部分时，须保留版权声明和许可证。欢迎试用、反馈、贡献与合作。
 
-如果 TOMC 支持了你的研究，欢迎使用 [CITATION.cff](CITATION.cff) 引用软件；论文引用是推荐做法，不是额外的许可条件。论文标题为 *Task-Oriented Memory Compilation: Executable State Representations for Long-Context Language Models*，公开链接可用后会补充。反馈与合作可联系 Zipeng Wu（zxw365@student.bham.ac.uk）。
+如果 TOMC 支持了你的研究，欢迎引用论文；引用是推荐做法，不是额外的许可条件。论文为预印本，作者依次为 Zipeng Wu、Yanjun Zhao、Fabian Spill 和 James Andrews，arXiv 编号公布后会补充。[CITATION.cff](CITATION.cff) 提供同一条目，供 GitHub 的 *Cite this repository* 按钮使用。反馈与合作可联系 Zipeng Wu（zxw365@student.bham.ac.uk）。
+
+```bibtex
+@misc{wu2026tomc,
+  title  = {Task-Oriented Memory Compilation: Executable State Representations for Long-Context Language Models},
+  author = {Wu, Zipeng and Zhao, Yanjun and Spill, Fabian and Andrews, James},
+  year   = {2026},
+  note   = {Preprint},
+  url    = {https://github.com/ZipengWu365/TOMC}
+}
+```
 
 案例均为合成输入。仓库提供数值聚合，不分发基准题目、模型答案或私有 API payload。[数据来源](DATA_PROVENANCE.md) · [数据与许可](docs/data_and_license.md)。
 
