@@ -1,8 +1,8 @@
 <div align="center">
   <img src="assets/tomc_logo_20261002.png" alt="TOMC" width="380">
-  <h1>Send less context to your LLM API</h1>
-  <h3>Task-oriented context compression for the model you already use.</h3>
-  <p><strong>Prepare long histories on CPU before your next API call.</strong></p>
+  <h1>Compile context for AI assistants. Save task progress.</h1>
+  <h3>An Agent memory plugin for Codex / Claude Code.</h3>
+  <p><strong>Compress and compile long histories, and recall saved task notes on CPU.</strong></p>
   <p><a href="#use-before-your-api-call"><strong>Use with your API</strong></a> · <a href="#install-in-your-assistant">Install TOMC</a> · <a href="#switch-assistants">Switch assistants</a> · <a href="#try-the-demo">See the demo</a> · <a href="#paper-explained">Paper explained</a> · <a href="#same-reader-baseline-memory-vs-tomc-memory">Paper results</a> · <a href="README_zh.md">中文</a></p>
   <p><strong>CPU preparation</strong> · No training or extra model service · Plain-text output · Research preview</p>
 </div>
@@ -11,11 +11,13 @@
 
 ## Part 1 · Use TOMC
 
-TOMC is a task-oriented context compression tool for LLMs, available through an MCP server and a Python API. Give it a history, the next task and a memory budget. It selects source text and computes supported state, relation or count records, so your application can send the prepared context in place of the full history. Preparation runs on CPU, with no training or extra model service.
+TOMC compresses and compiles context for AI assistants and provides task memory through explicitly saved notes. It is available through an MCP server and a Python API. Give it a history, the next task and a memory budget. It selects source text and computes supported state, relation or count records, so your application can send the prepared context in place of the full history. Preparation runs on CPU, with no training or extra model service.
+
+Use task memory while making videos, organizing materials, handling files or developing code: save the brief, decisions, constraints, completed steps and remaining work with `remember_memory`, then use `recall_memory` to prepare those notes for the next task. These are examples of how to use saved notes. The recorded measurements below cover synthetic project histories and the paper benchmarks, with their own tasks and protocols; they do not establish performance for every task in these workflows.
 
 Add the Python API to your own application, or use the plugin in Codex, Cursor, Claude Desktop or Claude Code. Savings depend on the history and task; short histories can stay intact. The default keeps about 80% of a long history. Compare 40% or 60% budgets on your own tasks when you need smaller requests; see the separate [Codex and Claude results](#measured-savings).
 
-Keep the project brief when you switch assistants. With both clients using the same TOMC database on one computer, you can reuse saved decisions, constraints and next steps. [Try the Codex → Claude Code → Codex handoff](#switch-assistants).
+Reuse saved task notes in a new chat with the same assistant or another assistant. With both clients using the same TOMC database on one computer, you can reuse saved decisions, constraints and next steps. [Try the Codex → Claude Code → Codex handoff](#switch-assistants).
 
 <a href="assets/plugin_usage_api_20261003.png">
   <img src="assets/plugin_usage_api_20261003.png" alt="Install TOMC in Codex, Cursor, Claude Desktop or Claude Code. Supply history, task and budget; TOMC prepares context for the same assistant." width="1280">
@@ -25,9 +27,9 @@ This is a preview, version **0.1.0**. Download the plugins from the [assistant p
 
 ### 30-second demo
 
-[![TOMC: context compression and compilation, with saved project notes](launch/media/v10/gifs/TOMC_CodeAgent_Complete_EN.gif)](launch/media/v10/videos/TOMC_CodeAgent_Complete_EN.mp4)
+[![TOMC: context compression and compilation, with saved task notes](launch/media/v11/gifs/TOMC_Agent_Complete_EN.gif)](launch/media/v11/videos/TOMC_Agent_Complete_EN.mp4)
 
-[Landscape video](launch/media/v10/videos/TOMC_CodeAgent_Complete_EN.mp4) · [Portrait video](launch/media/v10/videos_vertical/TOMC_CodeAgent_Complete_EN_9x16.mp4) · [中文视频](launch/media/v10/videos/TOMC_CodeAgent_Complete_ZH.mp4) · [Media and test scope](launch/media/v10/README.md)
+[Landscape video](launch/media/v11/videos/TOMC_Agent_Complete_EN.mp4) · [Portrait video](launch/media/v11/videos_vertical/TOMC_Agent_Complete_EN_9x16.mp4) · [中文视频](launch/media/v11/videos/TOMC_Agent_Complete_ZH.mp4) · [Media and test scope](launch/media/v11/README.md)
 
 The ending labels **models tested with TOMC** and explains their use: API models receive prepared context; Codex and Claude Code call TOMC tools. The list includes DeepSeek 4.1 Flash, DeepSeek 4 PRO, Rednote Red preview, Claude 5.5 Opus and ChatGPT Codex 6.1 Sol. The five-model list combines recorded tests and the author's reported tests; the demo's token and cost measurements retain their separate protocols. It does not imply a uniform five-model benchmark or provider endorsement.
 

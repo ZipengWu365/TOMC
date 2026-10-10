@@ -1,0 +1,23 @@
+{
+  "status": "PASS",
+  "method": "Original PCM audio and recorded numerical evidence match v10 by SHA-256; original scalar source assertions pass",
+  "unchanged_files": {
+    "source/soundtrack_complete.wav": "0c9ba2b781a83f4ed5194852ff76c26e787e3e099ab6e8b05b0ba2afaf9eea98",
+    "evidence/codex_recorded_data.json": "11c236a23d1a2b837b2756c0558e441154d40a0d0ba8348e68e9d107d5cac17d",
+    "evidence/v7_sources/verified_claims_v7.json": "071363fe940921ea08ba9aa24d3f720c7d35a5577ccbf9047994ceca81b39b55"
+  },
+  "unchanged_numbers": {
+    "codex_input": [
+      38786,
+      27235
+    ],
+    "claude_reported_session_cost_usd": [
+      0.4,
+      0.249
+    ],
+    "checked_values_each_condition": 5
+  },
+  "frame_identity_claim": false,
+  "domain_specific_benchmark_claim": false,
+  "quota_increase_claim": false
+}

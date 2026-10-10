@@ -1,8 +1,8 @@
 <div align="center">
   <img src="assets/tomc_logo_20261002.png" alt="TOMC" width="380">
-  <h1>为下一次模型调用，发送更少的上下文</h1>
-  <h3>面向任务的上下文压缩，交给你已经使用的模型。</h3>
-  <p><strong>在下一次 API 调用之前，先在 CPU 上准备长历史。</strong></p>
+  <h1>为 AI 助手压缩编译上下文，保存任务进度</h1>
+  <h3>面向 Codex / Claude Code 的 Agent 记忆插件</h3>
+  <p><strong>在 CPU 上压缩编译长历史，取回已保存的任务笔记。</strong></p>
   <p><a href="#接在你的-api-调用之前"><strong>接入 API</strong></a> · <a href="#接入常用助手">安装 TOMC</a> · <a href="#switch-assistants">换助手继续</a> · <a href="#试用演示">查看 Demo</a> · <a href="#paper-explained">论文详解</a> · <a href="#同一个模型基线记忆与-tomc-记忆">论文结果</a> · <a href="README.md">English</a></p>
   <p><strong>CPU 准备上下文</strong> · 无需训练或额外模型服务 · 输出普通文本 · 研究预览</p>
 </div>
@@ -11,11 +11,13 @@
 
 ## 第一部分：使用 TOMC
 
-TOMC 是面向任务的大模型上下文压缩工具，提供 MCP 服务和 Python API。给它一段历史、下一步任务和记忆预算。它选择原文，对支持的状态、关系或计数操作计算记录，让你的应用用准备后的上下文替换完整历史。准备过程在 CPU 上运行，无需训练或额外模型服务。
+TOMC 为 AI 助手压缩编译上下文，并通过明确保存的笔记提供任务记忆。它提供 MCP 服务和 Python API。给它一段历史、下一步任务和记忆预算。它选择原文，对支持的状态、关系或计数操作计算记录，让你的应用用准备后的上下文替换完整历史。准备过程在 CPU 上运行，无需训练或额外模型服务。
+
+让助手制作视频、整理资料、处理文件或进行编程开发时，可以用 `remember_memory` 保存任务要求、决策、约束、已完成步骤和待办事项，再用 `recall_memory` 为下一步任务准备这些笔记。这里列的是任务记忆的使用场景。下面的实测数据来自合成项目历史和论文基准，各有明确的任务与协议，不能直接推广为上述所有任务的效果。
 
 可以把 Python API 接进自己的应用，也可以在 Codex、Cursor、Claude Desktop 或 Claude Code 中安装插件。节省量取决于历史和任务；短历史可以保持完整。默认保留长历史的约 80%。需要更小的请求时，可以用自己的任务比较 40% 或 60% 预算；参见分别记录的 [Codex 与 Claude 实测](#实测节省)。
 
-换个助手，项目背景接着用。两个客户端使用同一台电脑上的同一 TOMC 数据库时，可以复用已保存的决策、约束和下一步任务。[试一次 Codex → Claude Code → Codex 接续](#switch-assistants)。
+新开聊天后，可以在原来的助手或另一个助手中复用已保存的任务笔记。两个客户端使用同一台电脑上的同一 TOMC 数据库时，可以复用已保存的决策、约束和下一步任务。[试一次 Codex → Claude Code → Codex 接续](#switch-assistants)。
 
 <a href="assets/plugin_usage_api_20261003.png">
   <img src="assets/plugin_usage_api_20261003.png" alt="在 Codex、Cursor、Claude Desktop 或 Claude Code 中安装 TOMC，传入历史、任务和预算；TOMC 准备上下文，再交给原来的助手。" width="1280">
@@ -25,9 +27,9 @@ TOMC 是面向任务的大模型上下文压缩工具，提供 MCP 服务和 Pyt
 
 ### 30 秒演示
 
-[![TOMC：上下文压缩编译与项目笔记续接](launch/media/v10/gifs/TOMC_CodeAgent_Complete_ZH.gif)](launch/media/v10/videos/TOMC_CodeAgent_Complete_ZH.mp4)
+[![TOMC：上下文压缩编译与任务笔记续接](launch/media/v11/gifs/TOMC_Agent_Complete_ZH.gif)](launch/media/v11/videos/TOMC_Agent_Complete_ZH.mp4)
 
-[横版视频](launch/media/v10/videos/TOMC_CodeAgent_Complete_ZH.mp4) · [竖版视频](launch/media/v10/videos_vertical/TOMC_CodeAgent_Complete_ZH_9x16.mp4) · [English video](launch/media/v10/videos/TOMC_CodeAgent_Complete_EN.mp4) · [素材与测试范围](launch/media/v10/README.md)
+[横版视频](launch/media/v11/videos/TOMC_Agent_Complete_ZH.mp4) · [竖版视频](launch/media/v11/videos_vertical/TOMC_Agent_Complete_ZH_9x16.mp4) · [English video](launch/media/v11/videos/TOMC_Agent_Complete_EN.mp4) · [素材与测试范围](launch/media/v11/README.md)
 
 结尾明确标注**已使用 TOMC 测试的模型**及用途：API 模型接收准备好的上下文，Codex 和 Claude Code 调用 TOMC 工具。名单包含 DeepSeek 4.1 Flash、DeepSeek 4 PRO、小红书 Red preview、Claude 5.5 Opus、ChatGPT Codex 6.1 Sol。这份名单综合已有测试记录与作者提供的测试情况；视频中的 token 和费用结果各有独立协议，不能解释为五模型统一基准或提供商背书。
 

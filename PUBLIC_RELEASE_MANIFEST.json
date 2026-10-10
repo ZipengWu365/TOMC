@@ -76,13 +76,13 @@
     },
     {
       "path": "README.md",
-      "bytes": 34533,
-      "sha256": "f816fc3e03004409598e159a71c9b9fa43b24a7e4e2c8d8d8215ab0761ba795a"
+      "bytes": 35125,
+      "sha256": "16cc072b8d8cd33bd41bc6342fe622b0beaa39229169834edb1e134f298449e1"
     },
     {
       "path": "README_zh.md",
-      "bytes": 32374,
-      "sha256": "4319c320ff5fc09159ec9e06c44350ffce2a92f28ea4dc6913181523a4f5e6a9"
+      "bytes": 32876,
+      "sha256": "d2618e2f2c84c4815b03556881814b7f8974a51cb9675c19f6850d67b0180893"
     },
     {
       "path": "SECURITY.md",
@@ -950,6 +950,141 @@
       "sha256": "6a5493fc74d3fc936bc2e5218554aef7c61e1a870d22fb06fd49558fc5744650"
     },
     {
+      "path": "launch/media/v11/MODEL_TEST_SCOPE_v11.md",
+      "bytes": 3302,
+      "sha256": "47bbb57c57ac68834d48353ceeca263a5cc103d1368abc66b7611575f6ddacde"
+    },
+    {
+      "path": "launch/media/v11/README.md",
+      "bytes": 3015,
+      "sha256": "68447c89e9c85a97c1f532ad5cb28cc6e2b2203cb8f705a2a02678c4e93a6fb4"
+    },
+    {
+      "path": "launch/media/v11/covers/TOMC_Agent_Complete_EN.png",
+      "bytes": 505683,
+      "sha256": "6d49da813dd993bbb07116c872a1e124c4d7744d09abf70cd267248ad206c526"
+    },
+    {
+      "path": "launch/media/v11/covers/TOMC_Agent_Complete_ZH.png",
+      "bytes": 471276,
+      "sha256": "70adb713175db1c4ff38a1b599983b926af7caf252b31dd8fed64878e3e5e128"
+    },
+    {
+      "path": "launch/media/v11/covers_vertical/TOMC_Agent_Complete_EN_9x16.png",
+      "bytes": 517399,
+      "sha256": "5c7e2b8a8896b8af0bd2b19c575aea75e07c6e4441bb9591d72f796839ddb09f"
+    },
+    {
+      "path": "launch/media/v11/covers_vertical/TOMC_Agent_Complete_ZH_9x16.png",
+      "bytes": 492700,
+      "sha256": "02d1e95cca01794fdbfb52d0eac7013e6560c3bd4440ea93828044186d4432b7"
+    },
+    {
+      "path": "launch/media/v11/evidence/TOMC_Agent_Complete_EN_2.7_source_v11.png",
+      "bytes": 378688,
+      "sha256": "6da47ac8a666ba6d25557db7111b85e8fae44c90bf1b11f5832224fa83435c9b"
+    },
+    {
+      "path": "launch/media/v11/evidence/TOMC_Agent_Complete_EN_29.967_final_encoded_v11.png",
+      "bytes": 741517,
+      "sha256": "38f6eb9ccd85bcbb8cbbd4e423f17f33f4c2bc67336faf722eb5f3438964dbd4"
+    },
+    {
+      "path": "launch/media/v11/evidence/TOMC_Agent_Complete_EN_9x16_2.7_source_v11.png",
+      "bytes": 353727,
+      "sha256": "7692cf5271b622b330c35bfea38a72b8ad73aa41b1888b3390962748308dfba8"
+    },
+    {
+      "path": "launch/media/v11/evidence/TOMC_Agent_Complete_EN_9x16_29.967_final_encoded_v11.png",
+      "bytes": 712751,
+      "sha256": "3fb86c2d5ffe7d74104166fd8b0063b663bfebfb93c2f8bc2e4eb818547407c7"
+    },
+    {
+      "path": "launch/media/v11/evidence/TOMC_Agent_Complete_ZH_2.7_source_v11.png",
+      "bytes": 390698,
+      "sha256": "afb916d06d4d2cf2e6716049e908cc25551cc889bd7d1fc3b784c94c67d5f763"
+    },
+    {
+      "path": "launch/media/v11/evidence/TOMC_Agent_Complete_ZH_29.967_final_encoded_v11.png",
+      "bytes": 642816,
+      "sha256": "21bd53ef194d052c078b317ee661d31872aa26e139af72a43f7ee0deb501d7e8"
+    },
+    {
+      "path": "launch/media/v11/evidence/TOMC_Agent_Complete_ZH_9x16_2.7_source_v11.png",
+      "bytes": 361279,
+      "sha256": "8bdd332f22c64f17bfec2176c94537b76964e6bf7d989b749e623f4373c50d8a"
+    },
+    {
+      "path": "launch/media/v11/evidence/TOMC_Agent_Complete_ZH_9x16_29.967_final_encoded_v11.png",
+      "bytes": 612299,
+      "sha256": "5cbd15a1249b37810b9944ee22047aba221588c85356f91581db3b0a458214f4"
+    },
+    {
+      "path": "launch/media/v11/evidence/complete_v11_media_check.json",
+      "bytes": 2426,
+      "sha256": "af9529a5189e5e23cafa4717eb1d1492fcacc5fb52836abad4eae390c54d43dc"
+    },
+    {
+      "path": "launch/media/v11/evidence/complete_v11_preservation.json",
+      "bytes": 815,
+      "sha256": "dfc75dab1423b0f421d1ac55a8dc2e1e84034bb13f46d518ac551ff3af7920c8"
+    },
+    {
+      "path": "launch/media/v11/evidence/tested_models_v11.json",
+      "bytes": 1877,
+      "sha256": "a06d442b4a1bd875117d0c4286fe3cf3ed8ec4039d284e00033cbb2517ae9ea0"
+    },
+    {
+      "path": "launch/media/v11/gifs/TOMC_Agent_Complete_EN.gif",
+      "bytes": 3835613,
+      "sha256": "2b0e2f88634a93f1eb2350ae86d4cfdaf218936520f7076a79a53785d40891fe"
+    },
+    {
+      "path": "launch/media/v11/gifs/TOMC_Agent_Complete_ZH.gif",
+      "bytes": 3745617,
+      "sha256": "bcd225ec2a56a7196176ced5b644107c09b5b3524309d0d047082e486804c8f5"
+    },
+    {
+      "path": "launch/media/v11/subtitles/TOMC_Agent_Complete_EN.srt",
+      "bytes": 1067,
+      "sha256": "9dd196d2a4b8e08b9cbd553b22df4e76b68ddc6b62f3215ee017cf2cb3e18532"
+    },
+    {
+      "path": "launch/media/v11/subtitles/TOMC_Agent_Complete_EN_9x16.srt",
+      "bytes": 1067,
+      "sha256": "9dd196d2a4b8e08b9cbd553b22df4e76b68ddc6b62f3215ee017cf2cb3e18532"
+    },
+    {
+      "path": "launch/media/v11/subtitles/TOMC_Agent_Complete_ZH.srt",
+      "bytes": 1127,
+      "sha256": "2a29531199211f63dae62454069b7a268ce04fafd8d1fc31578283d14a829168"
+    },
+    {
+      "path": "launch/media/v11/subtitles/TOMC_Agent_Complete_ZH_9x16.srt",
+      "bytes": 1127,
+      "sha256": "2a29531199211f63dae62454069b7a268ce04fafd8d1fc31578283d14a829168"
+    },
+    {
+      "path": "launch/media/v11/videos/TOMC_Agent_Complete_EN.mp4",
+      "bytes": 3068881,
+      "sha256": "8bd02ca72964c9e28db36140c90c6f4ed9f8b8fd7ff038434dd60c7759d271d2"
+    },
+    {
+      "path": "launch/media/v11/videos/TOMC_Agent_Complete_ZH.mp4",
+      "bytes": 2955797,
+      "sha256": "f8ea74c775969685eb02294b074c358ca8c449bc9e3866660c7e6bd2716dd1e0"
+    },
+    {
+      "path": "launch/media/v11/videos_vertical/TOMC_Agent_Complete_EN_9x16.mp4",
+      "bytes": 3057349,
+      "sha256": "222083e372bb557afe7d8be5f848e0ef3eb121602a69a2ca107804df3659b558"
+    },
+    {
+      "path": "launch/media/v11/videos_vertical/TOMC_Agent_Complete_ZH_9x16.mp4",
+      "bytes": 2940484,
+      "sha256": "2973c50568970a2a952434660af5f6ab5bbe80dd22ae2ae30f5a410541ff3c8f"
+    },
+    {
       "path": "mkdocs.yml",
       "bytes": 1333,
       "sha256": "df9879b6b3ffb86346ffb7d4f8d884d75e5d7ca36909f32fef7a67a0508efd02"
@@ -1340,7 +1475,7 @@
       "sha256": "17c605bde43040d24896c39084ccbddf0274e282420cd9bffa10fb691992f141"
     }
   ],
-  "total_bytes": 43128899,
+  "total_bytes": 68930390,
   "self_excluded": [
     "PUBLIC_RELEASE_MANIFEST.json",
     "SHA256SUMS"
