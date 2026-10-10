@@ -401,8 +401,8 @@
     },
     {
       "path": "benchmarks/beam_10m_20261010/paired_scores_10m.csv",
-      "bytes": 1249125,
-      "sha256": "c8cdf90bce560acf6ddbb4a3ccb48e5a90f2802871166f0df2821ec18d36df0a"
+      "bytes": 1245524,
+      "sha256": "19410a87c52c3b60a80a86a024e6e90398de3433a518f0a47adef474cf1f8321"
     },
     {
       "path": "benchmarks/current_paper/README.md",
@@ -1490,7 +1490,7 @@
       "sha256": "17c605bde43040d24896c39084ccbddf0274e282420cd9bffa10fb691992f141"
     }
   ],
-  "total_bytes": 70206800,
+  "total_bytes": 70203199,
   "self_excluded": [
     "PUBLIC_RELEASE_MANIFEST.json",
     "SHA256SUMS"
