@@ -24,8 +24,13 @@ def client_config(client: str, store: Path | None = None) -> str:
     ]
     if client == "codex":
         return f"[mcp_servers.tomc]\ncommand = {json.dumps(command)}\nargs = {json.dumps(args)}\n"
-    if client not in ("cursor", "claude", "json"):
-        raise ValueError("Choose codex, cursor, claude, or json.")
+    if client not in ("cursor", "trae", "claude", "json"):
+        raise ValueError("Choose codex, cursor, trae, claude, or json.")
+    if client == "trae" and any(char.isspace() for char in command):
+        raise ValueError(
+            "TRAE requires a command path without spaces. Use a TOMC environment "
+            "at a path without spaces, or the UV template in docs/cursor_trae.md."
+        )
     return json.dumps({"mcpServers": {"tomc": {"command": command, "args": args}}}, indent=2) + "\n"
 
 

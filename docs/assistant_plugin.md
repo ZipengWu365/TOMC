@@ -10,7 +10,8 @@ After installation, call `prepare_context`, inspect the result and hand it to a 
 |---|---|---|
 | Claude Desktop | Install the `.mcpb` file | UV runtime installation candidate; desktop GUI acceptance is pending |
 | Claude Code | Install the plugin from this repository's marketplace, or register the extracted `.mcpb` runtime with `claude mcp add` | VS Code extension tested in fresh sessions; interactive panel use is untested |
-| Cursor | Generate an Add to Cursor link | Requires an installed TOMC MCP environment; the link registers it |
+| Cursor | Generate an Add to Cursor link or [add local MCP configuration](cursor_trae.md) | MCP backend checks exist; client tool calls remain unverified |
+| TRAE (International / CN) | [Add a local MCP server](cursor_trae.md#trae) | Manual configuration preview; client tool calls remain unverified |
 | Codex | Run the ZIP's installation helper | Preview.4 native installation and default-model calls passed in the Windows personal profile; the earlier macOS trial used preview.2 |
 
 Download the packages from the [MIT-licensed assistant preview](https://github.com/ZipengWu365/TOMC/tree/main/plugins/downloads): [Claude `.mcpb`](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-0.1.0.mcpb) ([checksum](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-0.1.0.mcpb.sha256)) or [Codex ZIP](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-codex-0.1.0.zip) ([checksum](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-codex-0.1.0.zip.sha256)). These packages were rebuilt with MIT licensing on 2026-10-10; earlier release assets and dated validation records retain their historical contents.
@@ -107,6 +108,10 @@ python -m tomc setup --client cursor --link
 Open the generated link and confirm the installation in Cursor. It refers to the absolute interpreter path of this installation. Keep that environment in place; regenerate the link after moving it. The command prints a link and does not edit your client configuration.
 
 Cursor officially supports installation links, with confirmation in the client. This adds the server configuration; it does not install TOMC, Python or dependencies. A link generated on one person's computer is not a portable installer for everyone. [Cursor install links](https://cursor.com/docs/mcp/install-links)
+
+## TRAE
+
+Use the [Cursor / TRAE setup guide](cursor_trae.md) to add the locked local runtime through Settings → MCP → Add → Create Manually. The current source checkout also supports `python -m tomc setup --client trae`. This is a manual MCP integration; the Claude plugin manifest is not a TRAE installer. Client tool discovery and model calls remain unverified.
 
 ## Codex
 

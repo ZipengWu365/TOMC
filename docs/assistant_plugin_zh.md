@@ -12,7 +12,8 @@ TOMC 按任务准备上下文，让你用结果替换较长的历史。传入历
 |---|---|---|
 | Claude Desktop | 安装 `.mcpb` 文件 | UV 安装候选包，桌面界面仍待实测 |
 | Claude Code | 从本仓库的插件市场安装，或用 `claude mcp add` 注册解压后的 `.mcpb` 运行环境 | 已在 VS Code 扩展中用新会话测试；面板内的交互使用尚未测试 |
-| Cursor | 生成 Add to Cursor 链接 | 需要先安装 TOMC MCP 环境，链接负责注册 |
+| Cursor | 生成 Add to Cursor 链接，或[添加本地 MCP 配置](cursor_trae_zh.md) | 已有 MCP 后端检查；客户端工具调用尚未验证 |
+| TRAE（国际版 / 国内版） | [添加本地 MCP 服务](cursor_trae_zh.md#trae) | 手动配置预览；客户端工具调用尚未验证 |
 | Codex | 运行 ZIP 内的安装助手 | preview.4 已通过 Windows 个人配置中的原生安装与默认模型调用；此前 macOS 试用使用 preview.2 |
 
 从[MIT 许可插件预览包](https://github.com/ZipengWu365/TOMC/tree/main/plugins/downloads)下载：[Claude `.mcpb`](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-0.1.0.mcpb)（[校验文件](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-0.1.0.mcpb.sha256)）、[Codex ZIP](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-codex-0.1.0.zip)（[校验文件](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-codex-0.1.0.zip.sha256)）。这些包于 2026-10-10 按 MIT 许可重新构建；旧 Release 文件及已有验证记录保留历史内容。
@@ -133,6 +134,10 @@ python -m tomc setup --client cursor --link
 打开生成的链接，在 Cursor 中确认添加。它使用你当前安装环境中 Python 的绝对路径，因此需要保留该环境，移动后重新生成链接。命令本身只打印链接，不会改写客户端配置。
 
 Cursor 官方支持安装链接，但这个链接只添加 MCP 配置，不负责安装 TOMC、Python 或依赖。一个人在自己电脑上生成的路径链接，不能当作所有人都能使用的安装包。[Cursor 官方安装链接说明](https://cursor.com/docs/mcp/install-links)
+
+## TRAE
+
+按 [Cursor / TRAE 接入指南](cursor_trae_zh.md)，在设置 → MCP → 添加 → 手动添加中注册锁定依赖的本地运行环境。最新源码也支持 `python -m tomc setup --client trae`。这是手动 MCP 接入；Claude 插件 manifest 不是 TRAE 安装器。客户端工具发现和模型调用尚未验证。
 
 ## Codex
 

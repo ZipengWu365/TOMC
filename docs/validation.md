@@ -2,6 +2,12 @@
 
 These entries record checks performed on the stated revisions. They distinguish local software checks from benchmark reruns, hosted checks and human usability testing.
 
+## Cursor / TRAE configuration preview — 2026-10-11
+
+Added `setup --client trae` to the current source checkout, a shared locked-UV MCP configuration template, and English/Chinese setup guides. Cursor keeps its existing configuration and install-link entry points. The TRAE helper reports an actionable error for executable paths containing whitespace; the UV template keeps runtime paths in argument strings.
+
+This update is configuration and documentation work. Cursor and TRAE client tool discovery, model calls and cross-session notebook use remain unverified. Earlier MCP backend checks retain their dated scope below; they are not new client acceptance results. No new quality, token-saving or marketplace-listing claim is made. [English setup](cursor_trae.md) · [中文接入](cursor_trae_zh.md).
+
 <a id="windows-codex-retention-20261005"></a>
 
 ## Windows Codex context budgets and provider input — 2026-10-05

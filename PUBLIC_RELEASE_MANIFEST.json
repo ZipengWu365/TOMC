@@ -81,13 +81,13 @@
     },
     {
       "path": "README.md",
-      "bytes": 40546,
-      "sha256": "032200692fd9a09b05cc5186af80f1cf9a7945da247124784793cae1ed406fc3"
+      "bytes": 41745,
+      "sha256": "e01aeb58db7bd44c69fe043248eb3ab10c3228d7ed7a873e1a82cbe64baf3bf8"
     },
     {
       "path": "README_zh.md",
-      "bytes": 38341,
-      "sha256": "8be5df9c49287e1012c4eab1eabfa835c4550ffdc70cebe2b69262527270cd45"
+      "bytes": 39345,
+      "sha256": "c7e991c7ee2dbc0c068bf06860d5d6c07aa4adb446a0a9349b73f20efa85a11f"
     },
     {
       "path": "SECURITY.md",
@@ -636,18 +636,18 @@
     },
     {
       "path": "docs/assistant_plugin.md",
-      "bytes": 24169,
-      "sha256": "b9e987cf968b8bff98aa66f82e5db9d9ba37b6169dd2482056fa091af2bbd917"
+      "bytes": 24731,
+      "sha256": "8b0c179b7c1d12077d0c5baa57a8d70ea5981a75cb8d488009747170df59d7b6"
     },
     {
       "path": "docs/assistant_plugin_zh.md",
-      "bytes": 24322,
-      "sha256": "5bdad598132c391d4020f6b99ee55f34503a615596090ac20d08de21415b02b9"
+      "bytes": 24864,
+      "sha256": "0ce5263dab14cbbcc595011493c99790a4b9bf8817cc642cfc15347534ca3d49"
     },
     {
       "path": "docs/assistant_setup.md",
-      "bytes": 7321,
-      "sha256": "3803ca0ea420b68cc31e2bd59b2301f28b9fff66c9effa10b7ea12849f9db008"
+      "bytes": 7973,
+      "sha256": "86b25e2d6acc40aa4615eaa2b20f916119f9a47c69533c56fff2d3339f4f8553"
     },
     {
       "path": "docs/claims_and_limitations.md",
@@ -670,6 +670,16 @@
       "sha256": "6ea00626854b23c3cde909c9ab1b1481bfa5135de29a9b012c5359a39de2812a"
     },
     {
+      "path": "docs/cursor_trae.md",
+      "bytes": 4549,
+      "sha256": "fadadb42c45863fd9698d277e1b6aabb0592362b90f33f4ed61c223ef053dfc9"
+    },
+    {
+      "path": "docs/cursor_trae_zh.md",
+      "bytes": 4196,
+      "sha256": "eb021a19f5f8c6b3f935217dd1bd88d302e082c0e14bee3b75fc03b62e509237"
+    },
+    {
       "path": "docs/data_and_license.md",
       "bytes": 3999,
       "sha256": "bd92aaf687b8d91a25ba48496f48212bda63c52ed51520e4e5799632b0d23f4d"
@@ -681,8 +691,8 @@
     },
     {
       "path": "docs/index.md",
-      "bytes": 6588,
-      "sha256": "f782d28746423c20833f868ad8b4a3fc833908de9ffda280b26a807e5c977554"
+      "bytes": 6781,
+      "sha256": "01c10110385f69059daf81eff180030c2011f9ff72a790d51d3e6ebb7d300698"
     },
     {
       "path": "docs/legacy_extensions.md",
@@ -761,8 +771,8 @@
     },
     {
       "path": "docs/validation.md",
-      "bytes": 65606,
-      "sha256": "b39832588b99855cbeb62f4fe0640bd97cc9707229a1a75ab85575c46921bb53"
+      "bytes": 66414,
+      "sha256": "d8dbaf8c1380dbcf0a62cbaa730cd251c783ee54794242165ec96d72b5369772"
     },
     {
       "path": "docs/validation/macos-20261002-preview2.json",
@@ -835,9 +845,14 @@
       "sha256": "6c940fe2ab4f118377dfc75fba000c0941c42a7e3412e2c26081e589425c2796"
     },
     {
+      "path": "launch/20261011/PUBLIC_COPY.md",
+      "bytes": 8216,
+      "sha256": "55d48aeb08823490619d11e46d701278255993bfaf4fb852d824cf3772b37f5a"
+    },
+    {
       "path": "launch/CONTENT_KIT.md",
-      "bytes": 13209,
-      "sha256": "f94cd22e0844c1bde78e0fd9b4418ae3791633e661a5c0f9d6e60cf3821ed6cf"
+      "bytes": 13614,
+      "sha256": "77a56837405baa8c5881dc7cdcb1624e7322695662319f0c5e5eb9da9a00a859"
     },
     {
       "path": "launch/PILOT_ZH.md",
@@ -1201,8 +1216,8 @@
     },
     {
       "path": "mkdocs.yml",
-      "bytes": 1370,
-      "sha256": "a375bc77f5afe77fd79cf0010b3ee6e8992a878ce8bfe29d88b6b65477c84bdf"
+      "bytes": 1466,
+      "sha256": "8423cd6b732bd257a7e07fb03b09717d599a7620f3460aacd4e46457016c6c62"
     },
     {
       "path": "plugins/claude-code/.claude-plugin/plugin.json",
@@ -1286,8 +1301,8 @@
     },
     {
       "path": "plugins/claude-code/src/tomc/cli.py",
-      "bytes": 5104,
-      "sha256": "9685604caf8515d29b768fdd9650cccca0b2c101ce3dcc81518808849f875df0"
+      "bytes": 5266,
+      "sha256": "8550c294e53cd38251262e2189bcc15157abc6b34d9a11b9e8f48297d3212b7c"
     },
     {
       "path": "plugins/claude-code/src/tomc/compiler.py",
@@ -1351,8 +1366,8 @@
     },
     {
       "path": "plugins/claude-code/src/tomc/setup.py",
-      "bytes": 1619,
-      "sha256": "6d640f123e4c91ace26197d7b316aa61640cffe47a308f959a17f9f822c10b38"
+      "bytes": 1904,
+      "sha256": "71380f5a274e31902b622869ed072341b01075de8937911d0bc5a1d6eea65b43"
     },
     {
       "path": "plugins/claude-code/src/tomc/store.py",
@@ -1483,6 +1498,16 @@
       "path": "plugins/downloads/tomc-memory-codex-0.1.0.zip.sha256",
       "bytes": 94,
       "sha256": "7e17bdf58461ea7fc612164301ba0414a5178c954e1984d9114a4b01bffc9b68"
+    },
+    {
+      "path": "plugins/mcp/tomc.cursor.json",
+      "bytes": 295,
+      "sha256": "479ff6a0173ed9724ec983d6d85ecf062c46513e1e9c8a00391328991ef51264"
+    },
+    {
+      "path": "plugins/mcp/tomc.template.json",
+      "bytes": 272,
+      "sha256": "c8f3bf6441a622682e608440200b97794d6483c79e2ed70383f47e15b3e1f5ca"
     },
     {
       "path": "pyproject.toml",
@@ -1656,8 +1681,8 @@
     },
     {
       "path": "src/tomc/cli.py",
-      "bytes": 5104,
-      "sha256": "9685604caf8515d29b768fdd9650cccca0b2c101ce3dcc81518808849f875df0"
+      "bytes": 5266,
+      "sha256": "8550c294e53cd38251262e2189bcc15157abc6b34d9a11b9e8f48297d3212b7c"
     },
     {
       "path": "src/tomc/compiler.py",
@@ -1721,8 +1746,8 @@
     },
     {
       "path": "src/tomc/setup.py",
-      "bytes": 1619,
-      "sha256": "6d640f123e4c91ace26197d7b316aa61640cffe47a308f959a17f9f822c10b38"
+      "bytes": 1904,
+      "sha256": "71380f5a274e31902b622869ed072341b01075de8937911d0bc5a1d6eea65b43"
     },
     {
       "path": "src/tomc/store.py",
@@ -1825,7 +1850,7 @@
       "sha256": "17c605bde43040d24896c39084ccbddf0274e282420cd9bffa10fb691992f141"
     }
   ],
-  "total_bytes": 86890551,
+  "total_bytes": 86914434,
   "self_excluded": [
     "PUBLIC_RELEASE_MANIFEST.json",
     "SHA256SUMS"

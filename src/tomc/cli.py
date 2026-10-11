@@ -43,7 +43,9 @@ def main(argv: list[str] | None = None) -> int:
     mcp = commands.add_parser("mcp", help="Run the optional local MCP memory tools over stdio")
     mcp.add_argument("--store", type=Path)
     setup = commands.add_parser("setup", help="Print client configuration for this installation")
-    setup.add_argument("--client", choices=("codex", "cursor", "claude", "json"), default="json")
+    setup.add_argument(
+        "--client", choices=("codex", "cursor", "trae", "claude", "json"), default="json"
+    )
     setup.add_argument("--store", type=Path)
     setup.add_argument(
         "--link", action="store_true", help="Print a Cursor install link; requires --client cursor"
@@ -69,7 +71,11 @@ def main(argv: list[str] | None = None) -> int:
             from .setup import client_config, client_link
 
             render = client_link if args.link else client_config
-            sys.stdout.write(render(args.client, args.store))
+            try:
+                configuration = render(args.client, args.store)
+            except ValueError as exc:
+                parser.error(str(exc))
+            sys.stdout.write(configuration)
             return 0
         if args.command == "prepare":
             source = (
