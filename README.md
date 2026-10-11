@@ -9,6 +9,8 @@
 
 [TOMC Memory project homepage](https://zipengwu.me/tomc/) · [中文](README_zh.md)
 
+[Inspect recorded examples](https://zipengwu.me/tomc/examples/) · [API, shared-memory and evaluation guides](https://zipengwu.me/tomc/guides/)
+
 <a id="use-tomc"></a>
 
 ## Part 1 · Use TOMC Memory

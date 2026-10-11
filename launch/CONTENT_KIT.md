@@ -1,4 +1,6 @@
-# TOMC launch drafts
+# TOMC launch drafts — archived
+
+> **Current publication copy:** use [the 11 October 2026 kit](20261011/PUBLIC_COPY.md), the [published guides](https://zipengwu.me/tomc/guides/) and the [recorded-output explorer](https://zipengwu.me/tomc/examples/). The text below is retained as historical launch material. Its private-release status, video status and numerical snapshots are superseded; do not publish it as current copy.
 
 These posts are drafts. GitHub and the Hugging Face demo are private; their links currently require access. Publish after the owner approves public release and the demo works without signing in. A public paper URL and PyPI release are still pending.
 
