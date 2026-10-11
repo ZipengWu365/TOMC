@@ -1,6 +1,6 @@
 # Release readiness
 
-This is a preparation checklist, not permission to publish. The project remains private until the owner explicitly says “可以公开”. A completed local artifact does not imply it is configured on a platform or tested by users.
+The owner has authorized publication, and the TOMC repository is public. The software remains a research preview. This checklist retains historical preparation items; unchecked items do not claim completed validation. A completed local artifact does not imply it is configured on a platform or tested by users.
 
 ## Prepared in this iteration
 

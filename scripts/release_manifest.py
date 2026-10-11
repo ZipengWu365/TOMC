@@ -27,13 +27,13 @@ def manifest() -> dict:
         )
     return {
         "schema": "tomc-public-release-v1",
-        "visibility": "private-staging",
-        "public_release_authorized": False,
+        "visibility": "public",
+        "public_release_authorized": True,
         "version": "0.1.0",
         "files": entries,
         "total_bytes": sum(x["bytes"] for x in entries),
         "self_excluded": sorted(SELF),
-        "note": "Public-safe content inventory; public publication still requires owner approval. "
+        "note": "Public content inventory for the owner-authorized research preview. "
         "Commit identity is external because embedding its own final SHA would be recursive.",
     }
 

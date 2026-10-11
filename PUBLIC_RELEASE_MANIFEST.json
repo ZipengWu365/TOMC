@@ -1,7 +1,7 @@
 {
   "schema": "tomc-public-release-v1",
-  "visibility": "private-staging",
-  "public_release_authorized": false,
+  "visibility": "public",
+  "public_release_authorized": true,
   "version": "0.1.0",
   "files": [
     {
@@ -666,8 +666,8 @@
     },
     {
       "path": "docs/data_and_license.md",
-      "bytes": 3964,
-      "sha256": "d9d750c79d047a7482990e84c56d0ec192510df94da0e1b42b91c10522dc9c95"
+      "bytes": 3999,
+      "sha256": "bd92aaf687b8d91a25ba48496f48212bda63c52ed51520e4e5799632b0d23f4d"
     },
     {
       "path": "docs/huggingface_space.md",
@@ -846,8 +846,8 @@
     },
     {
       "path": "launch/RELEASE_CHECKLIST.md",
-      "bytes": 4162,
-      "sha256": "217d646e1e9f8495ed540e766bd929a999bdb2232b15188f618421d5e83a4477"
+      "bytes": 4240,
+      "sha256": "4ba99440647c255bdc8513ac4dde69bbe19577fddc368caec7617fb3d6cd57d0"
     },
     {
       "path": "launch/USABILITY_ZH.md",
@@ -1316,8 +1316,8 @@
     },
     {
       "path": "scripts/release_manifest.py",
-      "bytes": 2197,
-      "sha256": "858c5e26c42e1d7791bfc614ac573cb692627c376b3fb086d22280890785baaf"
+      "bytes": 2174,
+      "sha256": "c73376452deb17f15e8af9e90d7e070712a1b54c68af9d63ebf28eadcdad3a7c"
     },
     {
       "path": "scripts/replicate.py",
@@ -1560,10 +1560,10 @@
       "sha256": "17c605bde43040d24896c39084ccbddf0274e282420cd9bffa10fb691992f141"
     }
   ],
-  "total_bytes": 72039954,
+  "total_bytes": 72040044,
   "self_excluded": [
     "PUBLIC_RELEASE_MANIFEST.json",
     "SHA256SUMS"
   ],
-  "note": "Public-safe content inventory; public publication still requires owner approval. Commit identity is external because embedding its own final SHA would be recursive."
+  "note": "Public content inventory for the owner-authorized research preview. Commit identity is external because embedding its own final SHA would be recursive."
 }

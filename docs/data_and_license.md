@@ -34,4 +34,4 @@ Runtime exports in `outputs/` can contain your original text and evidence. Keep 
 
 Release exclusions cover credentials, environment files, private endpoints, reader/judge payloads, original benchmark questions and answers, invalid experiment payloads, caches and virtual environments. The complete list is in `EXCLUSIONS.md`.
 
-The GitHub repository is currently private. Changing visibility or publishing to PyPI is a separate release decision. The release manifest inventories distributable files; credential, history and file-size scans check that inventory. Those checks do not anonymize future user inputs.
+The GitHub repository is public following the owner's authorization. TOMC remains a research preview; publishing to PyPI is a separate release decision. The release manifest inventories distributable files; credential, history and file-size scans check that inventory. Those checks do not anonymize future user inputs.
