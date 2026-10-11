@@ -27,11 +27,11 @@ TOMC 为 AI 助手压缩编译上下文，并通过明确保存的笔记提供�
 
 ### 30 秒演示
 
-[![TOMC：上下文压缩编译与任务笔记续接](launch/media/v11/gifs/TOMC_Agent_Complete_ZH.gif)](launch/media/v11/videos/TOMC_Agent_Complete_ZH.mp4)
+[![TOMC：上下文压缩编译与任务笔记续接](launch/media/v12/gifs/TOMC_Agent_Complete_ZH.gif)](launch/media/v12/videos/TOMC_Agent_Complete_ZH.mp4)
 
-[横版视频](launch/media/v11/videos/TOMC_Agent_Complete_ZH.mp4) · [竖版视频](launch/media/v11/videos_vertical/TOMC_Agent_Complete_ZH_9x16.mp4) · [English video](launch/media/v11/videos/TOMC_Agent_Complete_EN.mp4) · [素材与测试范围](launch/media/v11/README.md)
+[横版视频](launch/media/v12/videos/TOMC_Agent_Complete_ZH.mp4) · [English video](launch/media/v12/videos/TOMC_Agent_Complete_EN.mp4) · [素材与测试范围](launch/media/v12/README.md)
 
-结尾明确标注**已使用 TOMC 测试的模型**及用途：API 模型接收准备好的上下文，Codex 和 Claude Code 调用 TOMC 工具。名单包含 DeepSeek 4.1 Flash、DeepSeek 4 PRO、小红书 Red preview、Claude 5.5 Opus、ChatGPT Codex 6.1 Sol。这份名单综合已有测试记录与作者提供的测试情况；视频中的 token 和费用结果各有独立协议，不能解释为五模型统一基准或提供商背书。
+结尾明确标注**已使用 TOMC 测试的模型**及用途：API 模型接收准备好的上下文，Codex 和 Claude Code 调用 TOMC 工具。名单包含 DeepSeek 4.1 Flash、DeepSeek 4 PRO、小红书 Red preview、Claude Opus 5.5、ChatGPT Codex 6.1 Sol。这份名单综合已有测试记录与作者提供的测试情况；视频中的 token 和费用结果各有独立协议，不能解释为五模型统一基准或提供商背书。
 
 TOMC 目前是研究预览。欢迎试用、反馈、提交 Issue 和 PR，以及交流与研究合作。换设备与换助手可以独立选择；跨设备笔记传递采用手动 Git。
 

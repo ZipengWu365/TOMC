@@ -1,0 +1,104 @@
+{
+  "status": "PASS",
+  "videos": [
+    {
+      "file": "videos/TOMC_Agent_Complete_EN.mp4",
+      "sha256": "619dc287c6ae841ced840885fde43862fc9b4b88dde229b389d5e64eaac38371",
+      "bytes": 3068528,
+      "duration": 30,
+      "dimensions": [
+        1920,
+        1080
+      ],
+      "frames": 900,
+      "fps": 30,
+      "av_duration_delta": 0.0,
+      "full_decode_pass": true,
+      "aac_matches_v11": true,
+      "encoded_aac_sha256": "649d396b2673b717382109f174d3d7f90de50047ed07de55beb1ce50a37bed92"
+    },
+    {
+      "file": "videos/TOMC_Agent_Complete_ZH.mp4",
+      "sha256": "97f48d825e23f056700cb9164b66253921723bfbd8019465f9a7e4e52d47bbd2",
+      "bytes": 2956189,
+      "duration": 30,
+      "dimensions": [
+        1920,
+        1080
+      ],
+      "frames": 900,
+      "fps": 30,
+      "av_duration_delta": 0.0,
+      "full_decode_pass": true,
+      "aac_matches_v11": true,
+      "encoded_aac_sha256": "649d396b2673b717382109f174d3d7f90de50047ed07de55beb1ce50a37bed92"
+    },
+    {
+      "file": "videos_vertical/TOMC_Agent_Complete_EN_9x16.mp4",
+      "sha256": "6330d8d1fabc5dd567896ce12233aa132d2f40d9173ea7455093ff665c08cf50",
+      "bytes": 3057269,
+      "duration": 30,
+      "dimensions": [
+        1080,
+        1920
+      ],
+      "frames": 900,
+      "fps": 30,
+      "av_duration_delta": 0.0,
+      "full_decode_pass": true,
+      "aac_matches_v11": true,
+      "encoded_aac_sha256": "649d396b2673b717382109f174d3d7f90de50047ed07de55beb1ce50a37bed92"
+    },
+    {
+      "file": "videos_vertical/TOMC_Agent_Complete_ZH_9x16.mp4",
+      "sha256": "9a6bf35c4686098616e9a99099380dde6467a9f0d6bc7b84166e366baf1280a3",
+      "bytes": 2940528,
+      "duration": 30,
+      "dimensions": [
+        1080,
+        1920
+      ],
+      "frames": 900,
+      "fps": 30,
+      "av_duration_delta": 0.0,
+      "full_decode_pass": true,
+      "aac_matches_v11": true,
+      "encoded_aac_sha256": "649d396b2673b717382109f174d3d7f90de50047ed07de55beb1ce50a37bed92"
+    }
+  ],
+  "gifs": [
+    {
+      "file": "gifs/TOMC_Agent_Complete_EN.gif",
+      "bytes": 3843798,
+      "sha256": "f16086ada2ceb79006bd34ff6d5e497698ff881352929f50e9c98197e3d4d6a6",
+      "frames": 300,
+      "milliseconds": 30000,
+      "dimensions": [
+        960,
+        540
+      ],
+      "loop": true
+    },
+    {
+      "file": "gifs/TOMC_Agent_Complete_ZH.gif",
+      "bytes": 3729395,
+      "sha256": "309fa87bd1aa65f1d07fd10991f143647e32fefc03f14df21bb41cc989905b4f",
+      "frames": 300,
+      "milliseconds": 30000,
+      "dimensions": [
+        960,
+        540
+      ],
+      "loop": true
+    }
+  ],
+  "ending_seconds": 3,
+  "new_product_tests": false,
+  "new_model_calls": false,
+  "claim_provenance": "evidence/tested_models_v12.json",
+  "current_code_license": "MIT",
+  "license_url": "https://github.com/ZipengWu365/TOMC/blob/main/LICENSE",
+  "historical_license_records_preserved": true,
+  "preservation": "evidence/complete_v12_preservation.json",
+  "change": "Claude 5.5 Opus display name corrected to Claude Opus 5.5; same recorded claude-opus-5-5 model"
+}

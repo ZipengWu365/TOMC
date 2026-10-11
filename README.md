@@ -27,11 +27,11 @@ This is a preview, version **0.1.0**. Download the plugins from the [MIT-license
 
 ### 30-second demo
 
-[![TOMC: context compression and compilation, with saved task notes](launch/media/v11/gifs/TOMC_Agent_Complete_EN.gif)](launch/media/v11/videos/TOMC_Agent_Complete_EN.mp4)
+[![TOMC: context compression and compilation, with saved task notes](launch/media/v12/gifs/TOMC_Agent_Complete_EN.gif)](launch/media/v12/videos/TOMC_Agent_Complete_EN.mp4)
 
-[Landscape video](launch/media/v11/videos/TOMC_Agent_Complete_EN.mp4) · [Portrait video](launch/media/v11/videos_vertical/TOMC_Agent_Complete_EN_9x16.mp4) · [中文视频](launch/media/v11/videos/TOMC_Agent_Complete_ZH.mp4) · [Media and test scope](launch/media/v11/README.md)
+[Landscape video](launch/media/v12/videos/TOMC_Agent_Complete_EN.mp4) · [中文视频](launch/media/v12/videos/TOMC_Agent_Complete_ZH.mp4) · [Media and test scope](launch/media/v12/README.md)
 
-The ending labels **models tested with TOMC** and explains their use: API models receive prepared context; Codex and Claude Code call TOMC tools. The list includes DeepSeek 4.1 Flash, DeepSeek 4 PRO, Rednote Red preview, Claude 5.5 Opus and ChatGPT Codex 6.1 Sol. The five-model list combines recorded tests and the author's reported tests; the demo's token and cost measurements retain their separate protocols. It does not imply a uniform five-model benchmark or provider endorsement.
+The ending labels **models tested with TOMC** and explains their use: API models receive prepared context; Codex and Claude Code call TOMC tools. The list includes DeepSeek 4.1 Flash, DeepSeek 4 PRO, Rednote Red preview, Claude Opus 5.5 and ChatGPT Codex 6.1 Sol. The five-model list combines recorded tests and the author's reported tests; the demo's token and cost measurements retain their separate protocols. It does not imply a uniform five-model benchmark or provider endorsement.
 
 TOMC is a research preview. Feedback, issues, pull requests and research collaboration are welcome. Device choice and assistant choice are independent; cross-device notebook transfer uses manual Git.
 
