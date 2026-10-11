@@ -32,7 +32,8 @@ packages = ["src/tomc"]
 [tool.ruff]
 line-length = 100
 target-version = "py310"
-extend-exclude = ["src/tomc/_vendor"]
+# plugins/claude-code is a generated copy; scripts/build_claude_code_plugin.py --check keeps it in sync.
+extend-exclude = ["src/tomc/_vendor", "plugins/claude-code"]
 
 [tool.ruff.lint]
 select = ["E4", "E7", "E9", "F", "I"]

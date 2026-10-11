@@ -45,7 +45,7 @@ TOMC 目前是研究预览。欢迎试用、反馈、提交 Issue 和 PR，以�
 | Codex IDE extension | [配置本地 MCP 服务](docs/assistant_setup.md) | 本地 TOMC 环境已安装 `.[mcp]` |
 | Cursor | 用下面的命令生成安装链接 | 本地 TOMC 环境已安装 `.[mcp]` |
 | Claude Desktop | [下载 `.mcpb` 扩展](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-0.1.0.mcpb) | 支持 UV 扩展的新版 Claude Desktop；首次安装需要联网 |
-| Claude Code | 用 `claude mcp add` [注册 `.mcpb` 中的运行环境](docs/assistant_plugin_zh.md#claude-code) | [`uv`](https://docs.astral.sh/uv/getting-started/installation/)；已在 Claude Code 的 VS Code 扩展中测试 |
+| Claude Code | `/plugin marketplace add ZipengWu365/TOMC`，再运行 `/plugin install tomc-memory@tomc`（[说明](docs/assistant_plugin_zh.md#claude-code)） | [`uv`](https://docs.astral.sh/uv/getting-started/installation/)；已在 Claude Code 的 VS Code 扩展中测试 |
 
 <details>
 <summary>Codex 安装步骤</summary>

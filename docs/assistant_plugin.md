@@ -9,7 +9,7 @@ After installation, call `prepare_context`, inspect the result and hand it to a 
 | Client | Installation | Current scope |
 |---|---|---|
 | Claude Desktop | Install the `.mcpb` file | UV runtime installation candidate; desktop GUI acceptance is pending |
-| Claude Code | Register the extracted `.mcpb` runtime with `claude mcp add` | VS Code extension tested in fresh sessions; interactive panel use is untested |
+| Claude Code | Install the plugin from this repository's marketplace, or register the extracted `.mcpb` runtime with `claude mcp add` | VS Code extension tested in fresh sessions; interactive panel use is untested |
 | Cursor | Generate an Add to Cursor link | Requires an installed TOMC MCP environment; the link registers it |
 | Codex | Run the ZIP's installation helper | Preview.4 native installation and default-model calls passed in the Windows personal profile; the earlier macOS trial used preview.2 |
 
@@ -38,6 +38,19 @@ The second command needs `uv` and the MCP test client (`.[mcp]`). It extracts th
 These are the [official custom-extension installation steps](https://support.claude.com/en/articles/10949351-getting-started-with-local-mcp-servers-on-claude-desktop). Bundle construction and MCP protocol checks do not establish that the desktop installation works on every platform. Claude Desktop GUI installation remains to be tested on macOS and Windows.
 
 ## Claude Code
+
+### Install as a plugin (recommended)
+
+Install [UV](https://docs.astral.sh/uv/getting-started/installation/) and make `uv` available on PATH. Then run in Claude Code:
+
+```
+/plugin marketplace add ZipengWu365/TOMC
+/plugin install tomc-memory@tomc
+```
+
+Start a new session, or reload the VS Code window, and run `/mcp`: the server appears as `plugin:tomc-memory:tomc`. The plugin folder is [`plugins/claude-code`](https://github.com/ZipengWu365/TOMC/tree/main/plugins/claude-code); the first start downloads Python, if needed, and the locked `mcp` dependency. To update, run `claude plugin marketplace update tomc` and then `claude plugin update tomc-memory@tomc`; to remove, run `claude plugin uninstall tomc-memory@tomc`. If you registered TOMC manually before, remove that entry with `claude mcp remove tomc-memory --scope user` to avoid two copies of the tools.
+
+### Register the MCP runtime manually
 
 Claude Code does not install `.mcpb` files, but it can launch the same locked runtime as a local stdio MCP server.
 

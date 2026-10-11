@@ -11,7 +11,7 @@ TOMC 按任务准备上下文，让你用结果替换较长的历史。传入历
 | 客户端 | 安装方式 | 当前范围 |
 |---|---|---|
 | Claude Desktop | 安装 `.mcpb` 文件 | UV 安装候选包，桌面界面仍待实测 |
-| Claude Code | 用 `claude mcp add` 注册解压后的 `.mcpb` 运行环境 | 已在 VS Code 扩展中用新会话测试；面板内的交互使用尚未测试 |
+| Claude Code | 从本仓库的插件市场安装，或用 `claude mcp add` 注册解压后的 `.mcpb` 运行环境 | 已在 VS Code 扩展中用新会话测试；面板内的交互使用尚未测试 |
 | Cursor | 生成 Add to Cursor 链接 | 需要先安装 TOMC MCP 环境，链接负责注册 |
 | Codex | 运行 ZIP 内的安装助手 | preview.4 已通过 Windows 个人配置中的原生安装与默认模型调用；此前 macOS 试用使用 preview.2 |
 
@@ -64,6 +64,19 @@ python scripts/plugin_smoke.py outputs/plugins/tomc-memory-0.1.0.mcpb
 这是[官方支持的自定义安装路径](https://support.claude.com/en/articles/10949351-getting-started-with-local-mcp-servers-on-claude-desktop)。完成打包和 MCP 协议检查，并不等于已通过所有桌面环境验收；macOS、Windows 上的实际 Claude Desktop 安装仍需验证。
 
 ## Claude Code
+
+### 作为插件安装（推荐）
+
+安装 [UV](https://docs.astral.sh/uv/getting-started/installation/)，确保 `uv` 在 PATH 中。然后在 Claude Code 中运行：
+
+```
+/plugin marketplace add ZipengWu365/TOMC
+/plugin install tomc-memory@tomc
+```
+
+新开会话或重新加载 VS Code 窗口，运行 `/mcp`，服务显示为 `plugin:tomc-memory:tomc`。插件目录是 [`plugins/claude-code`](https://github.com/ZipengWu365/TOMC/tree/main/plugins/claude-code)；首次启动会按需下载 Python 和锁定的 `mcp` 依赖。更新时先运行 `claude plugin marketplace update tomc`，再运行 `claude plugin update tomc-memory@tomc`；卸载用 `claude plugin uninstall tomc-memory@tomc`。如果以前手动注册过 TOMC，请用 `claude mcp remove tomc-memory --scope user` 删除旧条目，避免出现两套工具。
+
+### 手动注册 MCP 运行环境
 
 Claude Code 不能直接安装 `.mcpb` 文件，但可以把包里同一套锁定环境作为本地 stdio MCP 服务启动。
 
