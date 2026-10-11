@@ -1,5 +1,5 @@
-site_name: TOMC Memory Compiler
-site_description: Task-oriented context compression before your next LLM API request
+site_name: TOMC Memory
+site_description: TOMC Memory provides open-source context compression and task memory for Claude Code, Codex and LLM APIs.
 docs_dir: docs
 site_dir: site
 markdown_extensions:
@@ -9,7 +9,7 @@ theme:
   color_mode: light
 nav:
   - Overview: index.md
-  - Install TOMC: assistant_plugin.md
+  - Install TOMC Memory: assistant_plugin.md
   - macOS setup and tips: macos_usage.md
   - Manual MCP setup: assistant_setup.md
   - Usage tips: usage_tips.md

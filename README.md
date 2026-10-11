@@ -1,17 +1,19 @@
 <div align="center">
-  <img src="assets/tomc_logo_20261002.png" alt="TOMC" width="380">
-  <h1>Compile context for AI assistants. Save task progress.</h1>
-  <h3>An Agent memory plugin for Codex / Claude Code.</h3>
+  <img src="assets/tomc_logo_20261002.png" alt="TOMC Memory" width="380">
+  <h1>TOMC Memory</h1>
+  <h3>Context compression and task memory for Codex / Claude Code</h3>
   <p><strong>Compress and compile long histories, and recall saved task notes on CPU.</strong></p>
-  <p><a href="#use-before-your-api-call"><strong>Use with your API</strong></a> · <a href="#install-in-your-assistant">Install TOMC</a> · <a href="#switch-assistants">Switch assistants</a> · <a href="#try-the-demo">See the demo</a> · <a href="#paper-explained">Paper explained</a> · <a href="#same-reader-baseline-memory-vs-tomc-memory">Paper results</a> · <a href="README_zh.md">中文</a></p>
+  <p><a href="#use-before-your-api-call"><strong>Use with your API</strong></a> · <a href="#install-in-your-assistant">Install TOMC Memory</a> · <a href="#switch-assistants">Switch assistants</a> · <a href="#try-the-demo">See the demo</a> · <a href="#paper-explained">Paper explained</a> · <a href="#same-reader-baseline-memory-vs-tomc-memory">Paper results</a> · <a href="README_zh.md">中文</a></p>
   <p><strong>CPU preparation</strong> · No training or extra model service · Plain-text output · Research preview</p>
 </div>
 
+[TOMC Memory project homepage](https://zipengwu.me/tomc/) · [中文](README_zh.md)
+
 <a id="use-tomc"></a>
 
-## Part 1 · Use TOMC
+## Part 1 · Use TOMC Memory
 
-TOMC compresses and compiles context for AI assistants and provides task memory through explicitly saved notes. It is available through an MCP server and a Python API. Give it a history, the next task and a memory budget. It selects source text and computes supported state, relation or count records, so your application can send the prepared context in place of the full history. Preparation runs on CPU, with no training or extra model service.
+**TOMC Memory** is an open-source tool built on Task-Oriented Memory Compilation (TOMC). It compresses and compiles context for AI assistants and provides task memory through explicitly saved notes. It is available through an MCP server and a Python API. Give it a history, the next task and a memory budget. It selects source text and computes supported state, relation or count records, so your application can send the prepared context in place of the full history. Preparation runs on CPU, with no training or extra model service.
 
 Use task memory while making videos, organizing materials, handling files or developing code: save the brief, decisions, constraints, completed steps and remaining work with `remember_memory`, then use `recall_memory` to prepare those notes for the next task. These are examples of how to use saved notes. The recorded measurements below cover synthetic project histories and the paper benchmarks, with their own tasks and protocols; they do not establish performance for every task in these workflows.
 

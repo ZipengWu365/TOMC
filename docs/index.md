@@ -1,8 +1,8 @@
-<img src="assets/tomc_logo_20261002.png" alt="TOMC" width="380">
+<img src="assets/tomc_logo_20261002.png" alt="TOMC Memory" width="380">
 
-# TOMC documentation
+# TOMC Memory
 
-TOMC prepares context before your next LLM API call. Give it a history, a task and a memory budget. It selects source text and computes supported state, relation or count records. Send the result in place of the full history to reduce the input your model receives. Preparation runs on CPU without training or an extra model service.
+**TOMC Memory** is an open-source context compression and task-memory tool based on Task-Oriented Memory Compilation (TOMC). It prepares context before your next LLM API call. Give it a history, a task and a memory budget. It selects source text and computes supported state, relation or count records. Send the result in place of the full history to reduce the input your model receives. Preparation runs on CPU without training or an extra model service.
 
 Use the Python API in your application, or install the plugin in Codex, Cursor, Claude Desktop or Claude Code. It processes only supplied content. Savings depend on the input and task; short histories can stay unchanged, and records plus prompt overhead can increase a request.
 
@@ -11,6 +11,8 @@ You can also save notes in Codex and continue in Claude Code. Both TOMC servers 
 <a href="assets/plugin_usage_api_20261003.png">
   <img src="assets/plugin_usage_api_20261003.png" alt="Install TOMC in Codex, Cursor, Claude Desktop or Claude Code. Supply history, task and budget; TOMC prepares context for the same assistant." width="1280">
 </a>
+
+[TOMC Memory project homepage](https://zipengwu.me/tomc/) · [GitHub](https://github.com/ZipengWu365/TOMC)
 
 ## Start here
 

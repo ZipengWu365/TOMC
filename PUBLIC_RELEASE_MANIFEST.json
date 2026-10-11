@@ -81,13 +81,13 @@
     },
     {
       "path": "README.md",
-      "bytes": 40470,
-      "sha256": "52e1e8dcd5b9c98fe57f11b961520f7e00b919e5df06c26e0754eeed554981a0"
+      "bytes": 40546,
+      "sha256": "032200692fd9a09b05cc5186af80f1cf9a7945da247124784793cae1ed406fc3"
     },
     {
       "path": "README_zh.md",
-      "bytes": 38258,
-      "sha256": "a29eee72d845329d909343edce34ebe7029e777e888ae18dd799beb55b165877"
+      "bytes": 38341,
+      "sha256": "8be5df9c49287e1012c4eab1eabfa835c4550ffdc70cebe2b69262527270cd45"
     },
     {
       "path": "SECURITY.md",
@@ -681,8 +681,8 @@
     },
     {
       "path": "docs/index.md",
-      "bytes": 6357,
-      "sha256": "f49cda0f827ccb06ce7db705a018fef920a6db6b6a96464f37d11a83d300b375"
+      "bytes": 6588,
+      "sha256": "f782d28746423c20833f868ad8b4a3fc833908de9ffda280b26a807e5c977554"
     },
     {
       "path": "docs/legacy_extensions.md",
@@ -1135,9 +1135,74 @@
       "sha256": "2973c50568970a2a952434660af5f6ab5bbe80dd22ae2ae30f5a410541ff3c8f"
     },
     {
+      "path": "launch/media/v12/MODEL_TEST_SCOPE_v12.md",
+      "bytes": 4105,
+      "sha256": "78d123eb03edd6b757ccdb7460e6efb21040ab6cb5db5b1c65f8d959709193b4"
+    },
+    {
+      "path": "launch/media/v12/README.md",
+      "bytes": 3666,
+      "sha256": "c729f822f4a3eead1c44cf6cb14531efb97be7c19155d8ce4e96e0c21c71490a"
+    },
+    {
+      "path": "launch/media/v12/covers/TOMC_Agent_Complete_EN.png",
+      "bytes": 505683,
+      "sha256": "6d49da813dd993bbb07116c872a1e124c4d7744d09abf70cd267248ad206c526"
+    },
+    {
+      "path": "launch/media/v12/covers/TOMC_Agent_Complete_ZH.png",
+      "bytes": 471276,
+      "sha256": "70adb713175db1c4ff38a1b599983b926af7caf252b31dd8fed64878e3e5e128"
+    },
+    {
+      "path": "launch/media/v12/evidence/complete_v12_media_check.json",
+      "bytes": 3059,
+      "sha256": "a36e53c42580a70f3e7a72e9497af6232e958ea5cbf86b9e6933730a6230806b"
+    },
+    {
+      "path": "launch/media/v12/evidence/complete_v12_preservation.json",
+      "bytes": 3620,
+      "sha256": "0c939619eb113479d5fbed7a3ed999c8b67562d323dac701d353d7fd6e3a9d93"
+    },
+    {
+      "path": "launch/media/v12/evidence/tested_models_v12.json",
+      "bytes": 2379,
+      "sha256": "e060b9bca38452b26f9908982880700b8f8a0aeab8f15213e94f57cc365fc490"
+    },
+    {
+      "path": "launch/media/v12/gifs/TOMC_Agent_Complete_EN.gif",
+      "bytes": 3843798,
+      "sha256": "f16086ada2ceb79006bd34ff6d5e497698ff881352929f50e9c98197e3d4d6a6"
+    },
+    {
+      "path": "launch/media/v12/gifs/TOMC_Agent_Complete_ZH.gif",
+      "bytes": 3729395,
+      "sha256": "309fa87bd1aa65f1d07fd10991f143647e32fefc03f14df21bb41cc989905b4f"
+    },
+    {
+      "path": "launch/media/v12/subtitles/TOMC_Agent_Complete_EN.srt",
+      "bytes": 1067,
+      "sha256": "9dd196d2a4b8e08b9cbd553b22df4e76b68ddc6b62f3215ee017cf2cb3e18532"
+    },
+    {
+      "path": "launch/media/v12/subtitles/TOMC_Agent_Complete_ZH.srt",
+      "bytes": 1127,
+      "sha256": "2a29531199211f63dae62454069b7a268ce04fafd8d1fc31578283d14a829168"
+    },
+    {
+      "path": "launch/media/v12/videos/TOMC_Agent_Complete_EN.mp4",
+      "bytes": 3068528,
+      "sha256": "619dc287c6ae841ced840885fde43862fc9b4b88dde229b389d5e64eaac38371"
+    },
+    {
+      "path": "launch/media/v12/videos/TOMC_Agent_Complete_ZH.mp4",
+      "bytes": 2956189,
+      "sha256": "97f48d825e23f056700cb9164b66253921723bfbd8019465f9a7e4e52d47bbd2"
+    },
+    {
       "path": "mkdocs.yml",
-      "bytes": 1333,
-      "sha256": "df9879b6b3ffb86346ffb7d4f8d884d75e5d7ca36909f32fef7a67a0508efd02"
+      "bytes": 1370,
+      "sha256": "a375bc77f5afe77fd79cf0010b3ee6e8992a878ce8bfe29d88b6b65477c84bdf"
     },
     {
       "path": "plugins/claude-code/.claude-plugin/plugin.json",
@@ -1760,7 +1825,7 @@
       "sha256": "17c605bde43040d24896c39084ccbddf0274e282420cd9bffa10fb691992f141"
     }
   ],
-  "total_bytes": 72296232,
+  "total_bytes": 86890551,
   "self_excluded": [
     "PUBLIC_RELEASE_MANIFEST.json",
     "SHA256SUMS"
