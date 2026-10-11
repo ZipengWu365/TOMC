@@ -45,7 +45,7 @@ Choose the setup for your client. TOMC prepares context locally on CPU; your ass
 | Codex IDE extension | [Configure the local MCP server](docs/assistant_setup.md) | Local TOMC environment with `.[mcp]` installed |
 | Cursor | Generate an installation link with the commands below | Local TOMC environment with `.[mcp]` installed |
 | Claude Desktop | [Download the `.mcpb` extension](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-0.1.0.mcpb) | Updated Claude Desktop with UV extension support; network access for the first install |
-| Claude Code | [Register the `.mcpb` runtime](docs/assistant_plugin.md#claude-code) with `claude mcp add` | [`uv`](https://docs.astral.sh/uv/getting-started/installation/); tested with the Claude Code VS Code extension |
+| Claude Code | `/plugin marketplace add ZipengWu365/TOMC`, then `/plugin install tomc-memory@tomc` ([details](docs/assistant_plugin.md#claude-code)) | [`uv`](https://docs.astral.sh/uv/getting-started/installation/); tested with the Claude Code VS Code extension |
 
 <details>
 <summary>Codex installation steps</summary>

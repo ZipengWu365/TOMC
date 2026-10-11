@@ -24,6 +24,7 @@ jobs:
       - run: python benchmarks/reproduce/current.py
       - run: python benchmarks/reproduce/results.py
       - run: python scripts/make_beam_table.py --check
+      - run: python scripts/build_claude_code_plugin.py --check
       - run: python scripts/benchmarks/codex_retention_report.py --verify-published docs/validation_data/windows_codex_retention_20261005.json
       - run: mkdocs build --strict
       - run: python -m build
