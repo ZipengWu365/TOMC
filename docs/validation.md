@@ -2,6 +2,12 @@
 
 These entries record checks performed on the stated revisions. They distinguish local software checks from benchmark reruns, hosted checks and human usability testing.
 
+## Tencent WorkBuddy configuration preview — 2026-10-12
+
+Added `setup --client workbuddy` to the source checkout, an explicit STDIO JSON template, and English/Chinese local MCP setup guides. The helper prints the installed interpreter and chosen store path without modifying client settings. The locked UV template uses the shared runtime already in the repository.
+
+This is a manual configuration integration. WorkBuddy client tool discovery, model calls and cross-session use have not been checked. Existing MCP backend results retain their dated scope; there is no Tencent marketplace submission or acceptance claim. [English setup](workbuddy.md) · [中文接入](workbuddy_zh.md).
+
 ## Cursor / TRAE configuration preview — 2026-10-11
 
 Added `setup --client trae` to the current source checkout, a shared locked-UV MCP configuration template, and English/Chinese setup guides. Cursor keeps its existing configuration and install-link entry points. The TRAE helper reports an actionable error for executable paths containing whitespace; the UV template keeps runtime paths in argument strings.

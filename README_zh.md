@@ -1,7 +1,7 @@
 <div align="center">
   <img src="assets/tomc_logo_20261002.png" alt="TOMC Memory" width="380">
   <h1>TOMC Memory</h1>
-  <h3>面向 Codex / Claude Code / Cursor / TRAE 的上下文压缩与任务记忆插件</h3>
+  <h3>面向 Codex / Claude Code / Cursor / TRAE / WorkBuddy 的上下文压缩与任务记忆插件</h3>
   <p><strong>在 CPU 上压缩编译长历史，取回已保存的任务笔记。</strong></p>
   <p><a href="#接在你的-api-调用之前"><strong>接入 API</strong></a> · <a href="#接入常用助手">安装 TOMC Memory</a> · <a href="#switch-assistants">换助手继续</a> · <a href="#试用演示">查看 Demo</a> · <a href="#paper-explained">论文详解</a> · <a href="#同一个模型基线记忆与-tomc-记忆">论文结果</a> · <a href="README.md">English</a></p>
   <p><strong>CPU 准备上下文</strong> · 无需训练或额外模型服务 · 输出普通文本 · 研究预览</p>
@@ -17,7 +17,7 @@
 
 让助手制作视频、整理资料、处理文件或进行编程开发时，可以用 `remember_memory` 保存任务要求、决策、约束、已完成步骤和待办事项，再用 `recall_memory` 为下一步任务准备这些笔记。这里列的是任务记忆的使用场景。下面的实测数据来自合成项目历史和论文基准，各有明确的任务与协议，不能直接推广为上述所有任务的效果。
 
-可以把 Python API 接进自己的应用，在 Codex 或 Claude Code 中安装插件，或通过本地 MCP 接入 Cursor、TRAE 和 Claude Desktop。节省量取决于历史和任务；短历史可以保持完整。默认保留长历史的约 80%。需要更小的请求时，可以用自己的任务比较 40% 或 60% 预算；参见分别记录的 [Codex 与 Claude 实测](#实测节省)。
+可以把 Python API 接进自己的应用，在 Codex 或 Claude Code 中安装插件，或通过本地 MCP 接入 Cursor、TRAE、腾讯 WorkBuddy 和 Claude Desktop。节省量取决于历史和任务；短历史可以保持完整。默认保留长历史的约 80%。需要更小的请求时，可以用自己的任务比较 40% 或 60% 预算；参见分别记录的 [Codex 与 Claude 实测](#实测节省)。
 
 新开聊天后，可以在原来的助手或另一个助手中复用已保存的任务笔记。两个客户端使用同一台电脑上的同一 TOMC 数据库时，可以复用已保存的决策、约束和下一步任务。[试一次 Codex → Claude Code → Codex 接续](#switch-assistants)。
 
@@ -47,6 +47,7 @@ TOMC 目前是研究预览。欢迎试用、反馈、提交 Issue 和 PR，以�
 | Codex IDE extension | [配置本地 MCP 服务](docs/assistant_setup.md) | 本地 TOMC 环境已安装 `.[mcp]` |
 | Cursor | 生成安装链接，或[添加 MCP 配置](docs/cursor_trae_zh.md) | 本地 TOMC 运行环境；客户端工具调用尚未验证 |
 | TRAE（国际版 / 国内版） | [添加 TOMC 本地 MCP 服务](docs/cursor_trae_zh.md#trae) | 本地 TOMC 运行环境；客户端工具调用尚未验证 |
+| 腾讯 WorkBuddy | [配置 TOMC 本地 MCP 服务](docs/workbuddy_zh.md) | 本地 TOMC 运行环境；客户端工具调用尚未验证 |
 | Claude Desktop | [下载 `.mcpb` 扩展](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-0.1.0.mcpb) | 支持 UV 扩展的新版 Claude Desktop；首次安装需要联网 |
 | Claude Code | `/plugin marketplace add ZipengWu365/TOMC`，再运行 `/plugin install tomc-memory@tomc`（[说明](docs/assistant_plugin_zh.md#claude-code)） | [`uv`](https://docs.astral.sh/uv/getting-started/installation/)；已在 Claude Code 的 VS Code 扩展中测试 |
 
@@ -92,6 +93,17 @@ python -m tomc setup --client cursor --link
 按 [Cursor / TRAE 接入指南](docs/cursor_trae_zh.md)修改 JSON 模板，在**设置 → MCP → 添加 → 手动添加**中选择本地环境并添加。也可以先启用项目级 MCP，再写入 `.trae/mcp.json`。最新源码环境安装 `.[mcp]` 后，运行 `python -m tomc setup --client trae` 可打印当前环境的配置。TRAE 要求 command 路径不含空格；指南也提供锁定依赖的 UV 接入方式。命令只打印配置，不改写客户端设置。
 
 TRAE 和 Cursor 的客户端工具发现及模型调用尚未验证。目前提供的是手动 MCP 接入预览；连接失败时，请附上客户端版本、操作系统和报错反馈。
+
+</details>
+
+<details>
+<summary>腾讯 WorkBuddy 安装步骤</summary>
+
+#### 腾讯 WorkBuddy
+
+按 [WorkBuddy 接入指南](docs/workbuddy_zh.md)修改 JSON 模板中的本地运行路径。打开**插件 → MCP 服务器 → 配置 MCP**，把 `tomc` 条目合并到用户级 `~/.workbuddy/mcp.json` 或项目级 `.workbuddy/mcp.json`，保留已有服务。最新源码环境安装 `.[mcp]` 后，也可以运行 `python -m tomc setup --client workbuddy` 生成配置。命令只打印配置，不修改客户端设置。
+
+目前提供手动本地 MCP 接入预览；WorkBuddy 的客户端工具发现和模型调用尚未验证，TOMC 尚未上架腾讯市场。
 
 </details>
 

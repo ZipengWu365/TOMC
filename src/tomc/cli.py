@@ -44,7 +44,9 @@ def main(argv: list[str] | None = None) -> int:
     mcp.add_argument("--store", type=Path)
     setup = commands.add_parser("setup", help="Print client configuration for this installation")
     setup.add_argument(
-        "--client", choices=("codex", "cursor", "trae", "claude", "json"), default="json"
+        "--client",
+        choices=("codex", "cursor", "trae", "workbuddy", "claude", "json"),
+        default="json",
     )
     setup.add_argument("--store", type=Path)
     setup.add_argument(

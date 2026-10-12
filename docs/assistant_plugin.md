@@ -12,6 +12,7 @@ After installation, call `prepare_context`, inspect the result and hand it to a 
 | Claude Code | Install the plugin from this repository's marketplace, or register the extracted `.mcpb` runtime with `claude mcp add` | VS Code extension tested in fresh sessions; interactive panel use is untested |
 | Cursor | Generate an Add to Cursor link or [add local MCP configuration](cursor_trae.md) | MCP backend checks exist; client tool calls remain unverified |
 | TRAE (International / CN) | [Add a local MCP server](cursor_trae.md#trae) | Manual configuration preview; client tool calls remain unverified |
+| Tencent WorkBuddy | [Add a local MCP server](workbuddy.md) | Manual configuration preview; client tool calls remain unverified |
 | Codex | Run the ZIP's installation helper | Preview.4 native installation and default-model calls passed in the Windows personal profile; the earlier macOS trial used preview.2 |
 
 Download the packages from the [MIT-licensed assistant preview](https://github.com/ZipengWu365/TOMC/tree/main/plugins/downloads): [Claude `.mcpb`](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-0.1.0.mcpb) ([checksum](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-0.1.0.mcpb.sha256)) or [Codex ZIP](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-codex-0.1.0.zip) ([checksum](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-codex-0.1.0.zip.sha256)). These packages were rebuilt with MIT licensing on 2026-10-10; earlier release assets and dated validation records retain their historical contents.
@@ -112,6 +113,10 @@ Cursor officially supports installation links, with confirmation in the client. 
 ## TRAE
 
 Use the [Cursor / TRAE setup guide](cursor_trae.md) to add the locked local runtime through Settings → MCP → Add → Create Manually. The current source checkout also supports `python -m tomc setup --client trae`. This is a manual MCP integration; the Claude plugin manifest is not a TRAE installer. Client tool discovery and model calls remain unverified.
+
+## Tencent WorkBuddy
+
+Follow the [WorkBuddy guide](workbuddy.md) to add the locked local runtime through Plugins → MCP Servers → Configure MCP. The current source checkout also supports `python -m tomc setup --client workbuddy`. Use WorkBuddy's `.workbuddy/mcp.json` configuration. Client tool discovery and model calls remain unverified. This is manual MCP setup, not a Tencent marketplace listing.
 
 ## Codex
 

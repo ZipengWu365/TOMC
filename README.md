@@ -1,7 +1,7 @@
 <div align="center">
   <img src="assets/tomc_logo_20261002.png" alt="TOMC Memory" width="380">
   <h1>TOMC Memory</h1>
-  <h3>Context compression and task memory for Codex / Claude Code / Cursor / TRAE</h3>
+  <h3>Context compression and task memory for Codex / Claude Code / Cursor / TRAE / WorkBuddy</h3>
   <p><strong>Compress and compile long histories, and recall saved task notes on CPU.</strong></p>
   <p><a href="#use-before-your-api-call"><strong>Use with your API</strong></a> · <a href="#install-in-your-assistant">Install TOMC Memory</a> · <a href="#switch-assistants">Switch assistants</a> · <a href="#try-the-demo">See the demo</a> · <a href="#paper-explained">Paper explained</a> · <a href="#same-reader-baseline-memory-vs-tomc-memory">Paper results</a> · <a href="README_zh.md">中文</a></p>
   <p><strong>CPU preparation</strong> · No training or extra model service · Plain-text output · Research preview</p>
@@ -19,7 +19,7 @@
 
 Use task memory while making videos, organizing materials, handling files or developing code: save the brief, decisions, constraints, completed steps and remaining work with `remember_memory`, then use `recall_memory` to prepare those notes for the next task. These are examples of how to use saved notes. The recorded measurements below cover synthetic project histories and the paper benchmarks, with their own tasks and protocols; they do not establish performance for every task in these workflows.
 
-Add the Python API to your own application, install the plugin in Codex or Claude Code, or connect Cursor, TRAE and Claude Desktop through local MCP. Savings depend on the history and task; short histories can stay intact. The default keeps about 80% of a long history. Compare 40% or 60% budgets on your own tasks when you need smaller requests; see the separate [Codex and Claude results](#measured-savings).
+Add the Python API to your own application, install the plugin in Codex or Claude Code, or connect Cursor, TRAE, Tencent WorkBuddy and Claude Desktop through local MCP. Savings depend on the history and task; short histories can stay intact. The default keeps about 80% of a long history. Compare 40% or 60% budgets on your own tasks when you need smaller requests; see the separate [Codex and Claude results](#measured-savings).
 
 Reuse saved task notes in a new chat with the same assistant or another assistant. With both clients using the same TOMC database on one computer, you can reuse saved decisions, constraints and next steps. [Try the Codex → Claude Code → Codex handoff](#switch-assistants).
 
@@ -49,6 +49,7 @@ Choose the setup for your client. TOMC prepares context locally on CPU; your ass
 | Codex IDE extension | [Configure the local MCP server](docs/assistant_setup.md) | Local TOMC environment with `.[mcp]` installed |
 | Cursor | Generate an installation link, or [add the MCP configuration](docs/cursor_trae.md) | Local TOMC runtime; client tool calls remain unverified |
 | TRAE (International / CN) | [Add TOMC as a local MCP server](docs/cursor_trae.md#trae) | Local TOMC runtime; client tool calls remain unverified |
+| Tencent WorkBuddy | [Configure TOMC through local MCP](docs/workbuddy.md) | Local TOMC runtime; client tool calls remain unverified |
 | Claude Desktop | [Download the `.mcpb` extension](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-0.1.0.mcpb) | Updated Claude Desktop with UV extension support; network access for the first install |
 | Claude Code | `/plugin marketplace add ZipengWu365/TOMC`, then `/plugin install tomc-memory@tomc` ([details](docs/assistant_plugin.md#claude-code)) | [`uv`](https://docs.astral.sh/uv/getting-started/installation/); tested with the Claude Code VS Code extension |
 
@@ -94,6 +95,17 @@ Open the printed link and confirm **Add to Cursor**. Start a new chat and check 
 Use the [Cursor / TRAE guide](docs/cursor_trae.md) and its ready-to-edit JSON template. Add it in **Settings → MCP → Add → Create Manually**, selecting the local environment. Alternatively, enable project MCP and use `.trae/mcp.json`. From a current source checkout with `.[mcp]` installed, `python -m tomc setup --client trae` prints configuration for your environment. TRAE requires a command path without spaces; the guide also offers a locked UV runtime. The setup command prints configuration and does not change client settings.
 
 TRAE and Cursor client tool discovery and model calls have not been validated. This is a manual MCP integration preview; report connection errors with the client version and operating system.
+
+</details>
+
+<details>
+<summary>Tencent WorkBuddy installation steps</summary>
+
+#### Tencent WorkBuddy
+
+Follow the [WorkBuddy guide](docs/workbuddy.md) and edit its JSON template for your local runtime. Open **Plugins → MCP Servers → Configure MCP**. Merge the `tomc` entry into user `~/.workbuddy/mcp.json` or project `.workbuddy/mcp.json`, preserving existing servers. A current source environment with `.[mcp]` installed can also generate configuration with `python -m tomc setup --client workbuddy`. The command prints configuration only.
+
+This is a manual local MCP integration preview. WorkBuddy client tool discovery and model calls remain unverified; TOMC is not listed in Tencent's marketplace.
 
 </details>
 

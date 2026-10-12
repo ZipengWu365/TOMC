@@ -43,7 +43,7 @@ On Windows PowerShell, use the environment's Python directly. Activation is unne
 .\.venv\Scripts\python.exe -m tomc setup --client cursor --link
 ```
 
-Change `cursor --link` to `codex`, `claude` or `trae` to print that client's configuration. A Cursor link registers the environment you just installed; it does not install dependencies on another computer.
+Change `cursor --link` to `codex`, `claude`, `trae` or `workbuddy` to print that client's configuration. A Cursor link registers the environment you just installed; it does not install dependencies on another computer.
 
 You can also install with `uv pip install --python .venv/bin/python -e '.[mcp]'`. On Windows, use `.venv\Scripts\python.exe`. The [Linux verification report](linux_validation.md) records fresh installation, actual Codex tool discovery and packaged MCP runtime checks.
 
@@ -59,10 +59,13 @@ Run these commands using the installed environment's `python`. They print config
 | Claude Desktop | `python -m tomc setup --client claude` | Settings → Developer → Edit Config; add `mcpServers.tomc` |
 | Cursor | `python -m tomc setup --client cursor` | Project `.cursor/mcp.json` or user `~/.cursor/mcp.json`; add `mcpServers.tomc` |
 | TRAE (International / CN) | `python -m tomc setup --client trae` | Settings → MCP → Add → Create Manually, local environment; or enable project MCP and use `.trae/mcp.json` |
+| Tencent WorkBuddy | `python -m tomc setup --client workbuddy` | User `~/.workbuddy/mcp.json` or project `.workbuddy/mcp.json`; Plugins → MCP Servers → Configure MCP |
 
 For manually entered Cursor STDIO configuration, add `"type": "stdio"` alongside `command` and `args`, or use the client-specific template linked below.
 
 The TRAE option is available in the current source checkout; older packaged runtimes do not include this setup alias. TRAE requires an executable command path without spaces. For the locked UV runtime, copyable JSON and client-specific steps, see [Cursor / TRAE setup](cursor_trae.md). Cursor and TRAE client tool calls remain unverified.
+
+The WorkBuddy option is available in the current source checkout. It declares local `stdio` and keeps the selected store path in the launch arguments. See [WorkBuddy setup](workbuddy.md) for the locked UV template. WorkBuddy client tool calls remain unverified.
 
 Codex CLI users on macOS/Linux can also register the server directly:
 
