@@ -34,8 +34,34 @@ class ReaderResponse:
 
     text: str
     model: str
-    usage: dict[str, int]
+    usage: dict[str, int | dict[str, int]]
     finish_reason: str
+
+
+def _usage_counts(value: object) -> dict[str, int | dict[str, int]]:
+    """Keep reported token counters, including cache details; never infer missing usage."""
+    if not isinstance(value, dict):
+        raise ReaderError("invalid_response")
+    counts: dict[str, int | dict[str, int]] = {}
+    for key in (
+        "prompt_tokens",
+        "completion_tokens",
+        "total_tokens",
+        "prompt_cache_hit_tokens",
+        "prompt_cache_miss_tokens",
+    ):
+        count = value.get(key)
+        if type(count) is int and count >= 0:
+            counts[key] = count
+    for key in ("prompt_tokens_details", "completion_tokens_details"):
+        details = value.get(key)
+        if isinstance(details, dict):
+            counts[key] = {
+                name: count
+                for name, count in details.items()
+                if name.endswith("_tokens") and type(count) is int and count >= 0
+            }
+    return counts
 
 
 class APIReader:
@@ -103,12 +129,7 @@ class APIReader:
                 answer = choice["message"]["content"]
                 if not isinstance(answer, str):
                     raise ReaderError("invalid_response")
-                usage = {
-                    k: int(v)
-                    for k, v in data.get("usage", {}).items()
-                    if k in ("prompt_tokens", "completion_tokens", "total_tokens")
-                    and isinstance(v, int)
-                }
+                usage = _usage_counts(data.get("usage", {}))
                 return ReaderResponse(
                     answer,
                     str(data.get("model", self.model)),
