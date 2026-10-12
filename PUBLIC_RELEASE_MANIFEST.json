@@ -586,8 +586,8 @@
     },
     {
       "path": "docs/api_reference.md",
-      "bytes": 8687,
-      "sha256": "c4c107f7d22c1a8793959e60a982f25336a2b09c88e73ff13ed38d4cfe41caba"
+      "bytes": 11653,
+      "sha256": "d9d308c6ab0a715e94be409755ab5dd84e7f847852c81bd50dbadaa151008463"
     },
     {
       "path": "docs/architecture.md",
@@ -716,8 +716,8 @@
     },
     {
       "path": "docs/method.md",
-      "bytes": 4577,
-      "sha256": "dd4a42652ebfcf7f14173839216d2a4d458405d435a06772ecdd5a2628657915"
+      "bytes": 5179,
+      "sha256": "974e05eebe28c47f2d0764bb8a46671695919a117e6b79d1037451283ddf4c52"
     },
     {
       "path": "docs/paper_results.md",
@@ -823,6 +823,11 @@
       "path": "examples/api_context.py",
       "bytes": 2473,
       "sha256": "625579ba11abb0a809ffa254ed0e42c619d3f790ba888d30603df229c6eda837"
+    },
+    {
+      "path": "examples/api_multiturn.py",
+      "bytes": 3925,
+      "sha256": "d665a4095e6f51068217804812693267600a2c4b8e7ca9bce7d81f5e3a2f34a9"
     },
     {
       "path": "examples/easy_handoff.py",
@@ -1296,8 +1301,8 @@
     },
     {
       "path": "plugins/claude-code/src/tomc/adapters/reader.py",
-      "bytes": 5415,
-      "sha256": "8a8dfb08a66ba1460baaac83c2e84f5e415005e6bdbe9ef313e6f30856d2d423"
+      "bytes": 6170,
+      "sha256": "93157149885cd631214ce67f6fba8d621ed2b0a5d78698689e9f8fe5aa96fc75"
     },
     {
       "path": "plugins/claude-code/src/tomc/cli.py",
@@ -1676,8 +1681,8 @@
     },
     {
       "path": "src/tomc/adapters/reader.py",
-      "bytes": 5415,
-      "sha256": "8a8dfb08a66ba1460baaac83c2e84f5e415005e6bdbe9ef313e6f30856d2d423"
+      "bytes": 6170,
+      "sha256": "93157149885cd631214ce67f6fba8d621ed2b0a5d78698689e9f8fe5aa96fc75"
     },
     {
       "path": "src/tomc/cli.py",
@@ -1821,8 +1826,8 @@
     },
     {
       "path": "tests/test_integrations.py",
-      "bytes": 4182,
-      "sha256": "bb64b9694c3b513cbad2c6f805258a3f4427efc5ea57b21cff766165da7d51a5"
+      "bytes": 9543,
+      "sha256": "57d27fd00934344148666ad9ad8fa96711007d83024a77a2514174ba7a0ad0ab"
     },
     {
       "path": "tests/test_mcp.py",
@@ -1850,7 +1855,7 @@
       "sha256": "17c605bde43040d24896c39084ccbddf0274e282420cd9bffa10fb691992f141"
     }
   ],
-  "total_bytes": 86914434,
+  "total_bytes": 86928798,
   "self_excluded": [
     "PUBLIC_RELEASE_MANIFEST.json",
     "SHA256SUMS"

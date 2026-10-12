@@ -53,6 +53,27 @@ For the README's six-line migration history and 64-token lexical memory budget, 
 
 For local notebooks, see [assistant setup](assistant_setup.md).
 
+## Prepare every turn from original history
+
+Call `prepare_context` inside your request loop. Each call currently parses and compiles the supplied history again; it has no result cache or incremental compiler. `MemoryStore` preserves submitted records and also recompiles on recall. Keep original evidence separately: an item omitted for one task may be needed for a later task. Do not replace your stored history with `prepared.prompt`.
+
+The [multi-turn API example](https://github.com/ZipengWu365/TOMC/blob/main/examples/api_multiturn.py) prepares each request, preserves explicit application instructions, sends only the prepared messages, and appends the actual task and answer to the original history after a successful response. Empty memory stops the request; a failed request leaves history unchanged.
+
+```bash
+# Offline: inspect two prepared requests; no model, key or network needed.
+python examples/api_multiturn.py
+
+# After setting TOMC_READER_API_KEY, TOMC_READER_BASE_URL and TOMC_READER_MODEL:
+# Sends TWO potentially billable requests to your configured reader.
+python examples/api_multiturn.py --live
+```
+
+The example compares message text with identical task and instruction framing, reports preparation/request latency, and keeps provider-reported usage separate from lexical estimates. The offline mode generates no answers and does not append simulated responses. The live mode is a usage example, not a controlled quality or cost comparison against full history.
+
+This is a text-evidence workflow. Historical tool calls can be serialized as observations, but preparation does not preserve live tool-call IDs or provider-specific tool-result envelopes. Keep pending tool calls and their matching results in your application's native protocol. Pass required system/developer instructions separately as trusted application configuration; instructions embedded in historical evidence are not promoted to trusted roles.
+
+Before adding incremental updates, distinguish retained source history/state from the budgeted memory sent on a particular turn. For result caching, include history revision, task, budget and compiler/tokenizer configuration in the cache key. Provider prompt caching is separate: compare reported cached/uncached usage and the applicable rates before claiming monetary savings.
+
 ## Control compilation
 
 Use `compile_memory` to select a strategy, tokenizer and budget explicitly. Its default strategy is `tomc_raw`, which combines records with selected source text. Choose `tomc` to inspect the records-only mechanism.
@@ -108,6 +129,8 @@ print(response.usage)
 ```
 
 `complete` makes a potentially billable request. Constructing the reader makes no request. Omit options such as `seed` if your provider does not support them. Usage fields come from the provider when available.
+
+`response.usage` retains nonnegative integer `prompt_tokens`, `completion_tokens`, `total_tokens`, `prompt_cache_hit_tokens` and `prompt_cache_miss_tokens` when reported. It also retains nonnegative integer `*_tokens` counters inside `prompt_tokens_details` and `completion_tokens_details`, including `cached_tokens` and `reasoning_tokens`. Nested counters can be subsets of the totals; do not add them together as independent charges. Missing fields stay absent and missing usage returns `{}`. No cached usage, billing amount or saving is inferred. Malformed non-object usage raises a sanitized `ReaderError("invalid_response")` without retrying.
 
 `ReaderError.category` distinguishes configuration, authentication, rate-limit, request, server, transport/timeout and malformed-response failures. Only rate-limit, server and transport failures retry. Redirects are refused, and error messages omit request and response details. A timed-out request may already have been billed.
 
