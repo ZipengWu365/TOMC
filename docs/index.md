@@ -12,7 +12,7 @@ You can also save notes in Codex and continue in Claude Code. Both TOMC servers 
   <img src="assets/plugin_usage_api_20261003.png" alt="Install TOMC in Codex, Cursor, Claude Desktop or Claude Code. Supply history, task and budget; TOMC prepares context for the same assistant." width="1280">
 </a>
 
-[TOMC Memory project homepage](https://zipengwu.me/tomc/) · [GitHub](https://github.com/ZipengWu365/TOMC)
+[TOMC Memory official GitHub home](https://github.com/ZipengWu365/TOMC) · [TOMC 插件下载与中文安装教程](https://github.com/ZipengWu365/TOMC/blob/main/README_zh.md)
 
 ## Start here
 
