@@ -3,7 +3,7 @@
   <h1>TOMC Memory</h1>
   <h3>面向 Codex / Claude Code / Cursor / TRAE / WorkBuddy 的上下文压缩与任务记忆插件</h3>
   <p><strong>在 CPU 上压缩编译长历史，取回已保存的任务笔记。</strong></p>
-  <p><a href="#接在你的-api-调用之前"><strong>接入 API</strong></a> · <a href="#接入常用助手">安装 TOMC Memory</a> · <a href="#switch-assistants">换助手继续</a> · <a href="#试用演示">查看 Demo</a> · <a href="#paper-explained">论文详解</a> · <a href="#同一个模型基线记忆与-tomc-记忆">论文结果</a> · <a href="README.md">English</a></p>
+  <p><a href="#接在你的-api-调用之前"><strong>接入 API</strong></a> · <a href="#接入常用助手">安装 TOMC Memory</a> · <a href="#switch-assistants">换助手继续</a> · <a href="#试用演示">查看 Demo</a> · <a href="#paper-explained">论文详解</a> · <a href="#同一个模型基线记忆与-tomc-记忆">论文结果</a> · <a href="README.md">English</a> | <strong>简体中文</strong></p>
   <p><strong>CPU 准备上下文</strong> · 无需训练或额外模型服务 · 输出普通文本 · 研究预览</p>
 </div>
 
@@ -11,7 +11,7 @@
 
 ## TOMC 插件官网地址与下载
 
-**TOMC 插件官网地址：[github.com/ZipengWu365/TOMC](https://github.com/ZipengWu365/TOMC)。** 本 GitHub 仓库就是 TOMC Memory（汤姆 C）的官方主页，源码、插件下载和安装教程都在这里。
+**TOMC 插件官网地址：[github.com/ZipengWu365/TOMC](https://github.com/ZipengWu365/TOMC)。** 本 GitHub 仓库就是 TOMC Memory的官方主页，源码、插件下载和安装教程都在这里。
 
 下载安装请先查看[接入常用助手](#接入常用助手)，按你的客户端选择 Codex 插件、Claude Code 插件，或 Cursor、TRAE、腾讯 WorkBuddy、Claude Desktop 的 MCP 接入方式。安装包在[插件下载目录](plugins/downloads)，使用方法见[中文使用技巧](docs/usage_tips_zh.md)。
 
@@ -19,7 +19,7 @@
 
 ## 第一部分：使用 TOMC Memory
 
-**TOMC Memory（汤姆 C）**是基于 Task-Oriented Memory Compilation（TOMC）的开源工具，为 AI 助手压缩编译上下文，并通过明确保存的笔记提供任务记忆。它提供 MCP 服务和 Python API。给它一段历史、下一步任务和记忆预算。它选择原文，对支持的状态、关系或计数操作计算记录，让你的应用用准备后的上下文替换完整历史。准备过程在 CPU 上运行，无需训练或额外模型服务。
+**TOMC Memory**是基于 Task-Oriented Memory Compilation（TOMC）的开源工具，为 AI 助手压缩编译上下文，并通过明确保存的笔记提供任务记忆。它提供 MCP 服务和 Python API。给它一段历史、下一步任务和记忆预算。它选择原文，对支持的状态、关系或计数操作计算记录，让你的应用用准备后的上下文替换完整历史。准备过程在 CPU 上运行，无需训练或额外模型服务。
 
 让助手制作视频、整理资料、处理文件或进行编程开发时，可以用 `remember_memory` 保存任务要求、决策、约束、已完成步骤和待办事项，再用 `recall_memory` 为下一步任务准备这些笔记。这里列的是任务记忆的使用场景。下面的实测数据来自合成项目历史和论文基准，各有明确的任务与协议，不能直接推广为上述所有任务的效果。
 

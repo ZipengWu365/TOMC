@@ -3,15 +3,13 @@
   <h1>TOMC Memory</h1>
   <h3>Context compression and task memory for Codex / Claude Code / Cursor / TRAE / WorkBuddy</h3>
   <p><strong>Compress and compile long histories, and recall saved task notes on CPU.</strong></p>
-  <p><a href="#use-before-your-api-call"><strong>Use with your API</strong></a> · <a href="#install-in-your-assistant">Install TOMC Memory</a> · <a href="#switch-assistants">Switch assistants</a> · <a href="#try-the-demo">See the demo</a> · <a href="#paper-explained">Paper explained</a> · <a href="#same-reader-baseline-memory-vs-tomc-memory">Paper results</a> · <a href="README_zh.md">中文</a></p>
+  <p><a href="#use-before-your-api-call"><strong>Use with your API</strong></a> · <a href="#install-in-your-assistant">Install TOMC Memory</a> · <a href="#switch-assistants">Switch assistants</a> · <a href="#try-the-demo">See the demo</a> · <a href="#paper-explained">Paper explained</a> · <a href="#same-reader-baseline-memory-vs-tomc-memory">Paper results</a> · <strong>English</strong> | <a href="README_zh.md">简体中文</a></p>
   <p><strong>CPU preparation</strong> · No training or extra model service · Plain-text output · Research preview</p>
 </div>
 
-[Official GitHub home](https://github.com/ZipengWu365/TOMC) · [Plugin downloads](plugins/downloads) · [中文安装教程](README_zh.md#接入常用助手)
+[Official GitHub home](https://github.com/ZipengWu365/TOMC) · [Plugin downloads](plugins/downloads) · [Installation guide](#install-in-your-assistant)
 
-**TOMC 插件官网地址：** https://github.com/ZipengWu365/TOMC
-
-TOMC Memory（汤姆 C）是 AI 助手的上下文压缩与任务记忆插件。本 GitHub 仓库就是官方主页，提供源码、插件下载和中文安装教程，支持 Codex、Claude Code，以及通过本地 MCP 接入 Cursor、TRAE、腾讯 WorkBuddy 和 Claude Desktop。
+This is the official repository for **TOMC Memory**, with source code, plugin downloads and installation guides.
 
 [Inspect recorded examples](https://zipengwu.me/tomc/examples/) · [API, shared-memory and evaluation guides](https://zipengwu.me/tomc/guides/)
 
@@ -37,7 +35,7 @@ This is a preview, version **0.1.0**. Download the plugins from the [MIT-license
 
 [![TOMC: context compression and compilation, with saved task notes](launch/media/v12/gifs/TOMC_Agent_Complete_EN.gif)](launch/media/v12/videos/TOMC_Agent_Complete_EN.mp4)
 
-[Landscape video](launch/media/v12/videos/TOMC_Agent_Complete_EN.mp4) · [中文视频](launch/media/v12/videos/TOMC_Agent_Complete_ZH.mp4) · [Media and test scope](launch/media/v12/README.md)
+[Landscape video](launch/media/v12/videos/TOMC_Agent_Complete_EN.mp4) · [Chinese video](launch/media/v12/videos/TOMC_Agent_Complete_ZH.mp4) · [Media and test scope](launch/media/v12/README.md)
 
 The ending labels **models tested with TOMC** and explains their use: API models receive prepared context; Codex and Claude Code call TOMC tools. The list includes DeepSeek 4.1 Flash, DeepSeek 4 PRO, Rednote Red preview, Claude Opus 5.5 and ChatGPT Codex 6.1 Sol. The five-model list combines recorded tests and the author's reported tests; the demo's token and cost measurements retain their separate protocols. It does not imply a uniform five-model benchmark or provider endorsement.
 
@@ -148,7 +146,7 @@ In the VS Code extension trial with Claude Opus 5.5, with budget 8,192, recallin
 
 **Tested on Windows, macOS and Linux, and in Claude Code.** Installation and tool checks passed on all three systems; real model calls passed in Codex on [Windows with preview.4](docs/validation.md#windows-codex-preview4) and macOS and in Claude Code with Claude Opus 5.5. GUI installation in Claude Desktop, Cursor and the Codex app is still unverified. [Platform checks and dates](docs/platform_checks.md)
 
-[Usage tips (English)](docs/usage_tips.md) · [中文使用技巧](docs/usage_tips_zh.md) · [Windows installation feedback](docs/windows_installation_feedback.md) · [Full installation guide](docs/assistant_plugin.md) · [Validation record](docs/validation.md) · [Claude checksum](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-0.1.1.mcpb.sha256) · [Codex checksum](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-codex-0.1.1.zip.sha256).
+[Usage tips (English)](docs/usage_tips.md) · [Chinese usage tips](docs/usage_tips_zh.md) · [Windows installation feedback](docs/windows_installation_feedback.md) · [Full installation guide](docs/assistant_plugin.md) · [Validation record](docs/validation.md) · [Claude checksum](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-0.1.1.mcpb.sha256) · [Codex checksum](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-codex-0.1.1.zip.sha256).
 
 <a id="switch-assistants"></a>
 
@@ -209,7 +207,7 @@ Here `history`, `task`, `client` and `model` are your application's existing inp
 | TOMC · 60% history budget | 33,344 | 19.5% | 45/45 |
 | TOMC · default 80% history budget | 38,035 | 9.2% | 45/45 |
 
-Input is Codex's reported total, including cached input, host instructions and tool definitions. Reduction is the mean of nine paired history-level ratios, not the ratio of the table's means. These figures cover one answering turn per history and condition; asking the model to prepare or recall within a chat adds turns. All prepared contexts used `tomc_raw` source selection, without compiled operation records. This tests synthetic latest-state retrieval, rather than general coding quality. [English report](docs/codex_retention_20261005.md) · [中文报告](docs/codex_retention_20261005_zh.md) · [Recorded data](docs/validation_data/windows_codex_retention_20261005.json) · [Budget tips](docs/usage_tips.md#choose-budget). Full-history requests used the same profile with TOMC installed and all existing plugins enabled. The table covers a single answering turn per condition in the test harness; a full agent workflow may involve additional turns.
+Input is Codex's reported total, including cached input, host instructions and tool definitions. Reduction is the mean of nine paired history-level ratios, not the ratio of the table's means. These figures cover one answering turn per history and condition; asking the model to prepare or recall within a chat adds turns. All prepared contexts used `tomc_raw` source selection, without compiled operation records. This tests synthetic latest-state retrieval, rather than general coding quality. [English report](docs/codex_retention_20261005.md) · [Chinese report](docs/codex_retention_20261005_zh.md) · [Recorded data](docs/validation_data/windows_codex_retention_20261005.json) · [Budget tips](docs/usage_tips.md#choose-budget). Full-history requests used the same profile with TOMC installed and all existing plugins enabled. The table covers a single answering turn per condition in the test harness; a full agent workflow may involve additional turns.
 
 ##### Claude Code · Claude Opus 5.5
 

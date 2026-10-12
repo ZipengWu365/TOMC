@@ -2,6 +2,8 @@
 
 # TOMC Memory
 
+**English** | [简体中文](https://github.com/ZipengWu365/TOMC/blob/main/README_zh.md)
+
 **TOMC Memory** is an open-source context compression and task-memory tool based on Task-Oriented Memory Compilation (TOMC). It prepares context before your next LLM API call. Give it a history, a task and a memory budget. It selects source text and computes supported state, relation or count records. Send the result in place of the full history to reduce the input your model receives. Preparation runs on CPU without training or an extra model service.
 
 Use the Python API in your application, install the plugin in Codex or Claude Code, or connect Cursor, TRAE, Tencent WorkBuddy and Claude Desktop through local MCP. It processes only supplied content. Savings depend on the input and task; short histories can stay unchanged, and records plus prompt overhead can increase a request.
@@ -12,21 +14,21 @@ You can also save notes in Codex and continue in Claude Code. Both TOMC servers 
   <img src="assets/plugin_usage_api_20261003.png" alt="Install TOMC in Codex, Cursor, Claude Desktop or Claude Code. Supply history, task and budget; TOMC prepares context for the same assistant." width="1280">
 </a>
 
-[TOMC Memory official GitHub home](https://github.com/ZipengWu365/TOMC) · [TOMC 插件下载与中文安装教程](https://github.com/ZipengWu365/TOMC/blob/main/README_zh.md)
+[TOMC Memory official GitHub home](https://github.com/ZipengWu365/TOMC) · [Chinese installation guide](https://github.com/ZipengWu365/TOMC/blob/main/README_zh.md)
 
 ## Start here
 
-- [Context ownership](context_ownership.md): let the host compact its active chat; use TOMC for external task evidence. [中文说明](context_ownership_zh.md).
+- [Context ownership](context_ownership.md): let the host compact its active chat; use TOMC for external task evidence. [Chinese explanation](context_ownership_zh.md).
 - [Install TOMC](assistant_plugin.md): choose Codex, Cursor, TRAE, Tencent WorkBuddy, Claude Desktop or Claude Code.
-- [Cursor / TRAE MCP setup](cursor_trae.md): copy a local server configuration; client tool calls remain unverified. [中文指南](cursor_trae_zh.md).
-- [Tencent WorkBuddy MCP setup](workbuddy.md): configure the local server; client tool calls remain unverified. [中文指南](workbuddy_zh.md).
+- [Cursor / TRAE MCP setup](cursor_trae.md): copy a local server configuration; client tool calls remain unverified. [Chinese guide](cursor_trae_zh.md).
+- [Tencent WorkBuddy MCP setup](workbuddy.md): configure the local server; client tool calls remain unverified. [Chinese guide](workbuddy_zh.md).
 - [Switch assistants](usage_tips.md#reuse-notebooks): save project notes in one client and recall them for the next task in another.
 - [Prepare context](assistant_plugin.md#prepare-context): supply history, task and budget through the installed tool.
 - [Use before an API call](api_reference.md#prepare-context-before-your-api-call): replace the original history with prepared messages using your existing client.
 - [Manual MCP setup](assistant_setup.md): register an installed environment in your client.
-- [Usage tips (English)](usage_tips.md): choose a task, check sources and use the prepared context in your next request. [中文使用技巧](usage_tips_zh.md).
+- [Usage tips (English)](usage_tips.md): choose a task, check sources and use the prepared context in your next request. [Chinese usage tips](usage_tips_zh.md).
 - [Windows installation feedback](windows_installation_feedback.md): preview.4 native Codex installation, real model calls and earlier client checks.
-- [Windows Codex input comparison](codex_retention_20261005.md): full history versus 40%, 60% and default 80% history budgets. [中文报告](codex_retention_20261005_zh.md).
+- [Windows Codex input comparison](codex_retention_20261005.md): full history versus 40%, 60% and default 80% history budgets. [Chinese report](codex_retention_20261005_zh.md).
 - [See the demo](quickstart.md): inspect how TOMC prepares context for an assistant.
 - [Python API](api_reference.md): add context preparation to an existing application.
 
@@ -54,11 +56,11 @@ The MCP plugin exposes tools; it does not intercept every request or remove an a
 
 With the original `gpt-6.1-sol` model and `ultra` effort in Windows Codex 0.160.0, all four conditions answered 45/45 latest-state questions across nine synthetic histories. Mean reported request input was 42,191 tokens for full history, 28,713 at a 40% history budget, 33,344 at 60%, and 38,035 at the unchanged 80% default. Mean paired input reductions were 29.7%, 19.5% and 9.2%.
 
-These are single answering turns in new chats after preparation through the installed MCP tool. Input includes cached tokens, host instructions and tool definitions. All prepared contexts used source selection, without compiled operation records. Budget shares describe lexical history estimates; they are not percentages of the whole request or billed cost. [English report](codex_retention_20261005.md) · [中文报告](codex_retention_20261005_zh.md) · [Recorded data](validation_data/windows_codex_retention_20261005.json)
+These are single answering turns in new chats after preparation through the installed MCP tool. Input includes cached tokens, host instructions and tool definitions. All prepared contexts used source selection, without compiled operation records. Budget shares describe lexical history estimates; they are not percentages of the whole request or billed cost. [English report](codex_retention_20261005.md) · [Chinese report](codex_retention_20261005_zh.md) · [Recorded data](validation_data/windows_codex_retention_20261005.json)
 
 ## Read the evidence
 
-The [README paper explanation](https://github.com/ZipengWu365/TOMC#paper-explained) retains the manuscript title and figures. [Reader models and agent hosts](readers_and_agents.md) explains how the paper's API readers relate to Codex and Claude Code, and what the assistant tests measure. [中文说明](readers_and_agents_zh.md).
+The [README paper explanation](https://github.com/ZipengWu365/TOMC#paper-explained) retains the manuscript title and figures. [Reader models and agent hosts](readers_and_agents.md) explains how the paper's API readers relate to Codex and Claude Code, and what the assistant tests measure. [Chinese explanation](readers_and_agents_zh.md).
 
 [Paper results](paper_results.md) reports the frozen three-reader BEAM comparisons, RULER diagnostics and construction measurements. The current snapshot comes from manuscript commit `7399657`. These are archived experiments, not scores produced by the interactive demo.
 
