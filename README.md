@@ -7,7 +7,11 @@
   <p><strong>CPU preparation</strong> · No training or extra model service · Plain-text output · Research preview</p>
 </div>
 
-[TOMC Memory project homepage](https://zipengwu.me/tomc/) · [中文](README_zh.md)
+[Official GitHub home](https://github.com/ZipengWu365/TOMC) · [Plugin downloads](plugins/downloads) · [中文安装教程](README_zh.md#接入常用助手)
+
+**TOMC 插件官网地址：** https://github.com/ZipengWu365/TOMC
+
+TOMC Memory（汤姆 C）是 AI 助手的上下文压缩与任务记忆插件。本 GitHub 仓库就是官方主页，提供源码、插件下载和中文安装教程，支持 Codex、Claude Code，以及通过本地 MCP 接入 Cursor、TRAE、腾讯 WorkBuddy 和 Claude Desktop。
 
 [Inspect recorded examples](https://zipengwu.me/tomc/examples/) · [API, shared-memory and evaluation guides](https://zipengwu.me/tomc/guides/)
 

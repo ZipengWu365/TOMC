@@ -7,7 +7,13 @@
   <p><strong>CPU 准备上下文</strong> · 无需训练或额外模型服务 · 输出普通文本 · 研究预览</p>
 </div>
 
-[TOMC Memory 项目主页](https://zipengwu.me/tomc/) · [English](README.md)
+[TOMC Memory 官方 GitHub 主页](https://github.com/ZipengWu365/TOMC) · [插件下载](plugins/downloads) · [中文安装教程](#接入常用助手) · [English](README.md)
+
+## TOMC 插件官网地址与下载
+
+**TOMC 插件官网地址：[github.com/ZipengWu365/TOMC](https://github.com/ZipengWu365/TOMC)。** 本 GitHub 仓库就是 TOMC Memory（汤姆 C）的官方主页，源码、插件下载和安装教程都在这里。
+
+下载安装请先查看[接入常用助手](#接入常用助手)，按你的客户端选择 Codex 插件、Claude Code 插件，或 Cursor、TRAE、腾讯 WorkBuddy、Claude Desktop 的 MCP 接入方式。安装包在[插件下载目录](plugins/downloads)，使用方法见[中文使用技巧](docs/usage_tips_zh.md)。
 
 <a id="use-tomc"></a>
 

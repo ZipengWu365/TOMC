@@ -6,7 +6,7 @@ Status: ready-to-review copy. None of the social posts below has been published 
 
 ## Shared links and media
 
-- Product: https://zipengwu.me/tomc/
+- Product: https://github.com/ZipengWu365/TOMC
 - Recorded example explorer: https://zipengwu.me/tomc/examples/
 - Guides: https://zipengwu.me/tomc/guides/
 - Source and installation: https://github.com/ZipengWu365/TOMC
@@ -21,7 +21,7 @@ Use the existing landscape format. The new website explorer contains recorded ou
 
 TOMC prepares task-specific context on CPU for your existing LLM. Inspect the retained evidence, then use it in the next request. No extra model service.
 
-Built by Zipeng Wu · zipengwu365
+TOMC Memory
 https://zipengwu.me/tomc/examples/
 
 ## X post 2 — handoff
@@ -31,7 +31,7 @@ New chat, same project. TOMC lets Codex and Claude Code reuse explicitly saved n
 Setup + a three-step example:
 https://zipengwu.me/tomc/guides/shared-task-memory/
 
-Zipeng Wu · zipengwu365 · TOMC
+TOMC Memory
 
 ## X post 3 — measurement
 
@@ -40,7 +40,7 @@ A smaller memory is only one measurement. Check the full request, answer quality
 My TOMC evaluation guide:
 https://zipengwu.me/tomc/guides/measure-context-savings/
 
-Zipeng Wu · zipengwu365
+TOMC Memory
 
 ## X post 4 — specific example
 
@@ -51,15 +51,15 @@ framework = FastAPI
 The backup still holds Flask. Inspect how TOMC represents this update chain at three budgets:
 https://zipengwu.me/tomc/examples/
 
-Zipeng Wu · zipengwu365
+TOMC Memory
 
 ## Paid creative A — context preparation
 
 Long history, one next task. TOMC prepares context locally on CPU for your existing LLM. Inspect real recorded outputs, then try the Python API.
 
-TOMC by Zipeng Wu · zipengwu365
+TOMC Memory
 
-Destination: https://zipengwu.me/tomc/?utm_source=x&utm_medium=paid_social&utm_campaign=tomc_pilot_100&utm_content=context_a
+Destination: https://github.com/ZipengWu365/TOMC?utm_source=x&utm_medium=paid_social&utm_campaign=tomc_pilot_100&utm_content=context_a
 
 Media: existing English landscape video, linked above. Do not turn an example's count into a universal percentage claim.
 
@@ -67,9 +67,9 @@ Media: existing English landscape video, linked above. Do not turn an example's 
 
 Keep your project notes when you start a new chat. TOMC supports explicit save and recall across Codex and Claude Code with a shared local notebook.
 
-TOMC by Zipeng Wu · zipengwu365
+TOMC Memory
 
-Destination: https://zipengwu.me/tomc/?utm_source=x&utm_medium=paid_social&utm_campaign=tomc_pilot_100&utm_content=handoff_b
+Destination: https://github.com/ZipengWu365/TOMC?utm_source=x&utm_medium=paid_social&utm_campaign=tomc_pilot_100&utm_content=handoff_b
 
 Media: the same landscape video for the first comparison. The initial test changes the message, not every creative element at once.
 
@@ -87,12 +87,12 @@ I have added three practical guides and an example explorer. The explorer shows 
 
 The current parser and retrieval use fixed rules. Results depend on the task and input, and calling a tool does not erase history already in an active chat. The guides explain how to measure complete requests and inspect omissions.
 
-Try it: https://zipengwu.me/tomc/
+Try it: https://github.com/ZipengWu365/TOMC
 Source: https://github.com/ZipengWu365/TOMC
 
 I would particularly welcome synthetic examples where the prepared context misses a fact needed for the next question.
 
-Zipeng Wu · zipengwu365 · TOMC
+TOMC Memory
 
 ## Show HN submission
 
@@ -131,7 +131,7 @@ The explorer uses real local compiler outputs on synthetic inputs. It makes no L
 If you try it, a useful report is the synthetic input, next task, budget, expected fact and actual retained context. Please leave private conversations out of public reports.
 
 Source: https://github.com/ZipengWu365/TOMC
-Zipeng Wu · zipengwu365
+TOMC Memory
 
 ## Replies
 

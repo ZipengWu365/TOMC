@@ -81,13 +81,13 @@
     },
     {
       "path": "README.md",
-      "bytes": 43777,
-      "sha256": "ee7f445bb37ae5668e2971656f056fe911e8dd71524e6619d85706caace34cb4"
+      "bytes": 44203,
+      "sha256": "614731db37de9eadbdd1ff72ad2b79d2fd0b9518fb41200d5ebbf60edd372e0e"
     },
     {
       "path": "README_zh.md",
-      "bytes": 41214,
-      "sha256": "b6d0753f475000d5b7f013ebfd309bc225ad95f4cf102b2b0dc85611bdc62bf9"
+      "bytes": 41894,
+      "sha256": "9d554d008d3e44d6de52395b0f16e0d5a70c4966f87ffbec9d167a24957e34af"
     },
     {
       "path": "SECURITY.md",
@@ -701,8 +701,8 @@
     },
     {
       "path": "docs/index.md",
-      "bytes": 7125,
-      "sha256": "9639a519c52b224fa27cf27d7bad309a23d17c14312bb3e1d15d5263f7ae4f28"
+      "bytes": 7194,
+      "sha256": "94be844b265e30d70321a904f187d2064fbfbe053d58ec324946a8b2ec6fece9"
     },
     {
       "path": "docs/legacy_extensions.md",
@@ -871,8 +871,8 @@
     },
     {
       "path": "launch/20261011/PUBLIC_COPY.md",
-      "bytes": 8216,
-      "sha256": "55d48aeb08823490619d11e46d701278255993bfaf4fb852d824cf3772b37f5a"
+      "bytes": 8111,
+      "sha256": "9af06099c1fe95c08f1ec1545643f3080177a7c3b56fe7e52486baf774ff3445"
     },
     {
       "path": "launch/CONTENT_KIT.md",
@@ -1521,18 +1521,18 @@
     },
     {
       "path": "plugins/downloads/build_receipt.json",
-      "bytes": 1487,
-      "sha256": "86edb8808cbe4aff4565cb139f98c756c40257907b6f21e50ae74884c35e4940"
+      "bytes": 1468,
+      "sha256": "a21f7d34bba7460d7e199a2aace296c4eaf4c64ab735853e968e8d19264b1f2d"
     },
     {
       "path": "plugins/downloads/codex_build_receipt.json",
-      "bytes": 1492,
-      "sha256": "301a499b83c158b794afe943a197b432b982a3e45cd5dd5ad481479f4a13a657"
+      "bytes": 1473,
+      "sha256": "1ab587794851760df56ee1223613ee873237036df94ce23ddf18c2313e04d15c"
     },
     {
       "path": "plugins/downloads/context_policy_build_receipt_20261012.json",
-      "bytes": 4268,
-      "sha256": "c442610563b56c576ce09976b573353d4e319ec8a4f9a9dc004bdb7c910792fd"
+      "bytes": 4215,
+      "sha256": "67f1fb80159673109f045acb08adb44ba1f032fa2fae253c90646b5b6cb82035"
     },
     {
       "path": "plugins/downloads/tomc-memory-0.1.0.mcpb",
@@ -1965,7 +1965,7 @@
       "sha256": "17c605bde43040d24896c39084ccbddf0274e282420cd9bffa10fb691992f141"
     }
   ],
-  "total_bytes": 87313933,
+  "total_bytes": 87314912,
   "self_excluded": [
     "PUBLIC_RELEASE_MANIFEST.json",
     "SHA256SUMS"
