@@ -4,6 +4,8 @@ TOMC prepares task-specific context that you can send in place of a long history
 
 After installation, call `prepare_context`, inspect the result and hand it to a new chat or an application request. Short histories can stay unchanged; records and prompt overhead can sometimes increase input. The compiler is stateless, and notebooks are optional. For direct request integration, see the [Python API](api_reference.md#prepare-context-before-your-api-call).
 
+The host owns active-chat compaction. Do not proactively use TOMC to recompact that same conversation when native compaction is active or unknown. External-history preparation and explicit notebook workflows remain available. This is the plugin's assistant policy; it does not install an automatic detector or request hook. [Context ownership](context_ownership.md).
+
 ## Choose an installation
 
 | Client | Installation | Current scope |
@@ -15,19 +17,19 @@ After installation, call `prepare_context`, inspect the result and hand it to a 
 | Tencent WorkBuddy | [Add a local MCP server](workbuddy.md) | Manual configuration preview; client tool calls remain unverified |
 | Codex | Run the ZIP's installation helper | Preview.4 native installation and default-model calls passed in the Windows personal profile; the earlier macOS trial used preview.2 |
 
-Download the packages from the [MIT-licensed assistant preview](https://github.com/ZipengWu365/TOMC/tree/main/plugins/downloads): [Claude `.mcpb`](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-0.1.0.mcpb) ([checksum](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-0.1.0.mcpb.sha256)) or [Codex ZIP](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-codex-0.1.0.zip) ([checksum](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-codex-0.1.0.zip.sha256)). These packages were rebuilt with MIT licensing on 2026-10-10; earlier release assets and dated validation records retain their historical contents.
+Download the packages from the [MIT-licensed assistant preview](https://github.com/ZipengWu365/TOMC/tree/main/plugins/downloads): [Claude `.mcpb`](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-0.1.1.mcpb) ([checksum](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-0.1.1.mcpb.sha256)) or [Codex ZIP](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-codex-0.1.1.zip) ([checksum](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-codex-0.1.1.zip.sha256)). Plugin packaging 0.1.1 adds the host-managed conversation policy. Earlier 0.1.0 packages and dated host/model validation retain their historical scope; the compiler core remains 0.1.0.
 
 There is no published PyPI package or public marketplace listing. Updates must be installed manually. [Claude's installation and private distribution guide](https://support.claude.com/en/articles/10949351-getting-started-with-local-mcp-servers-on-claude-desktop)
 
 ## Claude Desktop
 
-The locally built candidate is `outputs/plugins/tomc-memory-0.1.0.mcpb`. It contains TOMC's source and uses the official MCPB UV runtime: a supported host downloads Python and installs dependencies in an isolated environment. The first installation needs network access; it is not an offline bundle. [Official UV bundle example](https://github.com/modelcontextprotocol/mcpb/tree/main/examples/hello-world-uv)
+The locally built candidate is `outputs/plugins/tomc-memory-0.1.1.mcpb`. It contains TOMC's source and uses the official MCPB UV runtime: a supported host downloads Python and installs dependencies in an isolated environment. The first installation needs network access; it is not an offline bundle. [Official UV bundle example](https://github.com/modelcontextprotocol/mcpb/tree/main/examples/hello-world-uv)
 
 Maintainers can build and check the package from the checkout:
 
 ```bash
 python scripts/build_plugin.py
-python scripts/plugin_smoke.py outputs/plugins/tomc-memory-0.1.0.mcpb
+python scripts/plugin_smoke.py outputs/plugins/tomc-memory-0.1.1.mcpb
 ```
 
 The second command needs `uv` and the MCP test client (`.[mcp]`). It extracts the archive outside the checkout and launches its locked runtime; it does not install into or alter your assistant. Share the `.mcpb` file and its `.sha256` checksum file with collaborators. A Cursor link containing your own local paths is not a portable installation package.
@@ -56,7 +58,7 @@ Start a new session, or reload the VS Code window, and run `/mcp`: the server ap
 
 Claude Code does not install `.mcpb` files, but it can launch the same locked runtime as a local stdio MCP server.
 
-1. Download `tomc-memory-0.1.0.mcpb`, check its SHA-256 and extract it (it is a ZIP archive) to a directory you will keep.
+1. Download `tomc-memory-0.1.1.mcpb`, check its SHA-256 and extract it (it is a ZIP archive) to a directory you will keep.
 2. Install [UV](https://docs.astral.sh/uv/getting-started/installation/) and make `uv` available on PATH before running the commands below. Replace the example path with your actual extracted directory; keep paths quoted when they contain spaces.
 3. Install the locked dependencies with `uv sync --locked --directory "/absolute/path/to/extracted"`.
 4. Register the server for all your projects:
@@ -120,7 +122,7 @@ Follow the [WorkBuddy guide](workbuddy.md) to add the locked local runtime throu
 
 ## Codex
 
-The installation candidate is `outputs/plugins/tomc-memory-codex-0.1.0.zip`. It includes a local marketplace at `.agents/plugins/marketplace.json`, an `install.py` helper and a `plugins/tomc-memory/` package containing the supported `.codex-plugin/plugin.json` compatibility manifest, the same locked TOMC runtime and a memory skill. The compatibility manifest declares the bundled tools and skill; the helper prepares their launch paths for your installation. You can share the original ZIP privately; this does not list TOMC in the public plugin directory. [Official plugin packaging and local marketplaces](https://developers.openai.com/plugins/build/plugins)
+The installation candidate is `outputs/plugins/tomc-memory-codex-0.1.1.zip`. It includes a local marketplace at `.agents/plugins/marketplace.json`, an `install.py` helper and a `plugins/tomc-memory/` package containing the supported `.codex-plugin/plugin.json` compatibility manifest, the same locked TOMC runtime and a memory skill. The compatibility manifest declares the bundled tools and skill; the helper prepares their launch paths for your installation. You can share the original ZIP privately; this does not list TOMC in the public plugin directory. [Official plugin packaging and local marketplaces](https://developers.openai.com/plugins/build/plugins)
 
 Maintainers can build the candidate from the checkout with `python scripts/build_codex_plugin.py`; share the resulting ZIP and its `.sha256` checksum file.
 

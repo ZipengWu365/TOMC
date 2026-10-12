@@ -16,6 +16,7 @@ You can also save notes in Codex and continue in Claude Code. Both TOMC servers 
 
 ## Start here
 
+- [Context ownership](context_ownership.md): let the host compact its active chat; use TOMC for external task evidence. [中文说明](context_ownership_zh.md).
 - [Install TOMC](assistant_plugin.md): choose Codex, Cursor, TRAE, Tencent WorkBuddy, Claude Desktop or Claude Code.
 - [Cursor / TRAE MCP setup](cursor_trae.md): copy a local server configuration; client tool calls remain unverified. [中文指南](cursor_trae_zh.md).
 - [Tencent WorkBuddy MCP setup](workbuddy.md): configure the local server; client tool calls remain unverified. [中文指南](workbuddy_zh.md).

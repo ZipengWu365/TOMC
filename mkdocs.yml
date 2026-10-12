@@ -27,6 +27,9 @@ nav:
   - Reader models and agent hosts: readers_and_agents.md
   - Reader models and agent hosts (中文): readers_and_agents_zh.md
   - Method: method.md
+  - Model context limits: model_context_limits_20261012.md
+  - Context ownership: context_ownership.md
+  - Context ownership (中文): context_ownership_zh.md
   - API: api_reference.md
   - Architecture: architecture.md
   - LLMLingua comparison: comparison_with_llmlingua.md

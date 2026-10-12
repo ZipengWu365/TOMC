@@ -6,7 +6,7 @@ TOMC is free to use, including commercially, under the MIT License in `plugins/t
 
 ## Install
 
-Install a current Codex CLI with plugin support and [UV](https://docs.astral.sh/uv/getting-started/installation/). Extract `tomc-memory-codex-0.1.0.zip` to a permanent directory, open a terminal in that directory, then run:
+Install a current Codex CLI with plugin support and [UV](https://docs.astral.sh/uv/getting-started/installation/). Extract `tomc-memory-codex-0.1.1.zip` to a permanent directory, open a terminal in that directory, then run:
 
 ```bash
 uv run --no-project --python 3.12 install.py --check
@@ -28,7 +28,11 @@ To write the local launch configuration without registering anything in Codex, u
 
 For a separate set of notebooks, add `--store /path/to/notebooks.sqlite3` to the installer command. This explicitly configures the database path for Codex's MCP process.
 
-## Prepare context
+## Host-managed conversations
+
+Leave active-chat compaction with the host. When native compaction is enabled or unknown, do not proactively call TOMC to recompact the same chat. Use TOMC for separately supplied external history or explicit saved notebooks. This is an assistant workflow policy, not a switch detector or automatic per-call hook. [Context ownership](https://github.com/ZipengWu365/TOMC/blob/main/docs/context_ownership.md).
+
+## Prepare external context
 
 Ask Codex to call TOMC's `prepare_context` with your supplied history, next task and memory budget, then answer using the returned memory. No notebook is needed. For a state example, use `framework = Flask`, `backup_framework copies framework` and `framework = FastAPI`; ask for the current values. TOMC supports these explicit assignments and snapshot copies. Histories that fit the budget stay intact; longer input can use task records and source retrieval.
 

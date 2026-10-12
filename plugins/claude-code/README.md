@@ -13,6 +13,10 @@ Install [uv](https://docs.astral.sh/uv/getting-started/installation/) and make `
 
 Start a new session and run `/mcp` to check that the `tomc` server is connected. Claude Code asks for permission the first time each tool is used.
 
+## Host-managed conversations
+
+The host owns active-chat compaction when enabled or unknown. Do not proactively use TOMC to recompact that same chat. Prepare separately supplied external material or explicitly saved notebooks instead. This is an assistant workflow policy, not an internal compaction detector or automatic request hook. See [context ownership](https://github.com/ZipengWu365/TOMC/blob/main/docs/context_ownership.md).
+
 ## Tools
 
 - `prepare_context`: prepare supplied history for the next task without saving it. Omit `budget` to keep about 80% of the history (at least 1,024 estimated tokens).

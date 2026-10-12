@@ -43,14 +43,16 @@ TOMC is a research preview. Feedback, issues, pull requests and research collabo
 
 Choose the setup for your client. TOMC prepares context locally on CPU; your assistant generates the answer. The plugin itself needs no additional model API key or GPU.
 
+**The host manages the active chat.** When Codex, Claude Code or another host owns conversation compaction, TOMC does not proactively recompact that chat. Unknown host state also defaults to host ownership. Use TOMC for separately supplied external history or explicitly saved notes. This is a tool-use policy, not an automatic compaction detector. [Context ownership](docs/context_ownership.md). Plugin packages 0.1.1 include this policy; the compiler core remains 0.1.0.
+
 | Client | Start here | Prerequisites |
 |---|---|---|
-| Codex CLI | [Download the plugin ZIP](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-codex-0.1.0.zip) | Current Codex CLI with plugin commands, plus [`uv`](https://docs.astral.sh/uv/getting-started/installation/) on PATH or supplied with `--uv` |
+| Codex CLI | [Download the plugin ZIP](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-codex-0.1.1.zip) | Current Codex CLI with plugin commands, plus [`uv`](https://docs.astral.sh/uv/getting-started/installation/) on PATH or supplied with `--uv` |
 | Codex IDE extension | [Configure the local MCP server](docs/assistant_setup.md) | Local TOMC environment with `.[mcp]` installed |
 | Cursor | Generate an installation link, or [add the MCP configuration](docs/cursor_trae.md) | Local TOMC runtime; client tool calls remain unverified |
 | TRAE (International / CN) | [Add TOMC as a local MCP server](docs/cursor_trae.md#trae) | Local TOMC runtime; client tool calls remain unverified |
 | Tencent WorkBuddy | [Configure TOMC through local MCP](docs/workbuddy.md) | Local TOMC runtime; client tool calls remain unverified |
-| Claude Desktop | [Download the `.mcpb` extension](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-0.1.0.mcpb) | Updated Claude Desktop with UV extension support; network access for the first install |
+| Claude Desktop | [Download the `.mcpb` extension](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-0.1.1.mcpb) | Updated Claude Desktop with UV extension support; network access for the first install |
 | Claude Code | `/plugin marketplace add ZipengWu365/TOMC`, then `/plugin install tomc-memory@tomc` ([details](docs/assistant_plugin.md#claude-code)) | [`uv`](https://docs.astral.sh/uv/getting-started/installation/); tested with the Claude Code VS Code extension |
 
 <details>
@@ -142,7 +144,7 @@ In the VS Code extension trial with Claude Opus 5.5, with budget 8,192, recallin
 
 **Tested on Windows, macOS and Linux, and in Claude Code.** Installation and tool checks passed on all three systems; real model calls passed in Codex on [Windows with preview.4](docs/validation.md#windows-codex-preview4) and macOS and in Claude Code with Claude Opus 5.5. GUI installation in Claude Desktop, Cursor and the Codex app is still unverified. [Platform checks and dates](docs/platform_checks.md)
 
-[Usage tips (English)](docs/usage_tips.md) · [中文使用技巧](docs/usage_tips_zh.md) · [Windows installation feedback](docs/windows_installation_feedback.md) · [Full installation guide](docs/assistant_plugin.md) · [Validation record](docs/validation.md) · [Claude checksum](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-0.1.0.mcpb.sha256) · [Codex checksum](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-codex-0.1.0.zip.sha256).
+[Usage tips (English)](docs/usage_tips.md) · [中文使用技巧](docs/usage_tips_zh.md) · [Windows installation feedback](docs/windows_installation_feedback.md) · [Full installation guide](docs/assistant_plugin.md) · [Validation record](docs/validation.md) · [Claude checksum](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-0.1.1.mcpb.sha256) · [Codex checksum](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-codex-0.1.1.zip.sha256).
 
 <a id="switch-assistants"></a>
 
@@ -169,6 +171,10 @@ This example saves a planning note, not a claim that tests have run.
 </details>
 
 The notebook keeps the original notes and appended updates; recall prepares that history for the next task. This shares saved notes, rather than migrating native chat histories or providing cross-device cloud sync. [MCP interoperability and user-guided checks](docs/validation.md#cross-assistant-notebooks).
+
+### Automatic API request loop
+
+Use [AutomaticChatSession](docs/context_ownership.md) before your existing synchronous Chat Completions call: default refresh every two logical model requests, cached model limits, one-shot window-boundary backoff and brief native-compaction cooldown. Only the outgoing old-history view changes; original history, instructions, recent messages and tool protocol stay with the caller. The default lexical packing path now avoids repeated prefix scans. [34-model capacity snapshot](docs/model_context_limits_20261012.md). This does not make an installed MCP plugin intercept built-in client requests, and no native-client/model acceptance is asserted.
 
 ### Use before your API call
 

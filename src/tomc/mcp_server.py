@@ -31,7 +31,18 @@ def create_server(path: Path | str | None = None):
     server = FastMCP(
         "TOMC Memory",
         instructions=(
-            "Use TOMC to prepare supplied history for the user's next task. Call prepare_context "
+            "Context ownership comes first: the host manages the active conversation. "
+            "If Claude Code, Codex or another host has native compaction, do not also use TOMC "
+            "to recompact that same chat, before or after a host compaction event. "
+            "If the host compaction state cannot be established, leave active-chat ownership "
+            "with the host and skip proactive TOMC recompaction. The absence of a recent "
+            "compaction event is not evidence that native compaction is disabled. "
+            "This server cannot inspect that internal switch; this is an assistant workflow rule, "
+            "not a runtime detector or automatic request hook. Do not disable host compaction "
+            "or replace system instructions, tool definitions or tool-call/result pairs. "
+            "Use TOMC for separately supplied external history, documents or named notebooks "
+            "when the user asks for task-specific preparation; this does not take over the chat. "
+            "Call prepare_context "
             "with history and the actual next task; it writes no notebook. Omit budget to keep "
             "about 80% of the history (at least 1,024 estimated tokens), or set a smaller budget "
             "when the user accepts more risk of omissions. In an assistant chat, each tool call "
@@ -59,7 +70,7 @@ def create_server(path: Path | str | None = None):
 
     @server.tool(name="prepare_context", annotations=read)
     def prepare_tool(history: str, task: str, budget: int | None = None) -> dict:
-        """Prepare context for the next task from supplied text or message JSON without saving. Omit budget to keep about 80% of the history (at least 1,024 estimated tokens). Budget covers estimated memory tokens, not the task or tool framing; host history is unchanged."""
+        """Prepare separately supplied external history or documents for the next task without saving. Do not call this to proactively recompact the active host-managed chat; unknown host compaction state also leaves chat ownership with the host. Omit budget to keep about 80% of estimated history tokens (at least 1,024). Budget excludes task/tool framing; host history is unchanged."""
         return _reply(prepare_context(history, task, budget))
 
     @server.tool(annotations=write)

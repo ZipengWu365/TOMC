@@ -10,9 +10,13 @@ Build it from the TOMC checkout:
 python scripts/build_plugin.py
 ```
 
-The output is `outputs/plugins/tomc-memory-0.1.0.mcpb`. In a current Claude Desktop with MCPB UV support, open **Settings → Extensions → Advanced settings → Install Extension…**, select the file, and follow its installation prompts. The first launch needs network access to download Python and pinned dependencies. No extra model API key, GPU or manual JSON editing is needed.
+The output is `outputs/plugins/tomc-memory-0.1.1.mcpb`. In a current Claude Desktop with MCPB UV support, open **Settings → Extensions → Advanced settings → Install Extension…**, select the file, and follow its installation prompts. The first launch needs network access to download Python and pinned dependencies. No extra model API key, GPU or manual JSON editing is needed.
 
-## Prepare context
+## Host-managed conversations
+
+Leave active-chat compaction with the host. When native compaction is enabled or unknown, do not proactively call TOMC to recompact the same chat. Use TOMC for separately supplied external history or explicit saved notebooks. This is an assistant workflow policy, not a switch detector or automatic per-call hook. [Context ownership](https://github.com/ZipengWu365/TOMC/blob/main/docs/context_ownership.md).
+
+## Prepare external context
 
 Ask your assistant to call `prepare_context` with supplied history, the next task and a memory budget, then answer using the returned memory. No notebook is needed. Histories that fit stay intact; longer input can use supported state, relation or count records and source retrieval.
 

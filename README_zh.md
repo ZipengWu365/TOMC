@@ -41,14 +41,16 @@ TOMC 目前是研究预览。欢迎试用、反馈、提交 Issue 和 PR，以�
 
 选择你所用客户端的接入方式。TOMC 在本地 CPU 上准备上下文，回答由助手生成；插件本身不需要额外的大模型 API key 或 GPU。
 
+**当前聊天由宿主管理。** Codex、Claude Code 等宿主负责上下文压缩时，TOMC 不主动再次压缩同一聊天；无法确认宿主状态时也默认由宿主负责。TOMC 用于另外提供的外部历史和明确保存的任务笔记。这是工具调用规则，不是自动压缩状态检测器。[上下文归属说明](docs/context_ownership_zh.md)。插件包 0.1.1 包含此规则，编译核心仍为 0.1.0。
+
 | 客户端 | 从哪里开始 | 前提条件 |
 |---|---|---|
-| Codex CLI | [下载插件 ZIP](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-codex-0.1.0.zip) | 支持插件命令的新版 Codex CLI，且 [`uv`](https://docs.astral.sh/uv/getting-started/installation/) 在 PATH 中或通过 `--uv` 指定 |
+| Codex CLI | [下载插件 ZIP](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-codex-0.1.1.zip) | 支持插件命令的新版 Codex CLI，且 [`uv`](https://docs.astral.sh/uv/getting-started/installation/) 在 PATH 中或通过 `--uv` 指定 |
 | Codex IDE extension | [配置本地 MCP 服务](docs/assistant_setup.md) | 本地 TOMC 环境已安装 `.[mcp]` |
 | Cursor | 生成安装链接，或[添加 MCP 配置](docs/cursor_trae_zh.md) | 本地 TOMC 运行环境；客户端工具调用尚未验证 |
 | TRAE（国际版 / 国内版） | [添加 TOMC 本地 MCP 服务](docs/cursor_trae_zh.md#trae) | 本地 TOMC 运行环境；客户端工具调用尚未验证 |
 | 腾讯 WorkBuddy | [配置 TOMC 本地 MCP 服务](docs/workbuddy_zh.md) | 本地 TOMC 运行环境；客户端工具调用尚未验证 |
-| Claude Desktop | [下载 `.mcpb` 扩展](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-0.1.0.mcpb) | 支持 UV 扩展的新版 Claude Desktop；首次安装需要联网 |
+| Claude Desktop | [下载 `.mcpb` 扩展](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-0.1.1.mcpb) | 支持 UV 扩展的新版 Claude Desktop；首次安装需要联网 |
 | Claude Code | `/plugin marketplace add ZipengWu365/TOMC`，再运行 `/plugin install tomc-memory@tomc`（[说明](docs/assistant_plugin_zh.md#claude-code)） | [`uv`](https://docs.astral.sh/uv/getting-started/installation/)；已在 Claude Code 的 VS Code 扩展中测试 |
 
 <details>
@@ -140,7 +142,7 @@ VS Code 扩展实测中（模型为 Claude Opus 5.5），预算设为 8,192 时�
 
 **已在 Windows、macOS、Linux 和 Claude Code 中实测。** 三个系统都通过了安装和工具检查；Codex（[Windows preview.4](docs/validation.md#windows-codex-preview4)、macOS）和 Claude Code（Claude Opus 5.5）通过了真实模型调用。Claude Desktop、Cursor 和 Codex 桌面应用的图形界面安装仍待验证。[各平台检查记录](docs/platform_checks_zh.md)
 
-[Usage tips (English)](docs/usage_tips.md) · [中文使用技巧](docs/usage_tips_zh.md) · [Windows 安装反馈](docs/windows_installation_feedback_zh.md) · [完整中文安装指南](docs/assistant_plugin_zh.md) · [验证记录](docs/validation.md) · [Claude 校验文件](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-0.1.0.mcpb.sha256) · [Codex 校验文件](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-codex-0.1.0.zip.sha256)。
+[Usage tips (English)](docs/usage_tips.md) · [中文使用技巧](docs/usage_tips_zh.md) · [Windows 安装反馈](docs/windows_installation_feedback_zh.md) · [完整中文安装指南](docs/assistant_plugin_zh.md) · [验证记录](docs/validation.md) · [Claude 校验文件](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-0.1.1.mcpb.sha256) · [Codex 校验文件](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-codex-0.1.1.zip.sha256)。
 
 <a id="switch-assistants"></a>
 
@@ -167,6 +169,10 @@ VS Code 扩展实测中（模型为 Claude Opus 5.5），预算设为 8,192 时�
 </details>
 
 记忆本保留原始笔记和追加更新，取回时为下一步任务准备上下文。共享的是明确保存的笔记，不会迁移原生聊天记录，也不提供跨设备云同步。[MCP 互操作和用户引导检查](docs/validation.md#cross-assistant-notebooks)。
+
+### API 请求循环的自动处理
+
+在已有同步 Chat Completions 调用前使用 [AutomaticChatSession](docs/context_ownership_zh.md)：默认每两次模型请求刷新，缓存模型规格，跨窗口边界短暂避让，原生压缩刚完成后短暂冷却。只改变发送的旧历史视图，原历史、指令、近期消息和工具协议由调用方保留。默认词法打包已修复重复扫描。[模型容量对应表](docs/model_context_limits_20261012.md)。安装 MCP 本身不会拦截客户端内置请求；没有新增原生客户端或真实模型验收声明。
 
 ### 接在你的 API 调用之前
 

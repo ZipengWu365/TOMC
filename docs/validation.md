@@ -2,6 +2,18 @@
 
 These entries record checks performed on the stated revisions. They distinguish local software checks from benchmark reruns, hosted checks and human usability testing.
 
+## Model-aware API request planning and lexical packing — 2026-10-12
+
+Added a locally cached 34-model official-document snapshot, opt-in synchronous Chat Completions request wrapper, one/two-request refresh and native cooldown, and one-shot 50%/90% backoff heuristics. Real host events must be forwarded by a trusted outer integration; enabled flags are not actual compaction. MCP does not install an interceptor.
+
+Offline synthetic/fake-SDK checks cover protected messages and tool pairing, caching/raw increments, counters/cooldown, model-limit semantics, exact option/stream forwarding and unknown-model fallback. The lexical pack fast path retained randomized/alternate-counter behavior and full 20K fixture memory/records. In this synthetic CPU fixture, fast 20K/100K compilation took 0.026/0.293 seconds; the old path took about 1.58/38–47 seconds. These are not paid usage, answer quality or native-client results. Existing frozen experiments remain unchanged. [Policy](context_ownership.md) · [Model table](model_context_limits_20261012.md).
+
+## Host-managed MCP conversation policy — 2026-10-12
+
+Plugin packaging 0.1.1 updates assistant instructions and the Codex skill to leave active-chat compaction with the host when enabled or unknown. TOMC still prepares explicit external history and named notebooks. The compilation algorithms and five tool signatures are unchanged. These are workflow instructions; the server does not detect a host switch or prevent an application from explicitly calling the compiler.
+
+New packages include this policy. Packaging, file integrity and documentation checks are separate from the historical runtime/model results below; there is no new native-client or model acceptance claim. [Context ownership](context_ownership.md) · [中文说明](context_ownership_zh.md).
+
 ## Tencent WorkBuddy configuration preview — 2026-10-12
 
 Added `setup --client workbuddy` to the source checkout, an explicit STDIO JSON template, and English/Chinese local MCP setup guides. The helper prints the installed interpreter and chosen store path without modifying client settings. The locked UV template uses the shared runtime already in the repository.

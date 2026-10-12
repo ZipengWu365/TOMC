@@ -1,9 +1,13 @@
 ---
 name: tomc-memory
-description: Prepare task-specific context from supplied history with TOMC before continuing a task or making a model request. Optionally save and recall named notebooks when the user asks to carry history across chats.
+description: Prepare task-specific context from separately supplied external history or files with TOMC for an explicit next task. Optionally save and recall named notebooks when the user asks to carry supplied history across chats. The host manages current conversation context.
 ---
 
-Use TOMC to prepare the context needed for the user's next task.
+**Context ownership (default: host-managed).** The host owns the active conversation and its native compaction. Do not proactively call `prepare_context` to compress or summarize the current conversation, including before or after native compaction. If the host's compaction behavior is unknown, skip proactive conversation compression and leave context management to the host. Do not disable host compaction, replace system or tool messages, or describe this skill as a per-call hook.
+
+For an explicit task involving separately supplied external history, a file, or a named notebook, the existing `prepare_context` and `recall_memory` workflows remain available. Use that external input or notebook; do not automatically collect or append the active conversation as its history.
+
+Use TOMC for the external history, file or notebook needed for the user's explicit next task.
 
 - Call `prepare_context` with the supplied `history`, the user's actual next `task`, and a memory `budget`. It prepares context without saving. Use the returned memory as evidence for that task and inspect retained sources when needed.
 - Supported state, relation and count operations can produce task records; other prose can be retained through retrieval. Do not invent records or treat preparation as proof that every relevant detail was kept. If no complete record fits, explain that a larger budget is needed.

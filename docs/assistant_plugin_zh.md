@@ -6,6 +6,8 @@ TOMC 按任务准备上下文，让你用结果替换较长的历史。传入历
 
 安装后调用 `prepare_context`，检查结果，再用于新聊天或应用请求。短历史可以保持原样；记录与提示开销有时会增加输入。编译器本身不保存历史，记忆本是可选功能。直接接入请求可参考 [Python API](api_reference.md#prepare-context-before-your-api-call)。
 
+当前聊天默认由宿主负责压缩；原生压缩处于启用或未知状态时，不主动让 TOMC 再压同一聊天。外部历史处理和显式记忆本工作流继续可用。这是插件的助手调用规则，不是已安装的自动检测器或请求 hook。[上下文归属](context_ownership_zh.md)。
+
 ## 选择安装方式
 
 | 客户端 | 安装方式 | 当前范围 |
@@ -17,7 +19,7 @@ TOMC 按任务准备上下文，让你用结果替换较长的历史。传入历
 | 腾讯 WorkBuddy | [添加本地 MCP 服务](workbuddy_zh.md) | 手动配置预览；客户端工具调用尚未验证 |
 | Codex | 运行 ZIP 内的安装助手 | preview.4 已通过 Windows 个人配置中的原生安装与默认模型调用；此前 macOS 试用使用 preview.2 |
 
-从[MIT 许可插件预览包](https://github.com/ZipengWu365/TOMC/tree/main/plugins/downloads)下载：[Claude `.mcpb`](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-0.1.0.mcpb)（[校验文件](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-0.1.0.mcpb.sha256)）、[Codex ZIP](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-codex-0.1.0.zip)（[校验文件](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-codex-0.1.0.zip.sha256)）。这些包于 2026-10-10 按 MIT 许可重新构建；旧 Release 文件及已有验证记录保留历史内容。
+从[MIT 许可插件预览包](https://github.com/ZipengWu365/TOMC/tree/main/plugins/downloads)下载：[Claude `.mcpb`](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-0.1.1.mcpb)（[校验文件](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-0.1.1.mcpb.sha256)）、[Codex ZIP](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-codex-0.1.1.zip)（[校验文件](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-codex-0.1.1.zip.sha256)）。插件打包版本 0.1.1 新增宿主管理当前会话的调用规则；编译核心仍为 0.1.0。旧 0.1.0 包及已有宿主/模型验证记录保留历史范围。
 
 尚未发布到 PyPI 或公开插件市场。新版本需要手动重新安装。[Claude 官方安装与私下分发说明](https://support.claude.com/en/articles/10949351-getting-started-with-local-mcp-servers-on-claude-desktop)
 
@@ -47,13 +49,13 @@ python -m pip install -e '.[mcp]'
 
 ## Claude Desktop
 
-本地构建的安装候选包位于 `outputs/plugins/tomc-memory-0.1.0.mcpb`。它带有 TOMC 源码，采用官方 MCPB UV runtime，由支持该运行方式的客户端管理 Python 和依赖，创建独立环境。首次安装需要联网下载，并非离线安装包；用户不必先手动安装 Python。[官方 UV 安装包示例](https://github.com/modelcontextprotocol/mcpb/tree/main/examples/hello-world-uv)
+本地构建的安装候选包位于 `outputs/plugins/tomc-memory-0.1.1.mcpb`。它带有 TOMC 源码，采用官方 MCPB UV runtime，由支持该运行方式的客户端管理 Python 和依赖，创建独立环境。首次安装需要联网下载，并非离线安装包；用户不必先手动安装 Python。[官方 UV 安装包示例](https://github.com/modelcontextprotocol/mcpb/tree/main/examples/hello-world-uv)
 
 维护者可以在仓库中构建和检查：
 
 ```bash
 python scripts/build_plugin.py
-python scripts/plugin_smoke.py outputs/plugins/tomc-memory-0.1.0.mcpb
+python scripts/plugin_smoke.py outputs/plugins/tomc-memory-0.1.1.mcpb
 ```
 
 第二条命令需要 `uv` 和 MCP 测试客户端（`.[mcp]`）。它在仓库外解压安装包并启动锁定的运行环境，不会安装到助手中，也不会更改助手配置。分享时提供 `.mcpb` 文件及其 `.sha256` 校验文件；不要把自己电脑生成的 Cursor 路径链接当成可移植安装包。
@@ -82,7 +84,7 @@ python scripts/plugin_smoke.py outputs/plugins/tomc-memory-0.1.0.mcpb
 
 Claude Code 不能直接安装 `.mcpb` 文件，但可以把包里同一套锁定环境作为本地 stdio MCP 服务启动。
 
-1. 下载 `tomc-memory-0.1.0.mcpb`，核对 SHA-256，再解压（它是 ZIP 格式）到一个会长期保留的目录。
+1. 下载 `tomc-memory-0.1.1.mcpb`，核对 SHA-256，再解压（它是 ZIP 格式）到一个会长期保留的目录。
 2. 安装 [UV](https://docs.astral.sh/uv/getting-started/installation/)，确保 `uv` 在 PATH 中，再运行下文的命令。将示例路径替换为实际解压目录；路径包含空格时保留引号。
 3. 运行 `uv sync --locked --directory "/absolute/path/to/extracted"`，安装锁定的依赖。
 4. 注册服务，在所有项目中可用：
@@ -146,7 +148,7 @@ Cursor 官方支持安装链接，但这个链接只添加 MCP 配置，不负�
 
 ## Codex
 
-安装候选包位于 `outputs/plugins/tomc-memory-codex-0.1.0.zip`。它包含 `.agents/plugins/marketplace.json` 本地市场目录、`install.py` 安装助手，以及 `plugins/tomc-memory/` 插件：其中有官方支持的 `.codex-plugin/plugin.json` 兼容 manifest、与 Claude 包相同的锁定 TOMC 运行环境和记忆 skill。兼容 manifest 声明随包提供的工具和 skill，安装助手则为当前安装生成启动路径。可以私下分享原始 ZIP，这并不意味着 TOMC 已上线公开插件目录。[OpenAI 官方插件打包与本地市场说明](https://developers.openai.com/plugins/build/plugins)
+安装候选包位于 `outputs/plugins/tomc-memory-codex-0.1.1.zip`。它包含 `.agents/plugins/marketplace.json` 本地市场目录、`install.py` 安装助手，以及 `plugins/tomc-memory/` 插件：其中有官方支持的 `.codex-plugin/plugin.json` 兼容 manifest、与 Claude 包相同的锁定 TOMC 运行环境和记忆 skill。兼容 manifest 声明随包提供的工具和 skill，安装助手则为当前安装生成启动路径。可以私下分享原始 ZIP，这并不意味着 TOMC 已上线公开插件目录。[OpenAI 官方插件打包与本地市场说明](https://developers.openai.com/plugins/build/plugins)
 
 维护者可以在仓库中运行 `python scripts/build_codex_plugin.py` 构建候选包，再分享 ZIP 及其 `.sha256` 校验文件。
 

@@ -1,3 +1,18 @@
+# Assistant workflow policy update — 2026-10-12
+
+Plugin packaging **0.1.1** includes the host-managed active-chat policy. When native compaction is enabled or unknown, the assistant should leave that chat with the host. TOMC remains available for external task evidence and explicitly saved notebooks. This is assistant guidance, not a compaction-switch detector, automatic request hook or runtime prohibition. The compiler core remains 0.1.0.
+
+| Current package | Download | SHA-256 |
+|---|---|---|
+| Codex native plugin 0.1.1 | [ZIP](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-codex-0.1.1.zip) | [Checksum](tomc-memory-codex-0.1.1.zip.sha256) |
+| Claude MCP runtime 0.1.1 | [MCPB](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-0.1.1.mcpb) | [Checksum](tomc-memory-0.1.1.mcpb.sha256) |
+
+Update the plugin and start a new assistant session to load the new instructions. Keep notebook databases separate from installation files. No new GUI or model acceptance result is asserted; historical evidence retains its stated versions. [Context ownership](../../docs/context_ownership.md) · [中文说明](../../docs/context_ownership_zh.md) · [Build receipt](context_policy_build_receipt_20261012.json).
+
+The runtime also includes the opt-in API request-loop helper and output-equivalent lexical packing optimization. This helper requires a caller-controlled SDK entry point; MCP itself remains explicit tool use. [Request policy](../../docs/context_ownership.md).
+
+Earlier 0.1.0 packages are preserved unchanged below.
+
 # MIT-licensed assistant preview · 2026-10-10
 
 These TOMC v0.1.0 packages were rebuilt after the copyright holder authorized the MIT License on 2026-10-10. They include the MIT license text and updated package documentation. The source remains a research preview; dated host/model validation is recorded in [validation](../../docs/validation.md).
