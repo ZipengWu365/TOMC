@@ -42,7 +42,11 @@ This is a preview, version **0.1.0**. Download the plugins from the [MIT-license
 
 [Landscape video](launch/media/v12/videos/TOMC_Agent_Complete_EN.mp4) · [Chinese video](launch/media/v12/videos/TOMC_Agent_Complete_ZH.mp4) · [Media and test scope](launch/media/v12/README.md)
 
-The ending labels **models tested with TOMC** and explains their use: API models receive prepared context; Codex and Claude Code call TOMC tools. The list includes DeepSeek 4.1 Flash, DeepSeek 4 PRO, Rednote Red preview, Claude Opus 5.5 and ChatGPT Codex 6.1 Sol. The five-model list combines recorded tests and the author's reported tests; the demo's token and cost measurements retain their separate protocols. It does not imply a uniform five-model benchmark or provider endorsement.
+**What the demo illustrates:** Context is prepared for the *next* API request, or explicitly saved as task notes for a later assistant session. Codex and Claude Code call TOMC tools; API integrations send the prepared output themselves. The model names in the video combine recorded and author-reported tests, not a uniform multi-model benchmark or provider endorsements.
+
+**Results you can audit:** The Windows Codex synthetic latest-state test answered **45/45** items with a **29.7% mean reduction in total request input** at the 40%-history budget ([protocol and raw records](docs/codex_retention_20261005.md)). A separate Claude Code synthetic-history test answered **5/5** latest-state questions with **59% lower answering-request cost** for a ~40K-token history at the 40% budget ([validation](docs/validation.md#claude-code-windows-validation)). Neither figure establishes savings across complete coding-agent sessions.
+
+**Try it:** [First-run guide](#first-run-tomc) · [Python API](#use-before-your-api-call) · [Full results and limitations](#measured-savings).
 
 TOMC is a research preview. Feedback, issues, pull requests and research collaboration are welcome. Device choice and assistant choice are independent; cross-device notebook transfer uses manual Git.
 
@@ -51,6 +55,56 @@ TOMC is a research preview. Feedback, issues, pull requests and research collabo
 Choose the setup for your client. TOMC prepares context locally on CPU; your assistant generates the answer. The plugin itself needs no additional model API key or GPU.
 
 **The host manages the active chat.** When Codex, Claude Code or another host owns conversation compaction, TOMC does not proactively recompact that chat. Unknown host state also defaults to host ownership. Use TOMC for separately supplied external history or explicitly saved notes. This is a tool-use policy, not an automatic compaction detector. [Context ownership](docs/context_ownership.md). Plugin packages 0.1.1 include this policy; the compiler core remains 0.1.0.
+
+<a id="first-run-tomc"></a>
+
+#### First run — choose the path that fits your workflow
+
+**Claude Code: save one note, then recall it in a new chat.** Install [UV](https://docs.astral.sh/uv/getting-started/installation/) first. In Claude Code, run:
+
+```text
+/plugin marketplace add ZipengWu365/TOMC
+/plugin install tomc-memory@tomc
+```
+
+Start a new session or reload VS Code and check `/mcp` for `plugin:tomc-memory:tomc`. Ask the assistant explicitly to run the tool:
+
+```text
+Use TOMC's remember_memory to save a note named api-refactor:
+keep public API routes unchanged; pagination tests have not been written.
+Show the tool result.
+```
+
+In a **new chat using the same local notebook database**, ask:
+
+```text
+Use TOMC's recall_memory on api-refactor.
+Report the saved constraints and unfinished work. Show the tool result.
+```
+
+This tests **explicit** save/recall, not automatic recording of active chats. [Detailed Claude Code setup](docs/assistant_plugin.md#claude-code) · [Shared-notebook checks](docs/usage_tips.md#reuse-notebooks).
+
+**Codex CLI: install the plugin and verify tool availability.** [Download the 0.1.1 Codex ZIP](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-codex-0.1.1.zip), extract it into a directory you will keep, and run there with UV and a compatible Codex CLI:
+
+```bash
+uv run --no-project --python 3.12 install.py --check
+uv run --no-project --python 3.12 install.py
+```
+
+The first command checks prerequisites without changing Codex configuration. Start a **new Codex session** after installing and explicitly ask it to save/recall a named note. [Full Codex instructions](docs/assistant_plugin.md#codex) · [Platform validation](docs/platform_checks.md).
+
+**Python API: inspect an offline context example before calling a model.** With Python 3.10+:
+
+```bash
+git clone https://github.com/ZipengWu365/TOMC.git
+cd TOMC
+python -m pip install -e .
+python examples/api_context.py
+```
+
+This example prepares and counts context locally; it makes **no model call**. To integrate TOMC, send `prepared.messages` **in place of** the original history, preserving your application's instructions and protocol. [API example](#use-before-your-api-call) · [Reference](docs/api_reference.md).
+
+#### Other client integrations
 
 | Client | Start here | Prerequisites |
 |---|---|---|
