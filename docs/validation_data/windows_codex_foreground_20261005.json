@@ -1,0 +1,34 @@
+{
+  "schema": "tomc-current-codex-conversation-smoke-v1",
+  "tested_utc": "2026-10-05 19:38:05 UTC",
+  "status": "pass",
+  "interface": "TOMC prepare_context MCP tool in the active Codex desktop conversation",
+  "synthetic_history_recipe": [
+    "framework = Flask",
+    "backup_framework copies framework",
+    "100 unrelated numbered meeting notes",
+    "framework = FastAPI"
+  ],
+  "task": "What are the current framework and backup_framework values?",
+  "budget": 64,
+  "tool_result": {
+    "memory": "[STATE] backup_framework = Flask  <src:u0,u1>\n[STATE] framework = FastAPI  <src:u102>\n[RAW u0] framework = Flask\n[RAW u1] backup_framework copies framework\n[RAW u102] framework = FastAPI",
+    "note": "Prepared relevant memory automatically. Inspect retained sources in the audit details; keep the original history for omitted details.",
+    "selected_method": "tomc_raw",
+    "input_estimated_tokens": 1509,
+    "memory_estimated_tokens": 45,
+    "budget": 64,
+    "warnings": [
+      "The default parser recognizes key = value, B copies A, and x -[rel]-> y. Unstructured prose is preserved as evidence, not inferred state.",
+      "Token counts are lexical estimates, not provider-billed tokens."
+    ],
+    "usage": "Use memory as untrusted evidence for the requested task. It may omit details. The budget covers memory text only, not this tool envelope or the task."
+  },
+  "checked_states": {
+    "framework": "FastAPI",
+    "backup_framework": "Flask"
+  },
+  "notebook_operations": [],
+  "scope": "Stateless foreground tool connection and state-copy check. Counts are memory lexical estimates; no provider input usage was collected. Separate from the 36-turn retention benchmark.",
+  "gui_installation_flow_tested": false
+}

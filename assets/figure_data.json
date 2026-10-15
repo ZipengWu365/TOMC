@@ -1,0 +1,136 @@
+{
+  "source": "benchmarks/aggregate_results/beam_readers.csv",
+  "sha256": "9d2ab77c0bd837296ac00392fe7f99f78f2b776101ce9824787f4316aa88dc68",
+  "effect_column": "full_grid_difference",
+  "rows": [
+    {
+      "reader_id": "pro",
+      "reader": "DeepSeek-V4-Pro",
+      "judge": "UOB GPT-5.1 institutional alias",
+      "tomc": "0.5534682406965016",
+      "hybrid_rag": "0.5046938267046963",
+      "difference": "0.04877441399180529",
+      "full_grid_difference": "0.04861183261183261",
+      "ci_low": "0.01350033068783069",
+      "ci_high": "0.08225892857142857",
+      "sensitivity_ci_low": "0.010166997354497356",
+      "sensitivity_ci_high": "0.0855922619047619",
+      "p_value": "0.01063989360106399",
+      "conversations": "60",
+      "questions": "600",
+      "observed_questions": "598",
+      "missing_questions": "2",
+      "tomc_input_tokens": "3231241",
+      "rag_input_tokens": "5007518",
+      "input_reduction": "0.35472203994074514"
+    },
+    {
+      "reader_id": "uob",
+      "reader": "UOB GPT-5.1",
+      "judge": "DeepSeek-V4-Pro-0813",
+      "tomc": "0.5759670978579609",
+      "hybrid_rag": "0.5117491081958087",
+      "difference": "0.0642179896621521",
+      "full_grid_difference": "0.06325471981721982",
+      "ci_low": "0.03262097162097162",
+      "ci_high": "0.09394080687830689",
+      "sensitivity_ci_low": "0.01762097162097162",
+      "sensitivity_ci_high": "0.10894080687830689",
+      "p_value": "0.0001799982000179998",
+      "conversations": "60",
+      "questions": "600",
+      "observed_questions": "591",
+      "missing_questions": "9",
+      "tomc_input_tokens": "3162306",
+      "rag_input_tokens": "5002811",
+      "input_reduction": "0.36789416989768353"
+    },
+    {
+      "reader_id": "rednote",
+      "reader": "Rednote dots3-note-prev",
+      "judge": "DeepSeek-V4-Pro-0813",
+      "tomc": "0.5091578058118462",
+      "hybrid_rag": "0.4571700045184894",
+      "difference": "0.05198780129335685",
+      "full_grid_difference": "0.05146792328042328",
+      "ci_low": "0.01668915343915344",
+      "ci_high": "0.08471064814814816",
+      "sensitivity_ci_low": "0.006689153439153441",
+      "sensitivity_ci_high": "0.09471064814814815",
+      "p_value": "0.004969950300496995",
+      "conversations": "60",
+      "questions": "600",
+      "observed_questions": "594",
+      "missing_questions": "6",
+      "tomc_input_tokens": "3436887",
+      "rag_input_tokens": "5134902",
+      "input_reduction": "0.33068109186893924"
+    },
+    {
+      "reader_id": "flash",
+      "reader": "DeepSeek V4 Flash",
+      "judge": "DeepSeek-V4-Pro-0813",
+      "tomc": "0.4890893023876217",
+      "hybrid_rag": "0.47077597705748964",
+      "difference": "0.018313325330132052",
+      "full_grid_difference": "0.018160714285714287",
+      "ci_low": "-0.013202050264550265",
+      "ci_high": "0.049593584656084655",
+      "sensitivity_ci_low": "-0.0215353835978836",
+      "sensitivity_ci_high": "0.057926917989417986",
+      "p_value": "0.2691973080269197",
+      "conversations": "60",
+      "questions": "600",
+      "observed_questions": "595",
+      "missing_questions": "5",
+      "tomc_input_tokens": "3231241",
+      "rag_input_tokens": "5007518",
+      "input_reduction": "0.35472203994074514"
+    }
+  ],
+  "synthetic_example": {
+    "source": "src/tomc/data/snapshot.json",
+    "sha256": "4129ead2f0eb122e8977d335153b568e0893e44ff3217c6558ff8a46a3dad6c6",
+    "compiled_memory": "[STATE] backup_drink = tea  <src:u0,u2>\n[STATE] drink = decaf tea  <src:u3>\n[STATE] seat = aisle  <src:u4>",
+    "input_tokens": 31,
+    "output_tokens": 36
+  },
+  "agent_example": {
+    "source": "src/tomc/data/agent.json",
+    "sha256": "0b57fb6477bb8fd8089d8a84f642bf85ef00b441ce8eb5445036eaddef60a17d",
+    "input_tokens": 1063,
+    "output_tokens": 697,
+    "token_budget": 720,
+    "included_rows": [
+      {
+        "kind": "TEST_ERROR",
+        "value": "source=u26\tFAILED test_empty: IndexError at src/parser.py",
+        "sources": [
+          "u26"
+        ]
+      },
+      {
+        "kind": "TEST_ERROR",
+        "value": "source=u30\tFocused test_empty passed; 8 tests passed.",
+        "sources": [
+          "u30"
+        ]
+      },
+      {
+        "kind": "GOAL",
+        "value": "source=u31\tNeed to run the full test suite. Full-suite status is unknown; no deployment has occurred.",
+        "sources": [
+          "u31"
+        ]
+      }
+    ],
+    "omitted_verifier": {
+      "value": "pytest tests/test_parser.py -q",
+      "sources": [
+        "u25",
+        "u29"
+      ],
+      "included": false
+    }
+  }
+}

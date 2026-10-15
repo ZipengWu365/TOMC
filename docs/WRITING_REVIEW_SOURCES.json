@@ -1,0 +1,88 @@
+{
+  "verified_at_utc": "2026-10-01T12:54:44Z",
+  "demo_repository": "ZipengWu365/TOMC",
+  "demo_remote_branch": "main",
+  "demo_remote_commit": "a1f93cae82eb166bf18f016bd40378cdf1d17b70",
+  "paper_repository": "private manuscript repository",
+  "paper_remote_branch": "main",
+  "paper_remote_commit": "7399657a2b96ad4d2d6dcfe0c993d04a98ad6b7d",
+  "writing_authority": {
+    "file": "final 20-page manuscript PDF (local)",
+    "sha256": "f336e8e5d730ab116d494e82656c1c1a470900f4a5af419201ee7019a378d1ed",
+    "pages": 20,
+    "tomc2_occurrences": 0
+  },
+  "remote_pdf_comparison": {
+    "file": "main.pdf",
+    "commit": "7399657a2b96ad4d2d6dcfe0c993d04a98ad6b7d",
+    "sha256": "6b2f2287981305026ecc6fec23d9ccac3d73589bec2ecdf7ec661ceeef6dbd2c",
+    "pages": 28,
+    "tomc2_occurrences": 0,
+    "note": "This older PDF differs from the final manuscript PDF and is not the writing authority."
+  },
+  "result_provenance": "PAPER_SCOPE_SOURCES.json and benchmarks/current_paper/manifest.json retain the original exported-data provenance.",
+  "scope": "Demo writing and default-flow alignment; no manuscript edits, benchmark reruns or PDF redistribution.",
+  "positioning_review": {
+    "verified_at_utc": "2026-10-02T16:42:38.153978+00:00",
+    "demo_remote_commit_before_review": "37d1e55859f111caf06728ac942d03cf3b4ce89d",
+    "paper_remote_commit_after_fetch": "7399657a2b96ad4d2d6dcfe0c993d04a98ad6b7d",
+    "paper_remote_status": "Older writing version; not substituted for the local final manuscript PDF",
+    "writing_authority": {
+      "file": "final 20-page manuscript PDF (local)",
+      "sha256": "f336e8e5d730ab116d494e82656c1c1a470900f4a5af419201ee7019a378d1ed",
+      "pages": 20,
+      "tomc2_occurrences": 0
+    },
+    "pdf_creation_utc": "2026-09-26T09:53:13Z",
+    "pdf_creation_london": "2026-09-26T10:53:13+01:00",
+    "manuscript_record": "the author's local record names this newest timestamped file",
+    "reading_scope": "All 20 pages; main-paper mechanism, result boundaries and implementation appendices",
+    "core_definition": "Section 3.1: Compress(M, q, B); Sections 3.2-3.4: supported task records combined with selected source text",
+    "integration_boundary": "Stateless context compiler; local notebook persistence is one optional history source for MCP tools",
+    "scope": "Demo product positioning and local Windows checks; no manuscript edits, benchmark reruns or PDF redistribution",
+    "windows_validation": {
+      "desktop_codex_version": "0.159.2",
+      "profile": "Existing personal profile; original model, provider and ChatGPT login",
+      "runtime": "Original downloaded assistant-preview package; temporary MCP registration",
+      "tool_exposure": "Temporary direct-only mcp__tomc namespace required",
+      "compilation_example": "One model-selected prepare_context call; 64-token lexical memory budget; two state records and source text; correct answer; no saved history",
+      "optional_notebook_trial": "Two distinct ephemeral model threads; complete host restart and deletion verified",
+      "limitations": "No persistent installation or client GUI acceptance; no general compression or quality claim",
+      "receipts": "Local diagnostic reports under outputs/plugin_user_trial_20261002; summarized in docs/validation.md"
+    }
+  },
+  "api_product_revision": {
+    "verified_at_utc": "2026-10-02T18:08:15.584978+00:00",
+    "base_commit": "4ad3b747ff751a40e4e71bb2107a08dd31e6d4b3",
+    "writing_authority": "The same final 20-page manuscript PDF named above; no manuscript edits",
+    "product_value": "Task-oriented compression before the next LLM API request; prepared messages replace original history",
+    "integration_limit": "MCP exposes tools; it does not intercept all API calls or delete existing host messages",
+    "example": "The README six-line migration history, original question and a 64-token lexical memory budget",
+    "message_content_counts": {
+      "lexical_estimate": [
+        138,
+        90
+      ],
+      "cl100k_base": [
+        147,
+        108
+      ]
+    },
+    "count_scope": "Same system/task framing; text only, excluding provider chat framing, tool schemas and hidden tokens; no reader calls",
+    "assistant_release": "v0.1.0-assistant-preview.2",
+    "previous_model_trials": "preview.1; preview.2 has separate package/runtime checks and no new model/GUI acceptance",
+    "science_protection": "The manuscript comparisons, frozen scores and compiler operations are unchanged"
+  },
+  "macos_assistant_trial": {
+    "date": "2026-10-02",
+    "tested_release": "v0.1.0-assistant-preview.2",
+    "environment": "macOS 26.3 arm64; Codex CLI 0.159.2",
+    "native_cli_install": "pass; packaged installer registered and enabled the plugin",
+    "native_model_call": "prepare_context succeeded; current FastAPI and copied Flask snapshot correct",
+    "demo_browser": "Try demo and manual Chinese-task Prepare passed",
+    "limits": "Codex, Claude Desktop and Cursor GUI installation unvalidated; Windows trials remain separately recorded",
+    "evidence": "docs/validation/macos-20261002-preview2.json",
+    "screenshot": "docs/assets/macos_demo_20261002.jpg",
+    "subsequent_release": "v0.1.0-assistant-preview.3; installer preflight and runtime cache isolation improvements"
+  }
+}

@@ -1,0 +1,76 @@
+{
+  "date": "2026-10-02",
+  "release": "v0.1.0-assistant-preview.3",
+  "environment": "macOS 26.3 arm64; stock installer Python 3.9.6; runtime Python 3.12.14; UV 0.12.22; Codex CLI 0.159.2",
+  "checks": {
+    "installer": {
+      "status": "pass",
+      "bootstrap_python": "3.9.6",
+      "preflight_unchanged_mcp_json": true,
+      "configure_only": "pass; no plugin registration",
+      "path_with_spaces_and_chinese": true
+    },
+    "codex_runtime": {
+      "status": "pass",
+      "tools": [
+        "forget_memory",
+        "list_memories",
+        "prepare_context",
+        "recall_memory",
+        "remember_memory"
+      ],
+      "checks": [
+        "configured Codex ZIP MCP launch",
+        "spaces and Chinese in extracted path",
+        "Chinese-task preparation",
+        "correct FastAPI current state and Flask copy snapshot"
+      ],
+      "native_gui": "not tested",
+      "model_call": "historical preview.2 only; no new model request in this runtime check"
+    },
+    "mcpb_runtime": {
+      "status": "pass",
+      "bundle": "tomc-memory-0.1.0.mcpb",
+      "tools": [
+        "forget_memory",
+        "list_memories",
+        "prepare_context",
+        "recall_memory",
+        "remember_memory"
+      ],
+      "checks": "locked isolated runtime; Chinese notes; restart recall; notebook isolation; prepare; delete; external database; path with spaces and Chinese",
+      "elapsed_seconds": 3.14,
+      "desktop_gui": "not tested; requires Claude Desktop or Cursor on the target machine"
+    },
+    "pytest": "142 passed (includes 14 macOS installer/environment cases and 2 concurrently submitted archive metadata cases)",
+    "ruff": "lint passed; 106 files formatted",
+    "mkdocs": "strict build passed",
+    "python_package": "sdist and wheel built",
+    "research_data": "current and historical frozen reports verified; no reader API calls"
+  },
+  "artifacts": {
+    "codex": {
+      "artifact": "tomc-memory-codex-0.1.0.zip",
+      "bytes": 90444,
+      "sha256": "8db8ac312d6dd5e8b07a28cc66f98027a852fbec5de447ba682363acc9bf9a10",
+      "files": 41,
+      "runtime": "Codex native plugin; UV is required on PATH or supplied with --uv",
+      "status": "private candidate; no public directory or model-driven acceptance"
+    },
+    "claude": {
+      "artifact": "tomc-memory-0.1.0.mcpb",
+      "bytes": 84418,
+      "sha256": "83b1e3893d291e910f760d6f9ae091a692749e80a89bae8bb409d5e497b5528e",
+      "files": 37,
+      "runtime": "MCPB 0.4 UV; first installation downloads Python and dependencies",
+      "status": "private installation candidate; desktop GUI acceptance pending"
+    }
+  },
+  "boundaries": [
+    "Updated helpers checked with --check and --configure-only; no permanent plugin reinstallation was performed.",
+    "Actual native model tool call is recorded against downloaded preview.2, not claimed for this subsequent package.",
+    "Native GUI and macOS Claude Code installation are unvalidated.",
+    "New macOS CI jobs were configured; their first remote run is tracked separately.",
+    "Existing Windows Claude Code report is preserved without changing its measurements."
+  ]
+}

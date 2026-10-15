@@ -1,0 +1,86 @@
+{
+  "id": "constraints",
+  "title": "02 / Moving constraints · 任务约束",
+  "messages": [
+    {
+      "role": "user",
+      "content": "Draft a workshop itinerary.\nduration = 3 days\nformat = in person\nparticipants = 20\nvenue = north hall"
+    },
+    {
+      "role": "assistant",
+      "content": "Planning note 1: The agenda contains introductions, a shared exercise, a break, and a discussion. A draft slide layout is ready. The timetable is still provisional."
+    },
+    {
+      "role": "assistant",
+      "content": "Planning note 2: The agenda contains introductions, a shared exercise, a break, and a discussion. A draft slide layout is ready. The timetable is still provisional."
+    },
+    {
+      "role": "assistant",
+      "content": "Planning note 3: The agenda contains introductions, a shared exercise, a break, and a discussion. A draft slide layout is ready. The timetable is still provisional."
+    },
+    {
+      "role": "assistant",
+      "content": "Planning note 4: The agenda contains introductions, a shared exercise, a break, and a discussion. A draft slide layout is ready. The timetable is still provisional."
+    },
+    {
+      "role": "assistant",
+      "content": "Planning note 5: The agenda contains introductions, a shared exercise, a break, and a discussion. A draft slide layout is ready. The timetable is still provisional."
+    },
+    {
+      "role": "assistant",
+      "content": "Planning note 6: The agenda contains introductions, a shared exercise, a break, and a discussion. A draft slide layout is ready. The timetable is still provisional."
+    },
+    {
+      "role": "assistant",
+      "content": "Planning note 7: The agenda contains introductions, a shared exercise, a break, and a discussion. A draft slide layout is ready. The timetable is still provisional."
+    },
+    {
+      "role": "assistant",
+      "content": "Planning note 8: The agenda contains introductions, a shared exercise, a break, and a discussion. A draft slide layout is ready. The timetable is still provisional."
+    },
+    {
+      "role": "assistant",
+      "content": "Planning note 9: The agenda contains introductions, a shared exercise, a break, and a discussion. A draft slide layout is ready. The timetable is still provisional."
+    },
+    {
+      "role": "assistant",
+      "content": "Planning note 10: The agenda contains introductions, a shared exercise, a break, and a discussion. A draft slide layout is ready. The timetable is still provisional."
+    },
+    {
+      "role": "assistant",
+      "content": "Planning note 11: The agenda contains introductions, a shared exercise, a break, and a discussion. A draft slide layout is ready. The timetable is still provisional."
+    },
+    {
+      "role": "assistant",
+      "content": "Planning note 12: The agenda contains introductions, a shared exercise, a break, and a discussion. A draft slide layout is ready. The timetable is still provisional."
+    },
+    {
+      "role": "assistant",
+      "content": "Planning note 13: The agenda contains introductions, a shared exercise, a break, and a discussion. A draft slide layout is ready. The timetable is still provisional."
+    },
+    {
+      "role": "assistant",
+      "content": "Planning note 14: The agenda contains introductions, a shared exercise, a break, and a discussion. A draft slide layout is ready. The timetable is still provisional."
+    },
+    {
+      "role": "assistant",
+      "content": "Planning note 15: The agenda contains introductions, a shared exercise, a break, and a discussion. A draft slide layout is ready. The timetable is still provisional."
+    },
+    {
+      "role": "assistant",
+      "content": "Planning note 16: The agenda contains introductions, a shared exercise, a break, and a discussion. A draft slide layout is ready. The timetable is still provisional."
+    },
+    {
+      "role": "user",
+      "content": "duration = 2 days\nformat = hybrid\nparticipants = 35"
+    },
+    {
+      "role": "user",
+      "content": "venue = online\nformat = remote\nbackup_venue copies venue"
+    }
+  ],
+  "query": "What are the current duration, format, participants and venue constraints?",
+  "strategy": "tomc",
+  "budget": 240,
+  "note": "Earlier constraints should not overwrite later assignments."
+}

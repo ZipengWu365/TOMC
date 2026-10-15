@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="640" viewBox="0 0 1280 640" role="img" aria-labelledby="title desc">
+<title id="title">TOMC: LLM memory. State you can trace.</title>
+<desc id="desc">A synthetic snapshot copy keeps tea after drink changes to decaf tea. Real compiler output with provenance; metadata expands this tiny input.</desc>
+<style>text { font-family: Arial, sans-serif; fill: #172a27; } .micro { font-size: 12px; letter-spacing: 1px; fill: #506558; } .code { font: 17px monospace; } .value { font-size: 21px; font-weight: bold; fill: #1b604a; }</style>
+<rect width="1280" height="640" fill="#f5f4ed"/>
+<path d="M56 52H1224" stroke="#c6d4c7"/>
+<text x="56" y="38" font-size="24" font-weight="bold">TOMC</text>
+<text x="1224" y="36" text-anchor="end" class="micro">CPU ONLY / NO MODEL / NO API KEY</text>
+<text x="56" y="112" font-size="46" font-weight="bold" letter-spacing="-2">LLM memory. State you can trace.</text>
+<text x="56" y="150" font-size="19">Compile memory for the task. This state example keeps update and snapshot evidence.</text>
+<text x="56" y="204" class="micro">01 / HISTORY</text>
+<text x="626" y="204" class="micro">02 / COMPILED MEMORY</text>
+<rect x="56" y="220" width="508" height="300" rx="8" fill="#fffef9" stroke="#c6d4c7"/>
+<rect x="626" y="220" width="598" height="300" rx="8" fill="#fffef9" stroke="#c6d4c7"/>
+<text x="80" y="260" class="micro">01 / UPDATE</text><text x="80" y="283" class="code">drink = tea</text><text x="80" y="304" class="code">seat = window</text><text x="80" y="337" class="micro">02 / UPDATE</text><text x="80" y="360" class="code">backup_drink copies drink</text><text x="80" y="414" class="micro">03 / UPDATE</text><text x="80" y="437" class="code">drink = decaf tea</text><text x="80" y="458" class="code">seat = aisle</text><rect x="650" y="249" width="548" height="72" rx="6" fill="#edf2ea"/><text x="668" y="275" class="code">backup_drink</text><text x="1178" y="275" text-anchor="end" class="value">tea</text><text x="668" y="301" class="micro">SOURCE u0, u2</text><rect x="650" y="331" width="548" height="72" rx="6" fill="#edf2ea"/><text x="668" y="357" class="code">drink</text><text x="1178" y="357" text-anchor="end" class="value">decaf tea</text><text x="668" y="383" class="micro">SOURCE u3</text><rect x="650" y="413" width="548" height="72" rx="6" fill="#edf2ea"/><text x="668" y="439" class="code">seat</text><text x="1178" y="439" text-anchor="end" class="value">aisle</text><text x="668" y="465" class="micro">SOURCE u4</text>
+<text x="588" y="380" font-size="30" text-anchor="middle" fill="#1b604a">→</text>
+<text x="56" y="558" font-size="15">A copy preserves the value at that moment. Open a state row in the demo to inspect its sources.</text>
+<text x="56" y="587" font-size="12" fill="#506558">Synthetic normalized operations · 31 → 36 estimated tokens · provenance adds overhead on this tiny input.</text>
+<text x="56" y="618" class="micro">github.com/ZipengWu365/TOMC</text>
+</svg>

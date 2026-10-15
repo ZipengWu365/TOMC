@@ -1,0 +1,29 @@
+{
+  "reviewed_on": "2026-09-28",
+  "paper_repository": "private manuscript repository",
+  "paper_commit": "7399657a2b96ad4d2d6dcfe0c993d04a98ad6b7d",
+  "source_sha256": {
+    "experiments/beam_input_comparison_20260925/all_beam_reader_summary.csv": "aef72bbb5af7ad7a0f66ba82a47835d903a882f97ab5253e010d4e5808f3328b",
+    "experiments/beam_input_comparison_20260925/all_beam_ability_summary.csv": "5f892beaffa34f6c6e5372c2003b64ef81e26cb8628d2ada06bcf6841e111d3b",
+    "experiments/beam_input_comparison_20260925/main_six_three_reader_summary.csv": "70b0d4acc5f8604abb643c96c3280996c60d332135901aecc81999a492e68ed7",
+    "experiments/light_final_20260919/data/beam_all_abilities_lengths.csv": "ed874a253246921adeedb0cd892db0c284e8685b1aa3d00b5738bb548655fcfd",
+    "figures/results_composite_ability_source.csv": "a47657a2b06d98d7c4a1125a4f961afb3cda042efb1247a1a4253ba8cef5a0a0",
+    "figures/results_composite_sources.json": "82c25e9992e8383b18fb4276345d8be232119d6605acbe2994c0731356357128",
+    "experiments/evidence_update_20260918/data/ruler_uniform_metrics.csv": "28825a47abc18188eed5d782c7a3b04232f4317edee076214f7bcc88b8198b30",
+    "experiments/niah_packingfix_ablation_20260925/paired_comparisons.csv": "64a3ecd0bb8a7d7c878d1cc299c9ffabbee82bd48fb1af5e79e2f6b401673ce5",
+    "tables/beam_main_counts.tex": "21d86eb02da0280aff09db08e83b222986ad397a187266b4d2b23b357f83cb61",
+    "tables/construction_compact_sources.json": "cd6f77f03720dc11cb76a7b46b362ab6a1d1e238fcee13721cf99ec809c73083",
+    "sections/00_abstract.tex": "5a6bacb06aa91c7bac2ed2736497f64931408d46fe159f19bae05c0594962899",
+    "sections/04_method.tex": "dbfb9f86d9e30408d8caee233ec9ab13cb0a134b8d2334ab283f3d422ac1f924",
+    "sections/06_experiments.tex": "e4e7cb4504b64cbb02e8709c6642887f2f5fb2e1eeed0d153cc6768d61feb5f0",
+    "sections/07_results.tex": "c16c5882a5428e3f49e5fbc1268565633c34dc6eb6f4ee5feb12d8ab19867c39",
+    "sections/10_conclusion.tex": "9784782a8791a9c31b0943704177a4efe67a3c591b383ee3a855edb50c1cb97b",
+    "appendices/15_construction_resources.tex": "5f2849fab0a73bdc87c19c01d5ca0815fe75c5144931ab78aade22aaff22d82b",
+    "appendices/16_beam_ablation.tex": "3a18b19b944ddf390d1187df896e2579f12c800476466795351e92d8fa258bb8",
+    "experiments/niah_packingfix_ablation_20260925/README.md": "9f9c3669e7ca53a05143819890b203fddcaa31f0d4643a50a05752bc399c221d",
+    "figures/tomc_overview.png": "545fbf368920c3851028bab5d6a26c216c56ba3b09358284d098ff6fbdbf42d6",
+    "figures/results_composite.svg": "88c984f42a5130b6febe957dd8c6c931e9bf89824b657105461cd96f6432cc1d",
+    "figures/results_composite.png": "c92b1330c9a7c76b2d905f13f758318e8fd25b93eb6bc6c9c621a128ed901a89"
+  },
+  "implementation_note": "Demo kernels retain their separate original provenance; this sync updates evidence and presentation, not benchmark algorithms."
+}

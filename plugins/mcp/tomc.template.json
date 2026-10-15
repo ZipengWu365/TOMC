@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "tomc": {
+      "command": "uv",
+      "args": [
+        "run",
+        "--locked",
+        "--directory",
+        "/absolute/path/to/TOMC/plugins/claude-code",
+        "/absolute/path/to/TOMC/plugins/claude-code/src/server.py"
+      ]
+    }
+  }
+}

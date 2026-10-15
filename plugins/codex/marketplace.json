@@ -1,0 +1,12 @@
+{
+  "name": "tomc-local",
+  "interface": {"displayName": "TOMC"},
+  "plugins": [
+    {
+      "name": "tomc-memory",
+      "source": {"source": "local", "path": "./plugins/tomc-memory"},
+      "policy": {"installation": "AVAILABLE", "authentication": "ON_INSTALL"},
+      "category": "Productivity"
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="560" viewBox="0 0 1280 560" role="img" aria-labelledby="title desc">
+<title id="title">快照保留复制时的值</title><desc id="desc">真实合成编译结果：drink 更新为 decaf tea 后，backup_drink 仍为 tea，依据来源 u0 和 u2。</desc>
+<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0 0L7 4L0 8" fill="none" stroke="#273343" stroke-width="1.4"/></marker></defs>
+<rect width="100%" height="100%" rx="16" fill="white"/>
+<style>text{font-family:Arial,'Noto Sans CJK SC',sans-serif;fill:#273343}.mono{font-family:ui-monospace,'DejaVu Sans Mono',monospace}</style>
+<text x="32" y="44" font-size="15" style="fill:#356da6" font-weight="700" text-anchor="start" class="label">TOMC  /  快照复制语义</text>
+<text x="32" y="89" font-size="36" style="fill:#273343" font-weight="700" text-anchor="start" class="label">先复制，再更新来源。</text>
+<rect x="32" y="142" width="368" height="173" rx="14" fill="#edf4fc" stroke="#356da6" stroke-width="1.8"/>
+<text x="50" y="178" font-size="23" style="fill:#356da6" font-weight="700" text-anchor="start" class="label">1. 设置初始值</text>
+<text x="50" y="220" font-size="17" style="fill:#273343" font-weight="400" text-anchor="start" class="mono">u0  drink = tea</text>
+<text x="50" y="252" font-size="17" style="fill:#273343" font-weight="400" text-anchor="start" class="mono">u1  seat = window</text>
+<path d="M410 227L440 227" fill="none" stroke="#273343" stroke-width="2.4" stroke-dasharray="none" marker-end="url(#arrow)"/>
+<rect x="456" y="142" width="368" height="173" rx="14" fill="#fff5df" stroke="#97651b" stroke-width="1.8"/>
+<text x="474" y="178" font-size="23" style="fill:#97651b" font-weight="700" text-anchor="start" class="label">2. 复制当时的快照</text>
+<text x="474" y="220" font-size="17" style="fill:#273343" font-weight="400" text-anchor="start" class="mono">u2  backup_drink copies drink</text>
+<path d="M834 227L864 227" fill="none" stroke="#273343" stroke-width="2.4" stroke-dasharray="none" marker-end="url(#arrow)"/>
+<rect x="880" y="142" width="368" height="173" rx="14" fill="#edf6e8" stroke="#287451" stroke-width="1.8"/>
+<text x="898" y="178" font-size="23" style="fill:#287451" font-weight="700" text-anchor="start" class="label">3. 更新来源的当前值</text>
+<text x="898" y="220" font-size="17" style="fill:#273343" font-weight="400" text-anchor="start" class="mono">u3  drink = decaf tea</text>
+<text x="898" y="252" font-size="17" style="fill:#273343" font-weight="400" text-anchor="start" class="mono">u4  seat = aisle</text>
+<rect x="248" y="379" width="400" height="121" rx="14" fill="#fff5df" stroke="#97651b" stroke-width="1.8"/>
+<text x="268" y="413" font-size="23" style="fill:#97651b" font-weight="700" text-anchor="start" class="mono">backup_drink</text>
+<text x="268" y="452" font-size="29" style="fill:#97651b" font-weight="700" text-anchor="start" class="label">tea</text>
+<text x="268" y="482" font-size="17" style="fill:#273343" font-weight="400" text-anchor="start" class="label">依据来源：u0, u2</text>
+<rect x="816" y="379" width="432" height="121" rx="14" fill="#edf6e8" stroke="#287451" stroke-width="1.8"/>
+<text x="836" y="413" font-size="23" style="fill:#287451" font-weight="700" text-anchor="start" class="mono">drink</text>
+<text x="836" y="452" font-size="29" style="fill:#287451" font-weight="700" text-anchor="start" class="label">decaf tea</text>
+<text x="836" y="482" font-size="17" style="fill:#273343" font-weight="400" text-anchor="start" class="label">依据来源：u3</text>
+<path d="M640 325L448 366" fill="none" stroke="#273343" stroke-width="2.4" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<path d="M1064 325L1032 366" fill="none" stroke="#273343" stroke-width="2.4" stroke-dasharray="6 5" marker-end="url(#arrow)"/>
+<text x="32" y="544" font-size="17" style="fill:#273343" font-weight="400" text-anchor="start" class="label">真实输出中的部分状态行 · 31 → 36 个估算 token：短例子的来源标记会增加开销。</text>
+</svg>

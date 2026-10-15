@@ -1,0 +1,12 @@
+experiment,reader_or_provider,status,paper_role,key_result,claim_strength
+BEAM raw-full 100K,UOB GPT-5.1,complete,appendix,TOMC 0.6103 vs raw 0.5944,inconclusive non-significant
+NMI property and integrity,Rednote and DeepSeek,complete,mechanism,property 14400/14400 and integrity 1600/1600 for each reader,mechanism evidence
+NMI transfer,UOB GPT-5.1,complete,mechanism,720/720 complete,cross-reader evidence
+OOD semantic controls,Rednote,complete,mechanism_or_appendix,three groups 500/500; TOMC EM approximately 0.99/0.99/1.00,strong robustness
+VT state tracking,Rednote; UOB GPT-5.1; DeepSeek V4 Flash,complete,mechanism,TOMC EM=1.00 on all three; about 8%-11% of raw input,strong task-specific
+QA2 open semantic QA,three-reader matrix,complete,limitations,raw or TOMC+raw often stronger,negative boundary
+NIAH,three-reader matrix,complete,limitations,reader-task interaction; Rednote pure TOMC 0 and TOMC+raw 0.67,routing evidence
+UltraLongMix-v1X,DeepSeek family,complete,appendix,competitive point estimate; versus DAC memory -25.7% and reader input -22.5%,Pareto but non-significant
+LongMemEval-V2,DeepSeek V4 Flash,complete,limitations,TOMC 0.1074 equals BGE hybrid 0.1074; BM25 0.1026; title exclusion p=1,neutral negative
+IterCOMP native multihop,DeepSeek family,complete,limitations,"TOMC below IterCOMP, BRIEF-Pro, and raw-full",clear negative boundary
+LongBench-v2 full 503,DeepSeek family,complete,appendix_or_limitations,accuracy 33.0%; extreme slices token-efficient but small,descriptive only

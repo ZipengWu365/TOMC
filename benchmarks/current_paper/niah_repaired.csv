@@ -1,0 +1,4 @@
+batch_id,reader,full_condition,removal_condition,common_valid_N,full_f1,removal_f1,full_minus_removal_f1_pp,full_em,removal_em,paired_input_usage_N,mean_input_full,mean_input_removal,removal_token_savings_percent
+niah-packingfix-ablation-20260925T152112Z-v1,gpt51,niah_full_packingfix_v1,niah_wo_extra_source_fixed_records_v1,100,85.0,79.03294483294484,5.967055167055166,80.0,74.0,100,3399.32,1910.96,43.78405092783263
+niah-packingfix-ablation-20260925T152112Z-v1,dots3,niah_full_packingfix_v1,niah_wo_extra_source_fixed_records_v1,100,76.83813850901873,68.75848543981978,8.079653069198962,72.0,63.0,100,3649.85,2045.69,43.95139526281901
+niah-packingfix-ablation-20260925T152112Z-v1,flash,niah_full_packingfix_v1,niah_wo_extra_source_fixed_records_v1,100,100.0,99.0,1.0,100.0,99.0,100,3470.78,1966.91,43.32945332173171

@@ -1,0 +1,271 @@
+reader,method,ability,tier,n,score
+gpt51,TOMC,information_extraction,500K,19,81.57894736842105
+gpt51,TOMC,information_extraction,1M,20,65.51190476190476
+gpt51,TOMC,information_extraction,500K/1M equal mean,,73.5454260651629
+gpt51,BEAM-RAG,information_extraction,500K,19,59.210526315789465
+gpt51,BEAM-RAG,information_extraction,1M,20,50.63095238095238
+gpt51,BEAM-RAG,information_extraction,500K/1M equal mean,,54.92073934837092
+gpt51,LIGHT,information_extraction,500K,19,47.368421052631575
+gpt51,LIGHT,information_extraction,1M,20,49.833333333333336
+gpt51,LIGHT,information_extraction,500K/1M equal mean,,48.60087719298245
+gpt51,TOMC,multi_session_reasoning,500K,20,70.0
+gpt51,TOMC,multi_session_reasoning,1M,20,54.726190476190474
+gpt51,TOMC,multi_session_reasoning,500K/1M equal mean,,62.36309523809524
+gpt51,BEAM-RAG,multi_session_reasoning,500K,20,58.75
+gpt51,BEAM-RAG,multi_session_reasoning,1M,20,45.214285714285715
+gpt51,BEAM-RAG,multi_session_reasoning,500K/1M equal mean,,51.98214285714286
+gpt51,LIGHT,multi_session_reasoning,500K,20,56.25
+gpt51,LIGHT,multi_session_reasoning,1M,20,44.964285714285715
+gpt51,LIGHT,multi_session_reasoning,500K/1M equal mean,,50.60714285714286
+gpt51,TOMC,knowledge_update,500K,20,47.5
+gpt51,TOMC,knowledge_update,1M,20,40.0
+gpt51,TOMC,knowledge_update,500K/1M equal mean,,43.75
+gpt51,BEAM-RAG,knowledge_update,500K,20,40.0
+gpt51,BEAM-RAG,knowledge_update,1M,20,50.0
+gpt51,BEAM-RAG,knowledge_update,500K/1M equal mean,,45.0
+gpt51,LIGHT,knowledge_update,500K,20,25.0
+gpt51,LIGHT,knowledge_update,1M,20,35.0
+gpt51,LIGHT,knowledge_update,500K/1M equal mean,,30.0
+gpt51,TOMC,temporal_reasoning,500K,20,57.49999999999999
+gpt51,TOMC,temporal_reasoning,1M,19,68.42105263157895
+gpt51,TOMC,temporal_reasoning,500K/1M equal mean,,62.960526315789465
+gpt51,BEAM-RAG,temporal_reasoning,500K,20,25.0
+gpt51,BEAM-RAG,temporal_reasoning,1M,19,28.947368421052634
+gpt51,BEAM-RAG,temporal_reasoning,500K/1M equal mean,,26.973684210526315
+gpt51,LIGHT,temporal_reasoning,500K,20,30.0
+gpt51,LIGHT,temporal_reasoning,1M,19,50.0
+gpt51,LIGHT,temporal_reasoning,500K/1M equal mean,,40.0
+gpt51,TOMC,abstention,500K,20,75.0
+gpt51,TOMC,abstention,1M,20,80.0
+gpt51,TOMC,abstention,500K/1M equal mean,,77.5
+gpt51,BEAM-RAG,abstention,500K,20,80.0
+gpt51,BEAM-RAG,abstention,1M,20,80.0
+gpt51,BEAM-RAG,abstention,500K/1M equal mean,,80.0
+gpt51,LIGHT,abstention,500K,20,65.0
+gpt51,LIGHT,abstention,1M,20,80.0
+gpt51,LIGHT,abstention,500K/1M equal mean,,72.5
+gpt51,TOMC,instruction_following,500K,19,47.368421052631575
+gpt51,TOMC,instruction_following,1M,20,55.00000000000001
+gpt51,TOMC,instruction_following,500K/1M equal mean,,51.184210526315795
+gpt51,BEAM-RAG,instruction_following,500K,19,75.43859649122807
+gpt51,BEAM-RAG,instruction_following,1M,20,75.83333333333333
+gpt51,BEAM-RAG,instruction_following,500K/1M equal mean,,75.6359649122807
+gpt51,LIGHT,instruction_following,500K,19,68.42105263157895
+gpt51,LIGHT,instruction_following,1M,20,60.0
+gpt51,LIGHT,instruction_following,500K/1M equal mean,,64.21052631578948
+gpt51,TOMC,preference_following,500K,20,100.0
+gpt51,TOMC,preference_following,1M,20,85.0
+gpt51,TOMC,preference_following,500K/1M equal mean,,92.5
+gpt51,BEAM-RAG,preference_following,500K,20,92.5
+gpt51,BEAM-RAG,preference_following,1M,20,91.25
+gpt51,BEAM-RAG,preference_following,500K/1M equal mean,,91.875
+gpt51,LIGHT,preference_following,500K,20,92.5
+gpt51,LIGHT,preference_following,1M,20,84.58333333333333
+gpt51,LIGHT,preference_following,500K/1M equal mean,,88.54166666666666
+gpt51,TOMC,contradiction_resolution,500K,20,28.749999999999996
+gpt51,TOMC,contradiction_resolution,1M,20,36.25
+gpt51,TOMC,contradiction_resolution,500K/1M equal mean,,32.5
+gpt51,BEAM-RAG,contradiction_resolution,500K,20,25.0
+gpt51,BEAM-RAG,contradiction_resolution,1M,20,22.5
+gpt51,BEAM-RAG,contradiction_resolution,500K/1M equal mean,,23.75
+gpt51,LIGHT,contradiction_resolution,500K,20,18.75
+gpt51,LIGHT,contradiction_resolution,1M,20,17.5
+gpt51,LIGHT,contradiction_resolution,500K/1M equal mean,,18.125
+gpt51,TOMC,event_ordering,500K,20,32.121050102018664
+gpt51,TOMC,event_ordering,1M,20,29.086211767195774
+gpt51,TOMC,event_ordering,500K/1M equal mean,,30.603630934607217
+gpt51,BEAM-RAG,event_ordering,500K,20,26.602469003959932
+gpt51,BEAM-RAG,event_ordering,1M,20,23.887103887009427
+gpt51,BEAM-RAG,event_ordering,500K/1M equal mean,,25.244786445484678
+gpt51,LIGHT,event_ordering,500K,20,27.312281833594326
+gpt51,LIGHT,event_ordering,1M,20,27.869830926293115
+gpt51,LIGHT,event_ordering,500K/1M equal mean,,27.591056379943723
+gpt51,TOMC,summarization,500K,20,54.65079365079365
+gpt51,TOMC,summarization,1M,20,50.375
+gpt51,TOMC,summarization,500K/1M equal mean,,52.51289682539682
+gpt51,BEAM-RAG,summarization,500K,20,52.48412698412699
+gpt51,BEAM-RAG,summarization,1M,20,38.09722222222222
+gpt51,BEAM-RAG,summarization,500K/1M equal mean,,45.29067460317461
+gpt51,LIGHT,summarization,500K,20,62.531746031746025
+gpt51,LIGHT,summarization,1M,20,60.21626984126984
+gpt51,LIGHT,summarization,500K/1M equal mean,,61.37400793650794
+dots3,TOMC,information_extraction,500K,20,82.5
+dots3,TOMC,information_extraction,1M,20,55.833333333333336
+dots3,TOMC,information_extraction,500K/1M equal mean,,69.16666666666667
+dots3,BEAM-RAG,information_extraction,500K,20,71.25
+dots3,BEAM-RAG,information_extraction,1M,20,58.97619047619047
+dots3,BEAM-RAG,information_extraction,500K/1M equal mean,,65.11309523809524
+dots3,LIGHT,information_extraction,500K,20,58.333333333333336
+dots3,LIGHT,information_extraction,1M,20,40.63095238095238
+dots3,LIGHT,information_extraction,500K/1M equal mean,,49.48214285714286
+dots3,TOMC,multi_session_reasoning,500K,20,65.0
+dots3,TOMC,multi_session_reasoning,1M,20,61.976190476190474
+dots3,TOMC,multi_session_reasoning,500K/1M equal mean,,63.48809523809524
+dots3,BEAM-RAG,multi_session_reasoning,500K,20,54.166666666666664
+dots3,BEAM-RAG,multi_session_reasoning,1M,20,52.523809523809526
+dots3,BEAM-RAG,multi_session_reasoning,500K/1M equal mean,,53.345238095238095
+dots3,LIGHT,multi_session_reasoning,500K,20,60.416666666666664
+dots3,LIGHT,multi_session_reasoning,1M,20,53.30952380952381
+dots3,LIGHT,multi_session_reasoning,500K/1M equal mean,,56.86309523809524
+dots3,TOMC,knowledge_update,500K,20,55.00000000000001
+dots3,TOMC,knowledge_update,1M,20,67.5
+dots3,TOMC,knowledge_update,500K/1M equal mean,,61.25
+dots3,BEAM-RAG,knowledge_update,500K,20,40.0
+dots3,BEAM-RAG,knowledge_update,1M,20,50.0
+dots3,BEAM-RAG,knowledge_update,500K/1M equal mean,,45.0
+dots3,LIGHT,knowledge_update,500K,20,50.0
+dots3,LIGHT,knowledge_update,1M,20,47.5
+dots3,LIGHT,knowledge_update,500K/1M equal mean,,48.75
+dots3,TOMC,temporal_reasoning,500K,20,63.33333333333333
+dots3,TOMC,temporal_reasoning,1M,20,77.5
+dots3,TOMC,temporal_reasoning,500K/1M equal mean,,70.41666666666666
+dots3,BEAM-RAG,temporal_reasoning,500K,20,31.666666666666664
+dots3,BEAM-RAG,temporal_reasoning,1M,20,30.0
+dots3,BEAM-RAG,temporal_reasoning,500K/1M equal mean,,30.833333333333332
+dots3,LIGHT,temporal_reasoning,500K,20,55.833333333333336
+dots3,LIGHT,temporal_reasoning,1M,20,52.5
+dots3,LIGHT,temporal_reasoning,500K/1M equal mean,,54.16666666666667
+dots3,TOMC,abstention,500K,20,50.0
+dots3,TOMC,abstention,1M,20,45.0
+dots3,TOMC,abstention,500K/1M equal mean,,47.5
+dots3,BEAM-RAG,abstention,500K,20,70.0
+dots3,BEAM-RAG,abstention,1M,20,45.0
+dots3,BEAM-RAG,abstention,500K/1M equal mean,,57.5
+dots3,LIGHT,abstention,500K,20,40.0
+dots3,LIGHT,abstention,1M,20,20.0
+dots3,LIGHT,abstention,500K/1M equal mean,,30.0
+dots3,TOMC,instruction_following,500K,20,55.00000000000001
+dots3,TOMC,instruction_following,1M,20,55.00000000000001
+dots3,TOMC,instruction_following,500K/1M equal mean,,55.00000000000001
+dots3,BEAM-RAG,instruction_following,500K,20,75.83333333333333
+dots3,BEAM-RAG,instruction_following,1M,20,74.16666666666667
+dots3,BEAM-RAG,instruction_following,500K/1M equal mean,,75.0
+dots3,LIGHT,instruction_following,500K,20,76.66666666666667
+dots3,LIGHT,instruction_following,1M,20,77.5
+dots3,LIGHT,instruction_following,500K/1M equal mean,,77.08333333333334
+dots3,TOMC,preference_following,500K,20,92.5
+dots3,TOMC,preference_following,1M,20,81.25
+dots3,TOMC,preference_following,500K/1M equal mean,,86.875
+dots3,BEAM-RAG,preference_following,500K,20,97.5
+dots3,BEAM-RAG,preference_following,1M,20,91.66666666666666
+dots3,BEAM-RAG,preference_following,500K/1M equal mean,,94.58333333333333
+dots3,LIGHT,preference_following,500K,20,85.0
+dots3,LIGHT,preference_following,1M,20,79.58333333333333
+dots3,LIGHT,preference_following,500K/1M equal mean,,82.29166666666666
+dots3,TOMC,contradiction_resolution,500K,20,28.749999999999996
+dots3,TOMC,contradiction_resolution,1M,20,28.749999999999996
+dots3,TOMC,contradiction_resolution,500K/1M equal mean,,28.749999999999996
+dots3,BEAM-RAG,contradiction_resolution,500K,20,20.0
+dots3,BEAM-RAG,contradiction_resolution,1M,20,23.75
+dots3,BEAM-RAG,contradiction_resolution,500K/1M equal mean,,21.875
+dots3,LIGHT,contradiction_resolution,500K,20,16.25
+dots3,LIGHT,contradiction_resolution,1M,20,13.750000000000002
+dots3,LIGHT,contradiction_resolution,500K/1M equal mean,,15.0
+dots3,TOMC,event_ordering,500K,20,23.49112739765556
+dots3,TOMC,event_ordering,1M,20,23.916561169587343
+dots3,TOMC,event_ordering,500K/1M equal mean,,23.70384428362145
+dots3,BEAM-RAG,event_ordering,500K,20,22.010793569075492
+dots3,BEAM-RAG,event_ordering,1M,20,19.567574897853458
+dots3,BEAM-RAG,event_ordering,500K/1M equal mean,,20.789184233464475
+dots3,LIGHT,event_ordering,500K,20,24.388597727533252
+dots3,LIGHT,event_ordering,1M,20,20.122561384693732
+dots3,LIGHT,event_ordering,500K/1M equal mean,,22.255579556113492
+dots3,TOMC,summarization,500K,20,44.85317460317461
+dots3,TOMC,summarization,1M,20,37.25
+dots3,TOMC,summarization,500K/1M equal mean,,41.051587301587304
+dots3,BEAM-RAG,summarization,500K,20,46.400793650793645
+dots3,BEAM-RAG,summarization,1M,20,39.47222222222222
+dots3,BEAM-RAG,summarization,500K/1M equal mean,,42.93650793650794
+dots3,LIGHT,summarization,500K,20,56.892857142857146
+dots3,LIGHT,summarization,1M,20,53.448412698412696
+dots3,LIGHT,summarization,500K/1M equal mean,,55.170634920634924
+flash,TOMC,information_extraction,500K,20,85.0
+flash,TOMC,information_extraction,1M,20,58.666666666666664
+flash,TOMC,information_extraction,500K/1M equal mean,,71.83333333333333
+flash,BEAM-RAG,information_extraction,500K,20,71.25
+flash,BEAM-RAG,information_extraction,1M,20,57.41666666666667
+flash,BEAM-RAG,information_extraction,500K/1M equal mean,,64.33333333333334
+flash,LIGHT,information_extraction,500K,20,62.5
+flash,LIGHT,information_extraction,1M,20,44.083333333333336
+flash,LIGHT,information_extraction,500K/1M equal mean,,53.29166666666667
+flash,TOMC,multi_session_reasoning,500K,20,60.83333333333333
+flash,TOMC,multi_session_reasoning,1M,20,61.57142857142857
+flash,TOMC,multi_session_reasoning,500K/1M equal mean,,61.20238095238095
+flash,BEAM-RAG,multi_session_reasoning,500K,20,60.416666666666664
+flash,BEAM-RAG,multi_session_reasoning,1M,20,41.39285714285714
+flash,BEAM-RAG,multi_session_reasoning,500K/1M equal mean,,50.9047619047619
+flash,LIGHT,multi_session_reasoning,500K,20,61.25000000000001
+flash,LIGHT,multi_session_reasoning,1M,20,48.30952380952381
+flash,LIGHT,multi_session_reasoning,500K/1M equal mean,,54.77976190476191
+flash,TOMC,knowledge_update,500K,20,72.5
+flash,TOMC,knowledge_update,1M,20,47.5
+flash,TOMC,knowledge_update,500K/1M equal mean,,60.0
+flash,BEAM-RAG,knowledge_update,500K,20,55.00000000000001
+flash,BEAM-RAG,knowledge_update,1M,20,60.0
+flash,BEAM-RAG,knowledge_update,500K/1M equal mean,,57.5
+flash,LIGHT,knowledge_update,500K,20,50.0
+flash,LIGHT,knowledge_update,1M,20,55.00000000000001
+flash,LIGHT,knowledge_update,500K/1M equal mean,,52.5
+flash,TOMC,temporal_reasoning,500K,20,55.00000000000001
+flash,TOMC,temporal_reasoning,1M,20,72.5
+flash,TOMC,temporal_reasoning,500K/1M equal mean,,63.75
+flash,BEAM-RAG,temporal_reasoning,500K,20,31.666666666666664
+flash,BEAM-RAG,temporal_reasoning,1M,20,25.0
+flash,BEAM-RAG,temporal_reasoning,500K/1M equal mean,,28.333333333333332
+flash,LIGHT,temporal_reasoning,500K,20,47.5
+flash,LIGHT,temporal_reasoning,1M,20,37.5
+flash,LIGHT,temporal_reasoning,500K/1M equal mean,,42.5
+flash,TOMC,abstention,500K,20,65.0
+flash,TOMC,abstention,1M,20,75.0
+flash,TOMC,abstention,500K/1M equal mean,,70.0
+flash,BEAM-RAG,abstention,500K,20,70.0
+flash,BEAM-RAG,abstention,1M,20,80.0
+flash,BEAM-RAG,abstention,500K/1M equal mean,,75.0
+flash,LIGHT,abstention,500K,20,70.0
+flash,LIGHT,abstention,1M,20,70.0
+flash,LIGHT,abstention,500K/1M equal mean,,70.0
+flash,TOMC,instruction_following,500K,20,45.0
+flash,TOMC,instruction_following,1M,20,48.333333333333336
+flash,TOMC,instruction_following,500K/1M equal mean,,46.66666666666667
+flash,BEAM-RAG,instruction_following,500K,20,63.33333333333333
+flash,BEAM-RAG,instruction_following,1M,20,72.5
+flash,BEAM-RAG,instruction_following,500K/1M equal mean,,67.91666666666666
+flash,LIGHT,instruction_following,500K,20,75.0
+flash,LIGHT,instruction_following,1M,20,79.16666666666666
+flash,LIGHT,instruction_following,500K/1M equal mean,,77.08333333333333
+flash,TOMC,preference_following,500K,20,97.5
+flash,TOMC,preference_following,1M,20,77.5
+flash,TOMC,preference_following,500K/1M equal mean,,87.5
+flash,BEAM-RAG,preference_following,500K,20,92.5
+flash,BEAM-RAG,preference_following,1M,20,89.58333333333334
+flash,BEAM-RAG,preference_following,500K/1M equal mean,,91.04166666666667
+flash,LIGHT,preference_following,500K,20,85.0
+flash,LIGHT,preference_following,1M,20,82.08333333333333
+flash,LIGHT,preference_following,500K/1M equal mean,,83.54166666666666
+flash,TOMC,contradiction_resolution,500K,20,46.25
+flash,TOMC,contradiction_resolution,1M,20,33.75
+flash,TOMC,contradiction_resolution,500K/1M equal mean,,40.0
+flash,BEAM-RAG,contradiction_resolution,500K,20,25.0
+flash,BEAM-RAG,contradiction_resolution,1M,20,23.75
+flash,BEAM-RAG,contradiction_resolution,500K/1M equal mean,,24.375
+flash,LIGHT,contradiction_resolution,500K,20,17.5
+flash,LIGHT,contradiction_resolution,1M,20,17.5
+flash,LIGHT,contradiction_resolution,500K/1M equal mean,,17.5
+flash,TOMC,event_ordering,500K,20,28.667906333526215
+flash,TOMC,event_ordering,1M,20,22.25798313840132
+flash,TOMC,event_ordering,500K/1M equal mean,,25.462944735963767
+flash,BEAM-RAG,event_ordering,500K,20,20.284407307372966
+flash,BEAM-RAG,event_ordering,1M,20,18.88466233708311
+flash,BEAM-RAG,event_ordering,500K/1M equal mean,,19.584534822228036
+flash,LIGHT,event_ordering,500K,20,20.92804227164018
+flash,LIGHT,event_ordering,1M,20,22.219886587310413
+flash,LIGHT,event_ordering,500K/1M equal mean,,21.573964429475296
+flash,TOMC,summarization,500K,20,38.88095238095238
+flash,TOMC,summarization,1M,20,33.541666666666664
+flash,TOMC,summarization,500K/1M equal mean,,36.21130952380952
+flash,BEAM-RAG,summarization,500K,20,41.36111111111111
+flash,BEAM-RAG,summarization,1M,20,32.013888888888886
+flash,BEAM-RAG,summarization,500K/1M equal mean,,36.6875
+flash,LIGHT,summarization,500K,20,58.170634920634924
+flash,LIGHT,summarization,1M,20,55.59126984126984
+flash,LIGHT,summarization,500K/1M equal mean,,56.88095238095238

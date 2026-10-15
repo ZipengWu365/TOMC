@@ -1,0 +1,2 @@
+{"messages":[{"role":"user","content":"A = 1\nA = 2"}],"query":"What is the current A? Answer with the value only.","reference_answer":"2"}
+{"messages":[{"role":"user","content":"A = 3\nB copies A\nA = 8"}],"query":"What is the current B? Answer with the value only.","reference_answer":"3"}

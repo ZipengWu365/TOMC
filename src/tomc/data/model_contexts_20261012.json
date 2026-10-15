@@ -1,0 +1,571 @@
+{
+  "schema": "tomc-model-context-v1",
+  "checked_on": "2026-10-12",
+  "scope": "Official provider documentation; no live paid API checks. Deployment/account/agent limits can be lower.",
+  "normalization": "Exact published integers are retained. Decimal K/M conversions are explicitly marked conservative and are not asserted as official exact values.",
+  "models": [
+    {
+      "provider": "openai",
+      "model_id": "gpt-6-astra",
+      "context_tokens": 1050000,
+      "context_label": "1.05M",
+      "precision": "exact",
+      "default_context_tokens": null,
+      "max_input_tokens": null,
+      "max_output_tokens": 128000,
+      "window_semantics": "combined",
+      "status": "documented",
+      "sources": [
+        "https://developers.openai.com/api/docs/models/gpt-6-astra"
+      ],
+      "notes": "GPT-6.1 Sol tool calling requires Responses API; Chat Completions without tools is documented."
+    },
+    {
+      "provider": "openai",
+      "model_id": "gpt-6.1-sol",
+      "context_tokens": 1050000,
+      "context_label": "1.05M",
+      "precision": "exact",
+      "default_context_tokens": null,
+      "max_input_tokens": null,
+      "max_output_tokens": 128000,
+      "window_semantics": "combined",
+      "status": "documented",
+      "sources": [
+        "https://developers.openai.com/api/docs/models/gpt-6.1-sol"
+      ],
+      "notes": "GPT-6.1 Sol tool calling requires Responses API; Chat Completions without tools is documented."
+    },
+    {
+      "provider": "openai",
+      "model_id": "gpt-6-luna",
+      "context_tokens": 1050000,
+      "context_label": "1.05M",
+      "precision": "exact",
+      "default_context_tokens": null,
+      "max_input_tokens": null,
+      "max_output_tokens": 128000,
+      "window_semantics": "combined",
+      "status": "documented",
+      "sources": [
+        "https://developers.openai.com/api/docs/models/gpt-6-luna"
+      ],
+      "notes": "GPT-6.1 Sol tool calling requires Responses API; Chat Completions without tools is documented."
+    },
+    {
+      "provider": "openai",
+      "model_id": "gpt-5.4",
+      "context_tokens": 1050000,
+      "context_label": "1.05M",
+      "precision": "exact",
+      "default_context_tokens": null,
+      "max_input_tokens": null,
+      "max_output_tokens": 128000,
+      "window_semantics": "combined",
+      "status": "documented",
+      "sources": [
+        "https://developers.openai.com/api/docs/models/gpt-5.4"
+      ],
+      "notes": "GPT-6.1 Sol tool calling requires Responses API; Chat Completions without tools is documented."
+    },
+    {
+      "provider": "openai",
+      "model_id": "gpt-5.1",
+      "context_tokens": 400000,
+      "context_label": "400K",
+      "precision": "exact",
+      "default_context_tokens": null,
+      "max_input_tokens": null,
+      "max_output_tokens": 128000,
+      "window_semantics": "combined",
+      "status": "deprecated",
+      "sources": [
+        "https://developers.openai.com/api/docs/models/gpt-5.1"
+      ],
+      "notes": ""
+    },
+    {
+      "provider": "openai",
+      "model_id": "gpt-4.1",
+      "context_tokens": 1047576,
+      "context_label": "1,047,576",
+      "precision": "exact",
+      "default_context_tokens": null,
+      "max_input_tokens": null,
+      "max_output_tokens": 32768,
+      "window_semantics": "combined",
+      "status": "documented",
+      "sources": [
+        "https://developers.openai.com/api/docs/models/gpt-4.1"
+      ],
+      "notes": ""
+    },
+    {
+      "provider": "openai",
+      "model_id": "gpt-4o",
+      "context_tokens": 128000,
+      "context_label": "128K",
+      "precision": "exact",
+      "default_context_tokens": null,
+      "max_input_tokens": null,
+      "max_output_tokens": 16384,
+      "window_semantics": "combined",
+      "status": "documented",
+      "sources": [
+        "https://developers.openai.com/api/docs/models/gpt-4o"
+      ],
+      "notes": ""
+    },
+    {
+      "provider": "anthropic",
+      "model_id": "claude-opus-5-5",
+      "context_tokens": 1000000,
+      "context_label": "1M",
+      "precision": "conservative_decimal_from_label",
+      "default_context_tokens": null,
+      "max_input_tokens": null,
+      "max_output_tokens": 128000,
+      "window_semantics": "combined",
+      "status": "documented",
+      "sources": [
+        "https://platform.claude.com/docs/en/models/opus-5-5/overview"
+      ],
+      "notes": "Provider labels are 1M/128K. 300K Message Batches beta is excluded. Window includes input/output and applicable thinking."
+    },
+    {
+      "provider": "anthropic",
+      "model_id": "claude-sonnet-5-5",
+      "context_tokens": 1000000,
+      "context_label": "1M",
+      "precision": "conservative_decimal_from_label",
+      "default_context_tokens": null,
+      "max_input_tokens": null,
+      "max_output_tokens": 128000,
+      "window_semantics": "combined",
+      "status": "documented",
+      "sources": [
+        "https://platform.claude.com/docs/en/models/sonnet-5-5/overview"
+      ],
+      "notes": "Provider labels are 1M/128K. 300K Message Batches beta is excluded. Window includes input/output and applicable thinking."
+    },
+    {
+      "provider": "anthropic",
+      "model_id": "claude-haiku-5-5",
+      "context_tokens": 1000000,
+      "context_label": "1M",
+      "precision": "conservative_decimal_from_label",
+      "default_context_tokens": null,
+      "max_input_tokens": null,
+      "max_output_tokens": 128000,
+      "window_semantics": "combined",
+      "status": "documented",
+      "sources": [
+        "https://platform.claude.com/docs/en/models/haiku-5-5/overview"
+      ],
+      "notes": "Provider labels are 1M/128K. 300K Message Batches beta is excluded. Window includes input/output and applicable thinking."
+    },
+    {
+      "provider": "google",
+      "model_id": "gemini-3.8-flash",
+      "context_tokens": 1048576,
+      "context_label": "1,048,576 input",
+      "precision": "exact",
+      "default_context_tokens": null,
+      "max_input_tokens": 1048576,
+      "max_output_tokens": 65536,
+      "window_semantics": "input_only",
+      "status": "stable",
+      "sources": [
+        "https://ai.google.dev/gemini-api/docs/models/gemini-3.8-flash"
+      ],
+      "notes": ""
+    },
+    {
+      "provider": "google",
+      "model_id": "gemini-3.1-pro-preview",
+      "context_tokens": 1048576,
+      "context_label": "1,048,576 input",
+      "precision": "exact",
+      "default_context_tokens": null,
+      "max_input_tokens": 1048576,
+      "max_output_tokens": 65536,
+      "window_semantics": "input_only",
+      "status": "preview",
+      "sources": [
+        "https://ai.google.dev/gemini-api/docs/models/gemini-3.1-pro-preview"
+      ],
+      "notes": ""
+    },
+    {
+      "provider": "xai",
+      "model_id": "grok-4.7",
+      "context_tokens": 500000,
+      "context_label": "500K",
+      "precision": "exact",
+      "default_context_tokens": null,
+      "max_input_tokens": null,
+      "max_output_tokens": null,
+      "window_semantics": "unspecified",
+      "status": "documented",
+      "sources": [
+        "https://docs.x.ai/developers/grok-4-7"
+      ],
+      "notes": "Provider states no text output limit, which is not an infinite total context."
+    },
+    {
+      "provider": "deepseek",
+      "model_id": "deepseek-flash",
+      "context_tokens": 1048576,
+      "context_label": "1M",
+      "precision": "exact",
+      "default_context_tokens": null,
+      "max_input_tokens": null,
+      "max_output_tokens": 393216,
+      "window_semantics": "combined",
+      "status": "Current model; older deepseek-v4-flash and deepseek-v4-flash-vision-exp IDs route here after retirement.",
+      "sources": [
+        "https://api-docs.deepseek.com/api/list-models/",
+        "https://api-docs.deepseek.com/quick_start/pricing/",
+        "https://api-docs.deepseek.com/api/create-chat-completion/"
+      ],
+      "notes": "Official GET /models documentation example; not a live API result."
+    },
+    {
+      "provider": "deepseek",
+      "model_id": "deepseek-v4-pro",
+      "context_tokens": 1048576,
+      "context_label": "1M",
+      "precision": "exact",
+      "default_context_tokens": null,
+      "max_input_tokens": null,
+      "max_output_tokens": 393216,
+      "window_semantics": "combined",
+      "status": "GA; API continues after 2026-09-14 according to provider notice.",
+      "sources": [
+        "https://api-docs.deepseek.com/api/list-models/",
+        "https://api-docs.deepseek.com/quick_start/pricing/",
+        "https://api-docs.deepseek.com/news/news260813/"
+      ],
+      "notes": "Official GET /models documentation example; not a live API result."
+    },
+    {
+      "provider": "zai",
+      "model_id": "glm-5.2",
+      "context_tokens": 1000000,
+      "context_label": "1M",
+      "precision": "conservative_decimal_from_label",
+      "default_context_tokens": null,
+      "max_input_tokens": null,
+      "max_output_tokens": 131072,
+      "window_semantics": "combined",
+      "status": "Official release, text-only; older GLM-5/5.1 200K specs must not be applied here.",
+      "sources": [
+        "https://docs.z.ai/guides/llm/glm-5.2",
+        "https://docs.z.ai/api-reference/llm/chat-completion"
+      ],
+      "notes": "Chat Completion max_tokens schema range 1..131072; exact context integer not found."
+    },
+    {
+      "provider": "zai",
+      "model_id": "glm-5.3",
+      "context_tokens": 1000000,
+      "context_label": "1M",
+      "precision": "conservative_decimal_from_label",
+      "default_context_tokens": null,
+      "max_input_tokens": null,
+      "max_output_tokens": 131072,
+      "window_semantics": "combined",
+      "status": "Current official documentation, text-only, reasoning always enabled; guide lists Coding Plan protocol endpoints.",
+      "sources": [
+        "https://docs.z.ai/guides/llm/glm-5.3",
+        "https://docs.z.ai/api-reference/llm/chat-completion"
+      ],
+      "notes": "Chat Completion max_tokens schema range 1..131072; exact context integer not found."
+    },
+    {
+      "provider": "kimi-platform",
+      "model_id": "kimi-k3",
+      "context_tokens": 1000000,
+      "context_label": "1M / 100万",
+      "precision": "conservative_decimal_from_label",
+      "default_context_tokens": null,
+      "max_input_tokens": null,
+      "max_output_tokens": 1048576,
+      "window_semantics": "combined",
+      "status": "Official release; context requires input plus reserved max_completion_tokens to fit. Do not transfer Coding API limits automatically.",
+      "sources": [
+        "https://platform.kimi.com/docs/guide/kimi-k3-quickstart",
+        "https://platform.kimi.com/docs/api/chat",
+        "https://platform.kimi.com/docs/models"
+      ],
+      "notes": "Official max_completion_tokens description; exact total-context integer not found in these platform pages."
+    },
+    {
+      "provider": "kimi-code",
+      "model_id": "kimi-for-coding",
+      "context_tokens": 1048576,
+      "context_label": "1M",
+      "precision": "exact",
+      "default_context_tokens": null,
+      "max_input_tokens": null,
+      "max_output_tokens": null,
+      "window_semantics": "combined",
+      "status": "Preview, rolled out in place; membership restrictions apply. Current overview lists Plus/Andante and above.",
+      "sources": [
+        "https://www.kimi.com/code/docs/en/kimi-code/models",
+        "https://www.kimi.com/en/help/kimi-code/membership-guide"
+      ],
+      "notes": "Current Model Configuration table; older generic CLI config example still shows 262144 and is superseded by the model-upgrade notice."
+    },
+    {
+      "provider": "minimax",
+      "model_id": "MiniMax-M3",
+      "context_tokens": 1000000,
+      "context_label": "1M",
+      "precision": "exact",
+      "default_context_tokens": null,
+      "max_input_tokens": null,
+      "max_output_tokens": null,
+      "window_semantics": "combined",
+      "status": "Current model, multimodal. Thinking/output limits count reasoning too according to protocol parameter descriptions.",
+      "sources": [
+        "https://platform.minimax.io/docs/api-reference/text-anthropic-api",
+        "https://platform.minimax.io/docs/api-reference/text-openai-api",
+        "https://platform.minimax.io/docs/guides/models-intro"
+      ],
+      "notes": "Official Anthropic SDK supported-model table states 1000000 context; output ceiling not verified in reviewed direct-provider pages."
+    },
+    {
+      "provider": "minimax",
+      "model_id": "MiniMax-M2.7",
+      "context_tokens": 204800,
+      "context_label": "200K",
+      "precision": "exact",
+      "default_context_tokens": null,
+      "max_input_tokens": null,
+      "max_output_tokens": null,
+      "window_semantics": "combined",
+      "status": "Current text/tool model; MiniMax-M2.7-highspeed has the same documented context.",
+      "sources": [
+        "https://platform.minimax.io/docs/api-reference/text-anthropic-api",
+        "https://platform.minimax.io/docs/guides/models-intro"
+      ],
+      "notes": "Official Anthropic SDK supported-model table states 204800 context; output ceiling not verified for M2.7. Do not inherit legacy M2's 128K claim or Tencent-hosted limits."
+    },
+    {
+      "provider": "qwen",
+      "model_id": "qwen3.8-max",
+      "context_tokens": 1000000,
+      "context_label": "1000000",
+      "precision": "exact",
+      "default_context_tokens": null,
+      "max_input_tokens": 991808,
+      "max_output_tokens": 131072,
+      "window_semantics": "combined",
+      "status": "Current flagship; snapshot qwen3.8-max-0902 alias qwen3.8-max-2026-09-02. These are separate parameter ceilings, not simultaneously attainable additive allowances.",
+      "sources": [
+        "https://help.aliyun.com/zh/model-studio/qwen3-8-max"
+      ],
+      "notes": "Model-specific context-limit table, updated 2026-10-10.",
+      "max_input_tokens_thinking": 983616
+    },
+    {
+      "provider": "kimi-code",
+      "model_id": "k3",
+      "context_tokens": 1048576,
+      "context_label": "256K or 1M by plan",
+      "precision": "exact",
+      "default_context_tokens": 262144,
+      "max_input_tokens": null,
+      "max_output_tokens": null,
+      "window_semantics": "combined",
+      "status": "documented",
+      "sources": [
+        "https://www.kimi.com/code/docs/en/kimi-code/models"
+      ],
+      "notes": "Use 262144 conservatively unless the caller supplies the confirmed 1M plan/deployment limit."
+    },
+    {
+      "provider": "kimi-code",
+      "model_id": "k3-256k",
+      "context_tokens": 262144,
+      "context_label": "256K",
+      "precision": "exact",
+      "default_context_tokens": null,
+      "max_input_tokens": null,
+      "max_output_tokens": null,
+      "window_semantics": "combined",
+      "status": "documented",
+      "sources": [
+        "https://www.kimi.com/code/docs/en/kimi-code/models"
+      ],
+      "notes": ""
+    },
+    {
+      "provider": "kimi-code",
+      "model_id": "kimi-for-coding-highspeed",
+      "context_tokens": 262144,
+      "context_label": "256K",
+      "precision": "exact",
+      "default_context_tokens": null,
+      "max_input_tokens": null,
+      "max_output_tokens": null,
+      "window_semantics": "combined",
+      "status": "documented",
+      "sources": [
+        "https://www.kimi.com/code/docs/en/kimi-code/models"
+      ],
+      "notes": ""
+    },
+    {
+      "provider": "doubao",
+      "model_id": "doubao-seed-2-1-pro-260915",
+      "context_tokens": 1024000,
+      "context_label": "1024k",
+      "precision": "conservative_decimal_from_label",
+      "default_context_tokens": null,
+      "max_input_tokens": 1024000,
+      "max_output_tokens": 256000,
+      "window_semantics": "unspecified",
+      "status": "documented",
+      "sources": [
+        "https://docs.volcengine.com/docs/ark/model-list?lang=zh"
+      ],
+      "notes": "Window/input/output are separate published k-labelled ceilings, not additive simultaneous allowances."
+    },
+    {
+      "provider": "doubao",
+      "model_id": "doubao-seed-2-1-lite-260915",
+      "context_tokens": 1024000,
+      "context_label": "1024k",
+      "precision": "conservative_decimal_from_label",
+      "default_context_tokens": null,
+      "max_input_tokens": 1024000,
+      "max_output_tokens": 256000,
+      "window_semantics": "unspecified",
+      "status": "documented",
+      "sources": [
+        "https://docs.volcengine.com/docs/ark/model-list?lang=zh"
+      ],
+      "notes": "Window/input/output are separate published k-labelled ceilings, not additive simultaneous allowances."
+    },
+    {
+      "provider": "doubao",
+      "model_id": "doubao-seed-evolving",
+      "context_tokens": 1024000,
+      "context_label": "1024k",
+      "precision": "conservative_decimal_from_label",
+      "default_context_tokens": null,
+      "max_input_tokens": 1024000,
+      "max_output_tokens": 256000,
+      "window_semantics": "unspecified",
+      "status": "documented",
+      "sources": [
+        "https://docs.volcengine.com/docs/ark/model-list?lang=zh"
+      ],
+      "notes": "Window/input/output are separate published k-labelled ceilings, not additive simultaneous allowances."
+    },
+    {
+      "provider": "doubao",
+      "model_id": "doubao-seed-2-1-pro-260628",
+      "context_tokens": 256000,
+      "context_label": "256k",
+      "precision": "conservative_decimal_from_label",
+      "default_context_tokens": null,
+      "max_input_tokens": 256000,
+      "max_output_tokens": 256000,
+      "window_semantics": "unspecified",
+      "status": "earlier snapshot",
+      "sources": [
+        "https://docs.volcengine.com/docs/ark/model-list?lang=zh"
+      ],
+      "notes": ""
+    },
+    {
+      "provider": "hunyuan-tokenhub",
+      "model_id": "hy3",
+      "context_tokens": 256000,
+      "context_label": "256k",
+      "precision": "conservative_decimal_from_label",
+      "default_context_tokens": null,
+      "max_input_tokens": 192000,
+      "max_output_tokens": 128000,
+      "window_semantics": "unspecified",
+      "status": "documented",
+      "sources": [
+        "https://cloud.tencent.com/document/product/1823/130051"
+      ],
+      "notes": ""
+    },
+    {
+      "provider": "hunyuan-tokenhub",
+      "model_id": "hy4-preview",
+      "context_tokens": 1000000,
+      "context_label": "1M",
+      "precision": "conservative_decimal_from_label",
+      "default_context_tokens": null,
+      "max_input_tokens": 960000,
+      "max_output_tokens": 64000,
+      "window_semantics": "unspecified",
+      "status": "preview",
+      "sources": [
+        "https://cloud.tencent.com/document/product/1823/130051"
+      ],
+      "notes": ""
+    },
+    {
+      "provider": "baidu-qianfan",
+      "model_id": "ernie-5.1",
+      "context_tokens": 128000,
+      "context_label": "128k",
+      "precision": "conservative_decimal_from_label",
+      "default_context_tokens": null,
+      "max_input_tokens": 119000,
+      "max_output_tokens": 65536,
+      "window_semantics": "combined",
+      "status": "documented",
+      "sources": [
+        "https://intl.cloud.baidu.com/en/doc/qianfan/s/7m95lyy43-intl-en",
+        "https://cloud.baidu.com/doc/qianfan-api/s/Dmba8k71y"
+      ],
+      "notes": ""
+    },
+    {
+      "provider": "baidu-qianfan",
+      "model_id": "ernie-5.0",
+      "context_tokens": 128000,
+      "context_label": "128k",
+      "precision": "conservative_decimal_from_label",
+      "default_context_tokens": null,
+      "max_input_tokens": 119000,
+      "max_output_tokens": 65536,
+      "window_semantics": "combined",
+      "status": "documented",
+      "sources": [
+        "https://intl.cloud.baidu.com/en/doc/qianfan/s/7m95lyy43-intl-en",
+        "https://cloud.baidu.com/doc/qianfan-api/s/Dmba8k71y"
+      ],
+      "notes": ""
+    },
+    {
+      "provider": "baidu-qianfan",
+      "model_id": "ernie-4.5-turbo-128k",
+      "context_tokens": 128000,
+      "context_label": "128k",
+      "precision": "conservative_decimal_from_label",
+      "default_context_tokens": null,
+      "max_input_tokens": 123000,
+      "max_output_tokens": 12288,
+      "window_semantics": "combined",
+      "status": "documented",
+      "sources": [
+        "https://intl.cloud.baidu.com/en/doc/qianfan/s/7m95lyy43-intl-en",
+        "https://cloud.baidu.com/doc/qianfan-api/s/Dmba8k71y"
+      ],
+      "notes": ""
+    }
+  ],
+  "not_a_native_compaction_threshold": true,
+  "ten_million_note": "No 10M universal default. Google research demonstrations are not current standard API limits.",
+  "ten_million_source": "https://blog.google/innovation-and-ai/products/long-context-window-ai-models/"
+}

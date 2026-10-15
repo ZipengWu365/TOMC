@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="520" height="1320" viewBox="0 0 520 1320" role="img" aria-labelledby="title desc">
+<title id="title">TOMC: from history to traceable memory</title><desc id="desc">TOMC compiles selected history into task-conditioned records and raw evidence under a budget for an unchanged LLM reader. The output illustrates the STATE route.</desc>
+<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0 0L7 4L0 8" fill="none" stroke="#273343" stroke-width="1.4"/></marker></defs>
+<rect width="100%" height="100%" rx="16" fill="white"/>
+<style>text{font-family:Arial,'Noto Sans CJK SC',sans-serif;fill:#273343}.mono{font-family:ui-monospace,'DejaVu Sans Mono',monospace}</style>
+<text x="32" y="43" font-size="14" style="fill:#356da6" font-weight="700" text-anchor="start" class="label">TOMC  /  TASK-ORIENTED MEMORY COMPILATION</text>
+<text x="32" y="87" font-size="29" style="fill:#273343" font-weight="700" text-anchor="start" class="label">History → traceable memory</text>
+<rect x="32" y="130" width="456" height="278" rx="14" fill="#edf4fc" stroke="#356da6" stroke-width="1.8"/>
+<text x="54" y="169" font-size="25" style="fill:#356da6" font-weight="700" text-anchor="start" class="label">01  History + task</text>
+<text x="54" y="218" font-size="20" style="fill:#273343" font-weight="400" text-anchor="start" class="mono">drink = tea</text>
+<text x="54" y="256" font-size="20" style="fill:#273343" font-weight="400" text-anchor="start" class="mono">backup_drink copies drink</text>
+<text x="54" y="294" font-size="20" style="fill:#273343" font-weight="400" text-anchor="start" class="mono">drink = decaf tea</text>
+<text x="54" y="350" font-size="23" style="fill:#356da6" font-weight="700" text-anchor="start" class="label">What is current?</text>
+<text x="54" y="382" font-size="19" style="fill:#273343" font-weight="400" text-anchor="start" class="label">What did the earlier copy keep?</text>
+<rect x="32" y="456" width="456" height="330" rx="14" fill="#fafbf9" stroke="#287451" stroke-width="1.8"/>
+<text x="54" y="495" font-size="25" style="fill:#287451" font-weight="700" text-anchor="start" class="label">02  Select + compile</text>
+<rect x="50" y="517" width="420" height="83" rx="8" fill="#edf6e8" stroke="#287451" stroke-width="1.8"/>
+<text x="66" y="549" font-size="25" style="fill:#287451" font-weight="700" text-anchor="start" class="label">Task-specific records</text>
+<text x="66" y="579" font-size="17" style="fill:#273343" font-weight="400" text-anchor="start" class="label">State / key–value / relation / count</text>
+<rect x="50" y="617" width="420" height="83" rx="8" fill="#edf4fc" stroke="#356da6" stroke-width="1.8"/>
+<text x="66" y="649" font-size="25" style="fill:#356da6" font-weight="700" text-anchor="start" class="label">Raw evidence</text>
+<text x="66" y="679" font-size="17" style="fill:#273343" font-weight="400" text-anchor="start" class="label">Keep relevant source wording</text>
+<text x="54" y="741" font-size="19" style="fill:#287451" font-weight="700" text-anchor="start" class="label">Pack selected memory to a budget</text>
+<text x="54" y="767" font-size="17" style="fill:#273343" font-weight="400" text-anchor="start" class="label">Training-free; reader unchanged</text>
+<rect x="32" y="834" width="456" height="270" rx="14" fill="#edf6e8" stroke="#287451" stroke-width="1.8"/>
+<text x="54" y="873" font-size="25" style="fill:#287451" font-weight="700" text-anchor="start" class="label">03  Task-ready memory</text>
+<text x="54" y="920" font-size="19" style="fill:#273343" font-weight="400" text-anchor="start" class="mono">backup_drink</text>
+<text x="54" y="950" font-size="26" style="fill:#97651b" font-weight="700" text-anchor="start" class="label">tea</text>
+<text x="54" y="1000" font-size="19" style="fill:#273343" font-weight="400" text-anchor="start" class="mono">drink</text>
+<text x="54" y="1030" font-size="26" style="fill:#287451" font-weight="700" text-anchor="start" class="label">decaf tea</text>
+<text x="54" y="1070" font-size="23" style="fill:#287451" font-weight="700" text-anchor="start" class="label">Memory → LLM reader</text>
+<path d="M260 420L260 441" fill="none" stroke="#273343" stroke-width="2.4" stroke-dasharray="none" marker-end="url(#arrow)"/>
+<path d="M260 798L260 819" fill="none" stroke="#273343" stroke-width="2.4" stroke-dasharray="none" marker-end="url(#arrow)"/>
+<rect x="32" y="1140" width="456" height="143" rx="14" fill="#fff5df" stroke="#97651b" stroke-width="1.8"/>
+<text x="50" y="1172" font-size="20" style="fill:#97651b" font-weight="700" text-anchor="start" class="label">Keep the evidence inspectable</text>
+<text x="50" y="1201" font-size="18" style="fill:#273343" font-weight="400" text-anchor="start" class="mono">u0: drink = tea</text>
+<text x="50" y="1230" font-size="18" style="fill:#273343" font-weight="400" text-anchor="start" class="mono">u2: backup_drink copies drink</text>
+<text x="50" y="1259" font-size="18" style="fill:#273343" font-weight="400" text-anchor="start" class="label">Inspector outside the reader budget</text>
+</svg>

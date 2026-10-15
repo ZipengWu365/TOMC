@@ -1,0 +1,13 @@
+{
+  "id": "snapshot",
+  "title": "A copy remembers its moment · 快照复制",
+  "messages": [
+    {"role": "user", "content": "drink = tea\nseat = window"},
+    {"role": "user", "content": "backup_drink copies drink"},
+    {"role": "user", "content": "drink = decaf tea\nseat = aisle"}
+  ],
+  "query": "What are the current drink, backup_drink and seat preferences?",
+  "strategy": "tomc",
+  "budget": 96,
+  "note": "Synthetic normalized operations. A copy captures the value at that moment. Source metadata adds overhead on this tiny example."
+}

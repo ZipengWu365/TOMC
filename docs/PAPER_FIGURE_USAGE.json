@@ -1,0 +1,59 @@
+{
+  "schema": "tomc-paper-figure-use-v1",
+  "verified_on": "2026-10-05",
+  "scope": "Unmodified manuscript figures for the README paper explanation; no manuscript PDF or question/answer text",
+  "existing_figures": {
+    "assets/paper_method.png": {
+      "figure": 1,
+      "source": "figures/tomc_overview.png",
+      "sha256": "545fbf368920c3851028bab5d6a26c216c56ba3b09358284d098ff6fbdbf42d6",
+      "export_authority": "benchmarks/current_paper/manifest.json"
+    },
+    "assets/paper_beam.png": {
+      "figure": 2,
+      "source": "figures/results_composite.png",
+      "sha256": "c92b1330c9a7c76b2d905f13f758318e8fd25b93eb6bc6c9c621a128ed901a89",
+      "export_authority": "benchmarks/current_paper/manifest.json"
+    }
+  },
+  "additional_figures": {
+    "assets/paper_ruler.png": {
+      "figure": 3,
+      "source": "figures/ruler_task_quality_input.png",
+      "sha256": "5ec2616da4882a29ea5e9694a30fb3094e3b4ca8e2aa062a181f53dd7aaedea4",
+      "pixels": [
+        1980,
+        612
+      ],
+      "layout": "Manuscript four-panel row"
+    },
+    "assets/paper_ruler_review.png": {
+      "figure": 3,
+      "source": "output/figure3_repaired_20260925T163356629671Z/Figure3_four_radars_2x2_20260925T163356629671Z.png",
+      "sha256": "40fa255d18d8b727985e034dac6c0d02eb395e2078220233dd8276f12d661c32",
+      "pixels": [
+        1980,
+        1404
+      ],
+      "layout": "Existing larger 2x2 review layout; not the manuscript page layout"
+    }
+  },
+  "ruler_scope": {
+    "task_order": [
+      "NIAH",
+      "VT",
+      "QA2"
+    ],
+    "panels_a_b": "Archived task comparisons; input savings reference Query selection",
+    "panels_c_d": "Independent component removals; input savings reference full TOMC/state route; NIAH uses the repaired paired rerun",
+    "vt": "State-route diagnostic; full tomc and candidate removal tomc_state_only are separate conditions",
+    "full_vt_input_saving_vs_query_pct": 89.24016789445945,
+    "note": "The displayed report selector was corrected from tomc_state_only to tomc; frozen CSVs and scores were not changed"
+  },
+  "reader_labels": [
+    "GPT-5.1",
+    "Rednote preview",
+    "DeepSeek V4.1 Flash"
+  ],
+  "resource_reference": "Current construction Table 3 in docs/paper_results.md; historical GPU/RAM scatter not reused"
+}
