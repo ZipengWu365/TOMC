@@ -44,7 +44,11 @@
 
 [横版视频](launch/media/v12/videos/TOMC_Agent_Complete_ZH.mp4) · [English video](launch/media/v12/videos/TOMC_Agent_Complete_EN.mp4) · [素材与测试范围](launch/media/v12/README.md)
 
-结尾明确标注**已使用 TOMC 测试的模型**及用途：API 模型接收准备好的上下文，Codex 和 Claude Code 调用 TOMC 工具。名单包含 DeepSeek 4.1 Flash、DeepSeek 4 PRO、小红书 Red preview、Claude Opus 5.5、ChatGPT Codex 6.1 Sol。这份名单综合已有测试记录与作者提供的测试情况；视频中的 token 和费用结果各有独立协议，不能解释为五模型统一基准或提供商背书。
+**视频演示的流程：** 在下一次 API 请求之前准备任务上下文，或明确保存任务笔记，供后续会话召回。Codex、Claude Code 通过 TOMC 工具操作；API 接入方自行发送编译结果。视频中的模型名单包含有记录的测试和作者提供的测试，不构成统一的多模型评测或模型提供商背书。
+
+**可核验的实验数字：** Windows Codex 在合成最新状态测试中，40% 历史预算下 **45/45** 项答案正确，**请求总输入量平均配对减少 29.7%**（[协议与数据](docs/codex_retention_20261005_zh.md)）。另一组 Claude Code 合成历史测试在约 40K-token 历史、40% 预算条件下，**5/5** 项最新状态答案正确，**单次回答请求费用降低 59%**（[验证记录](docs/validation.md#claude-code-windows-validation)）。以上结果不代表完整编程 Agent 会话的端到端节省。
+
+**立即试用：** [首次使用指南](#first-run-tomc) · [Python API](#接在你的-api-调用之前) · [完整实验结果和局限](#实测节省)。
 
 TOMC 目前是研究预览。欢迎试用、反馈、提交 Issue 和 PR，以及交流与研究合作。换设备与换助手可以独立选择；跨设备笔记传递采用手动 Git。
 
@@ -53,6 +57,56 @@ TOMC 目前是研究预览。欢迎试用、反馈、提交 Issue 和 PR，以�
 选择你所用客户端的接入方式。TOMC 在本地 CPU 上准备上下文，回答由助手生成；插件本身不需要额外的大模型 API key 或 GPU。
 
 **当前聊天由宿主管理。** Codex、Claude Code 等宿主负责上下文压缩时，TOMC 不主动再次压缩同一聊天；无法确认宿主状态时也默认由宿主负责。TOMC 用于另外提供的外部历史和明确保存的任务笔记。这是工具调用规则，不是自动压缩状态检测器。[上下文归属说明](docs/context_ownership_zh.md)。插件包 0.1.1 包含此规则，编译核心仍为 0.1.0。
+
+<a id="first-run-tomc"></a>
+
+#### 首次试用：按你的使用场景选择入口
+
+**Claude Code：保存一条任务笔记，再在新聊天中取回。** 先安装 [UV](https://docs.astral.sh/uv/getting-started/installation/)，然后在 Claude Code 内执行：
+
+```text
+/plugin marketplace add ZipengWu365/TOMC
+/plugin install tomc-memory@tomc
+```
+
+新开会话或重新加载 VS Code，使用 `/mcp` 检查 `plugin:tomc-memory:tomc`，再明确要求调用工具：
+
+```text
+请调用 TOMC 的 remember_memory，将下面的笔记保存为 api-refactor：
+公共 API 路由不得改变；分页测试尚未编写。
+请展示工具结果。
+```
+
+在**使用同一本地记忆数据库的新聊天**中，要求：
+
+```text
+请调用 TOMC 的 recall_memory，取回 api-refactor。
+报告之前的约束和未完成工作，并展示工具结果。
+```
+
+这里验证的是**显式保存与召回**，不会自动记录当前聊天的全部历史。[Claude Code 安装指南](docs/assistant_plugin_zh.md#claude-code) · [笔记共用排查](docs/usage_tips_zh.md#reuse-notebooks)。
+
+**Codex CLI：安装插件并检查工具是否可用。** [下载 0.1.1 版 Codex ZIP](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-codex-0.1.1.zip)，解压到准备保留的目录，使用 UV 与兼容的 Codex CLI 执行：
+
+```bash
+uv run --no-project --python 3.12 install.py --check
+uv run --no-project --python 3.12 install.py
+```
+
+第一条命令只检查前提条件，不修改 Codex 配置；安装后需要**新开 Codex 会话**，并明确要求调用 TOMC 保存或召回命名笔记。[完整 Codex 说明](docs/assistant_plugin_zh.md#codex) · [平台验证范围](docs/platform_checks.md)。
+
+**Python API：先离线检查上下文，再接入大模型。** 需要 Python 3.10 或更新版本：
+
+```bash
+git clone https://github.com/ZipengWu365/TOMC.git
+cd TOMC
+python -m pip install -e .
+python examples/api_context.py
+```
+
+这个示例仅在本地准备并统计上下文，**不调用模型**。实际使用时，`prepared.messages` 应当**替换**原历史，并保留应用需要的指令和工具协议。[API 接入示例](#接在你的-api-调用之前) · [参考文档](docs/api_reference.md)。
+
+#### 其他客户端接入
 
 | 客户端 | 从哪里开始 | 前提条件 |
 |---|---|---|
