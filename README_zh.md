@@ -1,8 +1,8 @@
 <div align="center">
   <p>
-    <a href="https://github.com/ZipengWu365/TOMC" title="点击页面右上角 Star，支持 TOMC"><img src="assets/star-us.svg" alt="Star us · 点颗星支持 TOMC" width="18%" align="middle"></a>
-    <img src="assets/tomc_logo_20261002.png" alt="TOMC Memory" width="54%" align="middle">
-    <a href="https://github.com/ZipengWu365/TOMC/stargazers"><img src="https://img.shields.io/github/stars/ZipengWu365/TOMC?style=for-the-badge&amp;label=Stars&amp;color=f5bb24&amp;labelColor=24292f" alt="GitHub Stars 数量" width="18%" align="middle"></a>
+    <a href="https://github.com/ZipengWu365/TOMC" title="点击页面右上角 Star，支持 TOMC"><img src="assets/star-us.svg" alt="Star us · 点颗星支持 TOMC" width="26%" align="middle"></a>
+    <img src="assets/tomc_logo_20261002.png" alt="TOMC Memory" width="40%" align="middle">
+    <a href="https://github.com/ZipengWu365/TOMC/stargazers"><img src="https://img.shields.io/github/stars/ZipengWu365/TOMC?style=for-the-badge&amp;label=Stars&amp;color=f5bb24&amp;labelColor=24292f" alt="GitHub Stars 数量" width="26%" align="middle"></a>
   </p>
   <p><strong>TOMC 帮上忙了？点一下右上角 ⭐ Star，支持我们继续更新。</strong></p>
   <h1>TOMC Memory</h1>

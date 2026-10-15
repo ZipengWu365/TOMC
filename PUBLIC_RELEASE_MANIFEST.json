@@ -82,12 +82,12 @@
     {
       "path": "README.md",
       "bytes": 44585,
-      "sha256": "23c7eb0d10661014264ea850970ced2971d7adb8895dffa910f1cf523ee67b49"
+      "sha256": "0059bf43a37e46c5806eb7bb1716460aa68cafb6bce273a5e8f8155a6a179a7d"
     },
     {
       "path": "README_zh.md",
       "bytes": 42489,
-      "sha256": "6aed82952ce2c822d31426b81940f292fe874152bdd690658e49fe6eef50f4bf"
+      "sha256": "5b42dda4768d4a78d91a0d374d93193f776357a7080a84681903dfdd1eee362b"
     },
     {
       "path": "SECURITY.md",
@@ -376,8 +376,8 @@
     },
     {
       "path": "assets/star-us.svg",
-      "bytes": 534,
-      "sha256": "377ea7eb96fa48be71821710ee680ada1cf90d899fb779931ead25b6f0b54f65"
+      "bytes": 714,
+      "sha256": "d409ecd3143b520615ebd563b36e2d1b416b18803c8a25b62bc26d507a20336f"
     },
     {
       "path": "assets/tomc_brand_20261002.prompt.md",
@@ -1970,7 +1970,7 @@
       "sha256": "17c605bde43040d24896c39084ccbddf0274e282420cd9bffa10fb691992f141"
     }
   ],
-  "total_bytes": 87316521,
+  "total_bytes": 87316701,
   "self_excluded": [
     "PUBLIC_RELEASE_MANIFEST.json",
     "SHA256SUMS"

@@ -1,8 +1,8 @@
 <div align="center">
   <p>
-    <a href="https://github.com/ZipengWu365/TOMC" title="Give TOMC a star using the Star button at the top of this page"><img src="assets/star-us.svg" alt="Star us on GitHub" width="18%" align="middle"></a>
-    <img src="assets/tomc_logo_20261002.png" alt="TOMC Memory" width="54%" align="middle">
-    <a href="https://github.com/ZipengWu365/TOMC/stargazers"><img src="https://img.shields.io/github/stars/ZipengWu365/TOMC?style=for-the-badge&amp;label=Stars&amp;color=f5bb24&amp;labelColor=24292f" alt="GitHub stars" width="18%" align="middle"></a>
+    <a href="https://github.com/ZipengWu365/TOMC" title="Give TOMC a star using the Star button at the top of this page"><img src="assets/star-us.svg" alt="Star us on GitHub" width="26%" align="middle"></a>
+    <img src="assets/tomc_logo_20261002.png" alt="TOMC Memory" width="40%" align="middle">
+    <a href="https://github.com/ZipengWu365/TOMC/stargazers"><img src="https://img.shields.io/github/stars/ZipengWu365/TOMC?style=for-the-badge&amp;label=Stars&amp;color=f5bb24&amp;labelColor=24292f" alt="GitHub stars" width="26%" align="middle"></a>
   </p>
   <p><strong>Found TOMC useful? Click ⭐ Star at the top right to support the project.</strong></p>
   <h1>TOMC Memory</h1>

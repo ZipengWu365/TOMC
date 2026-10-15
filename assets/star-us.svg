@@ -1,6 +1,12 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="160" height="48" viewBox="0 0 160 48" role="img" aria-labelledby="title">
+<svg xmlns="http://www.w3.org/2000/svg" width="260" height="76" viewBox="0 0 260 76" role="img" aria-labelledby="title">
   <title id="title">Star us on GitHub</title>
-  <rect x="1" y="1" width="158" height="46" rx="12" fill="#fff8dc" stroke="#eac54f" stroke-width="2"/>
-  <path d="m27 11 4 8 9 1-6.5 6.3 1.5 9L27 31l-8 4.3 1.5-9L14 20l9-1z" fill="#f5bb24" stroke="#d89a09" stroke-linejoin="round"/>
-  <text x="50" y="31" fill="#24292f" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="700">Star us</text>
+  <defs>
+    <linearGradient id="gold" x2="0.7" y2="1">
+      <stop stop-color="#ffe56b"/>
+      <stop offset="1" stop-color="#f2b90c"/>
+    </linearGradient>
+  </defs>
+  <rect x="62" y="8" width="196" height="60" rx="11" fill="#eff1f3"/>
+  <path d="m28 10 8 17 19 3-14 13 3 19-16-9-17 9 3-19L1 30l19-3z" fill="url(#gold)" stroke="#deb526" stroke-width="1.5" stroke-linejoin="round"/>
+  <text x="73" y="51" fill="#202428" font-family="'Courier New', Courier, monospace" font-size="41" font-weight="700" letter-spacing="-0.7">Star us</text>
 </svg>
