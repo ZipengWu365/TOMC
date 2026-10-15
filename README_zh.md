@@ -44,11 +44,11 @@
 
 [横版视频](launch/media/v12/videos/TOMC_Agent_Complete_ZH.mp4) · [English video](launch/media/v12/videos/TOMC_Agent_Complete_EN.mp4) · [素材与测试范围](launch/media/v12/README.md)
 
-**视频演示的流程：** 在下一次 API 请求之前准备任务上下文，或明确保存任务笔记，供后续会话召回。Codex、Claude Code 通过 TOMC 工具操作；API 接入方自行发送编译结果。视频中的模型名单包含有记录的测试和作者提供的测试，不构成统一的多模型评测或模型提供商背书。
+API 接入方在请求前调用 TOMC，发送准备好的上下文。Codex 和 Claude Code 通过工具保存或召回任务笔记。视频中的模型名单包含有记录的测试和作者报告的试用，未做统一的多模型评测，也没有模型提供商背书。
 
-**可核验的实验数字：** Windows Codex 在合成最新状态测试中，40% 历史预算下 **45/45** 项答案正确，**请求总输入量平均配对减少 29.7%**（[协议与数据](docs/codex_retention_20261005_zh.md)）。另一组 Claude Code 合成历史测试在约 40K-token 历史、40% 预算条件下，**5/5** 项最新状态答案正确，**单次回答请求费用降低 59%**（[验证记录](docs/validation.md#claude-code-windows-validation)）。以上结果不代表完整编程 Agent 会话的端到端节省。
+[实测结果](#实测节省)保留了 Codex、Claude Code 各自的实验条件和原始记录。
 
-**立即试用：** [首次使用指南](#first-run-tomc) · [Python API](#接在你的-api-调用之前) · [完整实验结果和局限](#实测节省)。
+[首次使用指南](#first-run-tomc) · [Python API](#接在你的-api-调用之前) · [完整实验结果和局限](#实测节省)。
 
 TOMC 目前是研究预览。欢迎试用、反馈、提交 Issue 和 PR，以及交流与研究合作。换设备与换助手可以独立选择；跨设备笔记传递采用手动 Git。
 
@@ -60,7 +60,7 @@ TOMC 目前是研究预览。欢迎试用、反馈、提交 Issue 和 PR，以�
 
 <a id="first-run-tomc"></a>
 
-#### 首次试用：按你的使用场景选择入口
+#### 首次试用
 
 **Claude Code：保存一条任务笔记，再在新聊天中取回。** 先安装 [UV](https://docs.astral.sh/uv/getting-started/installation/)，然后在 Claude Code 内执行：
 
@@ -84,7 +84,7 @@ TOMC 目前是研究预览。欢迎试用、反馈、提交 Issue 和 PR，以�
 报告之前的约束和未完成工作，并展示工具结果。
 ```
 
-这里验证的是**显式保存与召回**，不会自动记录当前聊天的全部历史。[Claude Code 安装指南](docs/assistant_plugin_zh.md#claude-code) · [笔记共用排查](docs/usage_tips_zh.md#reuse-notebooks)。
+笔记需要主动保存和召回，插件不会自动记录全部聊天。[Claude Code 安装指南](docs/assistant_plugin_zh.md#claude-code) · [笔记共用排查](docs/usage_tips_zh.md#reuse-notebooks)。
 
 **Codex CLI：安装插件并检查工具是否可用。** [下载 0.1.1 版 Codex ZIP](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-codex-0.1.1.zip)，解压到准备保留的目录，使用 UV 与兼容的 Codex CLI 执行：
 
@@ -253,13 +253,18 @@ response = client.chat.completions.create(
 )
 ```
 
-这里的 `history`、`task`、`client` 和 `model` 来自你已有的应用。**本次请求用准备后的消息替换原历史；追加到原历史后面会增加输入。** 保留应用所需的指令。其他文本 API 可转换为各自的消息格式；TOMC 改变请求文本，无需修改模型权重。[API 用法与 token 计数](docs/api_reference.md)。
+`history`、`task`、`client` 和 `model` 来自你已有的应用。**本次请求用准备后的消息替换原历史；追加到原历史后面会增加输入。** 保留应用所需的指令。其他文本 API 可转换为各自的消息格式；TOMC 改变请求文本，无需修改模型权重。[API 用法与 token 计数](docs/api_reference.md)。
 
 #### 实测节省
 
 ##### Windows Codex · gpt-6.1-sol
 
 **每种预算均为 45/45。** 测试使用九份合成团队聊天历史：三个 seed，分别生成约 10K、20K、40K history token 的历史，每份回答五个项目最新状态问题。Windows Codex 0.160.0 保留原有模型、`ultra` effort 和已安装插件。TOMC 先通过已安装的 MCP 工具准备上下文，再交给各自的新聊天回答。
+
+[![Windows Codex：4 种预算下均为 45/45；平均请求输入及配对减少比例。](assets/results/codex_savings_zh.svg)](docs/codex_retention_20261005_zh.md)
+
+<details>
+<summary>查看可复制的原始数值</summary>
 
 | 发送的上下文 | 平均请求输入 token | 平均配对输入减少 | 正确回答 |
 |---|---:|---:|---:|
@@ -268,17 +273,26 @@ response = client.chat.completions.create(
 | TOMC · 60% 历史预算 | 33,344 | 19.5% | 45/45 |
 | TOMC · 默认 80% 历史预算 | 38,035 | 9.2% | 45/45 |
 
+</details>
+
 输入采用 Codex 返回的总量，包含缓存输入、宿主指令和工具定义。减少比例是九份历史各自配对比例的均值，不是表中两个均值直接相除。每份历史、每种条件只统计一次回答回合；让模型在聊天中准备或取回上下文还会增加回合。所有准备结果都使用 `tomc_raw` 原文选择，没有生成操作记录。本次测试针对合成历史的最新状态查找，不代表通用编程质量。[English report](docs/codex_retention_20261005.md) · [中文报告](docs/codex_retention_20261005_zh.md) · [原始记录](docs/validation_data/windows_codex_retention_20261005.json) · [预算技巧](docs/usage_tips_zh.md#choose-budget)。完整历史对照也使用相同的配置，TOMC 已安装，其他已启用插件保持启用。表中测量的是测试程序内每种条件的单次回答回合；完整 agent 工作流还可能包含额外回合。
 
 ##### Claude Code · Claude Opus 5.5
 
-**答案一样，请求更小。** 我们用约 10K、20K、40K token 的合成团队聊天历史测试，里面有几十到几百次状态更新，还混有同样关键词的干扰信息；由 Claude Opus 5.5 回答 5 个关于项目最新状态的问题。TOMC 保留 40% 的历史时，答案与完整历史完全一致，请求费用降低一半以上：
+我们用约 10K、20K、40K token 的合成团队聊天历史测试，里面有几十到几百次状态更新，还混有同样关键词的干扰信息；由 Claude Opus 5.5 回答 5 个关于项目最新状态的问题。TOMC 保留 40% 的历史时，这 5 个问题的答案与完整历史一致。费用如下：
+
+[![Claude Code：10K、20K、40K 历史的请求费用；各展示条件均为 5/5。](assets/results/claude_savings_zh.svg)](docs/validation.md#claude-code-windows-validation)
+
+<details>
+<summary>查看可复制的原始数值</summary>
 
 | 历史长度 | 完整历史 | TOMC 保留 40% | TOMC 保留 60% |
 |---|---|---|---|
 | 约 10K token | US$0.169 · 5/5 | US$0.075 · 5/5（−56%） | US$0.103 · 5/5（−39%） |
 | 约 20K token | US$0.334 · 5/5 | US$0.141 · 5/5（−58%） | US$0.195 · 5/5（−42%） |
 | 约 40K token | US$0.628 · 5/5 | US$0.255 · 5/5（−59%） | US$0.369 · 5/5（−41%） |
+
+</details>
 
 **Claude Code 的默认预算检查。** 不传 `budget` 时，TOMC 保留历史估算长度的约 80%（至少 1,024，短历史保持完整）。在每种长度各 3 份不同的历史上，Claude Opus 5.5 默认设置 45 题全对，输入约减少 20%；保留 50%、60%、70% 也都 45 题全对，分别约省 49%、39%、30%。预算再小就开始返回过时的值：只保留 10–20% 时，5 题只答对 3 到 4 题。只有在拿自己的一部分任务和完整历史对比确认后，才建议传入更小的 `budget`。以上为单一模型在合成历史上的测试，请求工作流与 Codex 测试不同。[验证记录](docs/validation.md#claude-code-windows-validation) · [预算技巧](docs/usage_tips_zh.md)
 

@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="540" viewBox="0 0 1000 540" role="img" aria-labelledby="title description">
+<title id="title">Windows Codex · gpt-6.1-sol</title><desc id="description">Four context budgets; mean total request input 42191, 28713, 33344, 38035. All 45/45 correct. Paired reductions 29.7%, 19.5%, 9.2%.</desc>
+<style>text{font-family:"Noto Sans CJK SC","Microsoft YaHei","PingFang SC",Arial,sans-serif;fill:#17212f} .muted{fill:#4d5c6f} .small{font-size:18px}</style>
+<rect x="1" y="1" width="998" height="538" rx="16" fill="#ffffff" stroke="#d7dfe8"/>
+<text x="38" y="46" font-size="28" font-weight="700" text-anchor="start" class="">Windows Codex · gpt-6.1-sol</text>
+<text x="38" y="78" font-size="20" font-weight="400" text-anchor="start" class="muted">Latest-state questions on synthetic histories</text>
+<text x="962" y="46" font-size="30" font-weight="700" text-anchor="end" class="">45/45</text>
+<text x="962" y="77" font-size="18" font-weight="400" text-anchor="end" class="muted">correct at every budget</text>
+<text x="300" y="123" font-size="19" font-weight="400" text-anchor="start" class="muted">Mean request input (tokens)</text>
+<text x="957" y="123" font-size="19" font-weight="400" text-anchor="end" class="muted">Paired reduction</text>
+<text x="38" y="179" font-size="20" font-weight="400" text-anchor="start" class="">Full history</text>
+<rect x="300" y="155" width="421.910" height="30" rx="3" fill="#8893a4"/>
+<text x="810" y="178" font-size="22" font-weight="600" text-anchor="end" class="">42,191</text>
+<text x="957" y="178" font-size="22" font-weight="600" text-anchor="end" class="">Reference</text>
+<text x="38" y="243" font-size="20" font-weight="400" text-anchor="start" class="">TOMC · 40% budget</text>
+<rect x="300" y="219" width="287.130" height="30" rx="3" fill="#277cba"/>
+<text x="810" y="242" font-size="22" font-weight="600" text-anchor="end" class="">28,713</text>
+<text x="957" y="242" font-size="22" font-weight="600" text-anchor="end" class="">−29.7%</text>
+<text x="38" y="307" font-size="20" font-weight="400" text-anchor="start" class="">TOMC · 60% budget</text>
+<rect x="300" y="283" width="333.440" height="30" rx="3" fill="#83b4d8"/>
+<text x="810" y="306" font-size="22" font-weight="600" text-anchor="end" class="">33,344</text>
+<text x="957" y="306" font-size="22" font-weight="600" text-anchor="end" class="">−19.5%</text>
+<text x="38" y="371" font-size="20" font-weight="400" text-anchor="start" class="">TOMC · default 80%</text>
+<rect x="300" y="347" width="380.350" height="30" rx="3" fill="#b5cadb"/>
+<text x="810" y="370" font-size="22" font-weight="600" text-anchor="end" class="">38,035</text>
+<text x="957" y="370" font-size="22" font-weight="600" text-anchor="end" class="">−9.2%</text>
+<text x="300.0" y="414" font-size="17" font-weight="400" text-anchor="middle" class="muted">0</text>
+<text x="400.0" y="414" font-size="17" font-weight="400" text-anchor="middle" class="muted">10K</text>
+<text x="500.0" y="414" font-size="17" font-weight="400" text-anchor="middle" class="muted">20K</text>
+<text x="600.0" y="414" font-size="17" font-weight="400" text-anchor="middle" class="muted">30K</text>
+<text x="700.0" y="414" font-size="17" font-weight="400" text-anchor="middle" class="muted">40K</text>
+<text x="38" y="458" font-size="18" font-weight="400" text-anchor="start" class="muted">9 histories (3 seeds × 10K / 20K / 40K); one answering turn per condition.</text>
+<text x="38" y="488" font-size="18" font-weight="400" text-anchor="start" class="muted">Reductions average paired history-level ratios; bars show mean request input.</text>
+<text x="38" y="518" font-size="18" font-weight="400" text-anchor="start" class="muted">Input includes cache, host instructions and tools. Full coding workflows untested.</text>
+</svg>

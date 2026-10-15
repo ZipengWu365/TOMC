@@ -42,11 +42,11 @@ This is a preview, version **0.1.0**. Download the plugins from the [MIT-license
 
 [Landscape video](launch/media/v12/videos/TOMC_Agent_Complete_EN.mp4) · [Chinese video](launch/media/v12/videos/TOMC_Agent_Complete_ZH.mp4) · [Media and test scope](launch/media/v12/README.md)
 
-**What the demo illustrates:** Context is prepared for the *next* API request, or explicitly saved as task notes for a later assistant session. Codex and Claude Code call TOMC tools; API integrations send the prepared output themselves. The model names in the video combine recorded and author-reported tests, not a uniform multi-model benchmark or provider endorsements.
+API integrations call TOMC before the next request and send the prepared context. Codex and Claude Code use tools to save or recall task notes. The video includes recorded tests and author-reported trials; it has no uniform multi-model benchmark or provider endorsement.
 
-**Results you can audit:** The Windows Codex synthetic latest-state test answered **45/45** items with a **29.7% mean reduction in total request input** at the 40%-history budget ([protocol and raw records](docs/codex_retention_20261005.md)). A separate Claude Code synthetic-history test answered **5/5** latest-state questions with **59% lower answering-request cost** for a ~40K-token history at the 40% budget ([validation](docs/validation.md#claude-code-windows-validation)). Neither figure establishes savings across complete coding-agent sessions.
+The [measured results](#measured-savings) give the Codex and Claude Code protocols and their source records.
 
-**Try it:** [First-run guide](#first-run-tomc) · [Python API](#use-before-your-api-call) · [Full results and limitations](#measured-savings).
+[First-run guide](#first-run-tomc) · [Python API](#use-before-your-api-call) · [Full results and limitations](#measured-savings).
 
 TOMC is a research preview. Feedback, issues, pull requests and research collaboration are welcome. Device choice and assistant choice are independent; cross-device notebook transfer uses manual Git.
 
@@ -58,7 +58,7 @@ Choose the setup for your client. TOMC prepares context locally on CPU; your ass
 
 <a id="first-run-tomc"></a>
 
-#### First run — choose the path that fits your workflow
+#### First run
 
 **Claude Code: save one note, then recall it in a new chat.** Install [UV](https://docs.astral.sh/uv/getting-started/installation/) first. In Claude Code, run:
 
@@ -82,7 +82,7 @@ Use TOMC's recall_memory on api-refactor.
 Report the saved constraints and unfinished work. Show the tool result.
 ```
 
-This tests **explicit** save/recall, not automatic recording of active chats. [Detailed Claude Code setup](docs/assistant_plugin.md#claude-code) · [Shared-notebook checks](docs/usage_tips.md#reuse-notebooks).
+Save and recall are explicit tool calls. The plugin does not record the whole chat automatically. [Detailed Claude Code setup](docs/assistant_plugin.md#claude-code) · [Shared-notebook checks](docs/usage_tips.md#reuse-notebooks).
 
 **Codex CLI: install the plugin and verify tool availability.** [Download the 0.1.1 Codex ZIP](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-codex-0.1.1.zip), extract it into a directory you will keep, and run there with UV and a compatible Codex CLI:
 
@@ -259,6 +259,11 @@ Here `history`, `task`, `client` and `model` are your application's existing inp
 
 **45/45 answers at each budget.** On nine synthetic team-chat histories (three seeds at about 10K, 20K and 40K history tokens), Windows Codex 0.160.0 answered five latest-project-state questions per history. Its original model, `ultra` effort and installed plugins were retained. TOMC prepared context through the installed MCP tool before each new answering chat.
 
+[![Windows Codex: all four budgets score 45/45. Mean request input and paired reductions.](assets/results/codex_savings_en.svg)](docs/codex_retention_20261005.md)
+
+<details>
+<summary>Exact values (copyable text)</summary>
+
 | Context sent | Mean request input tokens | Mean paired input reduction | Correct answers |
 |---|---:|---:|---:|
 | Full history | 42,191 | Reference | 45/45 |
@@ -266,17 +271,26 @@ Here `history`, `task`, `client` and `model` are your application's existing inp
 | TOMC · 60% history budget | 33,344 | 19.5% | 45/45 |
 | TOMC · default 80% history budget | 38,035 | 9.2% | 45/45 |
 
+</details>
+
 Input is Codex's reported total, including cached input, host instructions and tool definitions. Reduction is the mean of nine paired history-level ratios, not the ratio of the table's means. These figures cover one answering turn per history and condition; asking the model to prepare or recall within a chat adds turns. All prepared contexts used `tomc_raw` source selection, without compiled operation records. This tests synthetic latest-state retrieval, rather than general coding quality. [English report](docs/codex_retention_20261005.md) · [Chinese report](docs/codex_retention_20261005_zh.md) · [Recorded data](docs/validation_data/windows_codex_retention_20261005.json) · [Budget tips](docs/usage_tips.md#choose-budget). Full-history requests used the same profile with TOMC installed and all existing plugins enabled. The table covers a single answering turn per condition in the test harness; a full agent workflow may involve additional turns.
 
 ##### Claude Code · Claude Opus 5.5
 
-**Same answers, smaller requests.** On synthetic team-chat histories of about 10K, 20K and 40K tokens, with dozens to hundreds of state updates and look-alike distractors, Claude Opus 5.5 answered five questions about the latest project state. When TOMC kept 40% of the history, every answer matched the full history and the request cost fell by more than half:
+On synthetic team-chat histories of about 10K, 20K and 40K tokens, with dozens to hundreds of state updates and look-alike distractors, Claude Opus 5.5 answered five questions about the latest project state. When TOMC kept 40% of the history, all five answers matched the full-history condition. The answering-request costs were:
+
+[![Claude Code: costs at 10K, 20K and 40K histories; all shown conditions score 5/5.](assets/results/claude_savings_en.svg)](docs/validation.md#claude-code-windows-validation)
+
+<details>
+<summary>Exact values (copyable text)</summary>
 
 | History | Full history | TOMC keeps 40% | TOMC keeps 60% |
 |---|---|---|---|
 | ~10K tokens | US$0.169 · 5/5 | US$0.075 · 5/5 (−56%) | US$0.103 · 5/5 (−39%) |
 | ~20K tokens | US$0.334 · 5/5 | US$0.141 · 5/5 (−58%) | US$0.195 · 5/5 (−42%) |
 | ~40K tokens | US$0.628 · 5/5 | US$0.255 · 5/5 (−59%) | US$0.369 · 5/5 (−41%) |
+
+</details>
 
 **Claude Code default-budget check.** Without `budget`, TOMC keeps about 80% of a history's estimated tokens (at least 1,024, so short histories stay intact). Across three different histories at each length, Claude Opus 5.5 answered all 45 questions correctly with about 20% less input; keeping 50%, 60% and 70% also answered all 45 and saved about 49%, 39% and 30%. Smaller budgets started returning outdated values: keeping 10–20% answered three or four of the five questions. Pass a smaller `budget` only after checking it against the full history on a sample of your own tasks. These are synthetic histories with one model and a separate request workflow from the Codex test. [Validation record](docs/validation.md#claude-code-windows-validation) · [Budget tips](docs/usage_tips.md)
 
