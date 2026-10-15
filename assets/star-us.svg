@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="160" height="48" viewBox="0 0 160 48" role="img" aria-labelledby="title">
+  <title id="title">Star us on GitHub</title>
+  <rect x="1" y="1" width="158" height="46" rx="12" fill="#fff8dc" stroke="#eac54f" stroke-width="2"/>
+  <path d="m27 11 4 8 9 1-6.5 6.3 1.5 9L27 31l-8 4.3 1.5-9L14 20l9-1z" fill="#f5bb24" stroke="#d89a09" stroke-linejoin="round"/>
+  <text x="50" y="31" fill="#24292f" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="700">Star us</text>
+</svg>
