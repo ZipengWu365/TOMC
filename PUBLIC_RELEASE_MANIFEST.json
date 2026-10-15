@@ -81,13 +81,13 @@
     },
     {
       "path": "README.md",
-      "bytes": 44595,
-      "sha256": "5206a364aa24295cbfb34b776a7c24b11d99023d5dd6233a8ab15466b19109a4"
+      "bytes": 47335,
+      "sha256": "1c6e4cf1e1a79757d048d537d94e09753b3b2505960b02ce6e9a260e64b8766a"
     },
     {
       "path": "README_zh.md",
-      "bytes": 42499,
-      "sha256": "60fe0859d89c1194befd5374df0a8b281edbc67bf37fab6ee449443b53b75ce8"
+      "bytes": 45238,
+      "sha256": "c00a8b89889ce6d56d5da71e5cb3913052151e75543e1900dc45930287ce86f2"
     },
     {
       "path": "SECURITY.md",
@@ -303,6 +303,36 @@
       "path": "assets/project_overview_zh_mobile.svg",
       "bytes": 5149,
       "sha256": "5913bc141e98b41b6ffb34f9d353e542ffb58d8b964064a2544171b09c1962ae"
+    },
+    {
+      "path": "assets/results/README.md",
+      "bytes": 2209,
+      "sha256": "3e24743c8b8986e198d740aa8c9697fa56e492a0759668bac8a3ef35fc67dc50"
+    },
+    {
+      "path": "assets/results/claude_savings_en.svg",
+      "bytes": 6201,
+      "sha256": "06a077c2edd3a828c44ffc294d8ae15c89f7cc8d9b1cc1b91c260906ab2ddc30"
+    },
+    {
+      "path": "assets/results/claude_savings_zh.svg",
+      "bytes": 6209,
+      "sha256": "d9d31f20a2dd7425caaaeed2051fda11baf044a13c757657cc6222339a2a0ac6"
+    },
+    {
+      "path": "assets/results/codex_savings_en.svg",
+      "bytes": 3845,
+      "sha256": "091c5713023e96c79b67f70b832270438d4724c51982307ad879d4ac17076030"
+    },
+    {
+      "path": "assets/results/codex_savings_zh.svg",
+      "bytes": 3841,
+      "sha256": "95adb08e07534f97e0bc56c21d57e830a22667aa4bcde5a985d8a76de289cd4e"
+    },
+    {
+      "path": "assets/results/data.json",
+      "bytes": 595,
+      "sha256": "da6f43ba403d6d7a4c7cc5bb660876fae536e1200487e5363f75306450d9ca54"
     },
     {
       "path": "assets/results_overview.png",
@@ -1695,6 +1725,11 @@
       "sha256": "c73376452deb17f15e8af9e90d7e070712a1b54c68af9d63ebf28eadcdad3a7c"
     },
     {
+      "path": "scripts/render_readme_results.py",
+      "bytes": 17647,
+      "sha256": "a3e8522dd9e600274aa54af135cb47b5cafd650e47a25c30ea9183ea1cb4ac88"
+    },
+    {
       "path": "scripts/replicate.py",
       "bytes": 5792,
       "sha256": "4ce421ff830c1d2f72137f0cc2d06918d4c8663fc36bfaab21bf41bad7dd686f"
@@ -1970,7 +2005,7 @@
       "sha256": "17c605bde43040d24896c39084ccbddf0274e282420cd9bffa10fb691992f141"
     }
   ],
-  "total_bytes": 87316721,
+  "total_bytes": 87362747,
   "self_excluded": [
     "PUBLIC_RELEASE_MANIFEST.json",
     "SHA256SUMS"
