@@ -81,13 +81,13 @@
     },
     {
       "path": "README.md",
-      "bytes": 44585,
-      "sha256": "0059bf43a37e46c5806eb7bb1716460aa68cafb6bce273a5e8f8155a6a179a7d"
+      "bytes": 44595,
+      "sha256": "5206a364aa24295cbfb34b776a7c24b11d99023d5dd6233a8ab15466b19109a4"
     },
     {
       "path": "README_zh.md",
-      "bytes": 42489,
-      "sha256": "5b42dda4768d4a78d91a0d374d93193f776357a7080a84681903dfdd1eee362b"
+      "bytes": 42499,
+      "sha256": "60fe0859d89c1194befd5374df0a8b281edbc67bf37fab6ee449443b53b75ce8"
     },
     {
       "path": "SECURITY.md",
@@ -375,7 +375,7 @@
       "sha256": "4854ab277e27d5b26d4e9014a0ca9f91971a0379cf7b93690f19f7d0fd33fbb6"
     },
     {
-      "path": "assets/star-us.svg",
+      "path": "assets/star-us-monospace.svg",
       "bytes": 714,
       "sha256": "d409ecd3143b520615ebd563b36e2d1b416b18803c8a25b62bc26d507a20336f"
     },
@@ -1970,7 +1970,7 @@
       "sha256": "17c605bde43040d24896c39084ccbddf0274e282420cd9bffa10fb691992f141"
     }
   ],
-  "total_bytes": 87316701,
+  "total_bytes": 87316721,
   "self_excluded": [
     "PUBLIC_RELEASE_MANIFEST.json",
     "SHA256SUMS"
