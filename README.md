@@ -1,14 +1,13 @@
 <div align="center">
-  <p>
-    <a href="https://github.com/ZipengWu365/TOMC" title="Give TOMC a star using the Star button at the top of this page"><img src="assets/star-us-monospace.svg" alt="Star us on GitHub" width="26%" align="middle"></a>
-    <img src="assets/tomc_logo_20261002.png" alt="TOMC Memory" width="40%" align="middle">
-  </p>
-  <p>
-    <a href="https://github.com/ZipengWu365/TOMC/stargazers"><img src="https://img.shields.io/github/stars/ZipengWu365/TOMC?style=for-the-badge&amp;label=Stars&amp;color=f5bb24&amp;labelColor=24292f" alt="GitHub Stars" height="28"></a>
-    <a href="docs/traffic_metrics.md"><img src="assets/traffic/clones.svg" alt="Clones in the dated 14-day snapshot" height="28"></a>
-  </p>
+  <table width="100%" role="presentation">
+    <tr>
+      <td width="30%" align="center" valign="middle"><a href="https://github.com/ZipengWu365/TOMC/stargazers"><img src="assets/star-us-monospace.svg" alt="Star us on GitHub" width="85%"></a></td>
+      <td width="40%" align="center" valign="middle"><img src="assets/tomc_logo_20261002.png" alt="TOMC Memory" width="100%"></td>
+      <td width="30%" align="center" valign="middle"><a href="https://github.com/ZipengWu365/TOMC/stargazers"><img src="assets/traffic/stars.svg" alt="GitHub Stars" width="42%"></a> <a href="docs/traffic_metrics.md"><img src="assets/traffic/clones.svg" alt="Cumulative recorded clones" width="56%"></a></td>
+    </tr>
+  </table>
 <!-- traffic-status:start -->
-  <p>Traffic snapshot: 2026-10-16 (GitHub API); rolling 14-day counts, not installations or active users. <a href="docs/traffic_metrics.md">Method and updates</a></p>
+  <p>Cumulative clones · recorded since 2026-10-02 · updated 2026-10-16 UTC. <a href="docs/traffic_metrics.md">Method and updates</a></p>
 <!-- traffic-status:end -->
   <p><strong>Found TOMC useful? Click ⭐ Star at the top right to support the project.</strong></p>
   <h1>TOMC Memory</h1>

@@ -39,7 +39,7 @@ jobs:
             exit 0
           fi
           python scripts/update_traffic.py
-          echo 'Collected GitHub clone aggregates and updated dated badges.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Updated cumulative clones by UTC date and refreshed Star and clone badges.' >> "$GITHUB_STEP_SUMMARY"
       - name: Publish snapshot and release inventory
         run: |
           python scripts/release_manifest.py

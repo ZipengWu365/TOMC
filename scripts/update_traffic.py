@@ -1,4 +1,4 @@
-"""Fetch GitHub clone aggregates and render dated README badges (standard library only)."""
+"""Archive daily GitHub traffic and render cumulative clone and Star badges."""
 
 from __future__ import annotations
 
@@ -67,6 +67,63 @@ def fetch_snapshot(token: str, now: datetime) -> dict:
     return api_snapshot(payload, now)
 
 
+def fetch_stars(token: str, now: datetime) -> dict:
+    request = Request(
+        f"https://api.github.com/repos/{REPOSITORY}",
+        headers={
+            "Accept": "application/vnd.github+json",
+            "Authorization": f"Bearer {token}",
+            "X-GitHub-Api-Version": "2022-11-28",
+            "User-Agent": "TOMC-traffic-badges",
+        },
+    )
+    with urlopen(request, timeout=30) as response:
+        payload = json.load(response)
+    if payload["full_name"] != REPOSITORY:
+        raise ValueError("Unexpected repository")
+    return {
+        "repository": REPOSITORY,
+        "source": "github_repository_api",
+        "observed_at": now.astimezone(timezone.utc).isoformat(timespec="seconds"),
+        "count": integer(payload["stargazers_count"]),
+    }
+
+
+def cumulative_snapshot(snapshot: dict, root: Path) -> dict:
+    """Each UTC date contributes once; newer observations replace earlier counts."""
+    records = []
+    for path in (root / "metrics/traffic/snapshots").glob("*.json"):
+        records.append(json.loads(path.read_text(encoding="utf-8")))
+    records.append(snapshot)
+    daily = {}
+    observed_at = None
+    for record in sorted(records, key=lambda item: item["observed_at"]):
+        if record["source"] != "github_traffic_api":
+            continue  # Screenshot totals overlap and have no daily breakdown.
+        if record["repository"] != REPOSITORY:
+            raise ValueError("Unexpected repository in archive")
+        checked = api_snapshot(
+            {"count": record["count"], "uniques": record["uniques"], "clones": record["daily"]},
+            datetime.fromisoformat(record["observed_at"]),
+        )
+        for row in checked["daily"]:
+            daily[row["timestamp"]] = row["count"]
+        observed_at = checked["observed_at"]
+    if observed_at is None:
+        raise ValueError("Cumulative counts require daily API records")
+    return {
+        "schema": "tomc-cumulative-clones-v1",
+        "repository": REPOSITORY,
+        "source": "archived_github_traffic_api_daily_counts",
+        "observed_at": observed_at,
+        "first_recorded_date": min(daily)[:10] if daily else None,
+        "last_recorded_date": max(daily)[:10] if daily else None,
+        "count": sum(daily.values()),
+        "daily": [{"date": stamp[:10], "count": count} for stamp, count in sorted(daily.items())],
+        "scope": "Sum of recorded UTC dates, each counted once; unavailable history is excluded.",
+    }
+
+
 def badge(label: str, value: str, color: str) -> str:
     left, right = max(72, len(label) * 7 + 20), max(48, len(value) * 8 + 20)
     width = left + right
@@ -94,6 +151,7 @@ def write_snapshot(snapshot: dict, root: Path = ROOT) -> None:
     source = snapshot["source"]
     if source not in {"owner_screenshot", "github_traffic_api"}:
         raise ValueError("Unknown snapshot source")
+    cumulative = cumulative_snapshot(snapshot, root) if source == "github_traffic_api" else None
     assets = root / "assets" / "traffic"
     data = root / "metrics" / "traffic"
     assets.mkdir(parents=True, exist_ok=True)
@@ -102,8 +160,23 @@ def write_snapshot(snapshot: dict, root: Path = ROOT) -> None:
     # One snapshot per UTC date and source. No addition of overlapping 14-day totals.
     (data / "snapshots" / f"{day}-{source}.json").write_text(encoded, encoding="utf-8")
     (data / "latest.json").write_text(encoded, encoding="utf-8")
+    if cumulative is not None:
+        (data / "cumulative.json").write_text(
+            json.dumps(cumulative, indent=2) + "\n", encoding="utf-8"
+        )
+    stars_path = data / "stars.json"
+    if stars_path.exists():
+        stars = json.loads(stars_path.read_text(encoding="utf-8"))
+        (assets / "stars.svg").write_text(
+            badge("Stars", f"{integer(stars['count']):,}", "#946c00"), encoding="utf-8"
+        )
     for name, label, value, color in (
-        ("clones", "Clones | 14d snapshot", f"{count:,}", "#176b47"),
+        (
+            "clones",
+            "Clones (total)" if cumulative else "Clones | 14d snapshot",
+            f"{cumulative['count'] if cumulative else count:,}",
+            "#176b47",
+        ),
         ("unique-cloners", "Unique cloners | 14d", f"{uniques:,}", "#0969a8"),
         ("updated", "Traffic snapshot", day, "#57606a"),
     ):
@@ -120,6 +193,13 @@ def write_snapshot(snapshot: dict, root: Path = ROOT) -> None:
             else f"Traffic snapshot: {day} ({method}); rolling 14-day counts, "
             "not installations or active users."
         )
+        if cumulative is not None:
+            since = cumulative["first_recorded_date"] or day
+            caption = (
+                f"累计克隆 · 自 {since} 起记录 · 更新于 {day} UTC。"
+                if zh
+                else f"Cumulative clones · recorded since {since} · updated {day} UTC."
+            )
         replacement = (
             "<!-- traffic-status:start -->\n"
             f'  <p>{caption} <a href="docs/traffic_metrics.md">'
@@ -153,15 +233,20 @@ def main(argv: list[str] | None = None) -> int:
             if not token:
                 print("Traffic collection not configured: add the TRAFFIC_TOKEN Actions secret.")
                 return 2
-            snapshot = fetch_snapshot(token, datetime.now(timezone.utc))
-        write_snapshot(snapshot)
+            now = datetime.now(timezone.utc)
+            snapshot = fetch_snapshot(token, now)
+            stars = fetch_stars(token, now)
+            (ROOT / "metrics/traffic/stars.json").write_text(
+                json.dumps(stars, indent=2) + "\n", encoding="utf-8"
+            )
+        write_snapshot(snapshot, ROOT)
     except HTTPError as exc:
         print(f"Traffic API returned HTTP {exc.code}; existing snapshot retained.")
         return 1
     except (OSError, ValueError, KeyError, TypeError, URLError):
         print("Traffic refresh failed; no successful collection is claimed. Check saved files.")
         return 1
-    print("Dated traffic snapshot and badges updated; no user-level tracking collected.")
+    print("Cumulative daily clone ledger and dated badges updated.")
     return 0
 
 
