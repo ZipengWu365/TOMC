@@ -2,7 +2,7 @@
   "schema": "tomc-clone-snapshot-v1",
   "repository": "ZipengWu365/TOMC",
   "source": "github_traffic_api",
-  "observed_at": "2026-10-16T22:22:23+00:00",
+  "observed_at": "2026-10-16T22:24:37+00:00",
   "window": "last_14_days_at_fetch",
   "count": 648,
   "uniques": 194,
