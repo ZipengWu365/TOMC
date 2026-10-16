@@ -86,13 +86,13 @@
     },
     {
       "path": "README.md",
-      "bytes": 48108,
-      "sha256": "b0a8d8eb800f440291ceb2d8d3b86123e0604032c9f2b9946e4b685afb52761c"
+      "bytes": 48114,
+      "sha256": "7fcef751773837216964cf2e97ea6f46698ea092d26cb42776b20c78f46a8305"
     },
     {
       "path": "README_zh.md",
-      "bytes": 46006,
-      "sha256": "578dac310cc78e2cebbb0b7c8ff7b696603ccda634f9ed644ed2e4c7f20dc1ae"
+      "bytes": 46012,
+      "sha256": "69a3dabe3562a0af964c825480c44aaebb42a08fc4d8bff936d37079debb4682"
     },
     {
       "path": "SECURITY.md",
@@ -428,6 +428,11 @@
       "path": "assets/tomc_mark.svg",
       "bytes": 1469,
       "sha256": "78084ae40b66945f54d1943db757ccd32f716033aa7e6660782c577b43b851b2"
+    },
+    {
+      "path": "assets/traffic/clones-total.svg",
+      "bytes": 446,
+      "sha256": "36ddeb0e68477940be002cb6149a1024e18b4b2b32082f8f864cdfa1694f59ef"
     },
     {
       "path": "assets/traffic/clones.svg",
@@ -1816,8 +1821,8 @@
     },
     {
       "path": "scripts/update_traffic.py",
-      "bytes": 10813,
-      "sha256": "620405d9d723e31a4673313e2e5db34a3c76a8c0b56924464e7141b6ffdc9162"
+      "bytes": 10819,
+      "sha256": "46ac1d5c375efad2c90591b1467d731d7b8137e2e01e1f0735d971e2a690d1b3"
     },
     {
       "path": "src/tomc/__init__.py",
@@ -2076,11 +2081,11 @@
     },
     {
       "path": "tests/test_traffic_badges.py",
-      "bytes": 6268,
-      "sha256": "129e8026db9b66b812919ead8d94a228e3994cbb398c16365857f2ebe689e689"
+      "bytes": 6274,
+      "sha256": "60f480170270b8216d12c95ab508318dd3e458c6ce5695fbad1b116d0884f15c"
     }
   ],
-  "total_bytes": 87507000,
+  "total_bytes": 87507470,
   "self_excluded": [
     "PUBLIC_RELEASE_MANIFEST.json",
     "SHA256SUMS"

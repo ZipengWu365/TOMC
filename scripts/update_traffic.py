@@ -172,7 +172,7 @@ def write_snapshot(snapshot: dict, root: Path = ROOT) -> None:
         )
     for name, label, value, color in (
         (
-            "clones",
+            "clones-total",
             "Clones (total)" if cumulative else "Clones | 14d snapshot",
             f"{cumulative['count'] if cumulative else count:,}",
             "#176b47",

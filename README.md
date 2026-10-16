@@ -3,7 +3,7 @@
     <tr>
       <td width="30%" align="center" valign="middle"><a href="https://github.com/ZipengWu365/TOMC/stargazers"><img src="assets/star-us-monospace.svg" alt="Star us on GitHub" width="85%"></a></td>
       <td width="40%" align="center" valign="middle"><img src="assets/tomc_logo_20261002.png" alt="TOMC Memory" width="100%"></td>
-      <td width="30%" align="center" valign="middle"><a href="https://github.com/ZipengWu365/TOMC/stargazers"><img src="assets/traffic/stars.svg" alt="GitHub Stars" width="42%"></a> <a href="docs/traffic_metrics.md"><img src="assets/traffic/clones.svg" alt="Cumulative recorded clones" width="56%"></a></td>
+      <td width="30%" align="center" valign="middle"><a href="https://github.com/ZipengWu365/TOMC/stargazers"><img src="assets/traffic/stars.svg" alt="GitHub Stars" width="42%"></a> <a href="docs/traffic_metrics.md"><img src="assets/traffic/clones-total.svg" alt="Cumulative recorded clones" width="56%"></a></td>
     </tr>
   </table>
 <!-- traffic-status:start -->

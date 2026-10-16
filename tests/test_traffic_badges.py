@@ -134,7 +134,7 @@ def test_overlapping_windows_replace_days_and_keep_expired_days(site):
     assert cumulative(site)["count"] == 15  # 4 + revised 6 + new 5; not 8 + 11.
     traffic.write_snapshot(snapshot, site)
     assert cumulative(site)["count"] == 15
-    assert "Clones (total): 15" in (site / "assets/traffic/clones.svg").read_text()
+    assert "Clones (total): 15" in (site / "assets/traffic/clones-total.svg").read_text()
     # Re-rendering an older snapshot cannot roll back a newer daily observation.
     traffic.write_snapshot(traffic.api_snapshot(payload(), NOW), site)
     assert cumulative(site)["count"] == 15
