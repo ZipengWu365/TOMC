@@ -86,13 +86,13 @@
     },
     {
       "path": "README.md",
-      "bytes": 48287,
-      "sha256": "2cbbc58a19445ae94ffb542b49a6e47e29e9b3677859ee640f27a1ed8746509e"
+      "bytes": 48137,
+      "sha256": "e391a96a7efbf5f2622807745ef24298485b5127765bd12bd22a0d6f45e9d357"
     },
     {
       "path": "README_zh.md",
-      "bytes": 46179,
-      "sha256": "2e7986edc730cd5bff9870565d8270af0440aa7c9ec8fb08ad8f00cdc365d72a"
+      "bytes": 46029,
+      "sha256": "865b7ec50838ac9981dec982bc73d0748a0038775c8a0bd32e0ae96ef31280c4"
     },
     {
       "path": "SECURITY.md",
@@ -831,8 +831,8 @@
     },
     {
       "path": "docs/traffic_metrics.md",
-      "bytes": 4357,
-      "sha256": "266ac448e5cc7afdc0fb17e6fcff746e624c0bd43e58795127fd085dfd988096"
+      "bytes": 4218,
+      "sha256": "8aa2d0967e005b152f33868b2adf5b4c88c079075bb9061cacd9e17c2289055c"
     },
     {
       "path": "docs/usage_tips.md",
@@ -2060,7 +2060,7 @@
       "sha256": "3117ef222fb2e616e8d628eb358a277d9cb57cd55e5c1bc6ae8a2cc8fb1bf17f"
     }
   ],
-  "total_bytes": 87495499,
+  "total_bytes": 87495060,
   "self_excluded": [
     "PUBLIC_RELEASE_MANIFEST.json",
     "SHA256SUMS"

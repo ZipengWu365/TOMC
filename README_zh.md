@@ -6,7 +6,6 @@
   <p>
     <a href="https://github.com/ZipengWu365/TOMC/stargazers"><img src="https://img.shields.io/github/stars/ZipengWu365/TOMC?style=for-the-badge&amp;label=Stars&amp;color=f5bb24&amp;labelColor=24292f" alt="GitHub Stars" height="28"></a>
     <a href="docs/traffic_metrics.md"><img src="assets/traffic/clones.svg" alt="Clones in the dated 14-day snapshot" height="28"></a>
-    <a href="docs/traffic_metrics.md"><img src="assets/traffic/unique-cloners.svg" alt="Unique cloners in the dated 14-day snapshot" height="28"></a>
   </p>
 <!-- traffic-status:start -->
   <p>流量快照：2026-10-16（截图记录）；14 天滚动统计，不等于安装量或活跃用户数。 <a href="docs/traffic_metrics.md">统计口径与更新</a></p>

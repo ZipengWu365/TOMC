@@ -1,12 +1,11 @@
 # Repository traffic and Stars
 
-The project homepage shows GitHub Stars alongside clone activity. Stars describe voluntary interest; clone activity describes retrieval of the repository. Neither establishes successful installation, retention, software quality or task performance.
+The project homepage shows only GitHub Stars and the dated 14-day clone count. Stars describe voluntary interest; clone activity describes retrieval of the repository. Neither establishes successful installation, retention, software quality or task performance.
 
 | Metric | Definition |
 |---|---|
 | Stars | Current count supplied by the existing Shields.io GitHub badge |
 | Clones, 14-day snapshot | GitHub's count of full clones during the rolling reporting window; fetches are excluded |
-| Unique cloners, 14-day snapshot | The window-level `uniques` value returned by GitHub; not a verified count of people or active users |
 | Traffic snapshot date | Collection date in UTC, or the date an owner-provided screenshot was recorded |
 
 Automation, repeat setup and maintainer activity can contribute to clone traffic. A clone does not establish that TOMC was installed or used. Daily unique counts are not added to produce the window total. Overlapping 14-day totals are never added to produce a lifetime count.
@@ -32,6 +31,6 @@ When the secret is missing, the workflow warns and retains the dated snapshot. E
 
 ## 中文说明
 
-首页并列展示 Star、最近 14 天克隆次数和独立克隆者，并标明快照日期。克隆量表示代码获取活动，不能直接解释为成功安装人数、真实活跃用户数或产品质量。
+首页仅并列展示 Star 和最近 14 天克隆次数，并标明快照日期。克隆量表示代码获取活动，不能直接解释为成功安装人数、真实活跃用户数或产品质量。
 
 首版采用你于 2026-10-16 提供的截图：648 次克隆、194 个独立克隆者，图表日期为 10 月 2 日至 15 日。自动更新需要在仓库 Actions secrets 中配置 `TRAFFIC_TOKEN`，权限限定 TOMC 的 `Administration: Read-only`；然后手动运行一次上面的 workflow。后续每天定时更新。未配置或读取失败时保留带日期的历史快照，不伪装成实时数据。

@@ -6,7 +6,6 @@
   <p>
     <a href="https://github.com/ZipengWu365/TOMC/stargazers"><img src="https://img.shields.io/github/stars/ZipengWu365/TOMC?style=for-the-badge&amp;label=Stars&amp;color=f5bb24&amp;labelColor=24292f" alt="GitHub Stars" height="28"></a>
     <a href="docs/traffic_metrics.md"><img src="assets/traffic/clones.svg" alt="Clones in the dated 14-day snapshot" height="28"></a>
-    <a href="docs/traffic_metrics.md"><img src="assets/traffic/unique-cloners.svg" alt="Unique cloners in the dated 14-day snapshot" height="28"></a>
   </p>
 <!-- traffic-status:start -->
   <p>Traffic snapshot: 2026-10-16 (owner screenshot); rolling 14-day counts, not installations or active users. <a href="docs/traffic_metrics.md">Method and updates</a></p>
