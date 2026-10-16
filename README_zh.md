@@ -8,7 +8,7 @@
     <a href="docs/traffic_metrics.md"><img src="assets/traffic/clones.svg" alt="Clones in the dated 14-day snapshot" height="28"></a>
   </p>
 <!-- traffic-status:start -->
-  <p>流量快照：2026-10-16（截图记录）；14 天滚动统计，不等于安装量或活跃用户数。 <a href="docs/traffic_metrics.md">统计口径与更新</a></p>
+  <p>流量快照：2026-10-16（GitHub API）；14 天滚动统计，不等于安装量或活跃用户数。 <a href="docs/traffic_metrics.md">统计口径与更新</a></p>
 <!-- traffic-status:end -->
   <p><strong>TOMC 帮上忙了？点一下右上角 ⭐ Star，支持我们继续更新。</strong></p>
   <h1>TOMC Memory</h1>

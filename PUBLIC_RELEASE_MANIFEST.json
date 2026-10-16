@@ -86,13 +86,13 @@
     },
     {
       "path": "README.md",
-      "bytes": 48137,
-      "sha256": "e391a96a7efbf5f2622807745ef24298485b5127765bd12bd22a0d6f45e9d357"
+      "bytes": 48131,
+      "sha256": "07b04c2ed1cae1ebf0185d9c9f57cc4ae132af78867d5461c8250867646d3832"
     },
     {
       "path": "README_zh.md",
-      "bytes": 46029,
-      "sha256": "865b7ec50838ac9981dec982bc73d0748a0038775c8a0bd32e0ae96ef31280c4"
+      "bytes": 46027,
+      "sha256": "af5732a2ff042f8fce68c16e46f9fb82b22a6dd89b57fb59c7d3c6c3759b3902"
     },
     {
       "path": "SECURITY.md",
@@ -1301,8 +1301,13 @@
     },
     {
       "path": "metrics/traffic/latest.json",
-      "bytes": 429,
-      "sha256": "183f76f067476c31fdf1aece8efd9cc4f3bf6ca1d3432f8f1406968183d8f9d6"
+      "bytes": 1564,
+      "sha256": "9c230b6ee3ec08ce948461eb6f47c4db80ca155562326e8cf563830c24d15db5"
+    },
+    {
+      "path": "metrics/traffic/snapshots/2026-10-16-github_traffic_api.json",
+      "bytes": 1564,
+      "sha256": "9c230b6ee3ec08ce948461eb6f47c4db80ca155562326e8cf563830c24d15db5"
     },
     {
       "path": "metrics/traffic/snapshots/2026-10-16-owner_screenshot.json",
@@ -2060,7 +2065,7 @@
       "sha256": "3117ef222fb2e616e8d628eb358a277d9cb57cd55e5c1bc6ae8a2cc8fb1bf17f"
     }
   ],
-  "total_bytes": 87495060,
+  "total_bytes": 87497751,
   "self_excluded": [
     "PUBLIC_RELEASE_MANIFEST.json",
     "SHA256SUMS"

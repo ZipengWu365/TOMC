@@ -8,7 +8,7 @@
     <a href="docs/traffic_metrics.md"><img src="assets/traffic/clones.svg" alt="Clones in the dated 14-day snapshot" height="28"></a>
   </p>
 <!-- traffic-status:start -->
-  <p>Traffic snapshot: 2026-10-16 (owner screenshot); rolling 14-day counts, not installations or active users. <a href="docs/traffic_metrics.md">Method and updates</a></p>
+  <p>Traffic snapshot: 2026-10-16 (GitHub API); rolling 14-day counts, not installations or active users. <a href="docs/traffic_metrics.md">Method and updates</a></p>
 <!-- traffic-status:end -->
   <p><strong>Found TOMC useful? Click ⭐ Star at the top right to support the project.</strong></p>
   <h1>TOMC Memory</h1>
