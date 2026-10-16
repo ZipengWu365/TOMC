@@ -2,8 +2,15 @@
   <p>
     <a href="https://github.com/ZipengWu365/TOMC" title="Give TOMC a star using the Star button at the top of this page"><img src="assets/star-us-monospace.svg" alt="Star us on GitHub" width="26%" align="middle"></a>
     <img src="assets/tomc_logo_20261002.png" alt="TOMC Memory" width="40%" align="middle">
-    <a href="https://github.com/ZipengWu365/TOMC/stargazers"><img src="https://img.shields.io/github/stars/ZipengWu365/TOMC?style=for-the-badge&amp;label=Stars&amp;color=f5bb24&amp;labelColor=24292f" alt="GitHub stars" width="26%" align="middle"></a>
   </p>
+  <p>
+    <a href="https://github.com/ZipengWu365/TOMC/stargazers"><img src="https://img.shields.io/github/stars/ZipengWu365/TOMC?style=for-the-badge&amp;label=Stars&amp;color=f5bb24&amp;labelColor=24292f" alt="GitHub Stars" height="28"></a>
+    <a href="docs/traffic_metrics.md"><img src="assets/traffic/clones.svg" alt="Clones in the dated 14-day snapshot" height="28"></a>
+    <a href="docs/traffic_metrics.md"><img src="assets/traffic/unique-cloners.svg" alt="Unique cloners in the dated 14-day snapshot" height="28"></a>
+  </p>
+<!-- traffic-status:start -->
+  <p>Traffic snapshot: 2026-10-16 (owner screenshot); rolling 14-day counts, not installations or active users. <a href="docs/traffic_metrics.md">Method and updates</a></p>
+<!-- traffic-status:end -->
   <p><strong>Found TOMC useful? Click ⭐ Star at the top right to support the project.</strong></p>
   <h1>TOMC Memory</h1>
   <h3>Context compression and task memory for Codex / Claude Code / Cursor / TRAE / WorkBuddy</h3>

@@ -39,4 +39,5 @@ nav:
   - Legacy compatibility: legacy_extensions.md
   - Data and licensing: data_and_license.md
   - Space deployment: huggingface_space.md
+  - Repository traffic: traffic_metrics.md
   - Validation: validation.md

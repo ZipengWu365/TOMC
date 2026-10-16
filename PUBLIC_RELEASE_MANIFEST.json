@@ -35,6 +35,11 @@
       "sha256": "e04299865439ab0d8ad28cfd2e10e112b40430ed3d440d7b089baecb7f79f213"
     },
     {
+      "path": ".github/workflows/traffic.yml",
+      "bytes": 1763,
+      "sha256": "9f8a907d00996eba3dfcc520e5d45725074c9b62da4c784fb368db7921da9f80"
+    },
+    {
       "path": ".gitignore",
       "bytes": 175,
       "sha256": "6d31dda5fb14e32f8b7ef6b8a636344983cba4d42bb0797bd089f2627c566d21"
@@ -81,13 +86,13 @@
     },
     {
       "path": "README.md",
-      "bytes": 47774,
-      "sha256": "d65c4f75dab7d884d255a7d7e1511b5739d398d7a217715c805921a01ede56ff"
+      "bytes": 48287,
+      "sha256": "2cbbc58a19445ae94ffb542b49a6e47e29e9b3677859ee640f27a1ed8746509e"
     },
     {
       "path": "README_zh.md",
-      "bytes": 45670,
-      "sha256": "f8bd8d28c4380007d5b5465b84d10c05fa4ea2217946d49daf1392361d08b945"
+      "bytes": 46179,
+      "sha256": "2e7986edc730cd5bff9870565d8270af0440aa7c9ec8fb08ad8f00cdc365d72a"
     },
     {
       "path": "SECURITY.md",
@@ -423,6 +428,21 @@
       "path": "assets/tomc_mark.svg",
       "bytes": 1469,
       "sha256": "78084ae40b66945f54d1943db757ccd32f716033aa7e6660782c577b43b851b2"
+    },
+    {
+      "path": "assets/traffic/clones.svg",
+      "bytes": 467,
+      "sha256": "b77a931a3180b94e843d9275cd5d2f29a88d5bf3ec8276494ec7255a08ef592f"
+    },
+    {
+      "path": "assets/traffic/unique-cloners.svg",
+      "bytes": 464,
+      "sha256": "4bd54246cbe5ddf262975a65ce7fb69a83c8c8aa5c5e9953bd67fca81cc27bf5"
+    },
+    {
+      "path": "assets/traffic/updated.svg",
+      "bytes": 473,
+      "sha256": "1a9647c3f89755c0bd5c1bdd9581118220cf760d517f6d370add07597bf2a077"
     },
     {
       "path": "benchmarks/HISTORICAL_BEAM.md",
@@ -808,6 +828,11 @@
       "path": "docs/reproducibility.md",
       "bytes": 5970,
       "sha256": "c25894ae885a4a2033cf93f61292b661de09923fbdb3efe1ecac571868b608ae"
+    },
+    {
+      "path": "docs/traffic_metrics.md",
+      "bytes": 4357,
+      "sha256": "266ac448e5cc7afdc0fb17e6fcff746e624c0bd43e58795127fd085dfd988096"
     },
     {
       "path": "docs/usage_tips.md",
@@ -1275,9 +1300,19 @@
       "sha256": "97f48d825e23f056700cb9164b66253921723bfbd8019465f9a7e4e52d47bbd2"
     },
     {
+      "path": "metrics/traffic/latest.json",
+      "bytes": 429,
+      "sha256": "183f76f067476c31fdf1aece8efd9cc4f3bf6ca1d3432f8f1406968183d8f9d6"
+    },
+    {
+      "path": "metrics/traffic/snapshots/2026-10-16-owner_screenshot.json",
+      "bytes": 429,
+      "sha256": "183f76f067476c31fdf1aece8efd9cc4f3bf6ca1d3432f8f1406968183d8f9d6"
+    },
+    {
       "path": "mkdocs.yml",
-      "bytes": 1721,
-      "sha256": "1c1924bcecfac6d498b9894d943286d901b3ea8b7ad2d6c1998e92eec403139d"
+      "bytes": 1764,
+      "sha256": "98761d7ba2421e17b9cca6df5d633460adfe531878df6c375ad331da1b5112fc"
     },
     {
       "path": "plugins/claude-code/.claude-plugin/plugin.json",
@@ -1760,6 +1795,11 @@
       "sha256": "dd42478f74020f25ab5f7922d659ee0d4a268d5a69d415309e09d8538d977d03"
     },
     {
+      "path": "scripts/update_traffic.py",
+      "bytes": 7171,
+      "sha256": "9ad62a28df851c2bb7717b4a4e148e80eaa631c6b2f6bcfe2c9480dfbe8becf0"
+    },
+    {
       "path": "src/tomc/__init__.py",
       "bytes": 791,
       "sha256": "3302b2c015102fcc6392f1dd6bd86ba0985a6a9ae6536ad50423a190c51efebd"
@@ -2013,9 +2053,14 @@
       "path": "tests/test_setup_links.py",
       "bytes": 3607,
       "sha256": "17c605bde43040d24896c39084ccbddf0274e282420cd9bffa10fb691992f141"
+    },
+    {
+      "path": "tests/test_traffic_badges.py",
+      "bytes": 4142,
+      "sha256": "3117ef222fb2e616e8d628eb358a277d9cb57cd55e5c1bc6ae8a2cc8fb1bf17f"
     }
   ],
-  "total_bytes": 87474739,
+  "total_bytes": 87495499,
   "self_excluded": [
     "PUBLIC_RELEASE_MANIFEST.json",
     "SHA256SUMS"

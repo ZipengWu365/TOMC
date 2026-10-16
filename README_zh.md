@@ -2,8 +2,15 @@
   <p>
     <a href="https://github.com/ZipengWu365/TOMC" title="点击页面右上角 Star，支持 TOMC"><img src="assets/star-us-monospace.svg" alt="Star us · 点颗星支持 TOMC" width="26%" align="middle"></a>
     <img src="assets/tomc_logo_20261002.png" alt="TOMC Memory" width="40%" align="middle">
-    <a href="https://github.com/ZipengWu365/TOMC/stargazers"><img src="https://img.shields.io/github/stars/ZipengWu365/TOMC?style=for-the-badge&amp;label=Stars&amp;color=f5bb24&amp;labelColor=24292f" alt="GitHub Stars 数量" width="26%" align="middle"></a>
   </p>
+  <p>
+    <a href="https://github.com/ZipengWu365/TOMC/stargazers"><img src="https://img.shields.io/github/stars/ZipengWu365/TOMC?style=for-the-badge&amp;label=Stars&amp;color=f5bb24&amp;labelColor=24292f" alt="GitHub Stars" height="28"></a>
+    <a href="docs/traffic_metrics.md"><img src="assets/traffic/clones.svg" alt="Clones in the dated 14-day snapshot" height="28"></a>
+    <a href="docs/traffic_metrics.md"><img src="assets/traffic/unique-cloners.svg" alt="Unique cloners in the dated 14-day snapshot" height="28"></a>
+  </p>
+<!-- traffic-status:start -->
+  <p>流量快照：2026-10-16（截图记录）；14 天滚动统计，不等于安装量或活跃用户数。 <a href="docs/traffic_metrics.md">统计口径与更新</a></p>
+<!-- traffic-status:end -->
   <p><strong>TOMC 帮上忙了？点一下右上角 ⭐ Star，支持我们继续更新。</strong></p>
   <h1>TOMC Memory</h1>
   <h3>面向 Codex / Claude Code / Cursor / TRAE / WorkBuddy 的上下文压缩与任务记忆插件</h3>
