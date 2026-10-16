@@ -101,6 +101,11 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--uv", default="uv", help="UV command or executable path (default: PATH).")
     parser.add_argument("--codex", help="Codex CLI command or executable path (default: PATH).")
     parser.add_argument("--store", type=Path, help="Optional separate notebook database path.")
+    parser.add_argument(
+        "--no-support-message",
+        action="store_true",
+        help="Hide the optional GitHub Star invitation.",
+    )
     args = parser.parse_args(argv)
     root = Path(__file__).resolve().parent
     try:
@@ -138,6 +143,11 @@ def main(argv: list[str] | None = None) -> int:
             print(
                 "Uninstalling leaves notebooks intact; remove only disposable test data yourself."
             )
+            if not args.no_support_message:
+                print(
+                    "If TOMC helps with your work, consider a Star on GitHub: "
+                    "https://github.com/ZipengWu365/TOMC (optional)."
+                )
         print("Keep this directory in place. Rerun the installer after moving it.")
         return 0
     except (OSError, ValueError, subprocess.SubprocessError) as exc:

@@ -84,7 +84,7 @@ Report the saved constraints and unfinished work. Show the tool result.
 
 Save and recall are explicit tool calls. The plugin does not record the whole chat automatically. [Detailed Claude Code setup](docs/assistant_plugin.md#claude-code) · [Shared-notebook checks](docs/usage_tips.md#reuse-notebooks).
 
-**Codex CLI: install the plugin and verify tool availability.** [Download the 0.1.1 Codex ZIP](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-codex-0.1.1.zip), extract it into a directory you will keep, and run there with UV and a compatible Codex CLI:
+**Codex CLI: install the plugin and verify tool availability.** [Download the 0.1.2 Codex ZIP](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-codex-0.1.2.zip), extract it into a directory you will keep, and run there with UV and a compatible Codex CLI:
 
 ```bash
 uv run --no-project --python 3.12 install.py --check
@@ -108,7 +108,7 @@ This example prepares and counts context locally; it makes **no model call**. To
 
 | Client | Start here | Prerequisites |
 |---|---|---|
-| Codex CLI | [Download the plugin ZIP](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-codex-0.1.1.zip) | Current Codex CLI with plugin commands, plus [`uv`](https://docs.astral.sh/uv/getting-started/installation/) on PATH or supplied with `--uv` |
+| Codex CLI | [Download the plugin ZIP](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-codex-0.1.2.zip) | Current Codex CLI with plugin commands, plus [`uv`](https://docs.astral.sh/uv/getting-started/installation/) on PATH or supplied with `--uv` |
 | Codex IDE extension | [Configure the local MCP server](docs/assistant_setup.md) | Local TOMC environment with `.[mcp]` installed |
 | Cursor | Generate an installation link, or [add the MCP configuration](docs/cursor_trae.md) | Local TOMC runtime; client tool calls remain unverified |
 | TRAE (International / CN) | [Add TOMC as a local MCP server](docs/cursor_trae.md#trae) | Local TOMC runtime; client tool calls remain unverified |
@@ -205,7 +205,7 @@ In the VS Code extension trial with Claude Opus 5.5, with budget 8,192, recallin
 
 **Tested on Windows, macOS and Linux, and in Claude Code.** Installation and tool checks passed on all three systems; real model calls passed in Codex on [Windows with preview.4](docs/validation.md#windows-codex-preview4) and macOS and in Claude Code with Claude Opus 5.5. GUI installation in Claude Desktop, Cursor and the Codex app is still unverified. [Platform checks and dates](docs/platform_checks.md)
 
-[Usage tips (English)](docs/usage_tips.md) · [Chinese usage tips](docs/usage_tips_zh.md) · [Windows installation feedback](docs/windows_installation_feedback.md) · [Full installation guide](docs/assistant_plugin.md) · [Validation record](docs/validation.md) · [Claude checksum](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-0.1.1.mcpb.sha256) · [Codex checksum](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-codex-0.1.1.zip.sha256).
+[Usage tips (English)](docs/usage_tips.md) · [Chinese usage tips](docs/usage_tips_zh.md) · [Windows installation feedback](docs/windows_installation_feedback.md) · [Full installation guide](docs/assistant_plugin.md) · [Validation record](docs/validation.md) · [Claude checksum](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-0.1.1.mcpb.sha256) · [Codex checksum](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-codex-0.1.2.zip.sha256).
 
 <a id="switch-assistants"></a>
 

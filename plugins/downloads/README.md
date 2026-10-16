@@ -1,10 +1,14 @@
+# Codex installation support prompt — 2026-10-16
+
+Codex packaging **0.1.2** adds an optional GitHub Star invitation after successful installation. It is shown once per successful installer run; `--no-support-message` hides it. Preflight, configure-only and failed installation paths do not show it. MCP tool output is unchanged. No new native-client or model acceptance is claimed. The 0.1.1 downloads remain available at their original paths.
+
 # Assistant workflow policy update — 2026-10-12
 
 Plugin packaging **0.1.1** includes the host-managed active-chat policy. When native compaction is enabled or unknown, the assistant should leave that chat with the host. TOMC remains available for external task evidence and explicitly saved notebooks. This is assistant guidance, not a compaction-switch detector, automatic request hook or runtime prohibition. The compiler core remains 0.1.0.
 
 | Current package | Download | SHA-256 |
 |---|---|---|
-| Codex native plugin 0.1.1 | [ZIP](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-codex-0.1.1.zip) | [Checksum](tomc-memory-codex-0.1.1.zip.sha256) |
+| Codex native plugin 0.1.2 | [ZIP](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-codex-0.1.2.zip) | [Checksum](tomc-memory-codex-0.1.2.zip.sha256) |
 | Claude MCP runtime 0.1.1 | [MCPB](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-0.1.1.mcpb) | [Checksum](tomc-memory-0.1.1.mcpb.sha256) |
 
 Update the plugin and start a new assistant session to load the new instructions. Keep notebook databases separate from installation files. No new GUI or model acceptance result is asserted; historical evidence retains its stated versions. [Context ownership](../../docs/context_ownership.md) · [中文说明](../../docs/context_ownership_zh.md) · [Build receipt](context_policy_build_receipt_20261012.json).

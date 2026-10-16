@@ -82,12 +82,12 @@
     {
       "path": "README.md",
       "bytes": 47335,
-      "sha256": "1c6e4cf1e1a79757d048d537d94e09753b3b2505960b02ce6e9a260e64b8766a"
+      "sha256": "9204dabe3759f16be45541a604944f8182b30d3e5e4518bca8d67967a05ffa7d"
     },
     {
       "path": "README_zh.md",
       "bytes": 45238,
-      "sha256": "c00a8b89889ce6d56d5da71e5cb3913052151e75543e1900dc45930287ce86f2"
+      "sha256": "0efec93f16c7255df7124bd722e41f48989e439501a6b7bb978af1c3451f1761"
     },
     {
       "path": "SECURITY.md",
@@ -671,13 +671,13 @@
     },
     {
       "path": "docs/assistant_plugin.md",
-      "bytes": 25672,
-      "sha256": "adcff632f8271b0e3ae08652bfab2f337b7f131ae5821460f62246c5e0141937"
+      "bytes": 26002,
+      "sha256": "5eb51dee83d3c85d71e789e374145f4efd48b2da662629df2b9bf2ef6ca00d34"
     },
     {
       "path": "docs/assistant_plugin_zh.md",
-      "bytes": 25730,
-      "sha256": "ca53da74bac8783a015d2b6bd3b5e5bbd75f1a29524a0a2329d012706b6a9e9c"
+      "bytes": 26066,
+      "sha256": "7afc97826db43622323428b0951b169b78d7ba45b3b7b25badad95b364f67558"
     },
     {
       "path": "docs/assistant_setup.md",
@@ -1522,17 +1522,17 @@
     {
       "path": "plugins/codex/.codex-plugin/plugin.json",
       "bytes": 610,
-      "sha256": "cffa47a2391a2a2f7e6e546177c62c372522ec66c06575a37316c42db7493ef9"
+      "sha256": "63d54bc872f94689dd5570e098887010b4b7c75532854ab9228b4fa345318197"
     },
     {
       "path": "plugins/codex/README.md",
-      "bytes": 6873,
-      "sha256": "38c0f5b4853b058a1ec62624c5dac9063ed72488df5806e06463539ac923959b"
+      "bytes": 7187,
+      "sha256": "8d8ffb36deefcb3cee4f1814ed8ec30af089bfae8918de467b3c89d9f4123ac2"
     },
     {
       "path": "plugins/codex/install.py",
-      "bytes": 6230,
-      "sha256": "6633d6e8778887a20a1a0344530a73ce5baa26399b7b45dd684888531270016e"
+      "bytes": 6615,
+      "sha256": "dc64c27e87974d6e021695a297acb8e6d6a21e474e05fc750b0fa6ad5d494645"
     },
     {
       "path": "plugins/codex/marketplace.json",
@@ -1551,8 +1551,8 @@
     },
     {
       "path": "plugins/downloads/README.md",
-      "bytes": 3520,
-      "sha256": "e12a709594817802cce8d4cf240edbf9bf90352844dd049e4811753833d7a5af"
+      "bytes": 3967,
+      "sha256": "348f198028e7ed0c166f69f7e2d2ba96036eaa2233d6d236bd09fe171a0bb372"
     },
     {
       "path": "plugins/downloads/build_receipt.json",
@@ -1561,8 +1561,8 @@
     },
     {
       "path": "plugins/downloads/codex_build_receipt.json",
-      "bytes": 1473,
-      "sha256": "1ab587794851760df56ee1223613ee873237036df94ce23ddf18c2313e04d15c"
+      "bytes": 325,
+      "sha256": "aa49a5cc6f963bd2cfe163b9497fffb36f5f769955b5b31f4be5f72dd8a6bda6"
     },
     {
       "path": "plugins/downloads/context_policy_build_receipt_20261012.json",
@@ -1608,6 +1608,16 @@
       "path": "plugins/downloads/tomc-memory-codex-0.1.1.zip.sha256",
       "bytes": 94,
       "sha256": "45c0414621869e7e03f08a4c09276ed0e38352565636f7a8068fe650e4cd0e9e"
+    },
+    {
+      "path": "plugins/downloads/tomc-memory-codex-0.1.2.zip",
+      "bytes": 107160,
+      "sha256": "34f9d4eadd4c1a7febf77ad9b177b782831d281e8f548ec3e6781a4b67743fba"
+    },
+    {
+      "path": "plugins/downloads/tomc-memory-codex-0.1.2.zip.sha256",
+      "bytes": 94,
+      "sha256": "82677f6d626cebfc69a85b586136f70d60c4a9f3a633ffc5e8c6cafe814650e0"
     },
     {
       "path": "plugins/mcp/tomc.cursor.json",
@@ -1941,8 +1951,8 @@
     },
     {
       "path": "tests/test_codex_installer.py",
-      "bytes": 6524,
-      "sha256": "d2862dd60cd44d1603b1860373022e85ebacfb2a6ab4fcb6d08194e41b1839c6"
+      "bytes": 7608,
+      "sha256": "4b5303fe883311b301620f7893b864c54878ad59d446f53bb715e3344dc0c84b"
     },
     {
       "path": "tests/test_compiler.py",
@@ -2005,7 +2015,7 @@
       "sha256": "17c605bde43040d24896c39084ccbddf0274e282420cd9bffa10fb691992f141"
     }
   ],
-  "total_bytes": 87362747,
+  "total_bytes": 87471749,
   "self_excluded": [
     "PUBLIC_RELEASE_MANIFEST.json",
     "SHA256SUMS"

@@ -157,3 +157,29 @@ def test_explicit_home_relative_paths_are_expanded(installer, monkeypatch):
         "mcpServers"
     ]["tomc"]
     assert server["command"] == str(uv)
+
+
+@pytest.mark.parametrize(
+    "mode, invitations",
+    [([], 1), (["--check"], 0), (["--configure-only"], 0), (["--no-support-message"], 0)],
+)
+def test_support_invitation_only_after_successful_install(installer, capsys, mode, invitations):
+    module, _, uv, codex, _ = installer
+    assert module.main([*mode, "--uv", str(uv), "--codex", str(codex)]) == 0
+    assert capsys.readouterr().out.count("consider a Star on GitHub") == invitations
+
+
+def test_failed_registration_does_not_invite_support(installer, monkeypatch, capsys):
+    module, _, uv, codex, _ = installer
+    original_run = module.subprocess.run
+
+    def fail_install(command, **kwargs):
+        if command[-1] == "tomc-memory@tomc-local":
+            raise subprocess.CalledProcessError(1, command)
+        return original_run(command, **kwargs)
+
+    monkeypatch.setattr(module.subprocess, "run", fail_install)
+    assert module.main(["--uv", str(uv), "--codex", str(codex)]) == 1
+    output = capsys.readouterr().out
+    assert "Installation stopped" in output
+    assert "consider a Star on GitHub" not in output

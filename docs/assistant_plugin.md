@@ -6,6 +6,8 @@ After installation, call `prepare_context`, inspect the result and hand it to a 
 
 The host owns active-chat compaction. Do not proactively use TOMC to recompact that same conversation when native compaction is active or unknown. External-history preparation and explicit notebook workflows remain available. This is the plugin's assistant policy; it does not install an automatic detector or request hook. [Context ownership](context_ownership.md).
 
+If TOMC proves useful after your first successful tool call, you can [Star the main TOMC repository](https://github.com/ZipengWu365/TOMC) to support the project. This is optional. Codex installer 0.1.2 prints this invitation once per successful install; `--no-support-message` hides it. It does not verify the first MCP startup.
+
 ## Choose an installation
 
 | Client | Installation | Current scope |
@@ -17,7 +19,7 @@ The host owns active-chat compaction. Do not proactively use TOMC to recompact t
 | Tencent WorkBuddy | [Add a local MCP server](workbuddy.md) | Manual configuration preview; client tool calls remain unverified |
 | Codex | Run the ZIP's installation helper | Preview.4 native installation and default-model calls passed in the Windows personal profile; the earlier macOS trial used preview.2 |
 
-Download the packages from the [MIT-licensed assistant preview](https://github.com/ZipengWu365/TOMC/tree/main/plugins/downloads): [Claude `.mcpb`](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-0.1.1.mcpb) ([checksum](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-0.1.1.mcpb.sha256)) or [Codex ZIP](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-codex-0.1.1.zip) ([checksum](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-codex-0.1.1.zip.sha256)). Plugin packaging 0.1.1 adds the host-managed conversation policy. Earlier 0.1.0 packages and dated host/model validation retain their historical scope; the compiler core remains 0.1.0.
+Download the packages from the [MIT-licensed assistant preview](https://github.com/ZipengWu365/TOMC/tree/main/plugins/downloads): [Claude `.mcpb`](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-0.1.1.mcpb) ([checksum](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-0.1.1.mcpb.sha256)) or [Codex ZIP](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-codex-0.1.2.zip) ([checksum](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-codex-0.1.2.zip.sha256)). Plugin packaging 0.1.1 adds the host-managed conversation policy. Earlier 0.1.0 packages and dated host/model validation retain their historical scope; the compiler core remains 0.1.0.
 
 There is no published PyPI package or public marketplace listing. Updates must be installed manually. [Claude's installation and private distribution guide](https://support.claude.com/en/articles/10949351-getting-started-with-local-mcp-servers-on-claude-desktop)
 
@@ -122,7 +124,7 @@ Follow the [WorkBuddy guide](workbuddy.md) to add the locked local runtime throu
 
 ## Codex
 
-The installation candidate is `outputs/plugins/tomc-memory-codex-0.1.1.zip`. It includes a local marketplace at `.agents/plugins/marketplace.json`, an `install.py` helper and a `plugins/tomc-memory/` package containing the supported `.codex-plugin/plugin.json` compatibility manifest, the same locked TOMC runtime and a memory skill. The compatibility manifest declares the bundled tools and skill; the helper prepares their launch paths for your installation. You can share the original ZIP privately; this does not list TOMC in the public plugin directory. [Official plugin packaging and local marketplaces](https://developers.openai.com/plugins/build/plugins)
+The installation candidate is `outputs/plugins/tomc-memory-codex-0.1.2.zip`. It includes a local marketplace at `.agents/plugins/marketplace.json`, an `install.py` helper and a `plugins/tomc-memory/` package containing the supported `.codex-plugin/plugin.json` compatibility manifest, the same locked TOMC runtime and a memory skill. The compatibility manifest declares the bundled tools and skill; the helper prepares their launch paths for your installation. You can share the original ZIP privately; this does not list TOMC in the public plugin directory. [Official plugin packaging and local marketplaces](https://developers.openai.com/plugins/build/plugins)
 
 Maintainers can build the candidate from the checkout with `python scripts/build_codex_plugin.py`; share the resulting ZIP and its `.sha256` checksum file.
 
