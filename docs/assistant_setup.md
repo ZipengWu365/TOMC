@@ -11,9 +11,12 @@ Claude Desktop and Codex CLI have installation candidates that include a locked 
 The repository is public. There is no published PyPI package or official public marketplace listing.
 
 ```bash
-git clone https://github.com/ZipengWu365/TOMC.git
+git clone https://github.com/ZipengWu365/TOMC.git && printf '\n%s\n%s\n' \
+  'If TOMC helps with your work, consider a Star on GitHub (optional):' 'https://github.com/ZipengWu365/TOMC'
 cd TOMC
 ```
+
+The Bash / Git Bash command above prints an optional Star invitation after a successful clone. Plain `git clone` does not show it; cloning alone does not install TOMC.
 
 On Linux/macOS, use [UV](https://docs.astral.sh/uv/getting-started/installation/) to install Python and seed pip. This path passed the Linux check:
 

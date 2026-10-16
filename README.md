@@ -96,11 +96,14 @@ The first command checks prerequisites without changing Codex configuration. Sta
 **Python API: inspect an offline context example before calling a model.** With Python 3.10+:
 
 ```bash
-git clone https://github.com/ZipengWu365/TOMC.git
+git clone https://github.com/ZipengWu365/TOMC.git && printf '\n%s\n%s\n' \
+  'If TOMC helps with your work, consider a Star on GitHub (optional):' 'https://github.com/ZipengWu365/TOMC'
 cd TOMC
 python -m pip install -e .
 python examples/api_context.py
 ```
+
+The Bash / Git Bash command above prints an optional Star invitation after a successful clone. Plain `git clone` does not show it; cloning alone does not install TOMC.
 
 This example prepares and counts context locally; it makes **no model call**. To integrate TOMC, send `prepared.messages` **in place of** the original history, preserving your application's instructions and protocol. [API example](#use-before-your-api-call) · [Reference](docs/api_reference.md).
 
@@ -343,7 +346,8 @@ The demo shows how TOMC prepares context for a task. It does not create notebook
 The Gradio interface requires Python 3.10–3.13. Clone the repository:
 
 ```bash
-git clone https://github.com/ZipengWu365/TOMC.git
+git clone https://github.com/ZipengWu365/TOMC.git && printf '\n%s\n%s\n' \
+  'If TOMC helps with your work, consider a Star on GitHub (optional):' 'https://github.com/ZipengWu365/TOMC'
 cd TOMC
 ```
 

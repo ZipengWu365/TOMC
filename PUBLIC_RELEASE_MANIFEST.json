@@ -81,13 +81,13 @@
     },
     {
       "path": "README.md",
-      "bytes": 47335,
-      "sha256": "9204dabe3759f16be45541a604944f8182b30d3e5e4518bca8d67967a05ffa7d"
+      "bytes": 47774,
+      "sha256": "d65c4f75dab7d884d255a7d7e1511b5739d398d7a217715c805921a01ede56ff"
     },
     {
       "path": "README_zh.md",
-      "bytes": 45238,
-      "sha256": "0efec93f16c7255df7124bd722e41f48989e439501a6b7bb978af1c3451f1761"
+      "bytes": 45670,
+      "sha256": "f8bd8d28c4380007d5b5465b84d10c05fa4ea2217946d49daf1392361d08b945"
     },
     {
       "path": "SECURITY.md",
@@ -676,13 +676,13 @@
     },
     {
       "path": "docs/assistant_plugin_zh.md",
-      "bytes": 26066,
-      "sha256": "7afc97826db43622323428b0951b169b78d7ba45b3b7b25badad95b364f67558"
+      "bytes": 26367,
+      "sha256": "f10cf4f507487c53b5c8b0f63f347209a23bca4bcbcc3d2317a63221e74ee08d"
     },
     {
       "path": "docs/assistant_setup.md",
-      "bytes": 8422,
-      "sha256": "8d0996cfe5900d0f7bd13a59c5fba18593046769f34d68ad73523f09ac266fda"
+      "bytes": 8726,
+      "sha256": "fbe5a5fc18a4d835f7d8eb6dc61a1f79996a926e2162c3d4bae27f1a14e4d440"
     },
     {
       "path": "docs/claims_and_limitations.md",
@@ -716,13 +716,13 @@
     },
     {
       "path": "docs/cursor_trae.md",
-      "bytes": 4549,
-      "sha256": "fadadb42c45863fd9698d277e1b6aabb0592362b90f33f4ed61c223ef053dfc9"
+      "bytes": 4853,
+      "sha256": "197dfbaf6b413066ffd2e35cc14a605d2b944bc58dec35b9f3c6cc141e770849"
     },
     {
       "path": "docs/cursor_trae_zh.md",
-      "bytes": 4196,
-      "sha256": "eb021a19f5f8c6b3f935217dd1bd88d302e082c0e14bee3b75fc03b62e509237"
+      "bytes": 4497,
+      "sha256": "da760f2ea8f3b52906d1ff20139c987a12054d35a86f4fc9955c3014309d97b7"
     },
     {
       "path": "docs/data_and_license.md",
@@ -791,8 +791,8 @@
     },
     {
       "path": "docs/quickstart.md",
-      "bytes": 4039,
-      "sha256": "a0cbfb2be2ca2a5d147527045c2ba654c94af85bce09d13c5782e52214ebb1f2"
+      "bytes": 4343,
+      "sha256": "928bd5baeb457a54e2d1b108c6e09408ea3ef17bc3ea11ce9946274f762c7c99"
     },
     {
       "path": "docs/readers_and_agents.md",
@@ -871,13 +871,13 @@
     },
     {
       "path": "docs/workbuddy.md",
-      "bytes": 3913,
-      "sha256": "5aa57cc3b9d622ec23859cebde3333c96f22037d32bec0874d31172aab11349c"
+      "bytes": 4217,
+      "sha256": "4faaa28f74fca0793479f0346f08b4055263aa7ee5abe6edd392fa05ad3f282e"
     },
     {
       "path": "docs/workbuddy_zh.md",
-      "bytes": 3623,
-      "sha256": "3edaa9b1750473ba80be5b03ede0d255dc4d24e07129809eb006b6a335d76b58"
+      "bytes": 3924,
+      "sha256": "dde9fb6df00f6da08b03ad8bfb75ee82bef136da09c31e39e025a9d4be088b3e"
     },
     {
       "path": "examples/api_context.py",
@@ -2015,7 +2015,7 @@
       "sha256": "17c605bde43040d24896c39084ccbddf0274e282420cd9bffa10fb691992f141"
     }
   ],
-  "total_bytes": 87471749,
+  "total_bytes": 87474739,
   "self_excluded": [
     "PUBLIC_RELEASE_MANIFEST.json",
     "SHA256SUMS"

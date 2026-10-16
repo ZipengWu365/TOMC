@@ -30,12 +30,15 @@ TOMC 按任务准备上下文，让你用结果替换较长的历史。传入历
 Cursor、Codex IDE 或独立 MCP 接入需要本地 Python 环境。克隆仓库后，推荐用 [`uv`](https://docs.astral.sh/uv/getting-started/installation/) 创建带 pip 的 Python 3.12 环境：
 
 ```bash
-git clone https://github.com/ZipengWu365/TOMC.git
+git clone https://github.com/ZipengWu365/TOMC.git && printf '\n%s\n%s\n' \
+  '如果 TOMC 对你有帮助，欢迎 Star 支持（自愿）：' 'https://github.com/ZipengWu365/TOMC'
 cd TOMC
 uv venv --python 3.12 --seed .venv
 source .venv/bin/activate
 python -m pip install -e '.[mcp]'
 ```
+
+上面的 Bash / Git Bash 命令会在克隆成功后显示一次自愿 Star 邀请。直接使用普通 `git clone` 不会显示；克隆完成不代表已经安装。
 
 UV 首次使用可能需要联网下载 Python 和依赖。Codex 原生插件 ZIP 的用户直接运行下文的 `install.py`，无需另建这份手动环境。Windows PowerShell 步骤继续见[接入指南](assistant_setup.md)。
 

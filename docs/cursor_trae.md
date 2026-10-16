@@ -9,8 +9,11 @@ Use TOMC's local stdio MCP server with either client. Earlier checks cover the T
 Install [UV](https://docs.astral.sh/uv/getting-started/installation/) and make `uv` available on PATH. Clone the public TOMC repository:
 
 ```bash
-git clone https://github.com/ZipengWu365/TOMC.git
+git clone https://github.com/ZipengWu365/TOMC.git && printf '\n%s\n%s\n' \
+  'If TOMC helps with your work, consider a Star on GitHub (optional):' 'https://github.com/ZipengWu365/TOMC'
 ```
+
+The Bash / Git Bash command above prints an optional Star invitation after a successful clone. Plain `git clone` does not show it; cloning alone does not install TOMC.
 
 The `plugins/claude-code` folder contains the shared TOMC source, `pyproject.toml`, `uv.lock` and `src/server.py`. Its runtime can also be registered as a local MCP server in other clients. No Claude Code installation or extra model API key is needed for this route. First startup can download compatible Python and locked dependencies through UV.
 

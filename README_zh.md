@@ -98,11 +98,14 @@ uv run --no-project --python 3.12 install.py
 **Python API：先离线检查上下文，再接入大模型。** 需要 Python 3.10 或更新版本：
 
 ```bash
-git clone https://github.com/ZipengWu365/TOMC.git
+git clone https://github.com/ZipengWu365/TOMC.git && printf '\n%s\n%s\n' \
+  '如果 TOMC 对你有帮助，欢迎 Star 支持（自愿）：' 'https://github.com/ZipengWu365/TOMC'
 cd TOMC
 python -m pip install -e .
 python examples/api_context.py
 ```
+
+上面的 Bash / Git Bash 命令会在克隆成功后显示一次自愿 Star 邀请。直接使用普通 `git clone` 不会显示；克隆完成不代表已经安装。
 
 这个示例仅在本地准备并统计上下文，**不调用模型**。实际使用时，`prepared.messages` 应当**替换**原历史，并保留应用需要的指令和工具协议。[API 接入示例](#接在你的-api-调用之前) · [参考文档](docs/api_reference.md)。
 
@@ -345,7 +348,8 @@ Demo 用于查看 TOMC 如何为任务准备上下文，不创建跨聊天记忆
 Gradio 界面需要 Python 3.10–3.13。先克隆仓库：
 
 ```bash
-git clone https://github.com/ZipengWu365/TOMC.git
+git clone https://github.com/ZipengWu365/TOMC.git && printf '\n%s\n%s\n' \
+  '如果 TOMC 对你有帮助，欢迎 Star 支持（自愿）：' 'https://github.com/ZipengWu365/TOMC'
 cd TOMC
 ```
 

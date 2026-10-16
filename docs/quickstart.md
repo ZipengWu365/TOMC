@@ -5,9 +5,12 @@
 Clone the repository, then install the demo with Python 3.10–3.13. CI covers Python 3.10 and 3.12.
 
 ```bash
-git clone https://github.com/ZipengWu365/TOMC.git
+git clone https://github.com/ZipengWu365/TOMC.git && printf '\n%s\n%s\n' \
+  'If TOMC helps with your work, consider a Star on GitHub (optional):' 'https://github.com/ZipengWu365/TOMC'
 cd TOMC
 ```
+
+The Bash / Git Bash command above prints an optional Star invitation after a successful clone. Plain `git clone` does not show it; cloning alone does not install TOMC.
 
 Create and activate an environment on Linux/macOS. The Linux-tested path uses [UV](https://docs.astral.sh/uv/getting-started/installation/) and includes pip:
 
