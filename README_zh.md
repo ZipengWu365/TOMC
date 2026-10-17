@@ -245,7 +245,7 @@ VS Code 扩展实测中（模型为 Claude Opus 5.5），预算设为 8,192 时�
 
 ### API 请求循环的自动处理
 
-在已有同步 Chat Completions 调用前使用 [AutomaticChatSession](docs/context_ownership_zh.md)：默认每两次模型请求刷新，缓存模型规格，跨窗口边界短暂避让，原生压缩刚完成后短暂冷却。只改变发送的旧历史视图，原历史、指令、近期消息和工具协议由调用方保留。默认词法打包已修复重复扫描。[模型容量对应表](docs/model_context_limits_20261012.md)。安装 MCP 本身不会拦截客户端内置请求；没有新增原生客户端或真实模型验收声明。
+在已有同步 Chat Completions 调用前使用 [AutomaticChatSession](docs/context_ownership_zh.md)：默认使用对缓存友好的稳定前缀（整理结果保持不变，直到请求装不下才重整），缓存模型规格，跨窗口边界短暂避让，原生压缩刚完成后短暂冷却。只改变发送的旧历史视图，原历史、指令、近期消息和工具协议由调用方保留。默认词法打包已修复重复扫描。[模型容量对应表](docs/model_context_limits_20261012.md)。安装 MCP 本身不会拦截客户端内置请求；没有新增原生客户端或真实模型验收声明。
 
 ### 接在你的 API 调用之前
 

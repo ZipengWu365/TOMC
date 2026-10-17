@@ -473,8 +473,13 @@ def test_unavailable_budget_calls_still_consume_native_completion_cooldown(compi
     assert subject.last_plan.decision == "optimized" and len(compiler) == 1 and len(sdk.calls) == 3
 
 
-def test_model_half_and_ninety_percent_boundaries_each_back_off_only_once(compiler):
-    subject, sdk = session(provider="openai"), FakeSDK()
+@pytest.mark.parametrize("policy, compilations", [("stable", 1), ("cadence", 2)])
+def test_model_half_and_ninety_percent_boundaries_each_back_off_only_once(
+    policy, compilations, compiler
+):
+    # A backoff passes the original request through without editing history, so the
+    # stable policy may reuse its frozen memory afterwards; cadence recompiles.
+    subject, sdk = session(provider="openai", refresh_policy=policy), FakeSDK()
     expected = ["model_window_boundary_backoff", None, "model_window_boundary_backoff", None]
     for number, (tokens, reason) in enumerate(
         zip((64000, 65000, 115200, 116000), expected), start=1
@@ -494,7 +499,7 @@ def test_model_half_and_ninety_percent_boundaries_each_back_off_only_once(compil
             assert sdk.calls[-1]["messages"] == history()
         else:
             assert subject.last_plan.decision == "optimized"
-    assert len(sdk.calls) == 4 and len(compiler) == 2
+    assert len(sdk.calls) == 4 and len(compiler) == compilations
 
 
 def test_cached_provider_usage_can_back_off_once_without_consuming_stream(compiler):
@@ -541,3 +546,103 @@ def test_usage_capability_and_unrecognized_events_are_not_compaction(host, event
     assert not subject.on_native_event(host, event)
     subject.create(sdk, messages=history(), task="task", model="same-model")
     assert subject.last_plan.decision == "optimized" and len(compiler) == len(sdk.calls) == 1
+
+
+def _stable(**options):
+    return rc.RequestContextManager(
+        memory_budget=128, recent_messages=1, refresh_policy="stable", **options
+    )
+
+
+def _prefix_before_tail(plan):
+    return [m for m in plan.messages if not str(m.get("content", "")).startswith("RAW_")]
+
+
+def test_stable_policy_reuses_identical_memory_across_changing_tasks(compiler):
+    subject = _stable()
+    incoming = history()[:6] + [{"role": "user", "content": "RAW_Q1"}]
+    first = subject.prepare(incoming, "question_one", session_key="A")
+    incoming += [{"role": "assistant", "content": "RAW_A1"}, {"role": "user", "content": "RAW_Q2"}]
+    second = subject.prepare(incoming, "question_two", session_key="A")
+    incoming += [{"role": "assistant", "content": "RAW_A2"}, {"role": "user", "content": "RAW_Q3"}]
+    third = subject.prepare(incoming, "question_three", session_key="A")
+    assert first.decision == "optimized" and len(compiler) == 1
+    assert second.cache_reused and third.cache_reused
+    # The compiled block and everything before the new tail is byte-identical.
+    head = first.messages[:-1]
+    assert second.messages[: len(head)] == head and third.messages[: len(head)] == head
+    assert second.messages[-3:] == incoming[-5:-2] or "RAW_Q2" in serial(second.messages)
+    assert third.messages[-1] == {"role": "user", "content": "RAW_Q3"}
+
+
+def test_stable_policy_rebuilds_after_growth_allowance(compiler):
+    subject = _stable(stable_growth_tokens=40)
+    incoming = history()[:6] + [{"role": "user", "content": "RAW_Q1"}]
+    subject.prepare(incoming, "task", session_key="A")
+    incoming += [
+        {"role": "assistant", "content": "RAW_SMALL"},
+        {"role": "user", "content": "RAW_Q2"},
+    ]
+    small = subject.prepare(incoming, "task", session_key="A")
+    incoming += [
+        {"role": "assistant", "content": "RAW_LONG " * 80},
+        {"role": "user", "content": "RAW_Q3"},
+    ]
+    grown = subject.prepare(incoming, "task", session_key="A")
+    assert small.cache_reused and not grown.cache_reused and len(compiler) == 2
+    assert "RAW_LONG" in serial(compiler[-1]["prefix"])
+    assert "COMPILED_" not in serial(compiler[-1]["prefix"])
+
+
+def test_stable_policy_rebuilds_when_source_prefix_or_budget_changes(compiler):
+    subject = _stable()
+    incoming = history()[:6] + [{"role": "user", "content": "RAW_Q1"}]
+    subject.prepare(incoming, "task", session_key="A")
+    edited = copy.deepcopy(incoming)
+    edited[2]["content"] = "EDITED " * 160
+    changed = subject.prepare(edited, "task", session_key="A")
+    rebudget = subject.prepare(edited, "task", session_key="A", memory_budget=96)
+    assert not changed.cache_reused and not rebudget.cache_reused and len(compiler) == 3
+
+
+def test_stable_policy_still_respects_request_budget(compiler):
+    subject = _stable(stable_growth_tokens=100000)
+    incoming = history()[:6] + [{"role": "user", "content": "RAW_Q1"}]
+    subject.prepare(incoming, "task", session_key="A", request_budget=100000)
+    incoming += [
+        {"role": "assistant", "content": "OLD_GROWTH " * 300},
+        {"role": "user", "content": "RAW_Q2"},
+    ]
+    plan = subject.prepare(incoming, "task", session_key="A", request_budget=700)
+    # The frozen memory is only reused when the whole request still fits.
+    assert plan.decision == "passthrough" or plan.planned_estimated_tokens <= 700
+    tight = subject.prepare(incoming, "task", session_key="A", request_budget=500)
+    assert tight.decision == "passthrough" or tight.planned_estimated_tokens <= 500
+
+
+def test_invalid_refresh_policy_and_growth_are_rejected():
+    with pytest.raises(ValueError):
+        rc.RequestContextManager(refresh_policy="sometimes")
+    with pytest.raises(ValueError):
+        rc.RequestContextManager(stable_growth_tokens=0)
+
+
+def test_automatic_chat_defaults_to_stable_prefix_policy():
+    subject = chat.AutomaticChatSession()
+    assert subject.manager.refresh_policy == "stable"
+    legacy = chat.AutomaticChatSession(refresh_policy="cadence", refresh_every=1)
+    assert legacy.manager.refresh_policy == "cadence" and legacy.manager.refresh_every == 1
+
+
+def test_stable_policy_default_does_not_rebuild_for_growth_alone(compiler):
+    subject = _stable()
+    incoming = history()[:6] + [{"role": "user", "content": "RAW_Q1"}]
+    subject.prepare(incoming, "task", session_key="A")
+    for turn in range(5):
+        incoming += [
+            {"role": "assistant", "content": "RAW_LONG " * 200},
+            {"role": "user", "content": f"RAW_Q{turn + 2}"},
+        ]
+        plan = subject.prepare(incoming, f"task_{turn}", session_key="A")
+        assert plan.cache_reused
+    assert len(compiler) == 1

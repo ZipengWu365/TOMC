@@ -35,6 +35,11 @@ def _task_from_messages(messages: Sequence[Mapping[str, Any]]) -> str:
 class AutomaticChatSession:
     """One chat's request views; original messages and provider responses stay with the caller.
 
+    By default the compiled earlier-history memory stays byte-identical across
+    requests and new messages remain raw after it, so provider prompt caches keep
+    hitting; it is rebuilt only when the request would no longer fit (or after
+    ``stable_growth_tokens`` of new history, if set). ``refresh_policy="cadence"`` restores the earlier refresh_every
+    behaviour, which rebuilds the memory far more often and defeats prefix caching.
     Model limits are looked up locally only at model changes. Native events must
     come from the caller's trusted host connection, not model-generated tool output.
     Only actual compaction events suspend optimization; supported/enabled flags do
@@ -48,6 +53,8 @@ class AutomaticChatSession:
         *,
         memory_budget: int | None = None,
         refresh_every: int = 2,
+        refresh_policy: str = "stable",
+        stable_growth_tokens: int | None = None,
         recent_messages: int = 6,
         request_budget: int | None = None,
         native_cooldown_requests: int = 2,
@@ -61,6 +68,8 @@ class AutomaticChatSession:
         self.manager = RequestContextManager(
             memory_budget=memory_budget,
             refresh_every=refresh_every,
+            refresh_policy=refresh_policy,
+            stable_growth_tokens=stable_growth_tokens,
             recent_messages=recent_messages,
             request_budget=request_budget,
             native_cooldown_requests=native_cooldown_requests,

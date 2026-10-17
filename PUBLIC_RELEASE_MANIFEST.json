@@ -86,13 +86,13 @@
     },
     {
       "path": "README.md",
-      "bytes": 48114,
-      "sha256": "7fcef751773837216964cf2e97ea6f46698ea092d26cb42776b20c78f46a8305"
+      "bytes": 48178,
+      "sha256": "6dc3cdd475534fec9d46b1b76ae61c115c361e060868a0a66d50ff5c16c71a50"
     },
     {
       "path": "README_zh.md",
-      "bytes": 46012,
-      "sha256": "69a3dabe3562a0af964c825480c44aaebb42a08fc4d8bff936d37079debb4682"
+      "bytes": 46084,
+      "sha256": "a323b31b1b2c155c5d548ddf1b914680ff2ca69cb8b06bb5bca4728785ee57cd"
     },
     {
       "path": "SECURITY.md",
@@ -736,13 +736,13 @@
     },
     {
       "path": "docs/context_ownership.md",
-      "bytes": 5402,
-      "sha256": "5546c9cb63fa255d38a165247ba77d3cfbc909fb22fb558a9035835f74110ca5"
+      "bytes": 6116,
+      "sha256": "b8e58f4c1d6bbf26773a39c1f7614dc4aa3066d78244fe80c514f28f1898e151"
     },
     {
       "path": "docs/context_ownership_zh.md",
-      "bytes": 4529,
-      "sha256": "f53a44f3e97a4a89a47522b17398fab295cd65fe46f9ecf66ef414bf2e4198c7"
+      "bytes": 5224,
+      "sha256": "01bf7036496ea5689f9aed4048165d6f857cb620216b993b8c941828026a4b83"
     },
     {
       "path": "docs/cursor_trae.md",
@@ -818,6 +818,16 @@
       "path": "docs/platform_checks_zh.md",
       "bytes": 2506,
       "sha256": "e5121a879980d213e38614ead387097f61660b74b152d76fd05688c318dfd79a"
+    },
+    {
+      "path": "docs/prompt_cache_20261017.md",
+      "bytes": 3241,
+      "sha256": "6011a2f414185687f8d4e49123fa71341d431608a2390fcb03c84d7a4dface3a"
+    },
+    {
+      "path": "docs/prompt_cache_20261017_zh.md",
+      "bytes": 3027,
+      "sha256": "e2a0769e8810ed1a957bc717561a67c1e4e812268b10183d375af586f010ee3f"
     },
     {
       "path": "docs/quickstart.md",
@@ -1876,8 +1886,8 @@
     },
     {
       "path": "src/tomc/automatic_chat.py",
-      "bytes": 10769,
-      "sha256": "d4c6b27d51fc21a92b5c39fe085dc397b89483b7f5248486028f0c5397bbdce4"
+      "bytes": 11398,
+      "sha256": "6f581ecba91400e1f917c2734aa4310fc0d2a2d66f53b5cc15218156ff98460d"
     },
     {
       "path": "src/tomc/cli.py",
@@ -1951,8 +1961,8 @@
     },
     {
       "path": "src/tomc/request_context.py",
-      "bytes": 22657,
-      "sha256": "782de2cf1782b6840355ddfc4bd410fcc14ac06c3e514b1f6c873a4f7c2016d2"
+      "bytes": 24800,
+      "sha256": "ed36d05d3cb194d3112c8cce665fd3555e45196e72df5e9318d616194534ec2b"
     },
     {
       "path": "src/tomc/routing.py",
@@ -2071,8 +2081,8 @@
     },
     {
       "path": "tests/test_request_context.py",
-      "bytes": 23031,
-      "sha256": "5775fd159f4b116589fbe4e2358ac2f5dc44a039222dbfc3fcbaa86b6f767aa9"
+      "bytes": 27986,
+      "sha256": "123d5c1ca216a48957785729f5661c74087a43f7fa6e966a8fe647996f40b0ba"
     },
     {
       "path": "tests/test_setup_links.py",
@@ -2085,7 +2095,7 @@
       "sha256": "60f480170270b8216d12c95ab508318dd3e458c6ce5695fbad1b116d0884f15c"
     }
   ],
-  "total_bytes": 87507470,
+  "total_bytes": 87523010,
   "self_excluded": [
     "PUBLIC_RELEASE_MANIFEST.json",
     "SHA256SUMS"

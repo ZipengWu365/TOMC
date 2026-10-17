@@ -243,7 +243,7 @@ The notebook keeps the original notes and appended updates; recall prepares that
 
 ### Automatic API request loop
 
-Use [AutomaticChatSession](docs/context_ownership.md) before your existing synchronous Chat Completions call: default refresh every two logical model requests, cached model limits, one-shot window-boundary backoff and brief native-compaction cooldown. Only the outgoing old-history view changes; original history, instructions, recent messages and tool protocol stay with the caller. The default lexical packing path now avoids repeated prefix scans. [34-model capacity snapshot](docs/model_context_limits_20261012.md). This does not make an installed MCP plugin intercept built-in client requests, and no native-client/model acceptance is asserted.
+Use [AutomaticChatSession](docs/context_ownership.md) before your existing synchronous Chat Completions call: a cache-friendly stable prefix by default (the compiled memory stays identical until the request no longer fits), cached model limits, one-shot window-boundary backoff and brief native-compaction cooldown. Only the outgoing old-history view changes; original history, instructions, recent messages and tool protocol stay with the caller. The default lexical packing path now avoids repeated prefix scans. [34-model capacity snapshot](docs/model_context_limits_20261012.md). This does not make an installed MCP plugin intercept built-in client requests, and no native-client/model acceptance is asserted.
 
 ### Use before your API call
 
