@@ -1431,8 +1431,8 @@
     },
     {
       "path": "plugins/claude-code/src/tomc/automatic_chat.py",
-      "bytes": 10769,
-      "sha256": "d4c6b27d51fc21a92b5c39fe085dc397b89483b7f5248486028f0c5397bbdce4"
+      "bytes": 11398,
+      "sha256": "6f581ecba91400e1f917c2734aa4310fc0d2a2d66f53b5cc15218156ff98460d"
     },
     {
       "path": "plugins/claude-code/src/tomc/cli.py",
@@ -1506,8 +1506,8 @@
     },
     {
       "path": "plugins/claude-code/src/tomc/request_context.py",
-      "bytes": 22657,
-      "sha256": "782de2cf1782b6840355ddfc4bd410fcc14ac06c3e514b1f6c873a4f7c2016d2"
+      "bytes": 24800,
+      "sha256": "ed36d05d3cb194d3112c8cce665fd3555e45196e72df5e9318d616194534ec2b"
     },
     {
       "path": "plugins/claude-code/src/tomc/routing.py",
@@ -2095,7 +2095,7 @@
       "sha256": "60f480170270b8216d12c95ab508318dd3e458c6ce5695fbad1b116d0884f15c"
     }
   ],
-  "total_bytes": 87523010,
+  "total_bytes": 87525782,
   "self_excluded": [
     "PUBLIC_RELEASE_MANIFEST.json",
     "SHA256SUMS"
