@@ -1,58 +1,58 @@
-# TOMC 实际案例记录：图文、短视频与科研 Slides
+# TOMC in Practice: Three Real Projects
 
-更新日期：2026-10-20。本文整理三个已完成项目的实测记录，保留各项目当时的固定统计范围。
+Updated: 2026-10-20. This record brings together measurements from three completed projects, using each project's original reporting cutoff.
 
-**TOMC 在三个实际任务中都减少了送给模型的资料量。小红书配对调用少用 45,754 Token，科研 Slides 少用 115,529 Token，快手的五轮资料包少了 42.15%。** 三个案例都没有搭配专门的省 Token Skill，TOMC 是其中唯一专门用于 Token 优化的工具。制作时使用过普通内容、视频或科研工作流 Skill。
+**TOMC saved 45,754 tokens in matched Xiaohongshu calls and 115,529 tokens in a research-slide workflow. For a Kuaishou video, five paired background-text packets became 42.15% smaller.** These projects used TOMC without a dedicated token-saving skill. Ordinary content, video-editing and research skills were part of the production workflows, with TOMC as the only tool specifically used for token optimization.
 
-## 快速看结果
+## Results at a glance
 
-| 实际任务 | 工作量与对话 | 对照范围 | 不用 TOMC → 使用 TOMC | 合计节省 | 单轮最高 |
+| Real task | Deliverable and conversation | Comparison scope | Without TOMC → With TOMC | Aggregate savings | Best single round |
 | --- | --- | --- | --- | --- | --- |
-| 小红书图文 | 20页、6组女团、4章，19条用户消息 | 12对模型调用，共24次 | 886,936 → 841,182 Token | 45,754 Token，5.16% | 8.36% 总 Token |
-| 快手短视频 | 约5分12秒视频和封面，5条用户消息 | 5轮同资料包文本对照 | 27,104 → 15,681 代理 Token | 11,423 Token，42.15% | 54.46% 资料包 Token |
-| 科研文献 Slides | 10篇论文、28页英文PPT及中文讲稿，项目共25条用户消息 | 当前10篇子流程12对模型调用，共24次 | 560,736 → 445,207 Token | 115,529 Token，20.60% | 27.66% 总 Token |
+| Xiaohongshu / Rednote post | 20 pages, 6 groups, 4 chapters, 19 user messages | 12 matched model-call pairs, 24 calls total | 886,936 → 841,182 tokens | 45,754 tokens, 5.16% | 8.36% of total tokens |
+| Kuaishou short video | Approximately 5:12 video plus cover, 5 user messages | 5 paired text-packet comparisons | 27,104 → 15,681 proxy tokens | 11,423 tokens, 42.15% | 54.46% of packet tokens |
+| Research literature slides | 10 papers, 28 English slides and Chinese speaker notes, 25 user messages across the broader project | 12 matched pairs for the current 10-paper workflow, 24 calls total | 560,736 → 445,207 tokens | 115,529 tokens, 20.60% | 27.66% of total tokens |
 
-用户消息数表示用户发言次数。一次发言可以产生多次模型请求、工具调用和修改，消息数与模型调用数分别记录。科研项目25条消息覆盖更大的项目范围，其中TOMC对比阶段12条，不能理解为当前12对调用分别对应25轮对话。
+User-message counts describe human inputs. One message can lead to multiple model requests, tool calls and revisions. The research project's 25 messages cover a broader scope, including 12 messages during the TOMC comparison phase. They do not correspond one-to-one with the selected model-call pairs.
 
-小红书和科研使用模型返回的实际 usage。快手确实有 A/B 对照，测量的是同一资料包压缩前后的文本 Token，使用 `o200k_base` 代理分词器。三者的测量单位在表中分别标明，因此不把快手的42.15%写成整个剪辑项目的账单降幅。单轮最高值用于展示某一次调用的效果，合计节省用全部选定轮次求和计算。
+Xiaohongshu and research figures use actual model-reported usage. Kuaishou has a paired A/B comparison of the same external text before and after preparation, counted with the `o200k_base` proxy tokenizer. Its 42.15% describes packet-token reduction. Best-round rates describe individual comparisons, while aggregate rates use the sums across all selected rounds.
 
-## 使用条件：默认模式与强度80
+## Settings: default mode and strength 80
 
-| 项目 | 用户使用时的设置描述 | 保存记录中可核对的参数 | 压缩执行方式 |
+| Project | User-reported setup | Parameters visible in saved records | Preparation frequency and method |
 | --- | --- | --- | --- |
-| 小红书 | 默认模式，用户描述默认强度60 | `prepare_context(history, task)` 使用默认预算，词法材料约保留80% | 每个纳入对照的B请求前重新准备外部资料，关键事实独立保护 |
-| 快手 | 默认模式，用户描述默认强度60 | 五轮分别传入2,800、3,000、3,600、2,300、3,500的词法预算 | 五轮各有一次MCP `prepare_context`，前两次 `rag`，后三次 `tomc_raw` |
-| 科研PPT | 调整为压缩强度80，每次都压缩 | 原始实验报告记录外部材料目标保留60%，每个B请求前准备一次 | 官方Python入口与MCP共用压缩核心，批量调用前逐次准备 |
+| Xiaohongshu | Default mode, described by the user as default strength 60 | `prepare_context(history, task)` with the default budget, retaining approximately 80% of lexical material | External context prepared before each measured B request, with essential facts protected separately |
+| Kuaishou | Default mode, described by the user as default strength 60 | Explicit lexical budgets of 2,800, 3,000, 3,600, 2,300 and 3,500 across five rounds | One MCP `prepare_context` call per round, using `rag` for the first two and `tomc_raw` for the last three |
+| Research slides | Compression strength 80, preparation before every call | The original experiment report records a 60% external-material retention target before each B request | Official Python entry point sharing the MCP compression core, called before each measured B request |
 
-**80是用户确认的压缩强度，不是材料保留80%。** 强度标签与原始预算记录分别保留。现有日志没有独立验证“强度80”如何映射到“保留60%”，也没有在同一个任务上只改变强度做实验，因而不能用三个项目的差异单独证明提高强度会节省多少。
+**The user confirmed that 80 means compression strength, not 80% material retention.** User-facing strength labels and logged budgets are recorded separately. The logs do not independently establish a mapping from strength 80 to 60% retention. The projects also differ in task and material, so they do not isolate the effect of changing strength alone.
 
-三项任务使用的模型均记录为 `gpt-6.1-sol`、推理档位 `high`。小红书和科研的配对生成在独立的临时 `codex exec` 会话执行，每次被测生成没有额外工具调用。快手在真实制作会话中调用MCP准备外部素材。TOMC处理的是主动交给它的外部资料，主聊天上下文由宿主管理。
+All three projects record `gpt-6.1-sol` with `high` reasoning effort. Xiaohongshu and research comparisons used separate temporary `codex exec` sessions, with no additional tool calls inside each measured generation. Kuaishou used MCP context preparation within the actual production conversation. TOMC processed explicitly supplied external material. The host managed the active chat context.
 
-## 案例一：小红书20页图文
+## Case 1: A 20-page Xiaohongshu post
 
-<img src="xiaohongshu/post.png" alt="小红书实际图文封面" width="420">
+<img src="xiaohongshu/post.png" alt="Actual Xiaohongshu post cover" width="420">
 
-### 任务与版本
+### Task and versions
 
-六代女团出道比较图文，20页，涵盖6组、4章。完成图文前共19条有效用户消息，其中13条是内容编辑请求。主比较固定为 `R03–R14` 的12个配对，每组12次模型调用。后续宣传图和新增修改不并入这组数字。
+A comparison of six sixth-generation K-pop girl groups, delivered as a 20-page post with 4 chapters. The completed-post project contained 19 user messages, including 13 content-edit requests. The primary comparison uses the 12 matched pairs in `R03–R14`, with 12 model calls per arm. Later promotional graphics and additional revisions are outside this snapshot.
 
-安装记录为插件包 `0.1.2`、核心 `0.1.0`，来源提交 `7380ca04adcd41e3c949fb35458771e46c02596e`。Codex CLI 为 `0.163.0-alpha.10.2`。图文快照截点为北京时间2026-10-18 09:03:50.804。
+The installation record lists plugin package `0.1.2`, core `0.1.0` and source commit `7380ca04adcd41e3c949fb35458771e46c02596e`. Codex CLI was `0.163.0-alpha.10.2`. The post snapshot cutoff was 2026-10-18 09:03:50.804, Asia/Shanghai.
 
-每对调用的任务、原始历史、保护事实哈希一致，模型与推理档位一致。原始外部历史各轮词法估算22,126，默认预算17,701，压缩后约17,695–17,701。数据表和关键事实放在压缩区之外，A/B都保留。
+Each pair matched task, source-history and protected-evidence hashes, model and reasoning effort. Each round's external history had a lexical estimate of 22,126. The default budget was 17,701, with approximately 17,695–17,701 retained. Data tables and essential facts were kept outside the compression region in both arms.
 
-### Token对照
+### Token comparison
 
-| 指标 | A 不用 TOMC | B 使用 TOMC | A−B |
+| Metric | A: without TOMC | B: with TOMC | A−B |
 | --- | --- | --- | --- |
-| 输入 Token（含缓存） | 766,119 | 725,644 | 40,475 |
-| 其中缓存输入 | 166,016 | 161,280 | 4,736 |
-| 未缓存输入 | 600,103 | 564,364 | 35,739 |
-| 输出 Token（含推理） | 120,817 | 115,538 | 5,279 |
-| 总 Token | 886,936 | 841,182 | 45,754 |
+| Input tokens, including cached input | 766,119 | 725,644 | 40,475 |
+| Cached input, included above | 166,016 | 161,280 | 4,736 |
+| Uncached input | 600,103 | 564,364 | 35,739 |
+| Output tokens, including reasoning | 120,817 | 115,538 | 5,279 |
+| Total tokens | 886,936 | 841,182 | 45,754 |
 
-合计节省 **5.16%**，输入减少 **5.28%**。单轮最高是R03，67,466 → 61,826，总Token减少5,640，降幅 **8.36%**。
+Aggregate total-token savings were **5.16%**, with input reduced by **5.28%**. The best single round was R03, from 67,466 to 61,826 total tokens, saving 5,640 tokens or **8.36%**.
 
-| 轮次 | A 总 Token | B 总 Token | 节省 Token | 节省比例 | A 请求秒 | B 请求秒 |
+| Round | A total tokens | B total tokens | Tokens saved | Reduction | A request seconds | B request seconds |
 | --- | --- | --- | --- | --- | --- | --- |
 | R03 | 67,466 | 61,826 | 5,640 | 8.36% | 194.951 | 161.552 |
 | R04 | 72,933 | 72,780 | 153 | 0.21% | 175.601 | 207.613 |
@@ -67,57 +67,57 @@
 | R13 | 52,502 | 50,018 | 2,484 | 4.73% | 54.489 | 58.493 |
 | R14 | 107,301 | 101,482 | 5,819 | 5.42% | 359.052 | 320.115 |
 
-早期 `R00a` 使用过不同处理，`R01/R02` 存在对照污染，不纳入上述效果计算。原报告保留的宣传图前全部15次/组历史实耗为A 1,037,437、B 980,203，这个总账与12对有效比较分开保存。
+Earlier round `R00a` used a different treatment, and `R01/R02` had contaminated comparisons. They are excluded from the savings calculation above. The historical ledger retains all 15 calls per arm before promotional work: A used 1,037,437 tokens and B used 980,203. That ledger is separate from the 12 valid matched pairs.
 
-### 时间、CPU与内存
+### Time, CPU and memory
 
-| 指标 | A 不用 TOMC | B 使用 TOMC | 结果 |
+| Metric | A: without TOMC | B: with TOMC | Observed difference or scope |
 | --- | --- | --- | --- |
-| 12次模型请求累计墙钟 | 1,938.942秒 | 1,789.262秒 | 少149.680秒，约7.72% |
-| 资料准备外层累计墙钟 | 11.829秒 | 5.700秒 | 含子进程启动与调度 |
-| 请求＋外层准备累计墙钟 | 1,950.771秒 | 1,794.962秒 | 少155.810秒 |
-| 准备worker内部累计墙钟 | 0.875201秒 | 2.620329秒 | B增加1.745128秒 |
-| 准备worker累计CPU时间 | 0.890625 CPU秒 | 3.218750 CPU秒 | B增加2.328125 CPU秒 |
-| 准备worker单次峰值内存最大值 | 16,101,376 B（15.355 MiB） | 24,440,832 B（23.309 MiB） | B增加8,339,456 B |
-| 模型客户端CPU与峰值内存 | 未采集 | 未采集 | 已采集的是准备worker |
-| 本机CPU占用率% | 未采集 | 未采集 | CPU秒与占用率是不同指标 |
+| Cumulative wall time for 12 model requests | 1,938.942 s | 1,789.262 s | 149.680 s less, approximately 7.72% |
+| Cumulative outer preparation wall time | 11.829 s | 5.700 s | Includes process startup and scheduling |
+| Requests plus outer preparation wall time | 1,950.771 s | 1,794.962 s | 155.810 s less |
+| Cumulative internal preparation-worker wall time | 0.875201 s | 2.620329 s | B used 1.745128 s more |
+| Cumulative preparation-worker CPU time | 0.890625 CPU s | 3.218750 CPU s | B used 2.328125 CPU s more |
+| Maximum single-worker peak memory | 16,101,376 B (15.355 MiB) | 24,440,832 B (23.309 MiB) | B used 8,339,456 B more |
+| Model-client CPU and peak memory | Not collected | Not collected | Resource measurements above cover the preparation worker |
+| Local CPU utilization percentage | Not collected | Not collected | Distinct from cumulative CPU seconds |
 
-CPU和内存范围为隔离的资料准备进程，包含Python解释器及模块导入。外层墙钟已经包含内部worker墙钟，两行不能再次相加。A也运行资料准备worker，用于读取未压缩资料。这组观测中，模型请求累计等待更短，同时本地准备的CPU与内存略有增加。
+CPU and memory measurements cover an isolated preparation process, including the Python interpreter and imports. Outer preparation time already includes internal worker time. Arm A also used a preparation worker to read the uncompressed material. In this observation, cumulative model waiting time fell while local preparation used slightly more CPU and memory.
 
-这里的时间是累计请求与准备时间，整项图文的人工审稿、排版、渲染及并行操作没有分别重跑。完整制作工时节省未测量。
+These figures cover accumulated request and preparation time. Human review, layout, rendering and parallel production activities were not independently replayed for each arm. Whole-project labor-time savings were not measured.
 
-### 文件与安装占用
+### Files and installation footprint
 
-| 12轮文件逻辑大小 | A | B | A−B |
+| Logical file sizes across 12 rounds | A | B | A−B |
 | --- | --- | --- | --- |
 | external_history.txt | 825,744 B | 825,744 B | 0 B |
 | prepared_context.txt | 825,744 B | 652,464 B | 173,280 B |
 | prompt.txt | 1,904,119 B | 1,730,839 B | 173,280 B |
 | response.txt | 220,085 B | 235,348 B | -15,263 B |
 
-`prepared_context.txt` 与包含它的 `prompt.txt` 都各减少173,280 B，它们是两套分别保存的文件。回复文本的UTF-8字节数与模型Token数不同，B的回复文件在本次记录中更大。交付的20张PNG共 **12,870,832 B**，是共同制作后的成品大小，未单独测量有无TOMC的图像存储差异。
+The saved `prepared_context.txt` files and the complete `prompt.txt` files containing that context each decreased by 173,280 B. They are separately stored files. UTF-8 reply bytes and model output tokens use different units, and B's reply files were larger in bytes. The 20 delivered PNGs totaled **12,870,832 B**, representing the shared final production output. Separate A/B image-storage savings were not measured.
 
-安装历史采样：源码检出目录157,379,705 B，插件包及环境46,193,604 B，uv运行程序33,628,251 B。它们是当时目录的逻辑大小，含环境或开发文件，不能理解为最小插件体积。首次安装的完整用时、CPU、下载流量未采集。
+Historical installation measurements were 157,379,705 B for the source checkout, 46,193,604 B for the plugin package and environment, and 33,628,251 B for the uv executable. These are logical file sizes at the measurement point, including environment or development files. They do not represent a minimum plugin download size. Complete initial installation time, CPU and download traffic were not collected.
 
-### 使用体会
+### What this case suggests
 
-多轮重复携带较长背景时，即使默认预算较保守，也能累计减少输入。该任务还有大量必须保留的数据和创作输出，因此总Token降幅小于外部历史的压缩比例。早期遗漏事实后采用了独立保护事实的做法。适合压缩研究背景与历史解释，数字和引用单独保留。
+Repeatedly carrying long background material can accumulate savings even with a conservative default budget. This task also needed substantial protected data and creative output, so total-token savings were smaller than the external-history reduction. Essential facts were protected separately after early omissions. Research background and historical explanations were suitable compression targets, while numbers and citations stayed intact.
 
-## 案例二：快手短视频与封面
+## Case 2: A Kuaishou video and cover
 
-![快手实际视频封面](kuaishou/cover.png)
+![Actual Kuaishou video cover](kuaishou/cover.png)
 
-### 任务与对照
+### Task and comparison
 
-会议室对谈素材，原素材约11分40秒，成片312.366667秒（约5分12秒），1080×1920，H.264/AAC，另有封面。生产阶段共5条用户消息，包含制作修改和账号工作流整理。
+A meeting-room discussion was edited from approximately 11 minutes 40 seconds of source footage into a 312.366667-second video, approximately 5:12, at 1080×1920 with H.264/AAC, plus a cover. The production phase contained 5 user messages, including editing revisions and account-workflow updates.
 
-**五轮都保存了同资料、同任务的A/B文本对照。** A为完整资料包，B为TOMC选出的资料包，使用相同代理分词器计数。实际制作会话另有113次模型请求，不能把113次请求写成113组A/B。
+**All five rounds saved paired A/B text packets using the same source material and task.** A contained the full packet, and B contained TOMC-selected context. Both were counted with the same proxy tokenizer. The actual production conversation separately contained 113 model requests. Those requests do not constitute 113 A/B pairs.
 
-插件版本 `0.1.2`，Python `3.12.14`，tiktoken `0.14.0`。生产计量窗口为北京时间2026-10-18 05:46:34.846至08:19:21.748。主案例只纳入001–005轮，宣传图迭代另计。
+Versions were plugin `0.1.2`, Python `3.12.14` and tiktoken `0.14.0`. The production measurement window was 2026-10-18 05:46:34.846 to 08:19:21.748, Asia/Shanghai. The main case includes rounds 001–005, with later promotional revisions recorded separately.
 
-### 五轮Token对照与参数
+### Five-round token comparison and settings
 
-| 轮次 | A 资料包 Token | B 资料包 Token | 节省 Token | 节省比例 | TOMC 服务秒 |
+| Round | A packet tokens | B packet tokens | Tokens saved | Reduction | TOMC service seconds |
 | --- | --- | --- | --- | --- | --- |
 | 001 | 4,200 | 2,899 | 1,301 | 30.98% | 0.0240093 |
 | 002 | 5,523 | 3,076 | 2,447 | 44.31% | 0.0155380 |
@@ -125,9 +125,9 @@ CPU和内存范围为隔离的资料准备进程，包含Python解释器及模�
 | 004 | 5,143 | 2,342 | 2,801 | 54.46% | 0.0193568 |
 | 005 | 5,594 | 3,640 | 1,954 | 34.93% | 0.2132424 |
 
-合计 **27,104 → 15,681**，减少 **11,423** 个资料包代理Token，降幅 **42.15%**。第004轮最高，减少 **54.46%**。
+The aggregate was **27,104 → 15,681**, saving **11,423** packet proxy tokens or **42.15%**. Round 004 reached **54.46%**.
 
-| 轮次 | 方法 | 词法预算 | 词法输入 | 词法输出 | 实际保留 |
+| Round | Method | Lexical budget | Lexical input | Lexical output | Actual retention |
 | --- | --- | --- | --- | --- | --- |
 | 001 | rag | 2,800 | 4,032 | 2,693 | 66.79% |
 | 002 | rag | 3,000 | 5,474 | 3,000 | 54.80% |
@@ -135,85 +135,85 @@ CPU和内存范围为隔离的资料准备进程，包含Python解释器及模�
 | 004 | tomc_raw | 2,300 | 5,126 | 2,299 | 44.85% |
 | 005 | tomc_raw | 3,500 | 6,097 | 3,499 | 57.39% |
 
-词法估算用于控制TOMC预算，代理分词器用于比较资料包长度，两列计数口径不同。预算不是模型输入Token上限，实际请求还包含任务、说明、宿主历史和工具记录。
+Lexical estimates control TOMC's budget. The proxy tokenizer measures packet length. These are separate counting methods. Actual model requests also include task instructions, host history and tool records beyond the prepared material.
 
-### 实际制作会话用量
+### Actual production-conversation usage
 
-| 指标 | 实际生产阶段记录 |
+| Metric | Recorded production-phase usage |
 | --- | --- |
-| 用户消息 | 5条 |
-| 模型请求 | 113次 |
-| 输入Token | 20,044,994 |
-| 其中缓存输入 | 19,305,856 |
-| 未缓存输入 | 739,138 |
-| 输出Token | 143,639 |
-| 其中推理输出 | 58,294，已包含在输出中 |
-| 输入＋输出 | 20,188,633 |
-| TOMC调用 | 5次，均成功 |
+| User messages | 5 |
+| Model requests | 113 |
+| Input tokens | 20,044,994 |
+| Cached input, included above | 19,305,856 |
+| Uncached input | 739,138 |
+| Output tokens | 143,639 |
+| Reasoning output, included above | 58,294 |
+| Input plus output | 20,188,633 |
+| TOMC calls | 5, all successful |
 
-这张表记录真实发生的单路制作消耗。五轮文本A/B表记录外部资料包变小了多少。完整无TOMC制作流程没有独立实跑，所以整项制作的Token、金额、时间、CPU节省率保留为未测量。第003轮还生成过封面，图像工具内部Token和金额未返回，另计为未知。
+This table records the actual single production workflow. The five-round A/B table measures the external packets. A complete independent production run without TOMC was not performed, so whole-workflow token, cost, time and CPU savings remain unmeasured. Round 003 also used cover-image generation, whose internal tokens and cost were not returned.
 
-### 时间、CPU与内存
+### Time, CPU and memory
 
-| 指标 | 已测量数值 | 范围 |
+| Metric | Recorded value | Scope |
 | --- | --- | --- |
-| 5次TOMC服务回报耗时合计 | 0.2904176秒 | 单次数值见上表 |
-| 5次TOMC外层工具墙钟合计 | 0.293秒 | 工具调用起止差，含调度等 |
-| 5轮宿主任务活动时长合计 | 2,887.639秒，约48分8秒 | 包含模型、工具与等待 |
-| 首轮开始至第5轮结束 | 9,166.902秒，约2小时32分47秒 | 包含用户查看和轮次间间隔 |
-| 独立A/B完整制作耗时与时间节省 | 未测量 | 当前有资料包A/B与实际制作时间 |
-| TOMC CPU秒、CPU占用率%、峰值内存 | 未采集 | 服务回报耗时不等于CPU秒 |
-| FFmpeg等完整制作CPU与内存 | 未完整采集 | 不据视频时长推算 |
+| Sum of 5 TOMC service-reported durations | 0.2904176 s | Per-call values appear above |
+| Sum of 5 outer TOMC tool wall times | 0.293 s | Tool start-to-finish intervals, including scheduling |
+| Sum of host active-task durations across 5 rounds | 2,887.639 s, approximately 48 min 8 s | Includes models, tools and waiting |
+| Elapsed time from the first start to the end of round 5 | 9,166.902 s, approximately 2 h 32 min 47 s | Includes user review and gaps between rounds |
+| Independent A/B whole-production time and time saved | Not measured | Paired packets and actual production time are recorded separately |
+| TOMC CPU seconds, utilization percentage and peak memory | Not collected | Service duration does not measure CPU time |
+| Whole-production CPU and memory, including FFmpeg | Not fully collected | No inference from video duration |
 
-TOMC工具耗时属于宿主活动时长中的一部分，不再加到活动时长上。服务调用很短，但视频转写、剪辑、渲染和人工审看所花时间另有来源，现有数据只能分别记录。
+TOMC tool time is already part of host active-task time. Service calls were short, while transcription, editing, rendering and human review had their own costs. The available records keep those scopes separate.
 
-### 文件占用
+### File footprint
 
-| 项目 | 文件逻辑大小 | 说明 |
+| Item | Logical file size | Scope |
 | --- | --- | --- |
-| 五轮A完整外部上下文文本 | 84,903 B | `A_full_context.txt`文件之和 |
-| 五轮B压缩上下文文本 | 46,818 B | `B_TOMC_context.txt`文件之和 |
-| 外部上下文文本减少 | 38,085 B | 与含任务说明的资料包Token表范围不同 |
-| 原视频 | 810,471,146 B | 原素材文件 |
-| 最终视频 | 396,542,970 B | 剪辑与编码后的成品 |
-| 本目录封面 | 153,944 B | 用户选定封面，仅上传此图片 |
-| 独立插件安装目录占用 | 未单独采集 | 不挪用其他项目的环境大小 |
+| Five A full external-context text files | 84,903 B | Sum of `A_full_context.txt` files |
+| Five B prepared-context text files | 46,818 B | Sum of `B_TOMC_context.txt` files |
+| Reduction in saved external-context text | 38,085 B | Excludes task instructions counted in packet-token comparisons |
+| Source video | 810,471,146 B | Original footage |
+| Final video | 396,542,970 B | Edited and encoded deliverable |
+| Cover included here | 153,944 B | The user's selected cover |
+| Separate plugin installation footprint | Not collected | Other projects' environment sizes are not substituted |
 
-视频源文件与成片的体积差来自剪辑和编码，不能记作TOMC的磁盘节省。
+The source-to-final video size difference comes from editing and encoding. It is separate from TOMC's context reduction.
 
-### 使用体会与后续记录
+### What this case suggests, including later records
 
-较长转写中只有部分内容与当前剪辑有关时，先筛选外部资料能明显缩短输入。但本次压缩也漏选过家庭负担背景和预算折中窗口，制作中回查了完整转写与时间码。保留原素材和逐字时间码后再压缩，适合先找段落、整理修改背景，再回到原文精剪。
+When only part of a long transcript is relevant to an edit, selecting external context can substantially reduce the packet. This run also omitted some family-budget background and a compromise-budget window. Production returned to the full transcript and timecodes. A useful workflow is to retain the original transcript and word-level timing, use prepared context to locate relevant sections, then check the original material during precise editing.
 
-后续宣传图阶段的较短资料包，多轮压缩前后相同。包含宣传图的14轮记录共有16条用户消息、183次模型请求、35,600,221个宿主Token。15次TOMC尝试中12次成功、3次失败，失败发生在第007/008轮。12组可用文本对照合计31,059 → 19,636，降幅36.78%。这些是更大的历史范围，保留在此说明，不并入上述生产五轮结果。
+Later promotional rounds used shorter packets, several of which remained unchanged after preparation. The broader 14-round record contains 16 user messages, 183 model requests and 35,600,221 host tokens. Of 15 TOMC attempts, 12 succeeded and 3 failed, with failures in rounds 007/008. The 12 available packet pairs totaled 31,059 → 19,636, a 36.78% reduction. These broader historical figures are separate from the five production rounds above.
 
-## 案例三：10篇文献分析与28页科研Slides
+## Case 3: Ten papers and 28 research slides
 
-![科研文献分析PPT实际页面](research-ppt/slide.png)
+![Actual research literature-analysis slide](research-ppt/slide.png)
 
-### 任务与设置
+### Task and setup
 
-围绕健康老龄化和可穿戴世界模型开展文献分析，完成首批10篇论文深读、28页英文科研PPT及中文讲稿。项目截至原报告共有25条有效用户消息，其中TOMC对比阶段12条。当前10篇子流程为批次12–21、76、77，共12个配对、24次模型调用。
+A literature-analysis project on healthy aging and wearable world models produced detailed reviews of the first 10 papers, 28 English research slides and Chinese speaker notes. The original report counted 25 user messages across the project, including 12 during the TOMC comparison phase. The current 10-paper comparison uses batches 12–21, 76 and 77, totaling 12 pairs and 24 model calls.
 
-用户设置描述为“压缩强度80，每次都压缩”。实验报告保存的执行参数为“每个B请求前调用 `prepare_context`，外部材料目标保留60%”。原始报告使用 `B_TOMC_60_every_call` 作为组名。两个字段按原意并列保留。
+The user described the setting as "compression strength 80, compress before every call." The experiment report records `prepare_context` before each B request, with a 60% external-material retention target. The saved arm name was `B_TOMC_60_every_call`. Both fields are retained with their original meanings.
 
-Python `3.12.14`，TOMC提交 `d848a4a2d53e000a96dca519c1e28dcf68813acb`，研究项目提交 `cd745fe048983669a6a38e6e33a574f79a2bd88a`。固定截点为北京时间2026-10-19 03:05:54.487。
+Python was `3.12.14`, TOMC commit was `d848a4a2d53e000a96dca519c1e28dcf68813acb`, and the research-project commit was `cd745fe048983669a6a38e6e33a574f79a2bd88a`. The reporting cutoff was 2026-10-19 03:05:54.487, Asia/Shanghai.
 
-每对使用相同任务哈希、相同模型和推理档位。修订可能读取各组自己的草稿，中文讲稿使用同一冻结资料包。每个任务各运行一次，多数A先B后，第77批并行，执行顺序未随机化。
+Each pair used the same task hash, model and reasoning effort. Revisions could read each arm's own draft. The Chinese notes used the same frozen source packet. Each task ran once per arm, usually A before B. Batch 77 ran in parallel, and execution order was not randomized.
 
-### Token对照
+### Token comparison
 
-| 指标 | A 不用 TOMC | B 使用 TOMC | A−B |
+| Metric | A: without TOMC | B: with TOMC | A−B |
 | --- | --- | --- | --- |
-| 输入 Token（含缓存） | 492,661 | 371,918 | 120,743 |
-| 其中缓存输入 | 15,360 | 30,336 | -14,976 |
-| 未缓存输入 | 477,301 | 341,582 | 135,719 |
-| 输出 Token（含推理） | 68,075 | 73,289 | -5,214 |
-| 总 Token | 560,736 | 445,207 | 115,529 |
+| Input tokens, including cached input | 492,661 | 371,918 | 120,743 |
+| Cached input, included above | 15,360 | 30,336 | -14,976 |
+| Uncached input | 477,301 | 341,582 | 135,719 |
+| Output tokens, including reasoning | 68,075 | 73,289 | -5,214 |
+| Total tokens | 560,736 | 445,207 | 115,529 |
 
-合计节省 **20.60%**，输入减少 **24.51%**。B输出比A多5,214 Token，输入与输出共同决定最终节省。单轮最高第18批，61,862 → 44,751，减少17,111，降幅 **27.66%**。
+Aggregate total-token savings were **20.60%**, with input reduced by **24.51%**. B produced 5,214 more output tokens. Both input and output determine the final savings. Batch 18 had the largest single-round percentage reduction: 61,862 → 44,751, saving 17,111 tokens or **27.66%**.
 
-| 批次 | A 总 Token | B 总 Token | 节省 Token | 节省比例 | A 请求秒 | B 请求秒 |
+| Batch | A total tokens | B total tokens | Tokens saved | Reduction | A request seconds | B request seconds |
 | --- | --- | --- | --- | --- | --- | --- |
 | 12 | 41,920 | 32,448 | 9,472 | 22.60% | 161.671 | 97.352 |
 | 13 | 40,290 | 32,539 | 7,751 | 19.24% | 161.672 | 107.794 |
@@ -228,9 +228,9 @@ Python `3.12.14`，TOMC提交 `d848a4a2d53e000a96dca519c1e28dcf68813acb`，研�
 | 76 | 57,632 | 47,915 | 9,717 | 16.86% | 184.586 | 221.443 |
 | 77 | 67,542 | 54,298 | 13,244 | 19.61% | 348.403 | 370.164 |
 
-### 每次压缩的材料和开销
+### Per-call preparation size and overhead
 
-| 批次 | 词法输入 | 词法输出 | 压缩墙钟秒 | 压缩 CPU 秒 |
+| Batch | Lexical input | Lexical output | Preparation wall seconds | Preparation CPU seconds |
 | --- | --- | --- | --- | --- |
 | 12 | 18,872 | 11,317 | 0.122 | 0.121 |
 | 13 | 16,988 | 10,186 | 0.104 | 0.104 |
@@ -245,87 +245,87 @@ Python `3.12.14`，TOMC提交 `d848a4a2d53e000a96dca519c1e28dcf68813acb`，研�
 | 76 | 32,440 | 19,461 | 0.438 | 0.436 |
 | 77 | 33,436 | 20,061 | 0.724 | 0.719 |
 
-以上表格相加，词法材料 **263,942 → 158,330**，约保留60%。12次压缩累计墙钟 **2.156秒**、CPU **2.145秒**。这些合计来自原报告保留三位小数的逐批表。
+Summing these rows gives **263,942 → 158,330** lexical units, approximately 60% retained. The 12 preparations used **2.156 s** of wall time and **2.145 CPU s**. These sums use the original report's per-batch values rounded to three decimal places.
 
-### 请求用时、CPU与内存
+### Request time, CPU and memory
 
-| 指标 | A 不用 TOMC | B 使用 TOMC | 结果 |
+| Metric | A: without TOMC | B: with TOMC | Observed difference |
 | --- | --- | --- | --- |
-| 模型请求累计墙钟 | 1,695.353秒 | 1,737.395秒 | B多42.042秒，约2.48% |
-| B加上资料压缩后的累计墙钟 | 1,695.353秒 | 1,739.551秒 | B多44.198秒 |
-| 模型客户端累计CPU时间 | 67.120 CPU秒 | 68.170 CPU秒 | B多1.050 CPU秒 |
-| B再加资料压缩CPU时间 | 67.120 CPU秒 | 70.315 CPU秒 | B多3.195 CPU秒 |
-| 单次请求采样峰值RSS最大值 | 417,918,976 B（398.559 MiB） | 398,290,944 B（379.840 MiB） | B少19,628,032 B，约4.70% |
-| 本机CPU占用率% | 未采集 | 未采集 | 不将CPU秒换写为占用率 |
+| Cumulative model-request wall time | 1,695.353 s | 1,737.395 s | B took 42.042 s more, approximately 2.48% |
+| Cumulative wall time with B preparation added | 1,695.353 s | 1,739.551 s | B took 44.198 s more |
+| Cumulative model-client CPU time | 67.120 CPU s | 68.170 CPU s | B used 1.050 CPU s more |
+| Cumulative CPU time with B preparation added | 67.120 CPU s | 70.315 CPU s | B used 3.195 CPU s more |
+| Maximum sampled single-request peak RSS | 417,918,976 B (398.559 MiB) | 398,290,944 B (379.840 MiB) | B used 19,628,032 B less, approximately 4.70% |
+| Local CPU utilization percentage | Not collected | Not collected | CPU seconds do not establish utilization percentage |
 
-CPU与RSS是本机模型客户端的采样记录，准备进程另列。RSS行比较的是各组“单次请求峰值的最大值”。当前10篇子流程少用Token，却没有节省模型请求时间，B累计请求多42.042秒。部分调用并行，这些累计值不能当成整个项目的实际经过时间。共同检索、事实核对、排版和人工审稿未分成两路完整计时。
+CPU and RSS measurements cover the local model client, with preparation recorded separately. The RSS row compares each arm's maximum sampled single-request peak. This 10-paper workflow saved tokens while cumulative model-request time increased by 42.042 s. Some calls overlapped, so accumulated request times differ from project elapsed time. Shared retrieval, fact-checking, layout and human review were not independently timed as two complete workflows.
 
-### 渲染、安装与存储
+### Rendering, installation and storage
 
-原报告保留了28页PPT的8次成功渲染回执：A共5次，累计墙钟50.917秒、CPU47.387秒，B共3次，累计墙钟30.782秒、CPU27.890秒。中文稿各2次PDF导出：A累计9.496秒、CPU9.194秒，B累计9.319秒、CPU9.005秒。渲染次数和修订状态不同，记录为实际制作开销，不当成相同工作量下的性能对照。失败原型未完整计时。
+The original report retains 8 successful renders of the 28-slide deck. A had 5 renders totaling 50.917 s of wall time and 47.387 CPU s. B had 3 renders totaling 30.782 s and 27.890 CPU s. Each arm also had 2 Chinese-notes PDF exports: A totaled 9.496 s and 9.194 CPU s, while B totaled 9.319 s and 9.005 CPU s. Render counts and revision states differ, so these figures describe production overhead rather than a comparison at equal workload. Failed prototypes were not fully timed.
 
-| 交付物历史大小 | A | B | B−A |
+| Historical deliverable size | A | B | B−A |
 | --- | --- | --- | --- |
-| 28页PPTX | 1,251,373 B | 1,252,494 B | 增加1,121 B |
-| 英文PPT PDF | 1,710,707 B | 1,711,709 B | 增加1,002 B |
-| 中文讲稿PDF | 1,883,451 B | 1,886,289 B | 增加2,838 B |
-| 中文讲稿DOCX | 58,656 B | 59,470 B | 增加814 B |
-| 上述四个文件合计 | 4,904,187 B | 4,909,962 B | 增加5,775 B |
+| 28-slide PPTX | 1,251,373 B | 1,252,494 B | 1,121 B more |
+| English-slide PDF | 1,710,707 B | 1,711,709 B | 1,002 B more |
+| Chinese-notes PDF | 1,883,451 B | 1,886,289 B | 2,838 B more |
+| Chinese-notes DOCX | 58,656 B | 59,470 B | 814 B more |
+| Total of the four files | 4,904,187 B | 4,909,962 B | 5,775 B more |
 
-这些是原报告保存的成品字节数。本次只上传一张PPT截图，不上传整套论文、PPT和讲稿。成品文件略大与模型输入压缩并不矛盾，文件体积由图片、文本和打包格式等共同决定。
+These sizes come from the original report. This directory contains one slide screenshot, while the papers, full decks and notes remain with the project owner. Final file sizes depend on images, text and packaging as well as content, and B's files were slightly larger despite using fewer model-input tokens.
 
-安装历史大小：TOMC源码158,401,058 B，Python虚拟环境46,463,758 B，缓存11,124,117 B。成功MCP验证用时1.915秒，完整安装墙钟和CPU未记录。原项目曾清理150个旧输出，共102,465,226 B，清理动作2.053秒。这是版本清理结果，单列记录，不计入TOMC节省。
+Historical installation sizes were 158,401,058 B for TOMC source, 46,463,758 B for the Python virtual environment and 11,124,117 B for cache. A successful MCP validation took 1.915 s. Complete installation wall time and CPU were not recorded. The original project also removed 150 obsolete output files totaling 102,465,226 B in a 2.053 s cleanup operation. That version cleanup is recorded separately from TOMC savings.
 
-### 范围更大的历史对照与质量
+### Broader historical comparison and quality
 
-原项目包含旧总览及修订，全部已交付流程共有23对模型调用：912,402 → 759,238，总Token减少153,164，降幅16.79%。当前10篇的12对是其子集，不能把两组节省相加。原实验全部27对还含延期第二批工作，另有未配对与停止调用，不能把未完成的工作计作节省。
+Including an earlier overview and revisions, the delivered workflows contained 23 matched model-call pairs: 912,402 → 759,238 tokens, saving 153,164 or 16.79%. The current 12-pair, 10-paper workflow is a subset, so these savings cannot be added together. The broader experiment's 27 complete pairs also include deferred second-batch work. Unpaired and stopped calls are retained separately, without treating unfinished work as savings.
 
-首批10篇原始草稿的缺资料标记A为66、B为90，共享编辑条目A为208、B为435。最终两组都经过原文核对、补图、内容和版式修订，均为28页。这些记录说明本次存在审核与补充成本，节省Token和成品质量需一起看。
+For the first 10 papers, original drafts contained 66 missing-information markers in A and 90 in B. Shared editing logged 208 entries for A and 435 for B. Both final decks had 28 slides after source checking, figure additions, content revision and layout work. These records preserve the review and repair effort alongside token savings.
 
-## 省下的Token折合多少钱
+## What do the saved tokens mean in dollars?
 
-沿用原案例在2026-10-19保存的API等值估算口径：每百万未缓存输入US$2、缓存输入US$0.10、输出US$10。原记录引用[GPT-6.1 Sol模型定价页](https://developers.openai.com/api/docs/models/gpt-6.1-sol)。这组历史单价只用于复算本记录，不表示未来价格。
+The original case estimates used rates recorded on 2026-10-19: US$2 per million uncached input tokens, US$0.10 per million cached input tokens and US$10 per million output tokens. The original pricing reference was the [GPT-6.1 Sol model page](https://developers.openai.com/api/docs/models/gpt-6.1-sol). These historical rates support reproduction of this record, rather than a forecast of future prices.
 
-| 案例 | 单次任务A等值 | 单次任务B等值 | 单次差额 | 100个类似任务 | 1,000个类似任务 |
+| Case | A equivalent per task | B equivalent per task | Difference per task | 100 similar tasks | 1,000 similar tasks |
 | --- | --- | --- | --- | --- | --- |
-| 小红书12对模型调用 | US$2.4249776 | US$2.3002360 | US$0.1247416 | 4,575,400 Token，约US$12.47 | 45,754,000 Token，约US$124.74 |
-| 科研当前10篇子流程 | US$1.6368880 | US$1.4190876 | US$0.2178004 | 11,552,900 Token，约US$21.78 | 115,529,000 Token，约US$217.80 |
-| 快手五轮背景资料包 | US$0.054208 | US$0.031362 | US$0.022846 | 1,142,300代理Token，约US$2.28 | 11,423,000代理Token，约US$22.85 |
+| Xiaohongshu, 12 paired calls per arm | US$2.4249776 | US$2.3002360 | US$0.1247416 | 4,575,400 tokens, approximately US$12.47 | 45,754,000 tokens, approximately US$124.74 |
+| Research, current 10-paper workflow | US$1.6368880 | US$1.4190876 | US$0.2178004 | 11,552,900 tokens, approximately US$21.78 | 115,529,000 tokens, approximately US$217.80 |
+| Kuaishou, five background-text packets | US$0.054208 | US$0.031362 | US$0.022846 | 1,142,300 proxy tokens, approximately US$2.28 | 11,423,000 proxy tokens, approximately US$22.85 |
 
-小红书与科研的计算方式：`（未缓存输入×2 + 缓存输入×0.10 + 输出×10）/ 1,000,000`。快手只把代理资料包Token按未缓存输入US$2/M估算，不含输出和宿主缓存影响。
+For Xiaohongshu and research, the formula is `(uncached input × 2 + cached input × 0.10 + output × 10) / 1,000,000`. Kuaishou estimates apply only the assumed US$2/M uncached input rate to packet proxy tokens, excluding output and host-cache effects.
 
-100与1,000个任务按未四舍五入的单次结果线性外推，假设相同工作量、单价和缓存/输出组合。金额为API等值估算，真实登录订阅账单未取得。它不包括人工、硬件、图像模型或能源费用，也不把单轮最高节省率套到全部任务。
+The 100-task and 1,000-task projections multiply the unrounded single-case results, assuming the same workload, rates and cache/output mix. These are API-equivalent estimates. Actual subscription billing was not available. Labor, hardware, image-model and energy costs are outside the estimates. Best-round percentages are not applied to whole tasks.
 
-## 三个案例带来的使用建议
+## Practical lessons from these three projects
 
-1. **先压缩长背景，优先用在反复读材料的任务。** 文献笔记、长转写、跨轮项目记录与旧版本说明是本次有效的材料类型。科研输入减少120,743 Token，重复资料准备的收益更容易累计。
-2. **把原文证据单独保护。** 数字表、引用、逐字原声、时间码、公式及当前任务要求保留完整版本。先缩背景，再取准确证据，能减少漏掉关键事实后的补查。
-3. **默认开始，结合遗漏和最终usage再调强度。** 前两个项目为用户所述默认模式，科研采用强度80并逐次压缩。三项任务和预算不同，实际效果由材料长度、相关信息分布、输出量、缓存和补充修改共同影响。
-4. **短任务可以直接用。** 快手后续多轮短资料包压缩前后相同。只有一句新要求、资料已经很短时，重复压缩的收益有限。
-5. **分别记Token、时间和机器资源。** 小红书观测到累计请求少约150秒，科研则多约42秒。Token更少不保证更快。CPU本地开销、云端推理和视频渲染分别记录，才能知道省在何处。
-6. **可以继续测试与省Token Skill搭配。** 本次三个案例尚未测量该组合。后续可固定同一任务、同一资料和质量要求，再比较TOMC、Skill及两者组合各自的收益。
+1. **Start with long background material that gets read repeatedly.** Literature notes, transcripts, external project history and old-version explanations were useful targets. The research workflow removed 120,743 input tokens, showing how repeated preparation can accumulate savings.
+2. **Protect exact evidence separately.** Keep numerical tables, citations, verbatim speech, timecodes, formulas and current task requirements intact. Compress background, then retrieve precise evidence when needed.
+3. **Start with defaults and tune using omissions and final usage.** The first two projects used the user's reported default mode. Research used strength 80 and preparation before every call. Material length, relevance, output size, caching and repair work all affect the result.
+4. **Short inputs may need no preparation.** Several later Kuaishou packets remained unchanged. Repeated preparation offers limited benefit when the new instruction is brief and the material is already compact.
+5. **Track tokens, time and machine resources separately.** Xiaohongshu's cumulative requests took approximately 150 s less, while research took approximately 42 s more. Fewer tokens do not guarantee shorter waits. Local CPU, cloud inference and video rendering have different resource scopes.
+6. **Test a token-saving skill combination as a separate experiment.** None of these cases measured that combination. A useful next comparison would hold task, material and quality requirements fixed while testing TOMC, a dedicated skill and both together.
 
-上述体会由本用户的三个项目记录整理，适用于理解实际用法和选择试用任务。每个生成任务各做一次对照，未做多次随机重复，结果保留其项目与设置范围。
+These observations come from one user's three real projects. Each generation task had one run per arm rather than repeated randomized trials. The figures retain their task and configuration scope.
 
-## 记录口径与来源
+## Measurement definitions and provenance
 
-总Token＝输入＋输出。缓存输入已经包含在输入内，推理输出已经包含在输出内。所有“节省比例”用 `(A−B)/A` 计算。CPU秒表示进程累计用掉的CPU时间，墙钟秒表示实际经过时间。MiB＝1,048,576 B。目录大小使用文件逻辑字节数，磁盘分配空间、系统整体CPU%、云端CPU/GPU、功耗、能耗和完整网络流量均未测量。
+Total tokens equal input plus output. Cached input is already included in input, and reasoning output is already included in output. Reduction rates use `(A−B)/A`. CPU seconds measure accumulated process CPU time, while wall seconds measure elapsed time. One MiB equals 1,048,576 B. Directory sizes are logical file bytes. Allocated disk space, system-wide CPU utilization, cloud CPU/GPU usage, power, energy and complete network traffic were not measured.
 
-本文只发布统计字段和用户选定的三张成品图片。私有对话原文、素材转写、模型回复、论文全文和凭证保留在本地。来源文件名及哈希供项目持有人核对，以下文件不作为仓库相对链接。
+This directory publishes measurement fields and three user-selected deliverable images. Private conversations, transcripts, model replies, full papers and credentials remain local. The source labels and hashes below identify the owner's retained records. They are provenance entries rather than repository-relative file links.
 
-| 来源文件 | SHA256 |
+| Source record | SHA256 |
 | --- | --- |
-| 小红书 `阶段用量报告_v14.json` | `4de4fe4427325f5bf8c32fa6325f3bd4f33a677131679c0b2c47bd4bf64a0dfc` |
-| 快手 `逐轮资料对比.csv` | `db34ce7db9cf902c644d906536263658b80e6e3a62e96a732f09f78547aa1133` |
-| 快手扩展审计 `audit_summary.json` | `dd01ca7392da548fa1fd372815197ed0661bfb9fc1ca15c5ef647a0277681a57` |
-| 科研 `TOMC_完整对比记录.md` | `aa3afec4fa6542c29d7e1416b434335c9970e192bd3d4905a8e150907bca87d1` |
+| Xiaohongshu stage-usage report, v14 | `4de4fe4427325f5bf8c32fa6325f3bd4f33a677131679c0b2c47bd4bf64a0dfc` |
+| Kuaishou per-round context-comparison CSV | `db34ce7db9cf902c644d906536263658b80e6e3a62e96a732f09f78547aa1133` |
+| Kuaishou extended audit, `audit_summary.json` | `dd01ca7392da548fa1fd372815197ed0661bfb9fc1ca15c5ef647a0277681a57` |
+| Research complete TOMC comparison report | `aa3afec4fa6542c29d7e1416b434335c9970e192bd3d4905a8e150907bca87d1` |
 
-快手CSV来源包含后续宣传迭代，本案例只选择前五轮。小红书时间与资源重新汇总自R03–R14的 `result.json`、`preparation_metrics.json`，文件大小由对应文件逐项求和。科研Token、用时、CPU、渲染和成品字节数取自原报告。数据包中的规范化逐调用CSV再次用于核对Token总数。此次整理没有新增付费模型A/B实验。
+The Kuaishou source CSV includes later promotional iterations. This case selects the first five production rounds. Xiaohongshu timing and resources were recalculated from `R03–R14` records in `result.json` and `preparation_metrics.json`, with file sizes summed from the associated files. Research tokens, time, CPU, rendering and deliverable sizes come from the original report. Normalized per-call CSVs were also used to check token totals. This documentation update did not run new paid A/B model experiments.
 
-### 本目录图片
+### Images included here
 
-| 项目 | 文件 | 字节数 | SHA256 |
+| Project | File | Bytes | SHA256 |
 | --- | --- | --- | --- |
-| 小红书 | `xiaohongshu/post.png` | 1,585,626 | `d0aa2e7685427b2ffc65bb6b1dc4bf51050671548f101b349478936d71b52684` |
-| 快手 | `kuaishou/cover.png` | 153,944 | `3ee75c547d6e5417fbd01214db2a1c40b38a37ea231ca8d748fcd4fb597d61cd` |
-| 科研Slides | `research-ppt/slide.png` | 89,265 | `92637f03413d0ed83bbad17fb259cc6678287e7a2b992b8de8320d0210982900` |
+| Xiaohongshu | `xiaohongshu/post.png` | 1,585,626 | `d0aa2e7685427b2ffc65bb6b1dc4bf51050671548f101b349478936d71b52684` |
+| Kuaishou | `kuaishou/cover.png` | 153,944 | `3ee75c547d6e5417fbd01214db2a1c40b38a37ea231ca8d748fcd4fb597d61cd` |
+| Research slides | `research-ppt/slide.png` | 89,265 | `92637f03413d0ed83bbad17fb259cc6678287e7a2b992b8de8320d0210982900` |
