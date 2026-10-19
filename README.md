@@ -41,13 +41,13 @@ Reuse saved task notes in a new chat with the same assistant or another assistan
 
 This is a preview, version **0.1.0**. Download the plugins from the [MIT-licensed assistant preview](https://github.com/ZipengWu365/TOMC/tree/main/plugins/downloads). There is no PyPI package or public marketplace listing.
 
-### 30-second demo
+### Video overview
 
-[![TOMC: context compression and compilation, with saved task notes](launch/media/v12/gifs/TOMC_Agent_Complete_EN.gif)](launch/media/v12/videos/TOMC_Agent_Complete_EN.mp4)
+[![TOMC overview: smaller inputs, switching assistants, carrying notes to another computer, and BEAM results](launch/media/v13/gifs/TOMC_Overview_EN.gif)](launch/media/v13/videos/TOMC_Overview_EN.mp4)
 
-[Landscape video](launch/media/v12/videos/TOMC_Agent_Complete_EN.mp4) · [Chinese video](launch/media/v12/videos/TOMC_Agent_Complete_ZH.mp4) · [Media and test scope](launch/media/v12/README.md)
+[Full video (1:37, with sound)](launch/media/v13/videos/TOMC_Overview_EN.mp4) · [Chinese video](launch/media/v13/videos/TOMC_Overview_ZH.mp4) · [Media and test scope](launch/media/v13/README.md)
 
-API integrations call TOMC before the next request and send the prepared context. Codex and Claude Code use tools to save or recall task notes. The video includes recorded tests and author-reported trials; it has no uniform multi-model benchmark or provider endorsement.
+API integrations call TOMC before the next request and send the prepared context. Codex and Claude Code use tools to save or recall task notes. The numbers in the video come from specific tests with their own protocols and imply no provider endorsement.
 
 The [measured results](#measured-savings) give the Codex and Claude Code protocols and their source records.
 

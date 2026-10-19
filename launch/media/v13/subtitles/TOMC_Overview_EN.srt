@@ -1,0 +1,171 @@
+﻿1
+00:00:00,190 --> 00:00:02,256
+Bro, just a few more tokens…
+
+2
+00:00:02,775 --> 00:00:04,935
+I'm one prompt away from finishing
+
+3
+00:00:05,686 --> 00:00:08,620
+I built a small open-source tool called TOMC
+
+4
+00:00:08,856 --> 00:00:09,997
+It does three things
+
+5
+00:00:10,604 --> 00:00:12,518
+One: smaller inputs
+
+6
+00:00:12,661 --> 00:00:13,905
+It organizes your history
+
+7
+00:00:13,925 --> 00:00:15,293
+around the task at hand
+
+8
+00:00:15,416 --> 00:00:15,916
+states
+
+9
+00:00:16,076 --> 00:00:18,142
+relations and counts become records
+
+10
+00:00:18,322 --> 00:00:19,802
+the relevant source text stays
+
+11
+00:00:19,982 --> 00:00:21,991
+and it all goes to the model within a budget
+
+12
+00:00:22,544 --> 00:00:24,005
+In a synthetic Codex case
+
+13
+00:00:24,204 --> 00:00:29,685
+input dropped from 38,786 tokens to 27,235
+
+14
+00:00:29,902 --> 00:00:31,911
+That's 29.8% less
+
+15
+00:00:32,166 --> 00:00:33,090
+with five out of five
+
+16
+00:00:33,110 --> 00:00:34,421
+correct before and after
+
+17
+00:00:34,693 --> 00:00:36,400
+In a separate Claude Code trial
+
+18
+00:00:36,542 --> 00:00:39,419
+the reported session cost fell by about 38%
+
+19
+00:00:40,061 --> 00:00:42,599
+Two: switch assistants and keep going
+
+20
+00:00:43,042 --> 00:00:44,882
+Save a task notebook in Codex
+
+21
+00:00:45,080 --> 00:00:46,467
+recall it in Claude Code
+
+22
+00:00:46,929 --> 00:00:48,599
+and it recaps before it continues
+
+23
+00:00:49,189 --> 00:00:50,934
+Three: move to a new computer
+
+24
+00:00:51,038 --> 00:00:52,915
+Export the notebook to a file
+
+25
+00:00:53,133 --> 00:00:54,387
+import it on the new machine
+
+26
+00:00:54,680 --> 00:00:55,859
+and recall it to check
+
+27
+00:00:56,350 --> 00:00:58,142
+We also ran long-history benchmarks
+
+28
+00:00:58,162 --> 00:01:00,190
+with GPT-5.1
+
+29
+00:01:00,313 --> 00:01:04,133
+Rednote preview and DeepSeek V4.1 Flash
+
+30
+00:01:04,456 --> 00:01:06,955
+Across 54 long-history comparisons
+
+31
+00:01:07,267 --> 00:01:10,125
+TOMC's average score was higher every time
+
+32
+00:01:10,418 --> 00:01:11,219
+Versus LIGHT
+
+33
+00:01:11,305 --> 00:01:15,068
+it used about 36.6% fewer input tokens
+
+34
+00:01:15,154 --> 00:01:16,917
+averaged over the three models
+
+35
+00:01:17,501 --> 00:01:19,831
+These numbers come from specific tests
+
+36
+00:01:20,086 --> 00:01:20,963
+For your own task
+
+37
+00:01:21,181 --> 00:01:23,209
+run a small side-by-side first
+
+38
+00:01:23,831 --> 00:01:26,255
+The code and evaluation records are on GitHub
+
+39
+00:01:26,699 --> 00:01:27,991
+It's an early research release
+
+40
+00:01:28,189 --> 00:01:29,312
+and feedback is welcome
+
+41
+00:01:29,591 --> 00:01:31,845
+And yes, a small personal ask
+
+42
+00:01:32,119 --> 00:01:33,864
+if you've used it and found it useful
+
+43
+00:01:34,194 --> 00:01:35,505
+give it a Star on GitHub

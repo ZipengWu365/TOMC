@@ -43,13 +43,13 @@
 
 当前是 **v0.1.0 预览版**。插件可从[MIT 许可助手插件预览包](https://github.com/ZipengWu365/TOMC/tree/main/plugins/downloads)下载。尚无 PyPI 发布版或公开插件市场条目。
 
-### 30 秒演示
+### 视频介绍
 
-[![TOMC：上下文压缩编译与任务笔记续接](launch/media/v12/gifs/TOMC_Agent_Complete_ZH.gif)](launch/media/v12/videos/TOMC_Agent_Complete_ZH.mp4)
+[![TOMC 介绍：省输入、换助手、换电脑，以及 BEAM 测评结果](launch/media/v13/gifs/TOMC_Overview_ZH.gif)](launch/media/v13/videos/TOMC_Overview_ZH.mp4)
 
-[横版视频](launch/media/v12/videos/TOMC_Agent_Complete_ZH.mp4) · [English video](launch/media/v12/videos/TOMC_Agent_Complete_EN.mp4) · [素材与测试范围](launch/media/v12/README.md)
+[完整视频（1 分 28 秒，有声）](launch/media/v13/videos/TOMC_Overview_ZH.mp4) · [English video](launch/media/v13/videos/TOMC_Overview_EN.mp4) · [素材与测试范围](launch/media/v13/README.md)
 
-API 接入方在请求前调用 TOMC，发送准备好的上下文。Codex 和 Claude Code 通过工具保存或召回任务笔记。视频中的模型名单包含有记录的测试和作者报告的试用，未做统一的多模型评测，也没有模型提供商背书。
+API 接入方在请求前调用 TOMC，发送准备好的上下文。Codex 和 Claude Code 通过工具保存或召回任务笔记。视频中的数字来自各自的测试条件，不代表模型提供商背书。
 
 [实测结果](#实测节省)保留了 Codex、Claude Code 各自的实验条件和原始记录。
 

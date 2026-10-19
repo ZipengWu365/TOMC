@@ -86,13 +86,13 @@
     },
     {
       "path": "README.md",
-      "bytes": 48178,
-      "sha256": "b4c9bd07de848d08a06874a65e02f4ef0ca3afaf2e941953e8adaf7aad27783f"
+      "bytes": 48192,
+      "sha256": "c6632ab21224c7bb373d495a327c4a1b276c7efd1524b0c3b82a8a2b30ccdeac"
     },
     {
       "path": "README_zh.md",
-      "bytes": 46084,
-      "sha256": "2011f308421469caf211e6608807346b491a9ca21dd14a6fea36bba27576f566"
+      "bytes": 46052,
+      "sha256": "f3a1137775f34badfb109ab62c0bdae80787331546d8665615c4c44c01c0d07b"
     },
     {
       "path": "SECURITY.md",
@@ -1320,6 +1320,51 @@
       "sha256": "97f48d825e23f056700cb9164b66253921723bfbd8019465f9a7e4e52d47bbd2"
     },
     {
+      "path": "launch/media/v13/README.md",
+      "bytes": 2627,
+      "sha256": "0135d249e1260f786946e50ef1809f6170561819325822b0bdb5eb80b2d87517"
+    },
+    {
+      "path": "launch/media/v13/covers/TOMC_Overview_EN.png",
+      "bytes": 1339622,
+      "sha256": "cc910391c48a0c5c537669c5761d1a600ebeb69c1ddab864fbd91334f8a0d01c"
+    },
+    {
+      "path": "launch/media/v13/covers/TOMC_Overview_ZH.png",
+      "bytes": 1241133,
+      "sha256": "441fe70ffc36be1c61b1cbb8ca2b5b6c8ad94c868178e3238a8fd74fa0a5c664"
+    },
+    {
+      "path": "launch/media/v13/gifs/TOMC_Overview_EN.gif",
+      "bytes": 4196027,
+      "sha256": "d793e2ff39f638c21c2e08540e1155fcad55696d4888b741b7e496d85894f55a"
+    },
+    {
+      "path": "launch/media/v13/gifs/TOMC_Overview_ZH.gif",
+      "bytes": 4038575,
+      "sha256": "eb0d2ddc25ff52f5caa09fd4c9bbd03cde9f4d6695d6f08735be81b11dd6fc5a"
+    },
+    {
+      "path": "launch/media/v13/subtitles/TOMC_Overview_EN.srt",
+      "bytes": 2757,
+      "sha256": "06bad62c9442d2c58d5611b19871347be74402f570f84f7ad6392b43c0e1cd68"
+    },
+    {
+      "path": "launch/media/v13/subtitles/TOMC_Overview_ZH.srt",
+      "bytes": 2387,
+      "sha256": "42d9d8f01889aca3bd91b03e514aa52a0d643a914c2ee29ee892b78ec0d23340"
+    },
+    {
+      "path": "launch/media/v13/videos/TOMC_Overview_EN.mp4",
+      "bytes": 4957962,
+      "sha256": "519556af42ffc365e7cd40c781fe0b9a77065e7263858faa1634b626865f5628"
+    },
+    {
+      "path": "launch/media/v13/videos/TOMC_Overview_ZH.mp4",
+      "bytes": 4625503,
+      "sha256": "a9d50a6e0222a712e312eedf3a57edf137bdfc0fa1b9d18b3711dd4aa437f99d"
+    },
+    {
       "path": "metrics/traffic/cumulative.json",
       "bytes": 1386,
       "sha256": "7130d5456adf6a1f7e51818ad6cb5acf22bd4edd9e686687eec7c5dab95647b0"
@@ -2110,7 +2155,7 @@
       "sha256": "60f480170270b8216d12c95ab508318dd3e458c6ce5695fbad1b116d0884f15c"
     }
   ],
-  "total_bytes": 87530674,
+  "total_bytes": 107937249,
   "self_excluded": [
     "PUBLIC_RELEASE_MANIFEST.json",
     "SHA256SUMS"
