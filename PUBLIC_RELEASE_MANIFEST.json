@@ -575,6 +575,26 @@
       "sha256": "5bc3a0ae29519fdd53e193b205f7da3b2bf9b55ed914b592e830bae83e4bc3ae"
     },
     {
+      "path": "casestudy/README.md",
+      "bytes": 25227,
+      "sha256": "ad28464f90f5e0affa2024b2a50f104a52cad143a03fb3df2316a64d715a153c"
+    },
+    {
+      "path": "casestudy/kuaishou/cover.png",
+      "bytes": 153944,
+      "sha256": "3ee75c547d6e5417fbd01214db2a1c40b38a37ea231ca8d748fcd4fb597d61cd"
+    },
+    {
+      "path": "casestudy/research-ppt/slide.png",
+      "bytes": 89265,
+      "sha256": "92637f03413d0ed83bbad17fb259cc6678287e7a2b992b8de8320d0210982900"
+    },
+    {
+      "path": "casestudy/xiaohongshu/post.png",
+      "bytes": 1585626,
+      "sha256": "d0aa2e7685427b2ffc65bb6b1dc4bf51050671548f101b349478936d71b52684"
+    },
+    {
       "path": "demo/__init__.py",
       "bytes": 54,
       "sha256": "d2c9593bf15866ecff2fb2ccf099472e588102372d6a40b2f8b9ee74f2a712dd"
@@ -2155,7 +2175,7 @@
       "sha256": "60f480170270b8216d12c95ab508318dd3e458c6ce5695fbad1b116d0884f15c"
     }
   ],
-  "total_bytes": 107937249,
+  "total_bytes": 109791311,
   "self_excluded": [
     "PUBLIC_RELEASE_MANIFEST.json",
     "SHA256SUMS"
