@@ -1,20 +1,28 @@
 # TOMC in Practice: Three Real Projects
 
-Updated: 2026-10-20. This record brings together measurements from three completed projects, using each project's original reporting cutoff.
+Updated: 2026-10-21. This record brings together measurements from three completed projects, using each project's original reporting cutoff.
 
-**TOMC saved 45,754 tokens in matched Xiaohongshu calls and 115,529 tokens in a research-slide workflow. For a Kuaishou video, five paired background-text packets became 42.15% smaller.** These projects used TOMC without a dedicated token-saving skill. Ordinary content, video-editing and research skills were part of the production workflows, with TOMC as the only tool specifically used for token optimization.
+**Three real projects, with token and time savings measured separately. In the updated research comparison, TOMC saved 160,760 tokens (16.84%) and 34.921 seconds (1.12%), including compression preparation.** These projects used TOMC without a dedicated token-saving skill. Ordinary content, video-editing and research skills were part of the production workflows, with TOMC as the only tool specifically used for token optimization.
 
 ## Results at a glance
 
-| Real task | Deliverable and conversation | Comparison scope | Without TOMC → With TOMC | Aggregate savings | Best single round |
-| --- | --- | --- | --- | --- | --- |
-| Xiaohongshu / Rednote post | 20 pages, 6 groups, 4 chapters, 19 user messages | 12 matched model-call pairs, 24 calls total | 886,936 → 841,182 tokens | 45,754 tokens, 5.16% | 8.36% of total tokens |
-| Kuaishou short video | Approximately 5:12 video plus cover, 5 user messages | 5 paired text-packet comparisons | 27,104 → 15,681 proxy tokens | 11,423 tokens, 42.15% | 54.46% of packet tokens |
-| Research literature slides | 10 papers, 28 English slides and Chinese speaker notes, 25 user messages across the broader project | 12 matched pairs for the current 10-paper workflow, 24 calls total | 560,736 → 445,207 tokens | 115,529 tokens, 20.60% | 27.66% of total tokens |
+| Real project | Without TOMC → With TOMC | Tokens saved | Time saved |
+| --- | --- | --- | --- |
+| Xiaohongshu / Rednote post, 12 matched pairs | 886,936 → 841,182 model tokens | **45,754 (5.16%)** | **About 2 min 30 s (7.72%)**, cumulative model requests |
+| Kuaishou video, 5 paired background-text packets | 27,104 → 15,681 proxy tokens | **11,423 (42.15%)** | Complete-workflow time saving not measured |
+| Research slides and revisions, 24 matched pairs | 954,543 → 793,783 model tokens | **160,760 (16.84%)** | **About 35 s (1.12%)**, requests plus compression preparation |
 
-User-message counts describe human inputs. One message can lead to multiple model requests, tool calls and revisions. The research project's 25 messages cover a broader scope, including 12 messages during the TOMC comparison phase. They do not correspond one-to-one with the selected model-call pairs.
+Xiaohongshu's request time was approximately 32 min 19 s → 29 min 49 s. Research was 51 min 50.872 s → 51 min 15.951 s with preparation included. The measured time ranges are labeled per row. Neither is a measurement of total human production time.
 
-Xiaohongshu and research figures use actual model-reported usage. Kuaishou has a paired A/B comparison of the same external text before and after preparation, counted with the `o200k_base` proxy tokenizer. Its 42.15% describes packet-token reduction. Best-round rates describe individual comparisons, while aggregate rates use the sums across all selected rounds.
+| Project | Deliverable | User messages | Comparison and call counts |
+| --- | --- | --- | --- |
+| Xiaohongshu | 20 pages, 6 groups, 4 chapters | 19, including 13 content-edit requests | 12 matched pairs, 24 model calls |
+| Kuaishou | Approximately 5:12 video plus cover | 5 in the production phase | 5 paired text packets, 113 actual production model requests |
+| Research | 10 papers, 28 English slides and Chinese speaker notes | 29 across the project, 16 during the TOMC phase | 24 matched pairs, 48 model calls. The current 10-paper subset has 13 pairs |
+
+User-message counts and generation-task pairs are separate measures. One message can lead to multiple requests, tool calls and revisions. Research's 13-pair paper workflow is part of the 24-pair delivered-workflow comparison.
+
+Xiaohongshu and research use actual model-reported usage. Kuaishou compares the same external material before and after preparation with the `o200k_base` proxy tokenizer. Its 42.15% describes packet reduction. Best-round savings remain in the individual case records, while the headline table uses aggregate savings.
 
 ## Settings: default mode and strength 80
 
@@ -187,100 +195,171 @@ When only part of a long transcript is relevant to an edit, selecting external c
 
 Later promotional rounds used shorter packets, several of which remained unchanged after preparation. The broader 14-round record contains 16 user messages, 183 model requests and 35,600,221 host tokens. Of 15 TOMC attempts, 12 succeeded and 3 failed, with failures in rounds 007/008. The 12 available packet pairs totaled 31,059 → 19,636, a 36.78% reduction. These broader historical figures are separate from the five production rounds above.
 
-## Case 3: Ten papers and 28 research slides
+## Case 3: Literature analysis and research slides
 
 ![Actual research literature-analysis slide](research-ppt/slide.png)
 
-### Task and setup
+### Main result: fewer tokens and a modest time saving
 
-A literature-analysis project on healthy aging and wearable world models produced detailed reviews of the first 10 papers, 28 English research slides and Chinese speaker notes. The original report counted 25 user messages across the project, including 12 during the TOMC comparison phase. The current 10-paper comparison uses batches 12–21, 76 and 77, totaling 12 pairs and 24 model calls.
+**Across 24 matched generation-task pairs, TOMC saved 160,760 tokens (16.84%) and 34.921 seconds of cumulative request time (1.12%), including compression preparation.** Local client CPU plus preparation increased by 2.71%, while maximum sampled request-client RSS decreased by 2.65%.
 
-The user described the setting as "compression strength 80, compress before every call." The experiment report records `prepare_context` before each B request, with a 60% external-material retention target. The saved arm name was `B_TOMC_60_every_call`. Both fields are retained with their original meanings.
+| Metric | A: without TOMC | B: with TOMC | Change |
+| --- | --- | --- | --- |
+| Total tokens | 954,543 | 793,783 | 160,760 fewer, 16.84% |
+| Cumulative model-request wall time | 3,110.872 s | 3,072.498 s | 38.374 s less, 1.23% |
+| Requests plus compression preparation | 3,110.872 s (51 min 50.872 s) | 3,075.951 s (51 min 15.951 s) | 34.921 s less, 1.12% |
+| Sampled model-client CPU time | 119.600 CPU s | 119.430 CPU s | 0.170 CPU s less |
+| Client CPU plus compression preparation | 119.600 CPU s | 122.839 CPU s | 3.239 CPU s more, 2.71% |
+| Maximum sampled single-request peak RSS | 417,918,976 B | 406,831,104 B | 11,087,872 B less, 2.65% |
+| Additional compression preparation | 0.000 s | 3.453 wall s and 3.409 CPU s | Included in the combined rows above |
 
-Python was `3.12.14`, TOMC commit was `d848a4a2d53e000a96dca519c1e28dcf68813acb`, and the research-project commit was `cd745fe048983669a6a38e6e33a574f79a2bd88a`. The reporting cutoff was 2026-10-19 03:05:54.487, Asia/Shanghai.
+CPU and memory cover the local request client. Compression-process memory and cloud model resources were not measured. CPU seconds measure cumulative processor time, not CPU utilization percentage. RSS is the largest sampled peak among requests, rather than total project memory.
 
-Each pair used the same task hash, model and reasoning effort. Revisions could read each arm's own draft. The Chinese notes used the same frozen source packet. Each task ran once per arm, usually A before B. Batch 77 ran in parallel, and execution order was not randomized.
+### Task, conversations and comparison scope
 
-### Token comparison
+The project analyzed literature on healthy aging and wearable world models and produced reviews of 10 papers, a 28-slide English deck and Chinese speaker notes. The updated source report includes a further revision addressing why the papers were publishable and what their figures demonstrated.
+
+| Scope | Matched pairs | Model calls | Batches | A total tokens | B total tokens | Savings |
+| --- | --- | --- | --- | --- | --- | --- |
+| Delivered production and revisions, primary comparison | 24 | 48 | 1–21, 76–78 | 954,543 | 793,783 | 160,760, 16.84% |
+| Current 10-paper workflow, subset of the primary comparison | 13 | 26 | 12–21, 76–78 | 602,877 | 479,752 | 123,125, 20.42% |
+
+The project had 29 user messages, including 16 during the TOMC phase. The **24 pairs are generation tasks, not 24 conversation rounds**. Each task ran once in each arm. The 13-pair paper workflow is a subset of the 24-pair primary comparison, so their savings must not be added together.
+
+This update supersedes the earlier 23-pair reporting cutoff by adding batch 78. Consequently, the current paper workflow now has 13 pairs instead of 12. The earlier 20.60% figure described the 12-pair snapshot before that revision. The current figures above include it.
+
+The fixed production cutoff is 2026-10-19 04:14:31.838, Asia/Shanghai. The supplied report was independently rechecked on 2026-10-21. Its recheck states that 48 original call receipts and events, task/request hashes and 24 preparation records were verified. This repository update recalculates the report's per-call tables and summary formulas. The linked raw receipt bundle was not supplied with the Markdown and is not republished here.
+
+### Settings and execution
+
+The user described the setting as compression strength 80, with preparation before every call. The saved execution records specify a **60% external-material retention target**, estimated with `regex-v1`, and `prepare_context` before each B request. The arm name remains `B_TOMC_60_every_call`. Strength and retention are separate recorded fields.
+
+Python was `3.12.14`, TOMC commit was `d848a4a2d53e000a96dca519c1e28dcf68813acb`, and the research-project commit was `cd745fe048983669a6a38e6e33a574f79a2bd88a`. Both arms used `gpt-6.1-sol` with `high` reasoning effort and the same task instructions within each pair. Revisions could use each arm's own draft. Most early batches ran A before B, while batches 77 and 78 ran in parallel. Order was not randomized.
+
+The target does not mean every packet retained exactly 60%. Batch 4 retained 33.36%, and other rows also varied. The preparation table below shows the recorded lengths for each selected request.
+
+### Token detail: all 24 delivered pairs
 
 | Metric | A: without TOMC | B: with TOMC | A−B |
 | --- | --- | --- | --- |
-| Input tokens, including cached input | 492,661 | 371,918 | 120,743 |
-| Cached input, included above | 15,360 | 30,336 | -14,976 |
-| Uncached input | 477,301 | 341,582 | 135,719 |
-| Output tokens, including reasoning | 68,075 | 73,289 | -5,214 |
-| Total tokens | 560,736 | 445,207 | 115,529 |
+| Input tokens, including cached input | 815,151 | 642,647 | 172,504 |
+| Cached input, included above | 38,144 | 45,312 | -7,168 |
+| Uncached input | 777,007 | 597,335 | 179,672 |
+| Output tokens, including reasoning | 139,392 | 151,136 | -11,744 |
+| Total tokens | 954,543 | 793,783 | 160,760 |
 
-Aggregate total-token savings were **20.60%**, with input reduced by **24.51%**. B produced 5,214 more output tokens. Both input and output determine the final savings. Batch 18 had the largest single-round percentage reduction: 61,862 → 44,751, saving 17,111 tokens or **27.66%**.
+Input decreased by 21.16%, while B produced 11,744 more output tokens. The net total-token saving is 16.84%. All 24 selected B calls used fewer total tokens, but only 10 had shorter model-request wall time. The highest single-call token reduction was batch 18 at 27.66%.
 
-| Batch | A total tokens | B total tokens | Tokens saved | Reduction | A request seconds | B request seconds |
-| --- | --- | --- | --- | --- | --- | --- |
-| 12 | 41,920 | 32,448 | 9,472 | 22.60% | 161.671 | 97.352 |
-| 13 | 40,290 | 32,539 | 7,751 | 19.24% | 161.672 | 107.794 |
-| 14 | 37,435 | 31,304 | 6,131 | 16.38% | 127.404 | 100.626 |
-| 15 | 65,632 | 47,743 | 17,889 | 27.26% | 98.766 | 132.021 |
-| 16 | 43,136 | 34,363 | 8,773 | 20.34% | 103.514 | 129.400 |
-| 17 | 31,296 | 26,957 | 4,339 | 13.86% | 84.118 | 122.319 |
-| 18 | 61,862 | 44,751 | 17,111 | 27.66% | 97.850 | 112.481 |
-| 19 | 35,522 | 28,741 | 6,781 | 19.09% | 118.264 | 93.771 |
-| 20 | 34,177 | 29,954 | 4,223 | 12.36% | 91.453 | 112.694 |
-| 21 | 44,292 | 34,194 | 10,098 | 22.80% | 117.652 | 137.330 |
-| 76 | 57,632 | 47,915 | 9,717 | 16.86% | 184.586 | 221.443 |
-| 77 | 67,542 | 54,298 | 13,244 | 19.61% | 348.403 | 370.164 |
+| Batch | Stage | A tokens | B tokens | Tokens saved | Reduction | A seconds | B seconds |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| 1 | Initial overview | 42,817 | 36,361 | 6,456 | 15.08% | 143.341 | 159.630 |
+| 2 | Initial overview | 42,804 | 35,259 | 7,545 | 17.63% | 144.471 | 141.049 |
+| 3 | Initial overview | 54,762 | 47,452 | 7,310 | 13.35% | 149.006 | 240.014 |
+| 4 | Initial overview | 32,842 | 25,581 | 7,261 | 22.11% | 101.711 | 73.576 |
+| 5 | Overview fact revision | 30,463 | 28,120 | 2,343 | 7.69% | 43.798 | 65.589 |
+| 6 | Overview fact revision | 26,753 | 26,690 | 63 | 0.24% | 50.363 | 60.688 |
+| 7 | Overview content revision | 30,114 | 29,278 | 836 | 2.78% | 117.325 | 202.223 |
+| 8 | Overview content revision | 29,481 | 27,023 | 2,458 | 8.34% | 124.740 | 130.817 |
+| 9 | Overview content revision | 18,708 | 17,218 | 1,490 | 7.96% | 36.350 | 21.028 |
+| 10 | Overview content revision | 26,907 | 25,115 | 1,792 | 6.66% | 289.131 | 58.083 |
+| 11 | Overview content revision | 16,015 | 15,934 | 81 | 0.51% | 10.566 | 7.882 |
+| 12 | Detailed paper review | 41,920 | 32,448 | 9,472 | 22.60% | 161.671 | 97.352 |
+| 13 | Detailed paper review | 40,290 | 32,539 | 7,751 | 19.24% | 161.672 | 107.794 |
+| 14 | Detailed paper review | 37,435 | 31,304 | 6,131 | 16.38% | 127.404 | 100.626 |
+| 15 | Detailed paper review | 65,632 | 47,743 | 17,889 | 27.26% | 98.766 | 132.021 |
+| 16 | Detailed paper review | 43,136 | 34,363 | 8,773 | 20.34% | 103.514 | 129.400 |
+| 17 | Detailed paper review | 31,296 | 26,957 | 4,339 | 13.86% | 84.118 | 122.319 |
+| 18 | Detailed paper review | 61,862 | 44,751 | 17,111 | 27.66% | 97.850 | 112.481 |
+| 19 | Detailed paper review | 35,522 | 28,741 | 6,781 | 19.09% | 118.264 | 93.771 |
+| 20 | Detailed paper review | 34,177 | 29,954 | 4,223 | 12.36% | 91.453 | 112.694 |
+| 21 | Detailed paper review | 44,292 | 34,194 | 10,098 | 22.80% | 117.652 | 137.330 |
+| 76 | 28-slide English deck | 57,632 | 47,915 | 9,717 | 16.86% | 184.586 | 221.443 |
+| 77 | Chinese speaker notes | 67,542 | 54,298 | 13,244 | 19.61% | 348.403 | 370.164 |
+| 78 | Publication value and figure analysis | 42,141 | 34,545 | 7,596 | 18.03% | 204.718 | 174.525 |
 
-### Per-call preparation size and overhead
+### Current 10-paper workflow: the 13-pair subset
 
-| Batch | Lexical input | Lexical output | Preparation wall seconds | Preparation CPU seconds |
-| --- | --- | --- | --- | --- |
-| 12 | 18,872 | 11,317 | 0.122 | 0.121 |
-| 13 | 16,988 | 10,186 | 0.104 | 0.104 |
-| 14 | 15,727 | 9,436 | 0.090 | 0.090 |
-| 15 | 38,311 | 22,986 | 0.119 | 0.118 |
-| 16 | 20,073 | 12,040 | 0.085 | 0.085 |
-| 17 | 10,323 | 6,193 | 0.059 | 0.059 |
-| 18 | 31,106 | 18,661 | 0.140 | 0.140 |
-| 19 | 13,563 | 8,133 | 0.082 | 0.082 |
-| 20 | 13,198 | 7,918 | 0.078 | 0.077 |
-| 21 | 19,905 | 11,938 | 0.115 | 0.114 |
-| 76 | 32,440 | 19,461 | 0.438 | 0.436 |
-| 77 | 33,436 | 20,061 | 0.724 | 0.719 |
-
-Summing these rows gives **263,942 → 158,330** lexical units, approximately 60% retained. The 12 preparations used **2.156 s** of wall time and **2.145 CPU s**. These sums use the original report's per-batch values rounded to three decimal places.
-
-### Request time, CPU and memory
-
-| Metric | A: without TOMC | B: with TOMC | Observed difference |
+| Metric | A: without TOMC | B: with TOMC | A−B |
 | --- | --- | --- | --- |
-| Cumulative model-request wall time | 1,695.353 s | 1,737.395 s | B took 42.042 s more, approximately 2.48% |
-| Cumulative wall time with B preparation added | 1,695.353 s | 1,739.551 s | B took 44.198 s more |
-| Cumulative model-client CPU time | 67.120 CPU s | 68.170 CPU s | B used 1.050 CPU s more |
-| Cumulative CPU time with B preparation added | 67.120 CPU s | 70.315 CPU s | B used 3.195 CPU s more |
-| Maximum sampled single-request peak RSS | 417,918,976 B (398.559 MiB) | 398,290,944 B (379.840 MiB) | B used 19,628,032 B less, approximately 4.70% |
-| Local CPU utilization percentage | Not collected | Not collected | CPU seconds do not establish utilization percentage |
+| Input tokens, including cached input | 525,076 | 398,530 | 126,546 |
+| Cached input, included above | 15,360 | 30,336 | -14,976 |
+| Uncached input | 509,716 | 368,194 | 141,522 |
+| Output tokens, including reasoning | 77,801 | 81,222 | -3,421 |
+| Total tokens | 602,877 | 479,752 | 123,125 |
 
-CPU and RSS measurements cover the local model client, with preparation recorded separately. The RSS row compares each arm's maximum sampled single-request peak. This 10-paper workflow saved tokens while cumulative model-request time increased by 42.042 s. Some calls overlapped, so accumulated request times differ from project elapsed time. Shared retrieval, fact-checking, layout and human review were not independently timed as two complete workflows.
+The subset saves 123,125 total tokens, or 20.42%. Its cumulative model-request time is 1,900.071 s for A and 1,911.920 s for B, so B took 11.849 s longer before preparation. Summing the rounded preparation rows adds 2.354 wall s and 2.342 CPU s to B. On that rounded basis, request time plus preparation is approximately 14.203 s longer. The local client CPU totals are 73.090 CPU s and 73.930 CPU s before preparation.
+
+This subset and the 24-pair primary comparison answer different scope questions. The primary comparison saves a small amount of cumulative time even though this subset takes longer.
+
+### Preparation lengths and overhead
+
+| Batch | Lexical input | Lexical output | Retained | Wall seconds | CPU seconds |
+| --- | --- | --- | --- | --- | --- |
+| 1 | 16,176 | 9,705 | 60.00% | 0.108 | 0.108 |
+| 2 | 16,685 | 10,011 | 60.00% | 0.108 | 0.108 |
+| 3 | 24,985 | 14,988 | 59.99% | 0.127 | 0.127 |
+| 4 | 12,548 | 4,186 | 33.36% | 0.143 | 0.130 |
+| 5 | 4,141 | 2,483 | 59.96% | 0.153 | 0.153 |
+| 6 | 4,283 | 2,567 | 59.93% | 0.103 | 0.103 |
+| 7 | 8,423 | 5,052 | 59.98% | 0.104 | 0.104 |
+| 8 | 7,805 | 4,681 | 59.97% | 0.093 | 0.093 |
+| 9 | 1,764 | 1,007 | 57.09% | 0.026 | 0.020 |
+| 10 | 4,013 | 2,407 | 59.98% | 0.122 | 0.116 |
+| 11 | 134 | 76 | 56.72% | 0.011 | 0.006 |
+| 12 | 18,872 | 11,317 | 59.97% | 0.122 | 0.121 |
+| 13 | 16,988 | 10,186 | 59.96% | 0.104 | 0.104 |
+| 14 | 15,727 | 9,436 | 60.00% | 0.090 | 0.090 |
+| 15 | 38,311 | 22,986 | 60.00% | 0.119 | 0.118 |
+| 16 | 20,073 | 12,040 | 59.98% | 0.085 | 0.085 |
+| 17 | 10,323 | 6,193 | 59.99% | 0.059 | 0.059 |
+| 18 | 31,106 | 18,661 | 59.99% | 0.140 | 0.140 |
+| 19 | 13,563 | 8,133 | 59.96% | 0.082 | 0.082 |
+| 20 | 13,198 | 7,918 | 59.99% | 0.078 | 0.077 |
+| 21 | 19,905 | 11,938 | 59.97% | 0.115 | 0.114 |
+| 76 | 32,440 | 19,461 | 59.99% | 0.438 | 0.436 |
+| 77 | 33,436 | 20,061 | 60.00% | 0.724 | 0.719 |
+| 78 | 15,999 | 9,598 | 59.99% | 0.198 | 0.197 |
+
+The exact primary-comparison preparation totals quoted in the source recheck are 3.452814627 wall s and 3.409327803 CPU s. The table rounds each call to three decimals, so summing displayed rows can differ by a few milliseconds.
+
+The source provides the exact time-saving calculation:
+
+```text
+3,110.872489632 - (3,072.498458512 + 3.452814627)
+= 34.921216493 seconds saved
+```
+
+The combined CPU calculation is `(119.430 + 3.409327803 - 119.600) / 119.600`, an increase of 2.71%.
+
+These are accumulated CLI request durations, including waiting. Some requests overlapped. Shared paper reading, fact-checking, editing and layout were performed once and recorded separately, so the figures do not establish whole-project labor-time savings.
 
 ### Rendering, installation and storage
 
-The original report retains 8 successful renders of the 28-slide deck. A had 5 renders totaling 50.917 s of wall time and 47.387 CPU s. B had 3 renders totaling 30.782 s and 27.890 CPU s. Each arm also had 2 Chinese-notes PDF exports: A totaled 9.496 s and 9.194 CPU s, while B totaled 9.319 s and 9.005 CPU s. Render counts and revision states differ, so these figures describe production overhead rather than a comparison at equal workload. Failed prototypes were not fully timed.
+The updated report retains 14 successful 28-slide deck renders, totaling 155.894 wall s and 142.148 CPU s, plus 10 Chinese-notes exports totaling 48.687 wall s and 46.705 CPU s. These include revisions with different states and workloads. Render high-water memory can carry over from earlier operations in the same process, so those records are not independent A/B memory comparisons. Failed prototypes and failed renders were not all fully timed.
 
-| Historical deliverable size | A | B | B−A |
+| Latest recorded deliverable size | A | B | B−A |
 | --- | --- | --- | --- |
-| 28-slide PPTX | 1,251,373 B | 1,252,494 B | 1,121 B more |
-| English-slide PDF | 1,710,707 B | 1,711,709 B | 1,002 B more |
-| Chinese-notes PDF | 1,883,451 B | 1,886,289 B | 2,838 B more |
-| Chinese-notes DOCX | 58,656 B | 59,470 B | 814 B more |
-| Total of the four files | 4,904,187 B | 4,909,962 B | 5,775 B more |
+| 28-slide PPTX | 1,094,861 B | 1,095,803 B | +942 B |
+| English-slide PDF | 1,524,545 B | 1,523,976 B | -569 B |
+| Chinese-notes PDF | 1,898,065 B | 1,900,210 B | +2,145 B |
+| Chinese-notes DOCX | 60,047 B | 60,893 B | +846 B |
+| Total of the four files | 4,577,518 B | 4,580,882 B | +3,364 B |
 
-These sizes come from the original report. This directory contains one slide screenshot, while the papers, full decks and notes remain with the project owner. Final file sizes depend on images, text and packaging as well as content, and B's files were slightly larger despite using fewer model-input tokens.
+These are the latest deliverable sizes in the supplied report. One original slide screenshot remains in this directory as the case illustration. It is not a replacement for the latest full deck or a new image comparison.
 
-Historical installation sizes were 158,401,058 B for TOMC source, 46,463,758 B for the Python virtual environment and 11,124,117 B for cache. A successful MCP validation took 1.915 s. Complete installation wall time and CPU were not recorded. The original project also removed 150 obsolete output files totaling 102,465,226 B in a 2.053 s cleanup operation. That version cleanup is recorded separately from TOMC savings.
+Historical installation sizes remain 158,401,058 B for TOMC source, 46,463,758 B for the Python environment and 11,124,117 B for cache. At the updated report's collection point, regular-file sizes without following symlinks were 158,007,842 B, 45,128,420 B and 9,768,341 B respectively. These logical file sizes do not establish allocated disk space or minimum installation size. The successful MCP validation took 1.915 s. Complete installation time and CPU were not recorded. Cleanup removed 150 obsolete output files totaling 102,465,226 B in 2.053 s, recorded separately from TOMC savings.
 
-### Broader historical comparison and quality
+### Quality and follow-up work
 
-Including an earlier overview and revisions, the delivered workflows contained 23 matched model-call pairs: 912,402 → 759,238 tokens, saving 153,164 or 16.79%. The current 12-pair, 10-paper workflow is a subset, so these savings cannot be added together. The broader experiment's 27 complete pairs also include deferred second-batch work. Unpaired and stopped calls are retained separately, without treating unfinished work as savings.
+The first 10 detailed drafts contained 66 missing-information fields in A and 90 in B, with 208 shared editing entries for A and 435 for B. In the newly included batch 78, A had no `QUERY` markers. B had markers in **7 papers and 15 fields, with 19 occurrences**. These are draft information gaps, not a measured factual-error rate.
 
-For the first 10 papers, original drafts contained 66 missing-information markers in A and 90 in B. Shared editing logged 208 entries for A and 435 for B. Both final decks had 28 slides after source checking, figure additions, content revision and layout work. These records preserve the review and repair effort alongside token savings.
+Both arms then received shared source checking, figure interpretation, factual revisions and speaker-note editing. The final decks each contain 28 slides and passed the recorded structural checks. Final Chinese-note body counts are 12,622 characters for A and 13,113 for B. Equal page counts and passing structural checks do not substitute for blinded quality ratings or separately measured editing labor.
+
+### Wider execution ledger
+
+The 24 primary pairs exclude deferred second-batch work. Including that work gives 28 complete pairs, using 1,084,348 tokens in A and 903,889 in B, a 16.64% reduction. The actual completed-call ledger contains 30 A calls and 28 B calls, totaling 2,066,064 known tokens, plus unknown usage from two interrupted B calls. Unpaired work and interruptions are recorded as costs, not counted as savings.
+
+The updated source also records 34 adopted preparation packets and 10 archived, unexecuted preparations. All 44 preparations totaled 5.423 wall s and 5.267 CPU s. Only the 24 matching preparations belong in the primary timing comparison.
 
 ## What do the saved tokens mean in dollars?
 
@@ -289,20 +368,21 @@ The original case estimates used rates recorded on 2026-10-19: US$2 per million 
 | Case | A equivalent per task | B equivalent per task | Difference per task | 100 similar tasks | 1,000 similar tasks |
 | --- | --- | --- | --- | --- | --- |
 | Xiaohongshu, 12 paired calls per arm | US$2.4249776 | US$2.3002360 | US$0.1247416 | 4,575,400 tokens, approximately US$12.47 | 45,754,000 tokens, approximately US$124.74 |
-| Research, current 10-paper workflow | US$1.6368880 | US$1.4190876 | US$0.2178004 | 11,552,900 tokens, approximately US$21.78 | 115,529,000 tokens, approximately US$217.80 |
+| Research, all 24 delivered pairs | US$2.9517484 | US$2.7105612 | US$0.2411872 | 16,076,000 tokens, approximately US$24.12 | 160,760,000 tokens, approximately US$241.19 |
+| Research, 13-pair paper subset | US$1.7989780 | US$1.5516416 | US$0.2473364 | 12,312,500 tokens, approximately US$24.73 | 123,125,000 tokens, approximately US$247.34 |
 | Kuaishou, five background-text packets | US$0.054208 | US$0.031362 | US$0.022846 | 1,142,300 proxy tokens, approximately US$2.28 | 11,423,000 proxy tokens, approximately US$22.85 |
 
-For Xiaohongshu and research, the formula is `(uncached input × 2 + cached input × 0.10 + output × 10) / 1,000,000`. Kuaishou estimates apply only the assumed US$2/M uncached input rate to packet proxy tokens, excluding output and host-cache effects.
+The two research rows overlap and must not be added together. For Xiaohongshu and research, the formula is `(uncached input × 2 + cached input × 0.10 + output × 10) / 1,000,000`. Kuaishou estimates apply only the assumed US$2/M uncached input rate to packet proxy tokens, excluding output and host-cache effects.
 
 The 100-task and 1,000-task projections multiply the unrounded single-case results, assuming the same workload, rates and cache/output mix. These are API-equivalent estimates. Actual subscription billing was not available. Labor, hardware, image-model and energy costs are outside the estimates. Best-round percentages are not applied to whole tasks.
 
 ## Practical lessons from these three projects
 
-1. **Start with long background material that gets read repeatedly.** Literature notes, transcripts, external project history and old-version explanations were useful targets. The research workflow removed 120,743 input tokens, showing how repeated preparation can accumulate savings.
+1. **Start with long background material that gets read repeatedly.** Literature notes, transcripts, external project history and old-version explanations were useful targets. The 24-pair research workflow removed 172,504 input tokens, showing how repeated preparation can accumulate savings.
 2. **Protect exact evidence separately.** Keep numerical tables, citations, verbatim speech, timecodes, formulas and current task requirements intact. Compress background, then retrieve precise evidence when needed.
 3. **Start with defaults and tune using omissions and final usage.** The first two projects used the user's reported default mode. Research used strength 80 and preparation before every call. Material length, relevance, output size, caching and repair work all affect the result.
 4. **Short inputs may need no preparation.** Several later Kuaishou packets remained unchanged. Repeated preparation offers limited benefit when the new instruction is brief and the material is already compact.
-5. **Track tokens, time and machine resources separately.** Xiaohongshu's cumulative requests took approximately 150 s less, while research took approximately 42 s more. Fewer tokens do not guarantee shorter waits. Local CPU, cloud inference and video rendering have different resource scopes.
+5. **Track tokens, time and machine resources separately.** Xiaohongshu's cumulative requests took approximately 150 s less. The 24-pair research workflow saved 34.921 s including preparation, while its 13-pair paper subset took longer. Fewer tokens do not guarantee shorter waits in every stage. Local CPU, cloud inference and video rendering have different resource scopes.
 6. **Test a token-saving skill combination as a separate experiment.** None of these cases measured that combination. A useful next comparison would hold task, material and quality requirements fixed while testing TOMC, a dedicated skill and both together.
 
 These observations come from one user's three real projects. Each generation task had one run per arm rather than repeated randomized trials. The figures retain their task and configuration scope.
@@ -318,9 +398,9 @@ This directory publishes measurement fields and three user-selected deliverable 
 | Xiaohongshu stage-usage report, v14 | `4de4fe4427325f5bf8c32fa6325f3bd4f33a677131679c0b2c47bd4bf64a0dfc` |
 | Kuaishou per-round context-comparison CSV | `db34ce7db9cf902c644d906536263658b80e6e3a62e96a732f09f78547aa1133` |
 | Kuaishou extended audit, `audit_summary.json` | `dd01ca7392da548fa1fd372815197ed0661bfb9fc1ca15c5ef647a0277681a57` |
-| Research complete TOMC comparison report | `aa3afec4fa6542c29d7e1416b434335c9970e192bd3d4905a8e150907bca87d1` |
+| Research complete TOMC report, updated and rechecked 2026-10-21 | `6ca9c3b0528d1f453b8e7b79aa39451b5b79a9aedaeb9c6aca4804c4c41254dc` |
 
-The Kuaishou source CSV includes later promotional iterations. This case selects the first five production rounds. Xiaohongshu timing and resources were recalculated from `R03–R14` records in `result.json` and `preparation_metrics.json`, with file sizes summed from the associated files. Research tokens, time, CPU, rendering and deliverable sizes come from the original report. Normalized per-call CSVs were also used to check token totals. This documentation update did not run new paid A/B model experiments.
+The Kuaishou source CSV includes later promotional iterations. This case selects the first five production rounds. Xiaohongshu timing and resources were recalculated from `R03–R14` records in `result.json` and `preparation_metrics.json`, with file sizes summed from the associated files. Research now uses the updated report supplied on 2026-10-21, including batch 78. Its 58 completed-call rows were checked for token arithmetic, and the selected 48 calls were summed to verify the primary totals. Preparation, CPU, memory, rendering, quality and deliverable sizes were reconciled with the updated tables. Exact primary timing uses the precision quoted in the source recheck. The other two cases retain their original snapshots. This documentation update did not run new paid A/B model experiments.
 
 ### Images included here
 
