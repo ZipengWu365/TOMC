@@ -1,8 +1,10 @@
 # TOMC in Practice: Three Real Projects
 
-Updated: 2026-10-21. This record brings together measurements from three completed projects, using each project's original reporting cutoff.
+Updated: 2026-10-22 (public-evidence review; production cutoffs unchanged). This record brings together reported measurements from three completed projects, using each project's original reporting cutoff.
 
-**Three real projects, with token and time savings measured separately. In the updated research comparison, TOMC saved 160,760 tokens (16.84%) and 34.921 seconds (1.12%), including compression preparation.** These projects used TOMC without a dedicated token-saving skill. Ordinary content, video-editing and research skills were part of the production workflows, with TOMC as the only tool specifically used for token optimization.
+**Three user-reported projects, with token and time savings measured separately. In the updated research comparison, the report records savings of 160,760 tokens (16.84%) and 34.921 seconds (1.12%), including compression preparation.** These projects used TOMC without a dedicated token-saving skill. Ordinary content, video-editing and research skills were part of the production workflows, with TOMC as the only tool specifically used for token optimization.
+
+The public tables support arithmetic checks. The private source reports and request receipts are not included, so this repository does not independently reproduce the experiments. See [evidence review and promotional scope](#evidence-review-and-promotional-scope).
 
 ## Results at a glance
 
@@ -32,7 +34,7 @@ Xiaohongshu and research use actual model-reported usage. Kuaishou compares the 
 | Kuaishou | Default mode, described by the user as default strength 60 | Explicit lexical budgets of 2,800, 3,000, 3,600, 2,300 and 3,500 across five rounds | One MCP `prepare_context` call per round, using `rag` for the first two and `tomc_raw` for the last three |
 | Research slides | Compression strength 80, preparation before every call | The original experiment report records a 60% external-material retention target before each B request | Official Python entry point sharing the MCP compression core, called before each measured B request |
 
-**The user confirmed that 80 means compression strength, not 80% material retention.** User-facing strength labels and logged budgets are recorded separately. The logs do not independently establish a mapping from strength 80 to 60% retention. The projects also differ in task and material, so they do not isolate the effect of changing strength alone.
+**The user confirmed that 80 means compression strength, not 80% material retention.** User-facing strength labels and logged budgets are recorded separately. The logs do not independently establish a mapping from strength 80 to 60% retention. In the [Python API](../src/tomc/easy.py), the default is `max(1024, ceil(history_tokens * 0.8))` under the lexical counter; this also appears in both cited TOMC source commits. That API accepts a lexical `budget`, with no `strength` argument. The README's default 80% retention therefore does not specify the research run's user-reported strength setting or its provider-token saving. The projects also differ in task and material, so they do not isolate the effect of changing strength alone.
 
 All three projects record `gpt-6.1-sol` with `high` reasoning effort. Xiaohongshu and research comparisons used separate temporary `codex exec` sessions, with no additional tool calls inside each measured generation. Kuaishou used MCP context preparation within the actual production conversation. TOMC processed explicitly supplied external material. The host managed the active chat context.
 
@@ -228,13 +230,13 @@ The project had 29 user messages, including 16 during the TOMC phase. The **24 p
 
 This update supersedes the earlier 23-pair reporting cutoff by adding batch 78. Consequently, the current paper workflow now has 13 pairs instead of 12. The earlier 20.60% figure described the 12-pair snapshot before that revision. The current figures above include it.
 
-The fixed production cutoff is 2026-10-19 04:14:31.838, Asia/Shanghai. The supplied report was independently rechecked on 2026-10-21. Its recheck states that 48 original call receipts and events, task/request hashes and 24 preparation records were verified. This repository update recalculates the report's per-call tables and summary formulas. The linked raw receipt bundle was not supplied with the Markdown and is not republished here.
+The fixed production cutoff is 2026-10-19 04:14:31.838, Asia/Shanghai. The supplied report describes a recheck on 2026-10-21. Its author reports that 48 original call receipts and events, task/request hashes and 24 preparation records were verified. This repository update recalculates the report's per-call tables and summary formulas. The private raw receipt bundle was not supplied with the Markdown and is not republished here.
 
 ### Settings and execution
 
 The user described the setting as compression strength 80, with preparation before every call. The saved execution records specify a **60% external-material retention target**, estimated with `regex-v1`, and `prepare_context` before each B request. The arm name remains `B_TOMC_60_every_call`. Strength and retention are separate recorded fields.
 
-Python was `3.12.14`, TOMC commit was `d848a4a2d53e000a96dca519c1e28dcf68813acb`, and the research-project commit was `cd745fe048983669a6a38e6e33a574f79a2bd88a`. Both arms used `gpt-6.1-sol` with `high` reasoning effort and the same task instructions within each pair. Revisions could use each arm's own draft. Most early batches ran A before B, while batches 77 and 78 ran in parallel. Order was not randomized.
+Python was `3.12.14`, TOMC commit was `d848a4a2d53e000a96dca519c1e28dcf68813acb`, and the research-project commit was `cd745fe048983669a6a38e6e33a574f79a2bd88a`. Both arms used `gpt-6.1-sol` with `high` reasoning effort and the same task instructions within each pair. Revisions could use each arm's own draft. Most early batches ran A before B, while batches 77 and 78 ran in parallel. Order was not randomized. Because revisions could use each arm's own earlier draft, later pairs need not have identical source text; they measure the evolving workflow comparison rather than an isolated compression-only effect. Tasks within a project are also dependent and are not independent experimental replicates.
 
 The target does not mean every packet retained exactly 60%. Batch 4 retained 33.36%, and other rows also varied. The preparation table below shows the recorded lengths for each selected request.
 
@@ -363,7 +365,7 @@ The updated source also records 34 adopted preparation packets and 10 archived, 
 
 ## What do the saved tokens mean in dollars?
 
-The original case estimates used rates recorded on 2026-10-19: US$2 per million uncached input tokens, US$0.10 per million cached input tokens and US$10 per million output tokens. The original pricing reference was the [GPT-6.1 Sol model page](https://developers.openai.com/api/docs/models/gpt-6.1-sol). These historical rates support reproduction of this record, rather than a forecast of future prices.
+The original case estimates used rate assumptions recorded on 2026-10-19: US$2 per million uncached input tokens, US$0.10 per million cached input tokens and US$10 per million output tokens. The original pricing reference was the [GPT-6.1 Sol model page](https://developers.openai.com/api/docs/models/gpt-6.1-sol). The public-evidence review checks calculations under those assumptions; it does not independently verify the historical tariff or any invoice.
 
 | Case | A equivalent per task | B equivalent per task | Difference per task | 100 similar tasks | 1,000 similar tasks |
 | --- | --- | --- | --- | --- | --- |
@@ -372,7 +374,7 @@ The original case estimates used rates recorded on 2026-10-19: US$2 per million 
 | Research, 13-pair paper subset | US$1.7989780 | US$1.5516416 | US$0.2473364 | 12,312,500 tokens, approximately US$24.73 | 123,125,000 tokens, approximately US$247.34 |
 | Kuaishou, five background-text packets | US$0.054208 | US$0.031362 | US$0.022846 | 1,142,300 proxy tokens, approximately US$2.28 | 11,423,000 proxy tokens, approximately US$22.85 |
 
-The two research rows overlap and must not be added together. For Xiaohongshu and research, the formula is `(uncached input × 2 + cached input × 0.10 + output × 10) / 1,000,000`. Kuaishou estimates apply only the assumed US$2/M uncached input rate to packet proxy tokens, excluding output and host-cache effects.
+The two research rows overlap and must not be added together. For Xiaohongshu and research, the formula is `(uncached input × 2 + cached input × 0.10 + output × 10) / 1,000,000`. Kuaishou estimates apply only the assumed US$2/M uncached input rate to packet proxy tokens, excluding output and host-cache effects. Under these assumptions, the equivalent cost reductions are 5.14% for Xiaohongshu and 8.17% for the primary research comparison (13.75% for its overlapping subset). Token reduction percentages do not equal these cost percentages. Kuaishou's proxy calculation does not establish a provider-token or billing saving.
 
 The 100-task and 1,000-task projections multiply the unrounded single-case results, assuming the same workload, rates and cache/output mix. These are API-equivalent estimates. Actual subscription billing was not available. Labor, hardware, image-model and energy costs are outside the estimates. Best-round percentages are not applied to whole tasks.
 
@@ -400,7 +402,26 @@ This directory publishes measurement fields and three user-selected deliverable 
 | Kuaishou extended audit, `audit_summary.json` | `dd01ca7392da548fa1fd372815197ed0661bfb9fc1ca15c5ef647a0277681a57` |
 | Research complete TOMC report, updated and rechecked 2026-10-21 | `6ca9c3b0528d1f453b8e7b79aa39451b5b79a9aedaeb9c6aca4804c4c41254dc` |
 
-The Kuaishou source CSV includes later promotional iterations. This case selects the first five production rounds. Xiaohongshu timing and resources were recalculated from `R03–R14` records in `result.json` and `preparation_metrics.json`, with file sizes summed from the associated files. Research now uses the updated report supplied on 2026-10-21, including batch 78. Its 58 completed-call rows were checked for token arithmetic, and the selected 48 calls were summed to verify the primary totals. Preparation, CPU, memory, rendering, quality and deliverable sizes were reconciled with the updated tables. Exact primary timing uses the precision quoted in the source recheck. The other two cases retain their original snapshots. This documentation update did not run new paid A/B model experiments.
+According to the PR author, the Kuaishou source CSV includes later promotional iterations. This case selects the first five production rounds. Xiaohongshu timing and resources were recalculated from `R03–R14` records in `result.json` and `preparation_metrics.json`, with file sizes summed from the associated files. Research now uses the updated report supplied on 2026-10-21, including batch 78. The PR author reports checking its 58 completed-call rows for token arithmetic and summing the selected 48 calls to verify the primary totals. Preparation, CPU, memory, rendering, quality and deliverable sizes were reconciled with the updated tables. Exact primary timing uses the precision quoted in the source recheck. The other two cases retain their original snapshots. This documentation update did not run new paid A/B model experiments.
+
+### Evidence review and promotional scope
+
+The 2026-10-22 review uses the public repository only. It recomputes all published per-pair token differences and percentages, aggregate token sums, input/cache/output identities, lexical retention ratios, preparation-duration sums, stated cost formulas and image bytes/hashes. The three headline token reductions are arithmetically consistent with the displayed rows. Summing rounded request rows differs from quoted aggregate times by 0.001 s in Xiaohongshu A and in each research arm; the rounded research preparation rows total 3.452 wall s and 3.410 CPU s. These differences are consistent with rounding. The quoted full-precision research formula evaluates to 34.921216493 s; its operands cannot be independently recovered from private receipts here.
+
+| Evidence | Verifiable from this public PR | Remaining limitation |
+| --- | --- | --- |
+| Xiaohongshu | 12 published pair rows sum to 886,936 and 841,182 tokens; reported aggregate accounting and cost formulas are consistent | Source v14, per-request usage, matching hashes, preparation and resource records are private. Pair validity, exclusions and timing cannot be independently authenticated |
+| Kuaishou | Five published packet rows sum to 27,104 and 15,681 proxy tokens; durations sum to 0.2904176 s | Original text packets, CSV and audit JSON are private, preventing independent re-tokenization. The 113-request production ledger has no complete A/B control |
+| Research | 24 published pair rows and the 13-pair subset reproduce the reported token totals and rounded request sums; stated CPU/RSS and cost arithmetic is consistent | The source report, original receipts/events, task/request hashes, preparation records, per-call cache/output splits and full 58-call ledger are private. Matching, quality counts, CPU/RSS sampling and completeness remain author-reported |
+| Three images | Files exist, decode, and match the published byte counts and SHA256 values | Illustrations show selected deliverables; they do not demonstrate equivalent A/B quality or validate the private workflow measurements |
+
+Source-record SHA256 strings identify expected retained files. Without those files, a digest alone does not verify their contents, authenticity or completeness. Earlier checks of the source report's 58 rows are attributed to the PR author; this review verifies the 48 primary calls only through the 24 published pair totals. It does not independently recheck all original experiments.
+
+Use these as **single-user case observations with reported measurements and explicit scopes**. The reported model-token totals for Xiaohongshu and research, and packet-proxy reduction for Kuaishou, may be cited with those qualifications. Keep the proxy label next to Kuaishou's 42.15%, and keep the research primary result separate from its overlapping subset.
+
+These cases do not establish quality preservation, a general speedup, lower cloud compute or energy, or actual invoice savings. Research reports 90 missing-information fields in B versus 66 in A and 435 editing entries versus 208; these counts are not standardized error rates or timed labor. Shared source checking may repair omissions, but its separate A/B labor cost was not measured. Xiaohongshu protected evidence after early omissions, and Kuaishou returned to original transcripts/timecodes for omitted details. Final screenshots, equal slide counts and structural checks cannot resolve those quality limitations.
+
+The research cumulative time difference is an observation from nonrandomized, single-run pairs with some overlapping execution. Only 10 of 24 B requests were faster, and batch 10 alone accounts for 231.048 s of request-time reduction, exceeding the aggregate 38.374 s reduction before preparation. No repeated trials, uncertainty interval or blinded quality comparison is supplied. The recorded 1.12% cumulative-time decrease must not be presented as a reliable whole-project productivity improvement. Further independent verification would require a privacy-reviewed receipt/pairing export and separate quality/editing-time evidence; no new paid model experiments were run for this review.
 
 ### Images included here
 
