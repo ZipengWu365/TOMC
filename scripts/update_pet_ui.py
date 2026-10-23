@@ -31,6 +31,9 @@ MODULES = (
     "savings_qt.py",
     "conversation_names.py",
     "conversations.py",
+    "categories.py",
+    "analysis.py",
+    "analysis_qt.py",
 )
 
 

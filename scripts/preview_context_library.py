@@ -89,7 +89,11 @@ def main():
         dialog.conversation_list.setCurrentRow(min(2, dialog.conversation_list.count() - 1))
         app.processEvents()
         dialog.grab().save(str(output / "contexts.png"))
-        dialog.tabs.setCurrentIndex(1)
+        dialog.show_analysis()
+        for _ in range(5):  # nested layout requests settle one pass at a time
+            app.processEvents()
+        dialog.grab().save(str(output / "analysis.png"))
+        dialog.tabs.setCurrentIndex(dialog.tabs.count() - 1)  # settings and connections
         app.processEvents()
         dialog.grab().save(str(output / "sessions.png"))
         notice = SessionNotice(sessions)

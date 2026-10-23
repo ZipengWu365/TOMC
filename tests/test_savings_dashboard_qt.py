@@ -311,3 +311,24 @@ def test_empty_dashboard_explains_where_records_come_from(app, tmp_path, monkeyp
         assert "Copy a prompt" in details.records_empty.text()
     finally:
         close(app, pet)
+
+
+def test_analysis_link_opens_the_library_on_its_analysis_tab(app, tmp_path, monkeypatch):
+    monkeypatch.setenv("CODEX_HOME", str(tmp_path / "codex-home"))
+    monkeypatch.setenv("CLAUDE_CONFIG_DIR", str(tmp_path / "claude-home"))
+    path = tmp_path / "memory.sqlite3"
+    compiled(path, "a", "codex", "gpt-6-astra", 100_000, 60_000)
+    pet = make_pet(app, path, monkeypatch)
+    try:
+        pet.show_details()
+        app.processEvents()
+        assert pet.details.analysis_button.text() == "分析报告 ›"
+        pet.details.analysis_button.click()
+        app.processEvents()
+        library = pet.context_dialog
+        assert not pet.details.isVisible()
+        assert library.tabs.currentWidget() is library.analysis_page
+        assert library.analysis_page.report["totals"]["tokens_saved"] == 40_000
+        library.close()
+    finally:
+        close(app, pet)

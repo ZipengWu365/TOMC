@@ -329,8 +329,15 @@ class Details(QWidget):
         self.chart = SavingsChart(self.language, self)
         body.addWidget(self.chart)
         body.addSpacing(5)
+        stats = QHBoxLayout()
+        stats.setSpacing(4)
         self.stats = ElidedLabel()
-        body.addWidget(self.stats)
+        stats.addWidget(self.stats, 1)
+        self.analysis_button = QPushButton()
+        self.analysis_button.setObjectName("link")
+        self.analysis_button.clicked.connect(lambda: owner.open_context_library(tab="analysis"))
+        stats.addWidget(self.analysis_button)
+        body.addLayout(stats)
         body.addSpacing(10)
         body.addWidget(rule())
         body.addSpacing(8)
@@ -385,6 +392,8 @@ class Details(QWidget):
         self.scroll_area.setWidgetResizable(True)
         self.scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.scroll_area.setWidget(self.body)
+        # setWidget() turns on the body's fill, which painted the system grey.
+        self.body.setAutoFillBackground(False)
         self.scroll_area.viewport().setAutoFillBackground(False)
         layout.addWidget(self.scroll_area)
         self.request_status.setText(
@@ -429,6 +438,13 @@ class Details(QWidget):
             )
         )
         self.library_button.setText(tr("全部记录 ›", "All records ›"))
+        self.analysis_button.setText(tr("分析报告 ›", "Analysis ›"))
+        self.analysis_button.setToolTip(
+            tr(
+                "哪些对话、哪类工作省得最多，以及可选的匿名反馈",
+                "Which conversations and kinds of work saved most, with optional anonymous feedback",
+            )
+        )
         self.quit_button.setText(tr("退出 TOMC", "Quit TOMC"))
         self.set_quota(self.quota_state)
         if self.failed:
@@ -1051,7 +1067,7 @@ class Companion(QWidget):
                 {"status": "unsupported_host", "host": host.title(), "windows": []}
             )
 
-    def open_context_library(self, checked=False, select_id=None):
+    def open_context_library(self, checked=False, select_id=None, tab=None):
         from .context_library_qt import ContextLibraryDialog
 
         self.details.hide()
@@ -1065,6 +1081,8 @@ class Companion(QWidget):
                 self.context_dialog.refresh(select_id=select_id)
         else:
             self.context_dialog.refresh(select_id=select_id)
+        if tab == "analysis":
+            self.context_dialog.show_analysis()
         self.context_dialog.show()
         self.context_dialog.raise_()
         self.context_dialog.activateWindow()

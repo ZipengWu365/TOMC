@@ -32,6 +32,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from .analysis_qt import AnalysisPage
 from .conversation_names import clean, folder, resolve
 from .conversations import group_conversations
 from .cost_estimate import explanation, input_value, load_pricing
@@ -527,6 +528,9 @@ QTabWidget::pane { border: none; }
 QTabBar::tab { background: transparent; border: none; padding: 8px 14px; margin: 0 4px 6px 0; color: #796D60; }
 QTabBar::tab:selected { color: #345743; border-bottom: 2px solid #507461; }
 QTabBar::tab:hover:!selected { color: #4E453D; }
+QWidget#analysisSurface { background: #FBF8F2; }
+QTableWidget { background: #FFFFFF; border: 1px solid #ECE6DB; border-radius: 8px; }
+QHeaderView::section { background: #F6F2EA; border: none; padding: 6px; color: #6E655B; }
 """
 )
 
@@ -660,7 +664,17 @@ class ContextLibraryDialog(QDialog):
         layout.addWidget(self.make_dashboard())
         self.tabs = QTabWidget()
         self.tabs.addTab(self.make_context_tab(), "")
+        self.analysis_page = AnalysisPage(self)
+        self.tabs.addTab(self.analysis_page, "")
         self.tabs.addTab(self.make_settings_tab(), "")
+        # The analysis reads every request; it is computed only when shown.
+        self.tabs.currentChanged.connect(
+            lambda index: (
+                self.analysis_page.refresh()
+                if self.tabs.widget(index) is self.analysis_page
+                else None
+            )
+        )
         layout.addWidget(self.tabs, 1)
         self.message = plain(name="muted", wrap=True)
         self.message.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
@@ -670,6 +684,12 @@ class ContextLibraryDialog(QDialog):
 
     def t(self, zh, en, **values):
         return self.language.tr(zh, en, **values)
+
+    def show_analysis(self):
+        if self.tabs.currentWidget() is self.analysis_page:
+            self.analysis_page.refresh()
+        else:
+            self.tabs.setCurrentWidget(self.analysis_page)
 
     def show_message(self, zh, en, **values):
         self._message_spec = (zh, en, values)
@@ -708,6 +728,10 @@ class ContextLibraryDialog(QDialog):
         if opener is not None:
             self.price_button.clicked.connect(lambda: opener())
         top.addWidget(self.price_button)
+        self.analysis_button = QPushButton()
+        self.analysis_button.setObjectName("link")
+        self.analysis_button.clicked.connect(self.show_analysis)
+        top.addWidget(self.analysis_button)
         layout.addLayout(top)
         metrics = QHBoxLayout()
         metrics.setSpacing(28)
@@ -939,7 +963,10 @@ class ContextLibraryDialog(QDialog):
             self.kpis[key][1].setText(t(zh, en))
         self.chart_title.setText(t("每日节省 · 近 14 天", "Saved per day · last 14 days"))
         self.tabs.setTabText(0, t("对话", "Conversations"))
-        self.tabs.setTabText(1, t("设置与连接", "Settings and connections"))
+        self.tabs.setTabText(1, t("分析报告", "Analysis"))
+        self.tabs.setTabText(2, t("设置与连接", "Settings and connections"))
+        self.analysis_button.setText(t("分析报告 ›", "Analysis ›"))
+        self.analysis_page.retranslate()
         self.search.setPlaceholderText(
             t("搜索对话名称、任务或文件夹", "Search conversation names, tasks or folders")
         )
@@ -1064,6 +1091,8 @@ class ContextLibraryDialog(QDialog):
         except (OSError, sqlite3.Error, ValueError):
             self.report = None
         self.render_dashboard()
+        if self.tabs.currentWidget() is self.analysis_page:
+            self.analysis_page.refresh()  # the analysis follows the same period
 
     def render_dashboard(self):
         t = self.t

@@ -9,6 +9,8 @@ import json
 from security_scan import ROOT, candidates
 
 SELF = {"PUBLIC_RELEASE_MANIFEST.json", "SHA256SUMS"}
+# Users propose anonymous reports here by pull request; they are not release content.
+CONTRIBUTED = "feedback/reports/"
 
 
 def manifest() -> dict:
@@ -17,7 +19,7 @@ def manifest() -> dict:
     # pathlib uses different case ordering on Windows and POSIX.
     for path in sorted(candidates(), key=lambda p: p.relative_to(ROOT).as_posix()):
         relative = path.relative_to(ROOT).as_posix()
-        if relative in SELF:
+        if relative in SELF or relative.startswith(CONTRIBUTED):
             continue
         if path.is_symlink() or not path.is_file():
             raise ValueError("Release files must be regular files")
@@ -33,6 +35,7 @@ def manifest() -> dict:
         "files": entries,
         "total_bytes": sum(x["bytes"] for x in entries),
         "self_excluded": sorted(SELF),
+        "contributed_excluded": CONTRIBUTED,
         "note": "Public content inventory for the owner-authorized research preview. "
         "Commit identity is external because embedding its own final SHA would be recursive.",
     }
