@@ -24,8 +24,12 @@ def main():
     app = QApplication([])
     load_preview_fonts()
     database = args.store or output / "widget_test.sqlite3"
-    pet = Companion(database, test_mode=not args.store, connect_quota=False,
-                    state_file=output / "widget_state.json")
+    pet = Companion(
+        database,
+        test_mode=not args.store,
+        connect_quota=False,
+        state_file=output / "widget_state.json",
+    )
     pet.details.quota_title.setText("Claude 额度")
     pet.details.quota_value.setText("未接入")
     pet.details.quota_detail.setText("当前显示 TOMC 上下文统计；尚未接入 Claude 账户额度。")
@@ -33,20 +37,39 @@ def main():
     events = []
 
     def save(kind):
-        events.append({"event": kind, "preparations": pet.summary["preparations"],
-                       "bubble": pet.number.text(), "total": pet.details.total.text(),
-                       "pet_width": pet.width(), "expression": pet.art.expression})
-        (output / "display-events.json").write_text(json.dumps({
-            "events": events, "database": str(database),
-            "isolated_test": not bool(args.store), "desktop_control_used": False,
-            "quota_provider": "Claude", "quota_connected": False,
-        }, ensure_ascii=False, indent=2), encoding="utf-8")
+        events.append(
+            {
+                "event": kind,
+                "preparations": pet.summary["preparations"],
+                "bubble": pet.number.text(),
+                "total": pet.details.total.text(),
+                "pet_width": pet.width(),
+                "expression": pet.art.expression,
+            }
+        )
+        (output / "display-events.json").write_text(
+            json.dumps(
+                {
+                    "events": events,
+                    "database": str(database),
+                    "isolated_test": not bool(args.store),
+                    "desktop_control_used": False,
+                    "quota_provider": "Claude",
+                    "quota_connected": False,
+                },
+                ensure_ascii=False,
+                indent=2,
+            ),
+            encoding="utf-8",
+        )
 
     def started():
         pet.details.hide()
         save("animation_started")
-        QTimer.singleShot(650, lambda: pet.grab().save(str(
-            output / f"animation-{pet.summary['preparations']}.png")))
+        QTimer.singleShot(
+            650,
+            lambda: pet.grab().save(str(output / f"animation-{pet.summary['preparations']}.png")),
+        )
 
     def finished():
         save("bubble_shown")

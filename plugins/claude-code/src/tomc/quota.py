@@ -41,22 +41,40 @@ def quota_windows(payload, language=None):
             if not isinstance(window, dict):
                 continue
             used, minutes = window.get("usedPercent"), window.get("windowDurationMins")
-            if isinstance(used, bool) or not isinstance(used, (float, int)) or not math.isfinite(used):
+            if (
+                isinstance(used, bool)
+                or not isinstance(used, (float, int))
+                or not math.isfinite(used)
+            ):
                 continue
-            names = {300: "5 hours", 10080: "This week", 1440: "Today"} if english else {300: "5小时", 10080: "本周", 1440: "今日"}
+            names = (
+                {300: "5 hours", 10080: "This week", 1440: "Today"}
+                if english
+                else {300: "5小时", 10080: "本周", 1440: "今日"}
+            )
             duration = names.get(minutes)
             if duration is None:
-                duration = ((f"{minutes} minutes" if english else f"{minutes}分钟") if isinstance(minutes, (int, float))
-                            else "Current window" if english else "当前周期")
-            windows.append({"bucket": key, "period": duration,
-                            "remaining": max(0, min(100, 100-used)),
-                            "resets_at": window.get("resetsAt")})
+                duration = (
+                    (f"{minutes} minutes" if english else f"{minutes}分钟")
+                    if isinstance(minutes, (int, float))
+                    else "Current window"
+                    if english
+                    else "当前周期"
+                )
+            windows.append(
+                {
+                    "bucket": key,
+                    "period": duration,
+                    "remaining": max(0, min(100, 100 - used)),
+                    "resets_at": window.get("resetsAt"),
+                }
+            )
     return windows
 
 
 def context_percent(before, after):
     """Ratio of aggregate sums, not an average of per-call percentages."""
-    return 100 * (before-after) / before if before and before > 0 else None
+    return 100 * (before - after) / before if before and before > 0 else None
 
 
 def percent_text(percent):

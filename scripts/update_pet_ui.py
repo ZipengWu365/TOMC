@@ -3,6 +3,7 @@
 Uses the existing exact-byte backup/atomic installer. Does not touch client
 configuration, gateway processes, credentials, stored chats or plugin caches.
 """
+
 from __future__ import annotations
 
 import argparse
@@ -12,9 +13,19 @@ from pathlib import Path
 from install_context_workspace import FileChange, UpdatePlan, _read_current, _safe_target, install
 
 MODULES = (
-    "ui_language.py", "usage_widget_qt.py", "context_library_qt.py", "context_library.py",
-    "pricing_qt.py", "oasis_qt.py", "cost_estimate.py", "pet_growth.py",
-    "impact_story.py", "usage_widget.py", "quota.py", "usage.py", "request_activity.py",
+    "ui_language.py",
+    "usage_widget_qt.py",
+    "context_library_qt.py",
+    "context_library.py",
+    "pricing_qt.py",
+    "oasis_qt.py",
+    "cost_estimate.py",
+    "pet_growth.py",
+    "impact_story.py",
+    "usage_widget.py",
+    "quota.py",
+    "usage.py",
+    "request_activity.py",
     "animation_receipts.py",
 )
 
@@ -32,10 +43,15 @@ def plan(home, source):
         before = _read_current(_safe_target(home, relative))
         if before != contents:
             changes.append(FileChange(relative, before, contents))
-    return UpdatePlan(home, source, tuple(changes), (
-        "Only the existing companion UI is updated; restart its launcher after installation.",
-        "Language preferences are separate from chat, pricing and gateway settings.",
-    ))
+    return UpdatePlan(
+        home,
+        source,
+        tuple(changes),
+        (
+            "Only the existing companion UI is updated; restart its launcher after installation.",
+            "Language preferences are separate from chat, pricing and gateway settings.",
+        ),
+    )
 
 
 def main(argv=None):
@@ -45,8 +61,15 @@ def main(argv=None):
     parser.add_argument("--install", action="store_true")
     args = parser.parse_args(argv)
     update = plan(args.home, args.source)
-    print(json.dumps({"mode": "install" if args.install else "preview",
-                      "files": [c.relative for c in update.changes]}, indent=2))
+    print(
+        json.dumps(
+            {
+                "mode": "install" if args.install else "preview",
+                "files": [c.relative for c in update.changes],
+            },
+            indent=2,
+        )
+    )
     if args.install:
         result = install(update)
         print(json.dumps({"status": result["status"], "receipt": result.get("receipt")}, indent=2))

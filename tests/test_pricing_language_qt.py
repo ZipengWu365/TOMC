@@ -18,10 +18,20 @@ from tomc.impact_story import captions, story_html  # noqa: E402
 from tomc.oasis_qt import OasisCelebration  # noqa: E402
 from tomc.ui_language import UiLanguage  # noqa: E402
 
-RATE = {"key": "anthropic:fixture:standard", "provider": "anthropic", "model": "fixture",
-        "label": "Fixture model", "variant": "standard", "input": 2.0, "cached": 0.2,
-        "output": 8.0, "condition": "Standard · 全球基础价", "verified_at": "2026-10-22",
-        "sync_status": "bundled", "source": "https://example.test/pricing"}
+RATE = {
+    "key": "anthropic:fixture:standard",
+    "provider": "anthropic",
+    "model": "fixture",
+    "label": "Fixture model",
+    "variant": "standard",
+    "input": 2.0,
+    "cached": 0.2,
+    "output": 8.0,
+    "condition": "Standard · 全球基础价",
+    "verified_at": "2026-10-22",
+    "sync_status": "bundled",
+    "source": "https://example.test/pricing",
+}
 
 
 @pytest.fixture(scope="module")
@@ -41,7 +51,13 @@ def owner(app, tmp_path, monkeypatch):
     window.language = UiLanguage(tmp_path / "memory.sqlite3", window)
     window.language.set_language("zh")
     window.test_mode = True
-    window.pricing = {**RATE, "mode": "input", "rate": 2.0, "host": "claude", "evidence": "手选参考模型"}
+    window.pricing = {
+        **RATE,
+        "mode": "input",
+        "rate": 2.0,
+        "host": "claude",
+        "evidence": "手选参考模型",
+    }
     window.summary = {"by_counter": [{"reduced_tokens": 5000}]}
     window.details = QWidget(window)
     window.refresh = lambda: None
@@ -98,7 +114,9 @@ def test_oasis_language_preserves_animation_state_and_translates_accessibility(o
     assert oasis.windowTitle() == "TOMC · An oasis grows"
     assert "water savings" in oasis.accessibleName()
     assert "Right-click" in oasis.toolTip()
-    assert not re.search(r"[\u3400-\u9fff]", str(captions(owner.language)) + story_html(owner.language))
+    assert not re.search(
+        r"[\u3400-\u9fff]", str(captions(owner.language)) + story_html(owner.language)
+    )
     assert not oasis.grab().isNull()
     owner.language.set_language("zh")
     assert "绿洲诞生" in oasis.windowTitle()

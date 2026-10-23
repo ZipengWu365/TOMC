@@ -24,8 +24,14 @@ def test_cpu_end_dispatch_and_provider_usage_are_three_separate_observations(tmp
     started = activity.start("r1", "codex", "s1")
     assert activity.active()["request_id"] == "r1" and not started["sent"]
     assert started["context_input_tokens"] is None
-    activity.finish("r1", state="prepared", reason="optimized", before_tokens=1000, after_tokens=600,
-                    context_input_tokens=700)
+    activity.finish(
+        "r1",
+        state="prepared",
+        reason="optimized",
+        before_tokens=1000,
+        after_tokens=600,
+        context_input_tokens=700,
+    )
     assert activity.active() is None
     assert not activity.last()["sent"]
     assert activity.last()["provider_input_tokens"] is None
@@ -48,8 +54,13 @@ def test_cpu_end_dispatch_and_provider_usage_are_three_separate_observations(tmp
 def test_passthrough_and_failure_do_not_claim_compression_or_usage(tmp_path):
     activity = RequestActivity(tmp_path / "requests.sqlite3")
     activity.start("disabled", "claude", "s1")
-    activity.finish("disabled", state="passthrough", reason="session_disabled",
-                    before_tokens=100, after_tokens=100)
+    activity.finish(
+        "disabled",
+        state="passthrough",
+        reason="session_disabled",
+        before_tokens=100,
+        after_tokens=100,
+    )
     activity.sent("disabled")
     assert activity.last()["state"] == "passthrough" and activity.last()["sent"]
     activity.start("failed", "codex", "s2")
@@ -79,13 +90,17 @@ def test_request_identity_and_concurrent_active_requests(tmp_path):
 def test_late_usage_does_not_reorder_new_request_or_report_old_work_as_busy(tmp_path):
     activity = RequestActivity(tmp_path / "requests.sqlite3")
     activity.start("old", "codex", "s")
-    activity.finish("old", state="forwarded", reason="optimized", before_tokens=200, after_tokens=100)
+    activity.finish(
+        "old", state="forwarded", reason="optimized", before_tokens=200, after_tokens=100
+    )
     activity.start("new", "codex", "s")
     activity.usage("old", provider_input_tokens=150)
     assert activity.last()["request_id"] == "new"
     old_stamp = (datetime.now(timezone.utc) - timedelta(minutes=5)).isoformat()
     with sqlite3.connect(activity.path) as db:
-        db.execute("UPDATE tomc_request_activity SET updated_utc=? WHERE request_id='new'", (old_stamp,))
+        db.execute(
+            "UPDATE tomc_request_activity SET updated_utc=? WHERE request_id='new'", (old_stamp,)
+        )
     assert activity.active() is None
     assert activity.last()["state"] == "preparing"  # No invented completion after a crash.
 
@@ -103,19 +118,29 @@ def test_reason_codes_cannot_store_exception_content(tmp_path):
     activity = RequestActivity(tmp_path / "requests.sqlite3")
     activity.start("r", "codex")
     with pytest.raises(ValueError, match="short code"):
-        activity.finish("r", state="failed", reason="Bearer secret-token failed in https://example.test")
+        activity.finish(
+            "r", state="failed", reason="Bearer secret-token failed in https://example.test"
+        )
 
 
 def test_usage_migration_request_id_animation_link_and_idempotency(tmp_path):
     path = tmp_path / "legacy.sqlite3"
     with sqlite3.connect(path) as db:
-        db.execute("CREATE TABLE context_usage_events (seq INTEGER PRIMARY KEY AUTOINCREMENT, "
-                   "recorded_at TEXT, counter TEXT, input_tokens INTEGER, memory_tokens INTEGER, usable INTEGER)")
+        db.execute(
+            "CREATE TABLE context_usage_events (seq INTEGER PRIMARY KEY AUTOINCREMENT, "
+            "recorded_at TEXT, counter TEXT, input_tokens INTEGER, memory_tokens INTEGER, usable INTEGER)"
+        )
         db.execute("INSERT INTO context_usage_events VALUES (1,'2026-01-01','legacy',100,50,1)")
     store = UsageStore(path)
     assert store.recent_events()[0]["request_id"] is None
-    report = {"counter": "lexical", "usable": True, "input_tokens": 1000,
-              "memory_tokens": 600, "reduced_tokens": 400, "request_id": "unique-request"}
+    report = {
+        "counter": "lexical",
+        "usable": True,
+        "input_tokens": 1000,
+        "memory_tokens": 600,
+        "reduced_tokens": 400,
+        "request_id": "unique-request",
+    }
     with ThreadPoolExecutor(max_workers=4) as pool:
         list(pool.map(lambda _: UsageStore(path).record(report), range(8)))
     assert store.summary()["preparations"] == 1
@@ -130,27 +155,42 @@ def test_usage_migration_request_id_animation_link_and_idempotency(tmp_path):
 def test_context_length_read_only_legacy_migration_and_old_writer_compatibility(tmp_path):
     path = tmp_path / "legacy-activity.sqlite3"
     with sqlite3.connect(path) as db:
-        db.execute("CREATE TABLE tomc_request_activity (request_id TEXT PRIMARY KEY, host TEXT NOT NULL, "
-                   "session_id TEXT, state TEXT NOT NULL, reason TEXT, started_utc TEXT NOT NULL, "
-                   "updated_utc TEXT NOT NULL, sent INTEGER NOT NULL DEFAULT 0, before_tokens INTEGER, "
-                   "after_tokens INTEGER, provider_input_tokens INTEGER, provider_cached_tokens INTEGER)")
-        db.execute("INSERT INTO tomc_request_activity VALUES "
-                   "('old','claude','s','forwarded','optimized','2026-01-01','2026-01-01',1,9000,5000,8000,1000)")
+        db.execute(
+            "CREATE TABLE tomc_request_activity (request_id TEXT PRIMARY KEY, host TEXT NOT NULL, "
+            "session_id TEXT, state TEXT NOT NULL, reason TEXT, started_utc TEXT NOT NULL, "
+            "updated_utc TEXT NOT NULL, sent INTEGER NOT NULL DEFAULT 0, before_tokens INTEGER, "
+            "after_tokens INTEGER, provider_input_tokens INTEGER, provider_cached_tokens INTEGER)"
+        )
+        db.execute(
+            "INSERT INTO tomc_request_activity VALUES "
+            "('old','claude','s','forwarded','optimized','2026-01-01','2026-01-01',1,9000,5000,8000,1000)"
+        )
     original = path.read_bytes()
     activity = RequestActivity(path)
     assert activity.last()["context_input_tokens"] is None
     assert activity.last()["before_tokens"] == 9000
     assert path.read_bytes() == original
     activity.start("new", "claude", "s")
-    activity.finish("new", state="prepared", before_tokens=9000, after_tokens=5000, context_input_tokens=6000)
+    activity.finish(
+        "new", state="prepared", before_tokens=9000, after_tokens=5000, context_input_tokens=6000
+    )
     assert activity.last()["context_input_tokens"] == 6000
     with sqlite3.connect(path) as db:
-        assert db.execute("SELECT context_input_tokens FROM tomc_request_activity WHERE request_id='old'").fetchone()[0] is None
+        assert (
+            db.execute(
+                "SELECT context_input_tokens FROM tomc_request_activity WHERE request_id='old'"
+            ).fetchone()[0]
+            is None
+        )
         # Old start/finish/sent statements all use explicit columns.
-        db.execute("INSERT INTO tomc_request_activity "
-                   "(request_id,host,session_id,state,started_utc,updated_utc) "
-                   "VALUES ('old-writer','codex','s','preparing','9999','9999')")
-        db.execute("UPDATE tomc_request_activity SET state='forwarded',sent=1,before_tokens=1000 WHERE request_id='old-writer'")
+        db.execute(
+            "INSERT INTO tomc_request_activity "
+            "(request_id,host,session_id,state,started_utc,updated_utc) "
+            "VALUES ('old-writer','codex','s','preparing','9999','9999')"
+        )
+        db.execute(
+            "UPDATE tomc_request_activity SET state='forwarded',sent=1,before_tokens=1000 WHERE request_id='old-writer'"
+        )
     assert activity.last()["context_input_tokens"] is None
     assert activity.last()["before_tokens"] == 1000
 
@@ -194,8 +234,11 @@ def test_prepared_stream_keeps_concurrent_compilations_once_before_provider_comp
     assert activity.prepared_cursor() == events[-1]["seq"]
     assert activity.summary()["provider_usage_requests"] == 0
     # Replays and failures without a new successful compilation cannot animate.
-    for request_id, state, context in [("replay", "prepared", None), ("failed", "failed", 10),
-                                       ("bypass", "passthrough", None)]:
+    for request_id, state, context in [
+        ("replay", "prepared", None),
+        ("failed", "failed", 10),
+        ("bypass", "passthrough", None),
+    ]:
         activity.start(request_id, "claude")
         activity.finish(request_id, state=state, context_input_tokens=context)
     assert activity.prepared_events(events[-1]["seq"]) == []
@@ -216,7 +259,9 @@ def test_prepared_stream_never_backfills_old_activity(tmp_path):
     assert [e["request_id"] for e in activity.prepared_events()] == ["new"]
 
 
-@pytest.mark.parametrize("options", [{"after_seq": -1}, {"after_seq": True}, {"limit": 0}, {"limit": "2"}])
+@pytest.mark.parametrize(
+    "options", [{"after_seq": -1}, {"after_seq": True}, {"limit": 0}, {"limit": "2"}]
+)
 def test_prepared_stream_rejects_invalid_cursor_options(tmp_path, options):
     with pytest.raises(ValueError):
         RequestActivity(tmp_path / "missing.sqlite3").prepared_events(**options)
@@ -225,36 +270,70 @@ def test_prepared_stream_rejects_invalid_cursor_options(tmp_path, options):
 def test_protocol_detail_keeps_structural_codes_and_drops_content(tmp_path):
     activity = RequestActivity(tmp_path / "requests.sqlite3")
     activity.start("r", "codex", "s")
-    record = activity.finish("r", state="passthrough", reason="native_compaction_state", detail={
-        "compaction_items": 2, "window": 4, "request_kind": "turn", "agent": "root",
-        "compaction_trigger_item": False, "prompt": "PRIVATE prompt text",
-        "compaction_trigger": "two words", "window_id": "thread:4", "history_initialization": "x" * 41})
-    assert record["protocol_detail"] == {"agent": "root", "compaction_items": 2,
-                                         "compaction_trigger_item": False, "request_kind": "turn", "window": 4}
+    record = activity.finish(
+        "r",
+        state="passthrough",
+        reason="native_compaction_state",
+        detail={
+            "compaction_items": 2,
+            "window": 4,
+            "request_kind": "turn",
+            "agent": "root",
+            "compaction_trigger_item": False,
+            "prompt": "PRIVATE prompt text",
+            "compaction_trigger": "two words",
+            "window_id": "thread:4",
+            "history_initialization": "x" * 41,
+        },
+    )
+    assert record["protocol_detail"] == {
+        "agent": "root",
+        "compaction_items": 2,
+        "compaction_trigger_item": False,
+        "request_kind": "turn",
+        "window": 4,
+    }
     assert activity.last()["protocol_detail"] == record["protocol_detail"]
     database = activity.path.read_bytes()
-    assert b"PRIVATE" not in database and b"thread:4" not in database and b"two words" not in database
+    assert (
+        b"PRIVATE" not in database and b"thread:4" not in database and b"two words" not in database
+    )
     # A later stage keeps the recorded detail; a non-dict detail is simply absent.
     activity.sent("r")
-    assert activity.finish("r", state="failed", reason="client_disconnected",
-                           detail="not a dict")["protocol_detail"] == record["protocol_detail"]
+    assert (
+        activity.finish("r", state="failed", reason="client_disconnected", detail="not a dict")[
+            "protocol_detail"
+        ]
+        == record["protocol_detail"]
+    )
 
 
 def test_protocol_detail_column_is_added_on_first_write_only(tmp_path):
     path = tmp_path / "legacy.sqlite3"
     with sqlite3.connect(path) as db:
-        db.execute("CREATE TABLE tomc_request_activity (request_id TEXT PRIMARY KEY, host TEXT NOT NULL, "
-                   "session_id TEXT, state TEXT NOT NULL, reason TEXT, started_utc TEXT NOT NULL, "
-                   "updated_utc TEXT NOT NULL, sent INTEGER NOT NULL DEFAULT 0, before_tokens INTEGER, "
-                   "after_tokens INTEGER, provider_input_tokens INTEGER, provider_cached_tokens INTEGER, "
-                   "context_input_tokens INTEGER)")
-        db.execute("INSERT INTO tomc_request_activity VALUES "
-                   "('old','codex','s','passthrough','native_compaction','2026-01-01','2026-01-01',1,"
-                   "NULL,NULL,10,9,NULL)")
+        db.execute(
+            "CREATE TABLE tomc_request_activity (request_id TEXT PRIMARY KEY, host TEXT NOT NULL, "
+            "session_id TEXT, state TEXT NOT NULL, reason TEXT, started_utc TEXT NOT NULL, "
+            "updated_utc TEXT NOT NULL, sent INTEGER NOT NULL DEFAULT 0, before_tokens INTEGER, "
+            "after_tokens INTEGER, provider_input_tokens INTEGER, provider_cached_tokens INTEGER, "
+            "context_input_tokens INTEGER)"
+        )
+        db.execute(
+            "INSERT INTO tomc_request_activity VALUES "
+            "('old','codex','s','passthrough','native_compaction','2026-01-01','2026-01-01',1,"
+            "NULL,NULL,10,9,NULL)"
+        )
     original = path.read_bytes()
     activity = RequestActivity(path)
     assert activity.last()["protocol_detail"] is None and path.read_bytes() == original
     activity.start("new", "codex", "s")
-    activity.finish("new", state="passthrough", reason="host_compaction_request",
-                    detail={"request_kind": "compaction", "compaction_trigger": "auto"})
-    assert activity.last()["protocol_detail"] == {"compaction_trigger": "auto", "request_kind": "compaction"}
+    activity.finish(
+        "new",
+        state="passthrough",
+        reason="host_compaction_request",
+        detail={"request_kind": "compaction", "compaction_trigger": "auto"},
+    )
+    assert activity.last()["protocol_detail"] == {
+        "compaction_trigger": "auto",
+        "request_kind": "compaction",
+    }

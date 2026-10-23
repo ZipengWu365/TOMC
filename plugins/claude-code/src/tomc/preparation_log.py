@@ -14,8 +14,18 @@ class PreparationLog:
     def __init__(self, path: Path | str):
         self.path = Path(path)
 
-    def record(self, preparation_id: str, *, status: str, host=None, session_id=None,
-               snapshot_id=None, input_tokens=None, output_tokens=None, counter=None):
+    def record(
+        self,
+        preparation_id: str,
+        *,
+        status: str,
+        host=None,
+        session_id=None,
+        snapshot_id=None,
+        input_tokens=None,
+        output_tokens=None,
+        counter=None,
+    ):
         with closing(sqlite3.connect(self.path, timeout=10)) as db, db:
             db.execute(
                 "CREATE TABLE IF NOT EXISTS preparation_receipts ("
@@ -25,6 +35,15 @@ class PreparationLog:
             )
             db.execute(
                 "INSERT OR IGNORE INTO preparation_receipts VALUES (?,?,?,?,?,?,?,?,?)",
-                (preparation_id, datetime.now(timezone.utc).isoformat(), status,
-                 host, session_id, snapshot_id, input_tokens, output_tokens, counter),
+                (
+                    preparation_id,
+                    datetime.now(timezone.utc).isoformat(),
+                    status,
+                    host,
+                    session_id,
+                    snapshot_id,
+                    input_tokens,
+                    output_tokens,
+                    counter,
+                ),
             )

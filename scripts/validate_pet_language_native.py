@@ -3,6 +3,7 @@
 Uses the real preference file, ends in Chinese, and records only TOMC widgets.
 Does not insert usage/activity, send model requests, or change processing policy.
 """
+
 from __future__ import annotations
 
 import argparse
@@ -38,8 +39,13 @@ def main(argv=None):
     lock = QLockFile(str(Path(tempfile.gettempdir()) / f"tomc-pet-{digest}.lock"))
     if not lock.tryLock(0):
         raise RuntimeError("Close the current pet before acceptance")
-    report = {"native_platform": app.platformName(), "global_input_sent": False,
-              "synthetic_activity_inserted": False, "steps": [], "errors": []}
+    report = {
+        "native_platform": app.platformName(),
+        "global_input_sent": False,
+        "synthetic_activity_inserted": False,
+        "steps": [],
+        "errors": [],
+    }
     pet = None
     try:
         pet = Companion(args.store, test_mode=False, connect_quota=False)
@@ -48,7 +54,8 @@ def main(argv=None):
 
         def save():
             (args.output / "language.json").write_text(
-                json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
+                json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8"
+            )
 
         def guard(action):
             def execute():
@@ -57,6 +64,7 @@ def main(argv=None):
                 except Exception as error:
                     report["errors"].append(type(error).__name__)
                     app.quit()
+
             return execute
 
         def change(code):
@@ -71,22 +79,36 @@ def main(argv=None):
             assert pet.details.language_title.text() == expected
             assert pet.details.language_buttons[code].isChecked()
             assert pet.details.isVisible()
-            name = f"panel-{code}-{'expanded' if expanded else 'compact'}-{len(report['steps'])}.png"
+            name = (
+                f"panel-{code}-{'expanded' if expanded else 'compact'}-{len(report['steps'])}.png"
+            )
             assert pet.details.grab().save(str(args.output / name))
-            report["steps"].append({"code": code, "persisted": persisted,
-                                    "title": expected, "file": name,
-                                    "visible": pet.details.isVisible(),
-                                    "device_pixel_ratio": pet.details.devicePixelRatioF(),
-                                    "size": [pet.details.width(), pet.details.height()]})
+            report["steps"].append(
+                {
+                    "code": code,
+                    "persisted": persisted,
+                    "title": expected,
+                    "file": name,
+                    "visible": pet.details.isVisible(),
+                    "device_pixel_ratio": pet.details.devicePixelRatioF(),
+                    "size": [pet.details.width(), pet.details.height()],
+                }
+            )
             save()
 
-        steps = [(300, lambda: change("zh")), (800, lambda: capture("zh")),
-                 (1100, lambda: change("en")), (1600, lambda: capture("en")),
-                 (1900, lambda: pet.details.toggle_scope(True)),
-                 (2400, lambda: capture("en", True)),
-                 (2700, lambda: change("zh")), (3200, lambda: capture("zh", True)),
-                 (3500, lambda: pet.details.toggle_scope(False)),
-                 (4000, lambda: capture("zh")), (4300, app.quit)]
+        steps = [
+            (300, lambda: change("zh")),
+            (800, lambda: capture("zh")),
+            (1100, lambda: change("en")),
+            (1600, lambda: capture("en")),
+            (1900, lambda: pet.details.toggle_scope(True)),
+            (2400, lambda: capture("en", True)),
+            (2700, lambda: change("zh")),
+            (3200, lambda: capture("zh", True)),
+            (3500, lambda: pet.details.toggle_scope(False)),
+            (4000, lambda: capture("zh")),
+            (4300, app.quit),
+        ]
         for delay, action in steps:
             QTimer.singleShot(delay, guard(action))
         app.exec()

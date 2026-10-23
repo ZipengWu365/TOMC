@@ -24,10 +24,23 @@ from install_context_workspace import (
     install,
 )
 
-PET_MODULES = ("usage_widget_qt.py", "context_library_qt.py", "usage.py",
-               "request_activity.py", "integration_status.py", "context_library.py", "session_store.py",
-               "ui_language.py", "pricing_qt.py", "oasis_qt.py", "cost_estimate.py",
-               "pet_growth.py", "impact_story.py", "usage_widget.py", "quota.py")
+PET_MODULES = (
+    "usage_widget_qt.py",
+    "context_library_qt.py",
+    "usage.py",
+    "request_activity.py",
+    "integration_status.py",
+    "context_library.py",
+    "session_store.py",
+    "ui_language.py",
+    "pricing_qt.py",
+    "oasis_qt.py",
+    "cost_estimate.py",
+    "pet_growth.py",
+    "impact_story.py",
+    "usage_widget.py",
+    "quota.py",
+)
 
 
 def check_health(port):
@@ -93,21 +106,35 @@ def plan_activation(home, runtime, port=43187, *, hosts=("codex", "claude")):
             contents = (runtime / "src/tomc" / name).read_bytes()
             compile(contents, name, "exec", dont_inherit=True)
             add(pet_relative + "/" + name, contents)
-    marker = {"version": 1, "port": port, "hosts": list(hosts), "runtime": str(runtime),
-              "mode": "automatic_request_gateway",
-              "requires_client_restart": "codex" in hosts,
-              "client_reload": {host: "settings_env_hot_reload_supported" if host == "claude"
-                                else "restart_or_new_thread_required" for host in hosts},
-              "existing_sessions_verified": False}
+    marker = {
+        "version": 1,
+        "port": port,
+        "hosts": list(hosts),
+        "runtime": str(runtime),
+        "mode": "automatic_request_gateway",
+        "requires_client_restart": "codex" in hosts,
+        "client_reload": {
+            host: "settings_env_hot_reload_supported"
+            if host == "claude"
+            else "restart_or_new_thread_required"
+            for host in hosts
+        },
+        "existing_sessions_verified": False,
+    }
     add(".codex/tomc/gateway-routing.json", (json.dumps(marker, indent=2) + "\n").encode())
-    return UpdatePlan(home, runtime, tuple(changes), (
-        "Existing authentication, models, permissions and other settings are preserved.",
-        "Claude Code settings env supports hot reload; verify each existing session from its next observed request.",
-        "Already loaded Codex chats retain their endpoint: exit and reopen Codex once, then continue the same chat. New chats load current settings.",
-        "Claude Desktop and other host-managed routes may ignore the CLI environment settings.",
-        "Unsupported/native compaction requests pass through; shortened contexts may omit details.",
-        "Per-session off stops new compilation; Claude may replay an existing signed prefix.",
-    ))
+    return UpdatePlan(
+        home,
+        runtime,
+        tuple(changes),
+        (
+            "Existing authentication, models, permissions and other settings are preserved.",
+            "Claude Code settings env supports hot reload; verify each existing session from its next observed request.",
+            "Already loaded Codex chats retain their endpoint: exit and reopen Codex once, then continue the same chat. New chats load current settings.",
+            "Claude Desktop and other host-managed routes may ignore the CLI environment settings.",
+            "Unsupported/native compaction requests pass through; shortened contexts may omit details.",
+            "Per-session off stops new compilation; Claude may replay an existing signed prefix.",
+        ),
+    )
 
 
 def restore(home, receipt_path):
@@ -148,7 +175,9 @@ def main(argv=None):
     parser.add_argument("--home", type=Path, default=Path.home())
     parser.add_argument("--runtime", type=Path)
     parser.add_argument("--port", type=int, default=43187)
-    parser.add_argument("--hosts", nargs="+", choices=["codex", "claude"], default=["codex", "claude"])
+    parser.add_argument(
+        "--hosts", nargs="+", choices=["codex", "claude"], default=["codex", "claude"]
+    )
     parser.add_argument("--activate", action="store_true")
     parser.add_argument("--restore", type=Path)
     args = parser.parse_args(argv)
@@ -158,8 +187,16 @@ def main(argv=None):
     if args.runtime is None:
         parser.error("--runtime is required")
     plan = plan_activation(args.home, args.runtime, args.port, hosts=args.hosts)
-    print(json.dumps({"mode": "activate" if args.activate else "preview",
-                      "files": [c.relative for c in plan.changes], "notes": plan.notes}, indent=2))
+    print(
+        json.dumps(
+            {
+                "mode": "activate" if args.activate else "preview",
+                "files": [c.relative for c in plan.changes],
+                "notes": plan.notes,
+            },
+            indent=2,
+        )
+    )
     if args.activate:
         check_health(args.port)
         result = install(plan)

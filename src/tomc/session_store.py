@@ -10,8 +10,12 @@ from pathlib import Path
 
 
 def _text(value: str, label: str, maximum: int) -> str:
-    if (not isinstance(value, str) or not value.strip() or len(value) > maximum
-            or any(ord(char) < 32 for char in value)):
+    if (
+        not isinstance(value, str)
+        or not value.strip()
+        or len(value) > maximum
+        or any(ord(char) < 32 for char in value)
+    ):
         raise ValueError(f"{label} must be nonempty text of at most {maximum} characters.")
     return value.strip()
 
@@ -86,16 +90,25 @@ class SessionStore:
 
     @staticmethod
     def _has(db, table):
-        return db is not None and db.execute(
-            "SELECT 1 FROM sqlite_master WHERE type='table' AND name=?", (table,)
-        ).fetchone() is not None
+        return (
+            db is not None
+            and db.execute(
+                "SELECT 1 FROM sqlite_master WHERE type='table' AND name=?", (table,)
+            ).fetchone()
+            is not None
+        )
 
     @classmethod
     def _settings(cls, db):
-        row = db.execute("SELECT enabled,save_contexts FROM tomc_settings WHERE id=1").fetchone() \
-            if cls._has(db, "tomc_settings") else None
-        return {"enabled": bool(row[0]) if row else True,
-                "save_contexts": bool(row[1]) if row else True}
+        row = (
+            db.execute("SELECT enabled,save_contexts FROM tomc_settings WHERE id=1").fetchone()
+            if cls._has(db, "tomc_settings")
+            else None
+        )
+        return {
+            "enabled": bool(row[0]) if row else True,
+            "save_contexts": bool(row[1]) if row else True,
+        }
 
     def settings(self) -> dict:
         """Read the authorized defaults without creating a database."""
@@ -125,19 +138,29 @@ class SessionStore:
     @staticmethod
     def _record(row, settings):
         host, session_id, title, project, enabled, first_seen, last_seen, event = row
-        return {"host": host, "session_id": session_id, "title": title, "project": project,
-                "enabled": bool(enabled), "effective_enabled": settings["enabled"] and bool(enabled),
-                "first_seen": first_seen, "last_seen": last_seen, "event": event}
+        return {
+            "host": host,
+            "session_id": session_id,
+            "title": title,
+            "project": project,
+            "enabled": bool(enabled),
+            "effective_enabled": settings["enabled"] and bool(enabled),
+            "first_seen": first_seen,
+            "last_seen": last_seen,
+            "event": event,
+        }
 
     @staticmethod
     def _row(db, host, session_id):
         return db.execute(
             "SELECT host,session_id,title,project,enabled,first_seen,last_seen,event "
-            "FROM tomc_sessions WHERE host=? AND session_id=?", (host, session_id),
+            "FROM tomc_sessions WHERE host=? AND session_id=?",
+            (host, session_id),
         ).fetchone()
 
-    def register(self, host, session_id, *, title=None, project=None,
-                 event="activity", activate=True) -> dict:
+    def register(
+        self, host, session_id, *, title=None, project=None, event="activity", activate=True
+    ) -> dict:
         """Register explicit host metadata; preserve a session's disabled choice."""
         host, session_id = _identity(host, session_id)
         title = _text(title, "title", 500) if title is not None else None
@@ -162,7 +185,8 @@ class SessionStore:
                     db.execute(
                         "INSERT INTO tomc_active_session VALUES (1,?,?,?) ON CONFLICT(id) "
                         "DO UPDATE SET host=excluded.host,session_id=excluded.session_id,"
-                        "event_seq=excluded.event_seq", (host, session_id, sequence),
+                        "event_seq=excluded.event_seq",
+                        (host, session_id, sequence),
                     )
             return self._record(self._row(db, host, session_id), self._settings(db))
 
@@ -174,7 +198,8 @@ class SessionStore:
             settings = self._settings(db)
             rows = db.execute(
                 "SELECT host,session_id,title,project,enabled,first_seen,last_seen,event "
-                "FROM tomc_sessions ORDER BY last_seen DESC,host,session_id LIMIT ?", (limit,),
+                "FROM tomc_sessions ORDER BY last_seen DESC,host,session_id LIMIT ?",
+                (limit,),
             ).fetchall()
             return [self._record(row, settings) for row in rows]
 
@@ -192,9 +217,11 @@ class SessionStore:
         with self._read() as db:
             if not self._has(db, "tomc_sessions"):
                 return False
-            return bool(db.execute(
-                "SELECT EXISTS(SELECT 1 FROM tomc_sessions WHERE enabled=0)"
-            ).fetchone()[0])
+            return bool(
+                db.execute("SELECT EXISTS(SELECT 1 FROM tomc_sessions WHERE enabled=0)").fetchone()[
+                    0
+                ]
+            )
 
     def set_enabled(self, host, session_id, enabled) -> dict:
         host, session_id = _identity(host, session_id)
@@ -210,7 +237,9 @@ class SessionStore:
 
     def effective_enabled(self, host=None, session_id=None) -> bool:
         """Unknown attribution uses only the global switch, never the active UI row."""
-        identity = _identity(host, session_id) if host is not None and session_id is not None else None
+        identity = (
+            _identity(host, session_id) if host is not None and session_id is not None else None
+        )
         with self._read() as db:
             if not self._settings(db)["enabled"]:
                 return False

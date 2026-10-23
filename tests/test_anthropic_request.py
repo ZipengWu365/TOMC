@@ -12,26 +12,52 @@ from tomc.tokenization import get_counter
 def _request():
     messages = []
     for i in range(8):
-        messages.extend([
-            {"role": "user", "content": "\n".join(
-                f"Project decision {i}-{j}: capacity is {40+j}; keep the blue design."
-                for j in range(35)
-            )},
-            {"role": "assistant", "content": f"Recorded decision {i}."},
-        ])
-    messages.append({"role": "user", "content": [{"type": "text", "text": "What is the latest capacity?", "cache_control": {"type": "ephemeral"}}]})
+        messages.extend(
+            [
+                {
+                    "role": "user",
+                    "content": "\n".join(
+                        f"Project decision {i}-{j}: capacity is {40 + j}; keep the blue design."
+                        for j in range(35)
+                    ),
+                },
+                {"role": "assistant", "content": f"Recorded decision {i}."},
+            ]
+        )
+    messages.append(
+        {
+            "role": "user",
+            "content": [
+                {
+                    "type": "text",
+                    "text": "What is the latest capacity?",
+                    "cache_control": {"type": "ephemeral"},
+                }
+            ],
+        }
+    )
     return {
-        "model": "unchanged-model", "max_tokens": 200,
-        "system": [{"type": "text", "text": "Original attribution and instruction", "cache_control": {"type": "ephemeral", "ttl": "1h"}}],
+        "model": "unchanged-model",
+        "max_tokens": 200,
+        "system": [
+            {
+                "type": "text",
+                "text": "Original attribution and instruction",
+                "cache_control": {"type": "ephemeral", "ttl": "1h"},
+            }
+        ],
         "tools": [{"name": "lookup", "input_schema": {"type": "object"}}],
         "metadata": {"user_id": json.dumps({"session_id": "session-a"})},
-        "stream": True, "unknown_top_level": {"keep": "exactly"},
+        "stream": True,
+        "unknown_top_level": {"keep": "exactly"},
         "messages": messages,
     }
 
 
 def _count(payload):
-    return get_counter("regex").count(json.dumps(payload, ensure_ascii=False, separators=(",", ":"), sort_keys=True))
+    return get_counter("regex").count(
+        json.dumps(payload, ensure_ascii=False, separators=(",", ":"), sort_keys=True)
+    )
 
 
 def test_real_compiler_replaces_old_prefix_and_preserves_host_request():
@@ -55,10 +81,33 @@ def test_real_compiler_replaces_old_prefix_and_preserves_host_request():
 
 def _tool_loop():
     return [
-        {"role": "assistant", "content": [{"type": "tool_use", "id": "tool-1", "name": "lookup", "input": {"path": "a"}}]},
-        {"role": "user", "content": [{"type": "tool_result", "tool_use_id": "tool-1", "content": "capacity 19"}]},
-        {"role": "assistant", "content": [{"type": "tool_use", "id": "tool-2", "name": "lookup", "input": {"path": "b"}}]},
-        {"role": "user", "content": [{"type": "tool_result", "tool_use_id": "tool-2", "content": "capacity 20", "cache_control": {"type": "ephemeral"}}]},
+        {
+            "role": "assistant",
+            "content": [
+                {"type": "tool_use", "id": "tool-1", "name": "lookup", "input": {"path": "a"}}
+            ],
+        },
+        {
+            "role": "user",
+            "content": [{"type": "tool_result", "tool_use_id": "tool-1", "content": "capacity 19"}],
+        },
+        {
+            "role": "assistant",
+            "content": [
+                {"type": "tool_use", "id": "tool-2", "name": "lookup", "input": {"path": "b"}}
+            ],
+        },
+        {
+            "role": "user",
+            "content": [
+                {
+                    "type": "tool_result",
+                    "tool_use_id": "tool-2",
+                    "content": "capacity 20",
+                    "cache_control": {"type": "ephemeral"},
+                }
+            ],
+        },
     ]
 
 
@@ -68,7 +117,7 @@ def test_latest_task_and_complete_tool_loop_survive_even_beyond_tail_size():
     payload["messages"] += _tool_loop()
     result = adapt_request(payload, memory_budget=500, recent_messages=2, min_history_tokens=20)
     assert result.transformed
-    assert result.payload["messages"][-len(latest):] == latest
+    assert result.payload["messages"][-len(latest) :] == latest
 
 
 def test_completed_old_tool_groups_are_exported_as_historical_data():
@@ -76,7 +125,12 @@ def test_completed_old_tool_groups_are_exported_as_historical_data():
     payload["messages"][2:2] = _tool_loop()
     result = adapt_request(payload, memory_budget=600, min_history_tokens=20)
     assert result.transformed
-    assert "tool_use" not in [b.get("type") for m in result.payload["messages"] if isinstance(m["content"], list) for b in m["content"]]
+    assert "tool_use" not in [
+        b.get("type")
+        for m in result.payload["messages"]
+        if isinstance(m["content"], list)
+        for b in m["content"]
+    ]
     assert payload["messages"][2]["content"][0]["type"] == "tool_use"
 
 
@@ -109,12 +163,20 @@ def test_direct_caller_completed_old_turn_can_be_compiled():
     assert payload == original
 
 
-@pytest.mark.parametrize("caller", [
-    None, "direct", [], {}, {"type": ["direct"]}, {"type": {"future": True}},
-    {"type": "direct", "unknown": True},
-    {"type": "code_execution_20260120", "tool_id": "srvtoolu_test"},
-    {"type": "code_execution_20250825", "tool_id": "srvtoolu_test"},
-])
+@pytest.mark.parametrize(
+    "caller",
+    [
+        None,
+        "direct",
+        [],
+        {},
+        {"type": ["direct"]},
+        {"type": {"future": True}},
+        {"type": "direct", "unknown": True},
+        {"type": "code_execution_20260120", "tool_id": "srvtoolu_test"},
+        {"type": "code_execution_20250825", "tool_id": "srvtoolu_test"},
+    ],
+)
 def test_unknown_or_programmatic_caller_is_not_compiled(caller):
     payload = _request()
     loop = _direct_tool_loop()
@@ -145,17 +207,46 @@ def test_server_tool_use_remains_a_separate_unsupported_protocol():
     assert result.payload == payload
 
 
-@pytest.mark.parametrize("mutation,reason", [
-    (lambda p: p.update(compaction={"type": "summarize"}), "native_context_management"),
-    (lambda p: p.update(context_management={"edits": [{"type": "compact_20260112"}]}), "native_context_management"),
-    (lambda p: p["messages"][-2].update(content=[{"type": "thinking", "thinking": "opaque", "signature": "sig"}]), "retained_thinking_requires_original_prefix"),
-    (lambda p: p["messages"][-2].update(content=[{"type": "redacted_thinking", "data": "opaque"}]), "retained_thinking_requires_original_prefix"),
-    (lambda p: p["messages"][1].update(content=[{"type": "new_provider_block", "value": "keep"}]), "unsupported_content_type"),
-    (lambda p: p["messages"][1].update(provider_extension={"keep": "me"}), "unsupported_message_fields"),
-    (lambda p: p["messages"][1].update(content=[{"type": "text", "text": "cite", "citations": [{"source": 1}]}]), "unsupported_text_fields"),
-    (lambda p: p["messages"].append(_tool_loop()[0]), "incomplete_tool_pairing"),
-    (lambda p: p["messages"].append(_tool_loop()[1]), "invalid_tool_pairing"),
-])
+@pytest.mark.parametrize(
+    "mutation,reason",
+    [
+        (lambda p: p.update(compaction={"type": "summarize"}), "native_context_management"),
+        (
+            lambda p: p.update(context_management={"edits": [{"type": "compact_20260112"}]}),
+            "native_context_management",
+        ),
+        (
+            lambda p: p["messages"][-2].update(
+                content=[{"type": "thinking", "thinking": "opaque", "signature": "sig"}]
+            ),
+            "retained_thinking_requires_original_prefix",
+        ),
+        (
+            lambda p: p["messages"][-2].update(
+                content=[{"type": "redacted_thinking", "data": "opaque"}]
+            ),
+            "retained_thinking_requires_original_prefix",
+        ),
+        (
+            lambda p: p["messages"][1].update(
+                content=[{"type": "new_provider_block", "value": "keep"}]
+            ),
+            "unsupported_content_type",
+        ),
+        (
+            lambda p: p["messages"][1].update(provider_extension={"keep": "me"}),
+            "unsupported_message_fields",
+        ),
+        (
+            lambda p: p["messages"][1].update(
+                content=[{"type": "text", "text": "cite", "citations": [{"source": 1}]}]
+            ),
+            "unsupported_text_fields",
+        ),
+        (lambda p: p["messages"].append(_tool_loop()[0]), "incomplete_tool_pairing"),
+        (lambda p: p["messages"].append(_tool_loop()[1]), "invalid_tool_pairing"),
+    ],
+)
 def test_unsupported_requests_are_untouched(mutation, reason):
     payload = _request()
     mutation(payload)
@@ -168,17 +259,31 @@ def test_unsupported_requests_are_untouched(mutation, reason):
     assert result.prepared is None
 
 
-@pytest.mark.parametrize("headers,expected", [
-    ({"X-Claude-Code-Compaction": "auto", "x-claude-code-request-class": "compaction"},
-     ("host_compaction_request", {"request_class": "compaction", "compaction_trigger": "auto"})),
-    ({"x-claude-code-request-class": "compaction"},
-     ("host_compaction_request", {"request_class": "compaction"})),
-    ({"x-claude-code-request-class": "main", "x-claude-code-context-compacted": "manual"},
-     (None, {"request_class": "main", "compaction_trigger": "manual"})),
-    ({"x-claude-code-request-class": "subagent", "x-claude-code-agent-id": "agent-fixture"},
-     (None, {"request_class": "subagent", "agent": "subagent"})),
-    ({"x-claude-code-compaction": "free text\nwith newline"}, ("host_compaction_request", {})),
-])
+@pytest.mark.parametrize(
+    "headers,expected",
+    [
+        (
+            {"X-Claude-Code-Compaction": "auto", "x-claude-code-request-class": "compaction"},
+            (
+                "host_compaction_request",
+                {"request_class": "compaction", "compaction_trigger": "auto"},
+            ),
+        ),
+        (
+            {"x-claude-code-request-class": "compaction"},
+            ("host_compaction_request", {"request_class": "compaction"}),
+        ),
+        (
+            {"x-claude-code-request-class": "main", "x-claude-code-context-compacted": "manual"},
+            (None, {"request_class": "main", "compaction_trigger": "manual"}),
+        ),
+        (
+            {"x-claude-code-request-class": "subagent", "x-claude-code-agent-id": "agent-fixture"},
+            (None, {"request_class": "subagent", "agent": "subagent"}),
+        ),
+        ({"x-claude-code-compaction": "free text\nwith newline"}, ("host_compaction_request", {})),
+    ],
+)
 def test_documented_hint_headers_classify_host_compaction(headers, expected):
     from tomc.anthropic_request import classify_request
 
@@ -202,7 +307,9 @@ def test_tool_result_order_and_parallel_pairs_are_validated():
     payload = _request()
     use, result = _tool_loop()[:2]
     use["content"].append({"type": "tool_use", "id": "parallel", "name": "lookup", "input": {}})
-    result["content"].append({"type": "tool_result", "tool_use_id": "parallel", "content": "parallel result"})
+    result["content"].append(
+        {"type": "tool_result", "tool_use_id": "parallel", "content": "parallel result"}
+    )
     payload["messages"] += [use, result]
     transformed = adapt_request(payload, memory_budget=500, min_history_tokens=20)
     assert transformed.transformed
@@ -220,7 +327,9 @@ def test_no_reduction_short_input_and_invalid_budget_pass_through():
 
 def test_session_identity_only_uses_verified_fields_and_rejects_conflicts():
     assert extract_session_id({}, {"X-Claude-Code-Session-Id": "session-a"}) == "session-a"
-    payload = {"metadata": {"user_id": json.dumps({"session_id": "session-a", "account_uuid": "not-read"})}}
+    payload = {
+        "metadata": {"user_id": json.dumps({"session_id": "session-a", "account_uuid": "not-read"})}
+    }
     assert extract_session_id(payload, {}) == "session-a"
     assert extract_session_id(payload, {"x-claude-code-session-id": "session-a"}) == "session-a"
     assert extract_session_id(payload, {"x-claude-code-session-id": "session-b"}) is None
@@ -228,12 +337,18 @@ def test_session_identity_only_uses_verified_fields_and_rejects_conflicts():
     assert extract_session_id({}, {"x-session-id": "unverified"}) is None
     assert extract_session_id({"session_id": "unverified"}, {}) is None
     assert extract_session_id({"metadata": {"user_id": "user_x_account_y_session_z"}}, {}) is None
-    assert extract_session_id({}, {"x-claude-code-session-id": "a", "X-Claude-Code-Session-Id": "b"}) is None
+    assert (
+        extract_session_id({}, {"x-claude-code-session-id": "a", "X-Claude-Code-Session-Id": "b"})
+        is None
+    )
 
 
 def test_complete_old_thinking_turns_can_be_removed_without_changing_thinking_config():
     payload = _request()
-    payload["thinking"] = {"type": "adaptive", "block_binding": {"prefix_mismatch_behavior": "error"}}
+    payload["thinking"] = {
+        "type": "adaptive",
+        "block_binding": {"prefix_mismatch_behavior": "error"},
+    }
     payload["context_management"] = {"edits": [{"type": "clear_thinking_20251015", "keep": "all"}]}
     for message in payload["messages"]:
         if message["role"] == "assistant":
@@ -255,7 +370,9 @@ def test_complete_old_thinking_turns_can_be_removed_without_changing_thinking_co
 def test_current_tool_turn_signed_thinking_stays_untouched():
     payload = _request()
     payload["messages"] += _tool_loop()[:2]
-    payload["messages"][-2]["content"].insert(0, {"type": "thinking", "thinking": "opaque", "signature": "sig"})
+    payload["messages"][-2]["content"].insert(
+        0, {"type": "thinking", "thinking": "opaque", "signature": "sig"}
+    )
     result = adapt_request(payload, memory_budget=500, recent_messages=1, min_history_tokens=20)
     assert not result.transformed
     assert result.payload == payload
@@ -266,12 +383,16 @@ HEADERS = {"X-Claude-Code-Session-Id": "session-a", "x-claude-code-request-class
 
 
 def _stateful(adapter, payload, **kwargs):
-    return adapter.adapt(payload, HEADERS, memory_budget=500, recent_messages=1, min_history_tokens=20, **kwargs)
+    return adapter.adapt(
+        payload, HEADERS, memory_budget=500, recent_messages=1, min_history_tokens=20, **kwargs
+    )
 
 
 def _signed_tool_loop():
     result = _tool_loop()[:2]
-    result[0]["content"].insert(0, {"type": "thinking", "thinking": "opaque", "signature": "signed against compiled prefix"})
+    result[0]["content"].insert(
+        0, {"type": "thinking", "thinking": "opaque", "signature": "signed against compiled prefix"}
+    )
     return result
 
 
@@ -298,7 +419,10 @@ def test_disabling_replays_current_tool_turn_and_new_turn_without_thinking_is_ra
     result = _stateful(adapter, payload, enabled=False)
     assert result.reason == "disabled_compatible_replay"
     assert result.payload["messages"][0] == first.payload["messages"][0]
-    payload["messages"] += [{"role": "assistant", "content": "Done."}, {"role": "user", "content": "A new task."}]
+    payload["messages"] += [
+        {"role": "assistant", "content": "Done."},
+        {"role": "user", "content": "A new task."},
+    ]
     new_turn = _stateful(adapter, payload, enabled=False)
     assert not new_turn.transformed and new_turn.reason == "session_disabled"
     assert new_turn.payload == payload
@@ -309,7 +433,10 @@ def test_new_turn_with_bound_thinking_requires_compatibility_replay_even_when_di
     payload = _request()
     first = _stateful(adapter, payload)
     payload["messages"] += _signed_tool_loop()
-    payload["messages"] += [{"role": "assistant", "content": "Done."}, {"role": "user", "content": "A new task."}]
+    payload["messages"] += [
+        {"role": "assistant", "content": "Done."},
+        {"role": "user", "content": "A new task."},
+    ]
     result = _stateful(adapter, payload, enabled=False)
     assert result.reason == "disabled_compatible_replay"
     assert result.payload["messages"][0] == first.payload["messages"][0]
@@ -321,7 +448,10 @@ def test_enabled_new_turn_can_replace_all_completed_old_thinking_turns(tmp_path)
     payload = _request()
     first = _stateful(adapter, payload)
     payload["messages"] += _signed_tool_loop()
-    payload["messages"] += [{"role": "assistant", "content": "Done."}, {"role": "user", "content": "Which capacity is current now?"}]
+    payload["messages"] += [
+        {"role": "assistant", "content": "Done."},
+        {"role": "user", "content": "Which capacity is current now?"},
+    ]
     result = _stateful(adapter, payload)
     assert result.prepared is not None and result.transformed
     assert result.task != first.task
@@ -376,11 +506,14 @@ def test_native_compaction_reset_and_other_sessions_never_borrow_prefix(tmp_path
 
 def test_state_store_contains_compiled_prefix_and_hashes_not_raw_history(tmp_path):
     import sqlite3
+
     path = tmp_path / "state.sqlite3"
     payload = _request()
     result = _stateful(AnthropicAdapter(path), payload)
     with sqlite3.connect(path) as db:
-        row = db.execute("SELECT prefix_hash,prefix_count,replacement_json,task FROM tomc_anthropic_prefixes").fetchone()
+        row = db.execute(
+            "SELECT prefix_hash,prefix_count,replacement_json,task FROM tomc_anthropic_prefixes"
+        ).fetchone()
         columns = [r[1] for r in db.execute("PRAGMA table_info(tomc_anthropic_prefixes)")]
     assert len(row[0]) == 64 and row[1] > 0
     stored = json.loads(row[2])
@@ -415,7 +548,11 @@ def test_live_claude_empty_system_effort_controls_preserved_and_replayed(tmp_pat
 
 def test_system_text_and_unknown_control_are_complete_protected_boundaries():
     payload = _request()
-    control = {"role": "system", "content": [{"type": "text", "text": "Operator notice."}], "output_config": {"effort": "high"}}
+    control = {
+        "role": "system",
+        "content": [{"type": "text", "text": "Operator notice."}],
+        "output_config": {"effort": "high"},
+    }
     payload["messages"].insert(1, control)
     result = adapt_request(payload, memory_budget=150, recent_messages=1, min_history_tokens=20)
     assert result.transformed
@@ -429,14 +566,26 @@ def test_system_text_and_unknown_control_are_complete_protected_boundaries():
 
 def test_short_first_turn_long_middle_preserves_anchor_thinking_and_replays(tmp_path):
     import sqlite3
+
     payload = _request()
     payload["messages"][:0] = [
         {"role": "user", "content": "Short initial user turn ANCHOR_PRIVATE_SENTINEL."},
-        {"role": "system", "content": [{"type": "text", "text": "Operator instruction must remain."}], "output_config": {"effort": "high"}},
-        {"role": "assistant", "content": [
-            {"type": "thinking", "thinking": "Anchor reasoning.", "signature": "anchor signature"},
-            {"type": "text", "text": "Ready."},
-        ]},
+        {
+            "role": "system",
+            "content": [{"type": "text", "text": "Operator instruction must remain."}],
+            "output_config": {"effort": "high"},
+        },
+        {
+            "role": "assistant",
+            "content": [
+                {
+                    "type": "thinking",
+                    "thinking": "Anchor reasoning.",
+                    "signature": "anchor signature",
+                },
+                {"type": "text", "text": "Ready."},
+            ],
+        },
     ]
     path = tmp_path / "state.sqlite3"
     result = _stateful(AnthropicAdapter(path), payload)
@@ -461,10 +610,16 @@ def test_prompt_id_replays_same_tool_turn_when_host_augments_current_user(tmp_pa
     path = tmp_path / "state.sqlite3"
     payload = _request()
     headers = {**HEADERS, "x-claude-code-prompt-id": "f4d960aa-d48e-42f2-b532-9eb4b3328111"}
-    first = AnthropicAdapter(path).adapt(payload, headers, memory_budget=500, recent_messages=1, min_history_tokens=20)
-    payload["messages"][-1]["content"].append({"type": "text", "text": "Host reminder added during the tool loop."})
+    first = AnthropicAdapter(path).adapt(
+        payload, headers, memory_budget=500, recent_messages=1, min_history_tokens=20
+    )
+    payload["messages"][-1]["content"].append(
+        {"type": "text", "text": "Host reminder added during the tool loop."}
+    )
     payload["messages"] += _tool_loop()[:2]
-    replay = AnthropicAdapter(path).adapt(payload, headers, memory_budget=500, recent_messages=1, min_history_tokens=20)
+    replay = AnthropicAdapter(path).adapt(
+        payload, headers, memory_budget=500, recent_messages=1, min_history_tokens=20
+    )
     assert replay.reason == "replayed_prefix" and replay.prepared is None
     assert replay.payload["messages"][0] == first.payload["messages"][0]
     assert replay.payload["messages"][-3:] == payload["messages"][-3:]
@@ -473,9 +628,17 @@ def test_prompt_id_replays_same_tool_turn_when_host_augments_current_user(tmp_pa
 def test_different_prompt_id_does_not_reuse_same_text_as_same_turn(tmp_path):
     adapter = AnthropicAdapter(tmp_path / "state.sqlite3")
     payload = _request()
-    for prompt_id in ("f4d960aa-d48e-42f2-b532-9eb4b3328111", "f4d960aa-d48e-42f2-b532-9eb4b3328222"):
-        result = adapter.adapt(payload, {**HEADERS, "x-claude-code-prompt-id": prompt_id},
-                               memory_budget=500, recent_messages=1, min_history_tokens=20)
+    for prompt_id in (
+        "f4d960aa-d48e-42f2-b532-9eb4b3328111",
+        "f4d960aa-d48e-42f2-b532-9eb4b3328222",
+    ):
+        result = adapter.adapt(
+            payload,
+            {**HEADERS, "x-claude-code-prompt-id": prompt_id},
+            memory_budget=500,
+            recent_messages=1,
+            min_history_tokens=20,
+        )
         assert result.prepared is not None
 
 
@@ -496,49 +659,92 @@ def test_new_anchor_cannot_restore_raw_prefix_under_previously_compiled_thinking
     payload = _request()
     first = _stateful(adapter, payload)
     payload["messages"] += [
-        {"role": "assistant", "content": [
-            {"type": "thinking", "thinking": "Thinking against the compiled prefix", "signature": "bound"},
-            {"type": "text", "text": "Answer."},
-        ]},
+        {
+            "role": "assistant",
+            "content": [
+                {
+                    "type": "thinking",
+                    "thinking": "Thinking against the compiled prefix",
+                    "signature": "bound",
+                },
+                {"type": "text", "text": "Answer."},
+            ],
+        },
         {"role": "user", "content": "New task with an operator instruction."},
-        {"role": "system", "content": "New operator instruction.", "output_config": {"effort": "high"}},
+        {
+            "role": "system",
+            "content": "New operator instruction.",
+            "output_config": {"effort": "high"},
+        },
         {"role": "assistant", "content": "Understood."},
-        {"role": "user", "content": "\n".join(f"Updated capacity {i} is {20+i}." for i in range(100))},
+        {
+            "role": "user",
+            "content": "\n".join(f"Updated capacity {i} is {20 + i}." for i in range(100)),
+        },
         {"role": "assistant", "content": "Recorded."},
         {"role": "user", "content": "What is the updated capacity?"},
     ]
-    independent = adapt_request(payload, memory_budget=500, recent_messages=1, min_history_tokens=20)
+    independent = adapt_request(
+        payload, memory_budget=500, recent_messages=1, min_history_tokens=20
+    )
     assert independent.transformed and independent.anchor_count > first.prefix_count
     result = _stateful(adapter, payload)
     assert result.reason == "replayed_prefix" and result.prepared is None
     assert result.payload["messages"][0] == first.payload["messages"][0]
-    assert result.payload["messages"][1:] == payload["messages"][first.prefix_count:]
+    assert result.payload["messages"][1:] == payload["messages"][first.prefix_count :]
 
 
 def test_live_system_tool_additions_keep_complete_anchor_and_definitions(tmp_path):
     payload = _request()
-    control = {"role": "system", "content": [
-        {"type": "text", "text": "Operator instructions."},
-        {"type": "tool_addition", "tool": {"type": "tool_definition", "definition": {
-            "name": "fixture", "input_schema": {"type": "object", "properties": {
-                "cache_control": {"type": "string"}}}}}, "cache_control": {"type": "ephemeral"}},
-    ], "output_config": {"effort": "high"}}
+    control = {
+        "role": "system",
+        "content": [
+            {"type": "text", "text": "Operator instructions."},
+            {
+                "type": "tool_addition",
+                "tool": {
+                    "type": "tool_definition",
+                    "definition": {
+                        "name": "fixture",
+                        "input_schema": {
+                            "type": "object",
+                            "properties": {"cache_control": {"type": "string"}},
+                        },
+                    },
+                },
+                "cache_control": {"type": "ephemeral"},
+            },
+        ],
+        "output_config": {"effort": "high"},
+    }
     payload["messages"][:0] = [
-        {"role": "user", "content": "Short first task."}, control,
-        {"role": "assistant", "content": [{"type": "thinking", "thinking": "Anchor", "signature": "original"},
-                                            {"type": "text", "text": "Done."}]},
+        {"role": "user", "content": "Short first task."},
+        control,
+        {
+            "role": "assistant",
+            "content": [
+                {"type": "thinking", "thinking": "Anchor", "signature": "original"},
+                {"type": "text", "text": "Done."},
+            ],
+        },
     ]
     adapter = AnthropicAdapter(tmp_path / "state.sqlite3")
     result = _stateful(adapter, payload)
     assert result.transformed and result.anchor_count == 3
     assert result.payload["messages"][:3] == payload["messages"][:3]
-    payload["messages"][1]["content"][1]["tool"]["definition"]["input_schema"]["properties"]["cache_control"]["type"] = "number"
+    payload["messages"][1]["content"][1]["tool"]["definition"]["input_schema"]["properties"][
+        "cache_control"
+    ]["type"] = "number"
     assert _stateful(adapter, payload).reason == "original_prefix_changed"
 
 
 def test_opaque_system_without_a_later_complete_turn_never_rewrites_earlier_prefix():
     payload = _request()
-    control = {"role": "system", "content": {"future_control": {"mode": "preserve"}}, "provider_field": True}
+    control = {
+        "role": "system",
+        "content": {"future_control": {"mode": "preserve"}},
+        "provider_field": True,
+    }
     payload["messages"][-1:-1] = [control]
     result = adapt_request(payload, memory_budget=500, recent_messages=1, min_history_tokens=20)
     assert not result.transformed and result.reason == "protected_system_history"
@@ -557,8 +763,14 @@ def test_unknown_empty_system_control_stays_in_anchor_without_relocation():
 @pytest.mark.parametrize("effort", [{"future": True}, ["high"]])
 def test_structured_unknown_system_effort_is_preserved_without_hash_type_errors(tmp_path, effort):
     payload = _request()
-    payload["messages"].insert(1, {"role": "system", "content": "Keep this operator control.",
-                                  "output_config": {"effort": effort}})
+    payload["messages"].insert(
+        1,
+        {
+            "role": "system",
+            "content": "Keep this operator control.",
+            "output_config": {"effort": effort},
+        },
+    )
     adapter = AnthropicAdapter(tmp_path / "state.sqlite3")
     first = _stateful(adapter, payload)
     assert first.transformed and first.anchor_count == 3

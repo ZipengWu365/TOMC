@@ -66,6 +66,19 @@ def test_security_scanner_detects_constructed_credentials_but_not_blank_template
     assert not scan.inspect_blob((ROOT / ".env.example").read_bytes(), "template")
 
 
+def test_security_scanner_exemptions_are_exact():
+    spec = importlib.util.spec_from_file_location("scan", ROOT / "scripts/security_scan.py")
+    scan = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(scan)
+    # Only the exact known-fake fixture is exempt; a real-looking token beside it is still found.
+    assert not scan.inspect_blob(b'FAKE = "Bearer fixture-only-never-a-real-token"', "fixture")
+    assert scan.inspect_blob(
+        b"Bearer fixture-only-never-a-real-token " + b"Bearer " + b"c" * 30, "mixed"
+    )
+    # There is no size exemption: any blob over 5 MB still fails.
+    assert scan.inspect_blob(b"x" * 5_000_001, "large") == ["large: file larger than 5 MB"]
+
+
 def test_current_paper_snapshot_and_generated_reports():
     from benchmarks.reproduce.current import render_report, verify
 

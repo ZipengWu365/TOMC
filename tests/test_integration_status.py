@@ -31,10 +31,14 @@ def test_codex_explicit_user_plugin_state(tmp_path, enabled, state):
 
 
 def test_only_user_scope_is_observed_and_never_secrets(tmp_path):
-    write(tmp_path, ".claude.json", {
-        "mcpServers": {"tomc-memory": {"command": "SECRET_COMMAND", "env": {"KEY": "SECRET"}}},
-        "projects": {"PRIVATE_PROJECT": {"disabledMcpServers": ["tomc-memory"]}},
-    })
+    write(
+        tmp_path,
+        ".claude.json",
+        {
+            "mcpServers": {"tomc-memory": {"command": "SECRET_COMMAND", "env": {"KEY": "SECRET"}}},
+            "projects": {"PRIVATE_PROJECT": {"disabledMcpServers": ["tomc-memory"]}},
+        },
+    )
     result = status.get_integration_status(tmp_path)
     assert result["claude_code"]["state"] == "enabled"
     assert result["claude_code"]["project_scope"] == "unknown"
@@ -57,14 +61,17 @@ def test_independent_enabled_plugin_remains_available(tmp_path):
     assert status.get_integration_status(tmp_path)["claude_code"]["state"] == "enabled"
 
 
-@pytest.mark.parametrize("path,raw,host", [
-    (".codex/config.toml", "[broken", "codex"),
-    (".codex/config.toml", 'plugins = "bad"', "codex"),
-    (".codex/config.toml", '[plugins."tomc-memory@x"]\nenabled="false"', "codex"),
-    (".claude.json", "{broken SECRET", "claude_code"),
-    (".claude.json", "[]", "claude_code"),
-    (".claude/settings.json", '{"enabledPlugins":{"tomc-memory@tomc":1}}', "claude_code"),
-])
+@pytest.mark.parametrize(
+    "path,raw,host",
+    [
+        (".codex/config.toml", "[broken", "codex"),
+        (".codex/config.toml", 'plugins = "bad"', "codex"),
+        (".codex/config.toml", '[plugins."tomc-memory@x"]\nenabled="false"', "codex"),
+        (".claude.json", "{broken SECRET", "claude_code"),
+        (".claude.json", "[]", "claude_code"),
+        (".claude/settings.json", '{"enabledPlugins":{"tomc-memory@tomc":1}}', "claude_code"),
+    ],
+)
 def test_invalid_configuration_is_unknown(tmp_path, path, raw, host):
     write(tmp_path, path, raw)
     assert status.get_integration_status(tmp_path)[host]["state"] == "unknown"
@@ -73,6 +80,7 @@ def test_invalid_configuration_is_unknown(tmp_path, path, raw, host):
 def test_read_error_is_sanitized(tmp_path, monkeypatch):
     def denied(*args, **kwargs):
         raise PermissionError("SECRET_PATH")
+
     monkeypatch.setattr(Path, "read_text", denied)
     result = status.get_integration_status(tmp_path)
     assert result["codex"]["state"] == result["claude_code"]["state"] == "unknown"
@@ -91,7 +99,9 @@ def test_home_default_is_explicitly_mockable(tmp_path, monkeypatch):
 
 
 def test_gateway_marker_requires_matching_client_configuration(tmp_path):
-    write(tmp_path, ".codex/tomc/gateway-routing.json", {"port": 43187, "hosts": ["codex", "claude"]})
+    write(
+        tmp_path, ".codex/tomc/gateway-routing.json", {"port": 43187, "hosts": ["codex", "claude"]}
+    )
     assert not status.get_integration_status(tmp_path)["mode"]["automatic_request_compression"]
     write(tmp_path, ".codex/config.toml", 'openai_base_url="http://127.0.0.1:43187/codex"')
     mode = status.get_integration_status(tmp_path)["mode"]
@@ -102,13 +112,25 @@ def test_gateway_marker_requires_matching_client_configuration(tmp_path):
 
 
 def test_old_restart_marker_does_not_override_current_claude_reload_status(tmp_path):
-    write(tmp_path, ".codex/tomc/gateway-routing.json", {
-        "port": 43187, "hosts": ["claude"], "requires_client_restart": True,
-    })
-    write(tmp_path, ".claude/settings.json", {"env": {
-        "ANTHROPIC_BASE_URL": "http://127.0.0.1:43187/claude",
-        "CLAUDE_CODE_GATEWAY_HINT_HEADERS": "1",
-    }})
+    write(
+        tmp_path,
+        ".codex/tomc/gateway-routing.json",
+        {
+            "port": 43187,
+            "hosts": ["claude"],
+            "requires_client_restart": True,
+        },
+    )
+    write(
+        tmp_path,
+        ".claude/settings.json",
+        {
+            "env": {
+                "ANTHROPIC_BASE_URL": "http://127.0.0.1:43187/claude",
+                "CLAUDE_CODE_GATEWAY_HINT_HEADERS": "1",
+            }
+        },
+    )
     mode = status.get_integration_status(tmp_path)["mode"]
     assert mode["client_reload"] == {"claude": "settings_env_hot_reload_supported"}
     assert mode["runtime_verified"] is False

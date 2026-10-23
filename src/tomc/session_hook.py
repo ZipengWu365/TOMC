@@ -37,10 +37,13 @@ def _text(value, limit):
 
 
 def _deny(reason):
-    return {"hookSpecificOutput": {
-        "hookEventName": "PreToolUse", "permissionDecision": "deny",
-        "permissionDecisionReason": reason,
-    }}
+    return {
+        "hookSpecificOutput": {
+            "hookEventName": "PreToolUse",
+            "permissionDecision": "deny",
+            "permissionDecisionReason": reason,
+        }
+    }
 
 
 def handle_event(payload, *, host, store):
@@ -50,8 +53,10 @@ def handle_event(payload, *, host, store):
     event = payload.get("hook_event_name")
     if event not in EVENTS:
         return {}
-    target = event == "PreToolUse" and isinstance(payload.get("tool_name"), str) and (
-        _TOOL_RE.fullmatch(payload["tool_name"]) is not None
+    target = (
+        event == "PreToolUse"
+        and isinstance(payload.get("tool_name"), str)
+        and (_TOOL_RE.fullmatch(payload["tool_name"]) is not None)
     )
     if event == "PreToolUse" and not target:
         return {}
@@ -68,20 +73,25 @@ def handle_event(payload, *, host, store):
     registry_host = "claude" if host == "claude_code" else host
     registry = SessionStore(store)
     registry.register(
-        registry_host, session_id, title=_text(payload.get("session_title"), 500),
-        project=_text(payload.get("cwd"), 4096), event=event,
+        registry_host,
+        session_id,
+        title=_text(payload.get("session_title"), 500),
+        project=_text(payload.get("cwd"), 4096),
+        event=event,
         activate=event in ("SessionStart", "UserPromptSubmit"),
     )
     if not target and event == "SessionStart" and host == "codex":
         identity = json.dumps({"tomc_host": host, "tomc_session_id": session_id})
-        return {"hookSpecificOutput": {
-            "hookEventName": "SessionStart",
-            "additionalContext": (
-                "TOMC session identity: " + identity + ". If you independently need to call "
-                "TOMC prepare_context or recall_memory, include these two identity arguments. "
-                "This is identity metadata, not a request to call TOMC or recompact this chat."
-            ),
-        }}
+        return {
+            "hookSpecificOutput": {
+                "hookEventName": "SessionStart",
+                "additionalContext": (
+                    "TOMC session identity: " + identity + ". If you independently need to call "
+                    "TOMC prepare_context or recall_memory, include these two identity arguments. "
+                    "This is identity metadata, not a request to call TOMC or recompact this chat."
+                ),
+            }
+        }
     if not target:
         return {}
     if not registry.effective_enabled(registry_host, session_id):
@@ -93,10 +103,16 @@ def handle_event(payload, *, host, store):
     tool_input = payload.get("tool_input")
     if not isinstance(tool_input, dict):
         return _deny("TOMC 工具参数格式无法核验。")
-    return {"hookSpecificOutput": {
-        "hookEventName": "PreToolUse",
-        "updatedInput": {**tool_input, "tomc_host": registry_host, "tomc_session_id": session_id},
-    }}
+    return {
+        "hookSpecificOutput": {
+            "hookEventName": "PreToolUse",
+            "updatedInput": {
+                **tool_input,
+                "tomc_host": registry_host,
+                "tomc_session_id": session_id,
+            },
+        }
+    }
 
 
 def main(argv=None):
@@ -108,23 +124,29 @@ def main(argv=None):
     args = parser.parse_args(argv)
     payload = None
     try:
-        raw = sys.stdin.buffer.read(MAX_INPUT_BYTES + 1) if hasattr(sys.stdin, "buffer") else (
-            sys.stdin.read(MAX_INPUT_BYTES + 1)
+        raw = (
+            sys.stdin.buffer.read(MAX_INPUT_BYTES + 1)
+            if hasattr(sys.stdin, "buffer")
+            else (sys.stdin.read(MAX_INPUT_BYTES + 1))
         )
         if len(raw) > MAX_INPUT_BYTES:
             raise ValueError("oversized hook input")
         payload = json.loads(raw)
-        if args.event and (not isinstance(payload, dict)
-                           or payload.get("hook_event_name") != args.event):
+        if args.event and (
+            not isinstance(payload, dict) or payload.get("hook_event_name") != args.event
+        ):
             raise ValueError("mismatched hook event")
         output = handle_event(payload, host=args.host, store=args.store)
     except (OSError, ValueError, TypeError, sqlite3.Error):
         # Never echo exception text, prompt content, or a path supplied by stdin.
-        if args.event == "PreToolUse" or (isinstance(payload, dict)
-            and payload.get("hook_event_name") == "PreToolUse" and (
-            isinstance(payload.get("tool_name"), str)
-            and _TOOL_RE.fullmatch(payload["tool_name"])
-        )):
+        if args.event == "PreToolUse" or (
+            isinstance(payload, dict)
+            and payload.get("hook_event_name") == "PreToolUse"
+            and (
+                isinstance(payload.get("tool_name"), str)
+                and _TOOL_RE.fullmatch(payload["tool_name"])
+            )
+        ):
             output = _deny("TOMC 会话开关核验失败，未执行本次准备。")
         else:
             print("TOMC session metadata could not be registered.", file=sys.stderr)

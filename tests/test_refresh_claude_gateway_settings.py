@@ -7,7 +7,9 @@ import pytest
 
 SCRIPTS = Path(__file__).parents[1] / "scripts"
 sys.path.insert(0, str(SCRIPTS))
-spec = importlib.util.spec_from_file_location("claude_settings_refresh", SCRIPTS / "refresh_claude_gateway_settings.py")
+spec = importlib.util.spec_from_file_location(
+    "claude_settings_refresh", SCRIPTS / "refresh_claude_gateway_settings.py"
+)
 module = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(module)
 
@@ -81,10 +83,17 @@ def test_concurrent_user_edit_is_not_overwritten(tmp_path):
     assert not (tmp_path / ".codex").exists()
 
 
-@pytest.mark.parametrize("raw", [
-    b'{}', b'{"env":{}}', b'[]', b'{"env":{},"env":{}}',
-    b'{"env":{},"unknown":NaN}', b'{broken-private-fixture',
-])
+@pytest.mark.parametrize(
+    "raw",
+    [
+        b"{}",
+        b'{"env":{}}',
+        b"[]",
+        b'{"env":{},"env":{}}',
+        b'{"env":{},"unknown":NaN}',
+        b"{broken-private-fixture",
+    ],
+)
 def test_missing_or_ambiguous_settings_refused_without_data_disclosure(tmp_path, capsys, raw):
     path, _ = settings(tmp_path, raw=raw)
     assert module.main(["--home", str(tmp_path)]) == 1
@@ -94,10 +103,15 @@ def test_missing_or_ambiguous_settings_refused_without_data_disclosure(tmp_path,
     assert not (tmp_path / ".codex").exists()
 
 
-@pytest.mark.parametrize("url", [
-    "https://api.anthropic.com", "http://127.0.0.1:43187/other",
-    "http://user:private@127.0.0.1:43187/claude", "http://127.0.0.1:43187/claude?key=private",
-])
+@pytest.mark.parametrize(
+    "url",
+    [
+        "https://api.anthropic.com",
+        "http://127.0.0.1:43187/other",
+        "http://user:private@127.0.0.1:43187/claude",
+        "http://127.0.0.1:43187/claude?key=private",
+    ],
+)
 def test_foreign_or_credential_url_refused(tmp_path, url):
     path, value = settings(tmp_path)
     value["env"]["ANTHROPIC_BASE_URL"] = url

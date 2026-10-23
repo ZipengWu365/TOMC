@@ -57,7 +57,9 @@ class StagePlayer(QWidget):
         title = QLabel("TOMC · 四阶猫头")
         title.setStyleSheet("font-size: 20px; font-weight: 600;")
         layout.addWidget(title)
-        layout.addWidget(QLabel("从轻绒虚影到蓬密实体 / 黄毛只在究极阶段出现    ·    演示数字不计入真实统计"))
+        layout.addWidget(
+            QLabel("从轻绒虚影到蓬密实体 / 黄毛只在究极阶段出现    ·    演示数字不计入真实统计")
+        )
         self.status = QLabel("即将依次演示四种收上下文动作。点击任意小猫查看该阶段累计。")
         self.status.setStyleSheet("color: #507461; padding-top: 6px;")
         layout.addWidget(self.status)
@@ -67,16 +69,20 @@ class StagePlayer(QWidget):
         for i, (threshold, name, _) in enumerate(STAGES):
             frame = QFrame()
             frame.setObjectName(f"stage{i}")
-            frame.setStyleSheet(f"QFrame#stage{i} {{ background: #FFFCF6; border: 1px solid #E4DDCF; border-radius: 16px; }}")
+            frame.setStyleSheet(
+                f"QFrame#stage{i} {{ background: #FFFCF6; border: 1px solid #E4DDCF; border-radius: 16px; }}"
+            )
             col = QVBoxLayout(frame)
             col.setContentsMargins(9, 12, 9, 10)
-            label = QLabel(f"{i+1}  {name}")
+            label = QLabel(f"{i + 1}  {name}")
             label.setAlignment(Qt.AlignmentFlag.AlignCenter)
             label.setStyleSheet("font-size: 14px; font-weight: 600;")
             col.addWidget(label)
             art = ClickCat()
             art.setFixedSize(186, 207)
-            state = growth_state({"growth": [{"peak_net_tokens": threshold, "net_tokens": threshold}]})
+            state = growth_state(
+                {"growth": [{"peak_net_tokens": threshold, "net_tokens": threshold}]}
+            )
             art.set_state(state)
             opacity = QGraphicsOpacityEffect(art)
             opacity.setOpacity(state["opacity"])
@@ -101,7 +107,9 @@ class StagePlayer(QWidget):
             self.reports.append(report)
         layout.addLayout(cards)
         self.stats = QLabel("点击小猫查看累计；重播动画不会增加任何统计。")
-        self.stats.setStyleSheet("background: #EAF0E6; border-radius: 10px; padding: 10px; color: #345743;")
+        self.stats.setStyleSheet(
+            "background: #EAF0E6; border-radius: 10px; padding: 10px; color: #345743;"
+        )
         self.stats.setMinimumHeight(52)
         layout.addWidget(self.stats)
         controls = QHBoxLayout()
@@ -117,11 +125,20 @@ class StagePlayer(QWidget):
         QTimer.singleShot(600 if check else 2200, self.start_all)
 
     def record(self, phase):
-        (self.output / "player_state.json").write_text(json.dumps({
-            "phase": phase, "current_stage": self.current+1,
-            "completed_stages": self.played, "desktop_control_used": False,
-            "production_database_opened": False,
-        }, ensure_ascii=False, indent=2), encoding="utf-8")
+        (self.output / "player_state.json").write_text(
+            json.dumps(
+                {
+                    "phase": phase,
+                    "current_stage": self.current + 1,
+                    "completed_stages": self.played,
+                    "desktop_control_used": False,
+                    "production_database_opened": False,
+                },
+                ensure_ascii=False,
+                indent=2,
+            ),
+            encoding="utf-8",
+        )
 
     def pause(self):
         self.automatic = False
@@ -144,14 +161,16 @@ class StagePlayer(QWidget):
             art.phase = None
             art.update()
             color = "#8DA58B" if i == index else "#E4DDCF"
-            self.cards[i].setStyleSheet(f"QFrame#stage{i} {{ background: #FFFCF6; border: 1px solid {color}; border-radius: 16px; }}")
-        self.status.setText(f"正在演示 {index+1}/4：{STAGES[index][1]} 收上下文……")
+            self.cards[i].setStyleSheet(
+                f"QFrame#stage{i} {{ background: #FFFCF6; border: 1px solid {color}; border-radius: 16px; }}"
+            )
+        self.status.setText(f"正在演示 {index + 1}/4：{STAGES[index][1]} 收上下文……")
         self.arts[index].collect()
         self.record("collecting")
 
     def finished(self, index):
-        if index+1 not in self.played:
-            self.played.append(index+1)
+        if index + 1 not in self.played:
+            self.played.append(index + 1)
         self.reports[index].setText("收好了！本次预计少用 1,674 tokens")
         self.show_stats(index)
         self.status.setText(f"{STAGES[index][1]}：吃纸片动画完成，已展示本次及累计。")
@@ -161,7 +180,7 @@ class StagePlayer(QWidget):
 
     def next_stage(self):
         if self.current < 3:
-            self.play(self.current+1)
+            self.play(self.current + 1)
         else:
             self.automatic = False
             self.status.setText("四阶段演示完毕。可单独重播、点击小猫看累计，或从头再看一遍。")
@@ -172,8 +191,10 @@ class StagePlayer(QWidget):
 
     def show_stats(self, index):
         threshold = STAGES[index][0]
-        self.stats.setText(f"演示 · {STAGES[index][1]}    累计预计减少 {threshold+1674:,} tokens\n"
-                           f"本次 1,800 → 126，预计少用 1,674；阶段起始累计 {threshold:,}。非实际账单节省。")
+        self.stats.setText(
+            f"演示 · {STAGES[index][1]}    累计预计减少 {threshold + 1674:,} tokens\n"
+            f"本次 1,800 → 126，预计少用 1,674；阶段起始累计 {threshold:,}。非实际账单节省。"
+        )
 
 
 def main():
@@ -187,11 +208,13 @@ def main():
     load_preview_fonts()
     window = StagePlayer(args.output, args.check)
     area = app.primaryScreen().availableGeometry()
-    window.move(area.center()-window.rect().center())
+    window.move(area.center() - window.rect().center())
     window.show()
     app.exec()
     if args.restore_launcher and not args.check:
-        subprocess.Popen([sys.executable, str(args.restore_launcher)], cwd=str(args.restore_launcher.parent))
+        subprocess.Popen(
+            [sys.executable, str(args.restore_launcher)], cwd=str(args.restore_launcher.parent)
+        )
 
 
 if __name__ == "__main__":

@@ -31,9 +31,9 @@ class Choice(QComboBox):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
         painter.setPen(QPen(QColor("#81796D"), 1.3))
-        x, y = self.width()-13, self.height()//2
-        painter.drawLine(x-3, y-1, x, y+2)
-        painter.drawLine(x, y+2, x+3, y-1)
+        x, y = self.width() - 13, self.height() // 2
+        painter.drawLine(x - 3, y - 1, x, y + 2)
+        painter.drawLine(x, y + 2, x + 3, y - 1)
 
 
 class ReferenceSheet(QDialog):
@@ -75,8 +75,12 @@ class ReferenceSheet(QDialog):
         for name in ("claude", "codex", "cursor", "其他 / API"):
             self.host.addItem(name, name)
         self.provider = Choice()
-        for key, name in (("anthropic", "Claude 官方"), ("openai", "OpenAI / Codex"),
-                          ("deepseek", "DeepSeek"), ("cursor", "Cursor")):
+        for key, name in (
+            ("anthropic", "Claude 官方"),
+            ("openai", "OpenAI / Codex"),
+            ("deepseek", "DeepSeek"),
+            ("cursor", "Cursor"),
+        ):
             self.provider.addItem(name, key)
         self.host_label = QLabel("宿主")
         row.addWidget(self.host_label)
@@ -85,7 +89,9 @@ class ReferenceSheet(QDialog):
         layout.addLayout(row)
         self.models = Choice()
         self.models.setMinimumContentsLength(15)
-        self.models.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon)
+        self.models.setSizeAdjustPolicy(
+            QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon
+        )
         self.models.setMaxVisibleItems(12)
         layout.addWidget(self.models)
         self.mode = Choice()
@@ -96,7 +102,9 @@ class ReferenceSheet(QDialog):
         self.preview.setStyleSheet("font-size: 17px; color: #345743; font-weight: 600;")
         layout.addWidget(self.preview)
         self.table = QTableWidget(0, 5)
-        self.table.setHorizontalHeaderLabels(["参考模型 / 档位", "输入", "缓存读", "输出", "折算 USD"])
+        self.table.setHorizontalHeaderLabels(
+            ["参考模型 / 档位", "输入", "缓存读", "输出", "折算 USD"]
+        )
         self.table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
         self.table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
         self.table.verticalHeader().hide()
@@ -140,7 +148,9 @@ class ReferenceSheet(QDialog):
         self.host.currentIndexChanged.connect(self.update_preview)
         pricing = owner.pricing or {}
         self.host.setCurrentIndex(max(0, self.host.findData(pricing.get("host", "claude"))))
-        self.provider.setCurrentIndex(max(0, self.provider.findData(pricing.get("provider", "anthropic"))))
+        self.provider.setCurrentIndex(
+            max(0, self.provider.findData(pricing.get("provider", "anthropic")))
+        )
         self.populate()
         if pricing:
             self.models.setCurrentIndex(max(0, self.models.findData(pricing.get("key"))))
@@ -163,25 +173,46 @@ class ReferenceSheet(QDialog):
         self.provider.setItemText(0, self.tr_text("Claude 官方", "Anthropic / Claude"))
         self.mode.setItemText(0, self.tr_text("按未缓存输入折算", "Use uncached input rate"))
         self.mode.setItemText(1, self.tr_text("按缓存读取折算", "Use cache-read rate"))
-        self.table.setHorizontalHeaderLabels(self.tr_text(
-            ["参考模型 / 档位", "输入", "缓存读", "输出", "折算 USD"],
-            ["Reference model / tier", "Input", "Cache read", "Output", "Value (USD)"]))
-        self.units.setText(self.tr_text("单价：USD / 百万 tokens · 折算使用当前统计范围；负值表示增加",
-            "Rates: USD per million tokens. Values use the current range; negative values indicate an increase."))
+        self.table.setHorizontalHeaderLabels(
+            self.tr_text(
+                ["参考模型 / 档位", "输入", "缓存读", "输出", "折算 USD"],
+                ["Reference model / tier", "Input", "Cache read", "Output", "Value (USD)"],
+            )
+        )
+        self.units.setText(
+            self.tr_text(
+                "单价：USD / 百万 tokens · 折算使用当前统计范围；负值表示增加",
+                "Rates: USD per million tokens. Values use the current range; negative values indicate an increase.",
+            )
+        )
         self.detected_button.setText(self.tr_text("使用已识别模型", "Use detected model"))
         self.close_button.setText(self.tr_text("收起", "Close"))
         self.story.setHtml(story_html(self.language))
         self.host.setAccessibleName(self.tr_text("参考模型宿主", "Reference model host"))
         self.provider.setAccessibleName(self.tr_text("参考价格供应商", "Reference price provider"))
         self.models.setAccessibleName(self.tr_text("参考模型与档位", "Reference model and tier"))
-        self.mode.setAccessibleName(self.tr_text("参考输入计价口径", "Reference input pricing basis"))
+        self.mode.setAccessibleName(
+            self.tr_text("参考输入计价口径", "Reference input pricing basis")
+        )
         self.table.setAccessibleName(self.tr_text("参考费率对照表", "Reference rate comparison"))
-        self.basis.setAccessibleName(self.tr_text("价格依据与估算限制", "Pricing evidence and estimate limitations"))
-        self.story.setAccessibleName(self.tr_text("绿洲故事与研究依据", "Oasis story and research reference"))
-        self.models.setToolTip(self.tr_text("只选择参考价格，不切换宿主实际模型。",
-            "Selects a reference price; it does not change the host's actual model."))
-        self.detected_button.setToolTip(self.tr_text("读取已有识别记录，不调用模型或联网检测。",
-            "Reads an existing detection record; no model call or network lookup."))
+        self.basis.setAccessibleName(
+            self.tr_text("价格依据与估算限制", "Pricing evidence and estimate limitations")
+        )
+        self.story.setAccessibleName(
+            self.tr_text("绿洲故事与研究依据", "Oasis story and research reference")
+        )
+        self.models.setToolTip(
+            self.tr_text(
+                "只选择参考价格，不切换宿主实际模型。",
+                "Selects a reference price; it does not change the host's actual model.",
+            )
+        )
+        self.detected_button.setToolTip(
+            self.tr_text(
+                "读取已有识别记录，不调用模型或联网检测。",
+                "Reads an existing detection record; no model call or network lookup.",
+            )
+        )
         self.populate()
         self.models.blockSignals(True)
         self.models.setCurrentIndex(max(0, self.models.findData(model_key)))
@@ -193,7 +224,9 @@ class ReferenceSheet(QDialog):
         if not self.save_button.isEnabled():
             text = self.tr_text("演示不保存设置", "Demo: settings are not saved")
         elif self.applied:
-            text = self.tr_text("已应用 · 宿主额度下次启动切换", "Applied · Allowance host changes on restart")
+            text = self.tr_text(
+                "已应用 · 宿主额度下次启动切换", "Applied · Allowance host changes on restart"
+            )
         else:
             text = self.tr_text("应用参考模型", "Apply reference model")
         self.save_button.setText(text)
@@ -212,15 +245,28 @@ class ReferenceSheet(QDialog):
     def populate(self):
         self.models.blockSignals(True)
         self.models.clear()
-        self.models.addItem(self.tr_text("未确认 / Auto（不估算金额）", "Unconfirmed / Auto (no monetary estimate)"), None)
+        self.models.addItem(
+            self.tr_text(
+                "未确认 / Auto（不估算金额）", "Unconfirmed / Auto (no monetary estimate)"
+            ),
+            None,
+        )
         self.rows = [r for r in self.rates if r["provider"] == self.provider.currentData()]
         self.table.blockSignals(True)
         self.table.setRowCount(len(self.rows))
         for index, rate in enumerate(self.rows):
             self.models.addItem(f"{rate['label']} · {rate['variant']}", rate["key"])
-            values = [f"{rate['label']} · {rate['variant']}", rate["input"], rate["cached"], rate["output"], ""]
+            values = [
+                f"{rate['label']} · {rate['variant']}",
+                rate["input"],
+                rate["cached"],
+                rate["output"],
+                "",
+            ]
             for column, value in enumerate(values):
-                self.table.setItem(index, column, QTableWidgetItem("—" if value is None else str(value)))
+                self.table.setItem(
+                    index, column, QTableWidgetItem("—" if value is None else str(value))
+                )
         self.table.blockSignals(False)
         self.models.blockSignals(False)
         self.update_preview()
@@ -229,12 +275,20 @@ class ReferenceSheet(QDialog):
         row = next((r for r in self.rates if r["key"] == self.models.currentData()), None)
         if not row or row.get(self.mode.currentData()) is None:
             return None
-        return {**row, "mode": self.mode.currentData(), "rate": row[self.mode.currentData()],
-                "host": self.host.currentData(), "evidence": self.evidence}
+        return {
+            **row,
+            "mode": self.mode.currentData(),
+            "rate": row[self.mode.currentData()],
+            "host": self.host.currentData(),
+            "evidence": self.evidence,
+        }
 
     def update_preview(self):
         pricing = self.selected()
-        self.preview.setText(self.tr_text("当前范围参考价值  ", "Reference value for this range  ") + dollars(input_value(self.delta(), pricing)))
+        self.preview.setText(
+            self.tr_text("当前范围参考价值  ", "Reference value for this range  ")
+            + dollars(input_value(self.delta(), pricing))
+        )
         text = escape(explanation(pricing, self.language)).replace("\n", "<br>")
         if self.notice:
             text = escape(self.tr_text(*self.notice)) + "<br><br>" + text
@@ -246,7 +300,9 @@ class ReferenceSheet(QDialog):
         for index, row in enumerate(getattr(self, "rows", [])):
             rate = row.get(self.mode.currentData())
             value = input_value(self.delta(), {"rate": rate}) if rate is not None else None
-            self.table.item(index, 4).setText(("−" if value is not None and value < 0 else "") + dollars(value))
+            self.table.item(index, 4).setText(
+                ("−" if value is not None and value < 0 else "") + dollars(value)
+            )
 
     def select_table(self):
         row = self.table.currentRow()
@@ -259,27 +315,43 @@ class ReferenceSheet(QDialog):
             row = data["hosts"][self.host.currentData()]
             evidence = row["evidence"] + " · 检查于 " + data["checked_at"]
             self.provider.setCurrentIndex(max(0, self.provider.findData(row.get("provider"))))
-            match = next((r for r in self.rows if r["model"] == row.get("model") and
-                          r["variant"] in ("standard", "standard-short", "listed")), None)
+            match = next(
+                (
+                    r
+                    for r in self.rows
+                    if r["model"] == row.get("model")
+                    and r["variant"] in ("standard", "standard-short", "listed")
+                ),
+                None,
+            )
             self.models.setCurrentIndex(self.models.findData(match["key"]) if match else 0)
             self.evidence = evidence
             self.notice = None
             if not match:
-                self.notice = ("识别记录未匹配到参考费率，请手选参考模型。",
-                               "The detection record has no matching reference rate. Select a model manually.")
+                self.notice = (
+                    "识别记录未匹配到参考费率，请手选参考模型。",
+                    "The detection record has no matching reference rate. Select a model manually.",
+                )
             self.update_preview()
         except (OSError, ValueError, KeyError, TypeError):
-            self.notice = ("尚无安装时的模型识别记录，请手选参考模型。",
-                           "No saved model-detection record is available. Select a reference model manually.")
+            self.notice = (
+                "尚无安装时的模型识别记录，请手选参考模型。",
+                "No saved model-detection record is available. Select a reference model manually.",
+            )
             self.update_preview()
 
     def save(self):
         row = self.selected()
-        settings = {"host": self.host.currentData(), "provider": self.provider.currentData(),
-                    "model": row["model"] if row else None, "variant": row["variant"] if row else None,
-                    "input_mode": self.mode.currentData(), "selection": "manual",
-                    "evidence": "用户选定的参考模型；不代表每次实际调用",
-                    "assumption": "按所选档位折算；未确认实际发送量、缓存命中或账单"}
+        settings = {
+            "host": self.host.currentData(),
+            "provider": self.provider.currentData(),
+            "model": row["model"] if row else None,
+            "variant": row["variant"] if row else None,
+            "input_mode": self.mode.currentData(),
+            "selection": "manual",
+            "evidence": "用户选定的参考模型；不代表每次实际调用",
+            "assumption": "按所选档位折算；未确认实际发送量、缓存命中或账单",
+        }
         self.path.parent.mkdir(parents=True, exist_ok=True)
         self.path.write_text(json.dumps(settings, ensure_ascii=False, indent=2), "utf-8")
         self.owner.last_signature = None

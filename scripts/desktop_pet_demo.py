@@ -26,8 +26,15 @@ def main():
     if db.exists():
         raise SystemExit("Use a fresh demo folder to keep each run separate.")
     store = UsageStore(db)
-    store.record({"counter": "demo-estimate", "usable": True, "input_tokens": 106000,
-                  "memory_tokens": 6000, "reduced_tokens": 100000})
+    store.record(
+        {
+            "counter": "demo-estimate",
+            "usable": True,
+            "input_tokens": 106000,
+            "memory_tokens": 6000,
+            "reduced_tokens": 100000,
+        }
+    )
     app = QApplication([])
     load_preview_fonts()
     widget = Companion(db, test_mode=True)
@@ -40,11 +47,20 @@ def main():
     opened = False
 
     def state(phase):
-        (args.output / "demo_state.json").write_text(json.dumps({
-            "phase": phase, "details_visible": widget.details.isVisible(),
-            "total": widget.details.total.text(), "production_database_written": False,
-            "desktop_control_used": False,
-        }, ensure_ascii=False, indent=2), encoding="utf-8")
+        (args.output / "demo_state.json").write_text(
+            json.dumps(
+                {
+                    "phase": phase,
+                    "details_visible": widget.details.isVisible(),
+                    "total": widget.details.total.text(),
+                    "production_database_written": False,
+                    "desktop_control_used": False,
+                },
+                ensure_ascii=False,
+                indent=2,
+            ),
+            encoding="utf-8",
+        )
 
     def show_details():
         nonlocal opened
@@ -70,8 +86,15 @@ def main():
         state("replaying_without_new_statistics")
 
     def deposit():
-        store.record({"counter": "demo-estimate", "usable": True, "input_tokens": 1800,
-                      "memory_tokens": 126, "reduced_tokens": 1674})
+        store.record(
+            {
+                "counter": "demo-estimate",
+                "usable": True,
+                "input_tokens": 1800,
+                "memory_tokens": 126,
+                "reduced_tokens": 1674,
+            }
+        )
         widget.refresh()
         state("collecting_context")
 
@@ -80,13 +103,14 @@ def main():
     widget.show()
     # More visible than the normal bottom-corner placement; never manipulates another window.
     area = app.primaryScreen().availableGeometry()
-    widget.move(area.center().x()+180, area.center().y()-70)
+    widget.move(area.center().x() + 180, area.center().y() - 70)
     state("waiting_to_demonstrate")
     QTimer.singleShot(3000, deposit)
     app.exec()
     if args.restore_launcher:
-        subprocess.Popen([sys.executable, str(args.restore_launcher)],
-                         cwd=str(args.restore_launcher.parent))
+        subprocess.Popen(
+            [sys.executable, str(args.restore_launcher)], cwd=str(args.restore_launcher.parent)
+        )
 
 
 if __name__ == "__main__":

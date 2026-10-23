@@ -42,17 +42,27 @@ class QuotaReader(QObject):
         self.timeout.start(15000)
 
     def send(self, message):
-        self.process.write((json.dumps(message)+"\n").encode())
+        self.process.write((json.dumps(message) + "\n").encode())
 
     def initialize(self):
-        self.send({"id": 0, "method": "initialize", "params": {
-            "clientInfo": {"name": "tomc_allowance", "title": "TOMC", "version": "0.1.4"}}})
+        self.send(
+            {
+                "id": 0,
+                "method": "initialize",
+                "params": {
+                    "clientInfo": {"name": "tomc_allowance", "title": "TOMC", "version": "0.1.4"}
+                },
+            }
+        )
 
     def request(self):
         if self.stopped or self.pending is not None:
             return
-        if (not self.ready and self.timeout.isActive()
-                and self.process.state() != QProcess.ProcessState.NotRunning):
+        if (
+            not self.ready
+            and self.timeout.isActive()
+            and self.process.state() != QProcess.ProcessState.NotRunning
+        ):
             return  # Let an in-flight initialization finish before reconnecting.
         if not self.ready or self.process.state() == QProcess.ProcessState.NotRunning:
             self.restarting = True
@@ -89,12 +99,22 @@ class QuotaReader(QObject):
                 self.pending = None
                 self.timeout.stop()
                 windows = quota_windows(message.get("result", {}))
-                self.updated.emit({"status": "ready" if windows else "unavailable",
-                                   "windows": windows, "read_at": time.time()})
+                self.updated.emit(
+                    {
+                        "status": "ready" if windows else "unavailable",
+                        "windows": windows,
+                        "read_at": time.time(),
+                    }
+                )
             elif message.get("method") == "account/rateLimits/updated":
                 windows = quota_windows(message.get("params", {}))
-                self.updated.emit({"status": "ready" if windows else "unavailable",
-                                   "windows": windows, "read_at": time.time()})
+                self.updated.emit(
+                    {
+                        "status": "ready" if windows else "unavailable",
+                        "windows": windows,
+                        "read_at": time.time(),
+                    }
+                )
 
     def failed(self):
         if self.stopped or self.restarting:

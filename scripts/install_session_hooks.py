@@ -41,7 +41,8 @@ def hook_definition(host, *, python, script, store, event):
         "$OutputEncoding = [Console]::OutputEncoding = "
         "[System.Text.UTF8Encoding]::new($false); "
         "$tomcHookInput = [Console]::In.ReadToEnd(); "
-        "$tomcHookInput | & " + " ".join(_ps_quote(x) for x in [python, *args])
+        "$tomcHookInput | & "
+        + " ".join(_ps_quote(x) for x in [python, *args])
         + "; exit $LASTEXITCODE"
     )
     encoded = base64.b64encode(ps.encode("utf-16-le")).decode("ascii")
@@ -71,7 +72,8 @@ def _ours(handler):
     args = handler.get("args")
     command = handler.get("command", "")
     return (
-        isinstance(args, list) and MARKER in args
+        isinstance(args, list)
+        and MARKER in args
         and any(isinstance(x, str) and x.endswith("session_hook.py") for x in args)
     ) or (isinstance(command, str) and MARKER in command and "session_hook.py" in command)
 
@@ -139,7 +141,9 @@ def main(argv=None):
     parser.add_argument("--script", type=Path, default=SOURCE / "tomc/session_hook.py")
     parser.add_argument("--host", choices=("codex", "claude_code", "both"), default="both")
     action = parser.add_mutually_exclusive_group()
-    action.add_argument("--install", action="store_true", help="Write the reviewed hook definitions.")
+    action.add_argument(
+        "--install", action="store_true", help="Write the reviewed hook definitions."
+    )
     action.add_argument("--dry-run", action="store_true", help="Preview only (the default).")
     args = parser.parse_args(argv)
     home = args.home.expanduser().resolve()
@@ -163,17 +167,36 @@ def main(argv=None):
         for host, path, original, updated, additions in plans:
             if args.install:
                 backup = install_file(path, original, updated)
-                print(json.dumps({"host": host, "written": str(path),
-                                  "backup": str(backup) if backup else None}, ensure_ascii=True))
+                print(
+                    json.dumps(
+                        {
+                            "host": host,
+                            "written": str(path),
+                            "backup": str(backup) if backup else None,
+                        },
+                        ensure_ascii=True,
+                    )
+                )
             else:
-                print(json.dumps({"host": host, "target": str(path), "hooks": additions},
-                                 ensure_ascii=True, indent=2))
+                print(
+                    json.dumps(
+                        {"host": host, "target": str(path), "hooks": additions},
+                        ensure_ascii=True,
+                        indent=2,
+                    )
+                )
     except (OSError, ValueError, UnicodeError):
-        print("TOMC hooks were not fully installed: configuration could not be safely updated.",
-              file=sys.stderr)
+        print(
+            "TOMC hooks were not fully installed: configuration could not be safely updated.",
+            file=sys.stderr,
+        )
         return 1
-    print("Codex requires /hooks review and trust; this installer never changes trust or permissions.")
-    print("Hook events show session activity, not foreground UI focus or automatic request savings.")
+    print(
+        "Codex requires /hooks review and trust; this installer never changes trust or permissions."
+    )
+    print(
+        "Hook events show session activity, not foreground UI focus or automatic request savings."
+    )
     return 0
 
 

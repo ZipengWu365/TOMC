@@ -56,7 +56,9 @@ def test_default_budget_keeps_most_of_a_long_history_and_short_ones_intact():
     result = prepare_context(lines, "Which items were reviewed?")
     assert tokens > MIN_DEFAULT_BUDGET
     assert result.compilation.stats.token_budget == default_budget(tokens)
-    assert tokens <= 10_000 and default_budget(tokens) == max(MIN_DEFAULT_BUDGET, -(-tokens * 8 // 10))
+    assert tokens <= 10_000 and default_budget(tokens) == max(
+        MIN_DEFAULT_BUDGET, -(-tokens * 8 // 10)
+    )
     assert result.compilation.stats.output_tokens <= result.compilation.stats.token_budget
     short = prepare_context("drink = tea", "current drink")
     assert short.compilation.stats.token_budget == MIN_DEFAULT_BUDGET

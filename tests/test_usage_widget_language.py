@@ -29,8 +29,15 @@ def app():
 
 
 def record(store, counter="fixture", before=1000, after=200):
-    store.record({"usable": True, "input_tokens": before, "memory_tokens": after,
-                  "reduced_tokens": before - after, "counter": counter})
+    store.record(
+        {
+            "usable": True,
+            "input_tokens": before,
+            "memory_tokens": after,
+            "reduced_tokens": before - after,
+            "counter": counter,
+        }
+    )
 
 
 @pytest.fixture
@@ -38,8 +45,11 @@ def widget(app, tmp_path, monkeypatch):
     path = tmp_path / "memory.sqlite3"
     UiLanguage(path).set_language("zh")
     record(UsageStore(path))
-    monkeypatch.setattr(usage_widget_qt, "load_pricing", lambda: {
-        "rate": 15, "label": "Opus 5.5", "model": "fixture", "mode": "input"})
+    monkeypatch.setattr(
+        usage_widget_qt,
+        "load_pricing",
+        lambda: {"rate": 15, "label": "Opus 5.5", "model": "fixture", "mode": "input"},
+    )
     widget = Companion(path, test_mode=True, connect_quota=False)
     widget.timer.stop()
     yield widget
@@ -49,8 +59,17 @@ def widget(app, tmp_path, monkeypatch):
 
 
 def main_texts(widget):
-    fields = [widget, widget.art, widget.card, widget.caption, widget.number, widget.latest,
-              widget.close_button, widget.progress, widget.details]
+    fields = [
+        widget,
+        widget.art,
+        widget.card,
+        widget.caption,
+        widget.number,
+        widget.latest,
+        widget.close_button,
+        widget.progress,
+        widget.details,
+    ]
     fields += widget.details.findChildren(QLabel) + widget.details.findChildren(QPushButton)
     texts = []
     for item in fields:
@@ -79,8 +98,11 @@ def test_background_session_switches_never_open_notices(widget, monkeypatch):
 
 def test_explicit_session_notices_once_per_host_and_id_preserve_policy(widget, monkeypatch):
     notices = []
-    monkeypatch.setattr(widget.session_notice, "present", lambda row: notices.append(
-        (row["host"], row["session_id"])))
+    monkeypatch.setattr(
+        widget.session_notice,
+        "present",
+        lambda row: notices.append((row["host"], row["session_id"])),
+    )
     for host, session_id, event in (
         ("codex", "same-id", "SessionStart"),
         ("claude", "same-id", "UserPromptSubmit"),
@@ -114,7 +136,8 @@ def test_user_submit_after_model_request_can_notify_without_identity_switch(widg
 
 @pytest.mark.parametrize("read_fails_initially", [False, True])
 def test_session_notice_startup_baseline_does_not_replay_old_event(
-        app, tmp_path, monkeypatch, read_fails_initially):
+    app, tmp_path, monkeypatch, read_fails_initially
+):
     from tomc.context_library_qt import SessionNotice
 
     path = tmp_path / "startup.sqlite3"
@@ -124,8 +147,10 @@ def test_session_notice_startup_baseline_does_not_replay_old_event(
     monkeypatch.setattr(usage_widget_qt, "load_pricing", lambda: None)
     original = SessionStore.active
     if read_fails_initially:
+
         def locked(self):
             raise sqlite3.OperationalError("fixture")
+
         monkeypatch.setattr(SessionStore, "active", locked)
     pet = Companion(path, test_mode=True, connect_quota=False)
     pet.timer.stop()
@@ -143,7 +168,9 @@ def test_session_notice_startup_baseline_does_not_replay_old_event(
         app.sendPostedEvents(None, QEvent.Type.DeferredDelete)
 
 
-def test_visible_language_switch_persists_without_touching_policy_or_replaying_animation(widget, app, monkeypatch):
+def test_visible_language_switch_persists_without_touching_policy_or_replaying_animation(
+    widget, app, monkeypatch
+):
     sessions = SessionStore(widget.store.path)
     sessions.register("codex", "fixture-session")
     sessions.set_enabled("codex", "fixture-session", False)
@@ -186,10 +213,15 @@ def test_money_is_secondary_and_mixed_counters_have_a_small_clear_label(widget):
 
 
 def test_live_quota_host_and_error_states_retranslate(widget, monkeypatch):
-    widget.details.set_quota({"status": "ready", "windows": [
-        {"bucket": "codex", "period": "5小时", "remaining": 72},
-        {"bucket": "codex", "period": "本周", "remaining": 84},
-    ]})
+    widget.details.set_quota(
+        {
+            "status": "ready",
+            "windows": [
+                {"bucket": "codex", "period": "5小时", "remaining": 72},
+                {"bucket": "codex", "period": "本周", "remaining": 84},
+            ],
+        }
+    )
     widget.set_ui_language("en")
     assert widget.details.quota_title.text() == "Codex 5 hours"
     assert "This week" in widget.details.quota_detail.text()
@@ -229,9 +261,14 @@ def test_unknown_busy_waits_for_real_context_length_then_animates_once(widget, m
     assert widget.art.phase is None and widget.art.level == 1
     assert not widget.animated_request_ids
     assert widget.materialization.opacity() == 1
-    widget.request_activity.finish("fixture-request", state="prepared", reason="fixture",
-                                   before_tokens=500000, after_tokens=200,
-                                   context_input_tokens=15000)
+    widget.request_activity.finish(
+        "fixture-request",
+        state="prepared",
+        reason="fixture",
+        before_tokens=500000,
+        after_tokens=200,
+        context_input_tokens=15000,
+    )
     widget.refresh_request_activity()
     assert widget.art.phase is not None and widget.art.level == 2
     animation_id = widget.request_animation_id
@@ -251,23 +288,39 @@ def test_unknown_busy_waits_for_real_context_length_then_animates_once(widget, m
     assert widget.materialization.opacity() == usage_widget_qt.request_stage(15000)["opacity"]
     played = []
     monkeypatch.setattr(widget.art, "collect", lambda: played.append(True))
-    widget.store.record({"request_id": "fixture-request", "usable": True,
-                         "input_tokens": 500000, "memory_tokens": 200,
-                         "reduced_tokens": 499800, "counter": "regex-request-json-v1",
-                         "context_input_tokens": 15000})
+    widget.store.record(
+        {
+            "request_id": "fixture-request",
+            "usable": True,
+            "input_tokens": 500000,
+            "memory_tokens": 200,
+            "reduced_tokens": 499800,
+            "counter": "regex-request-json-v1",
+            "context_input_tokens": 15000,
+        }
+    )
     widget.refresh()
     assert not played and widget.art.level == 2
 
 
-def test_expanded_many_counter_rows_scroll_without_clipping_on_small_screen(widget, app, monkeypatch):
+def test_expanded_many_counter_rows_scroll_without_clipping_on_small_screen(
+    widget, app, monkeypatch
+):
     widget.set_ui_language("en")
     summary = deepcopy(widget.summary)
     group = summary["by_counter"][0]
     summary["by_counter"] = [{**group, "counter": f"fixture-counter-{i}"} for i in range(20)]
-    monkeypatch.setattr(widget.details, "screen", lambda: SimpleNamespace(
-        availableGeometry=lambda: QRect(0, 0, 600, 550)))
-    widget.details.set_summary(summary, {"calls": 20},
-                               usage_widget_qt.growth_state(summary, widget.language), "Latest fixture")
+    monkeypatch.setattr(
+        widget.details,
+        "screen",
+        lambda: SimpleNamespace(availableGeometry=lambda: QRect(0, 0, 600, 550)),
+    )
+    widget.details.set_summary(
+        summary,
+        {"calls": 20},
+        usage_widget_qt.growth_state(summary, widget.language),
+        "Latest fixture",
+    )
     widget.details.info_button.setChecked(True)
     widget.details.show()
     app.processEvents()
@@ -275,14 +328,20 @@ def test_expanded_many_counter_rows_scroll_without_clipping_on_small_screen(widg
     app.processEvents()
     assert widget.details.height() <= 550 - 24
     assert widget.details.scope_area.verticalScrollBar().maximum() > 0
-    assert widget.details.rows.height() >= widget.details.rows.heightForWidth(widget.details.rows.width())
+    assert widget.details.rows.height() >= widget.details.rows.heightForWidth(
+        widget.details.rows.width()
+    )
     assert widget.details.language_buttons["en"].isVisible()
     assert widget.details.quit_button.isVisible()
 
 
-@pytest.mark.parametrize("length,level", [(0, 1), (9999, 1), (10000, 2), (99999, 2),
-                                          (100000, 3), (999999, 3), (1000000, 4)])
-def test_current_context_length_selects_stage_not_cumulative_totals(widget, monkeypatch, length, level):
+@pytest.mark.parametrize(
+    "length,level",
+    [(0, 1), (9999, 1), (10000, 2), (99999, 2), (100000, 3), (999999, 3), (1000000, 4)],
+)
+def test_current_context_length_selects_stage_not_cumulative_totals(
+    widget, monkeypatch, length, level
+):
     summary = deepcopy(widget.summary)
     summary["growth"] = [
         {"counter": "first-counter", "net_tokens": 90000000, "peak_net_tokens": 90000000},
@@ -309,11 +368,19 @@ def test_current_context_length_selects_stage_not_cumulative_totals(widget, monk
 
 def test_each_queued_report_uses_its_own_length_and_restores_latest_idle(widget, monkeypatch):
     lengths = [1000000, 9999, 100000, 10000]
-    reports = [{"usable": True, "input_tokens": 2000000, "memory_tokens": 200,
-                "reduced_tokens": 1999800, "counter": "regex-request-json-v1",
-                "context_input_tokens": length, "request_id": f"queued-{i}",
-                "animate_prepared": True}
-               for i, length in enumerate(lengths)]
+    reports = [
+        {
+            "usable": True,
+            "input_tokens": 2000000,
+            "memory_tokens": 200,
+            "reduced_tokens": 1999800,
+            "counter": "regex-request-json-v1",
+            "context_input_tokens": length,
+            "request_id": f"queued-{i}",
+            "animate_prepared": True,
+        }
+        for i, length in enumerate(lengths)
+    ]
     seen = []
 
     def collect():
@@ -338,10 +405,17 @@ def test_each_queued_report_uses_its_own_length_and_restores_latest_idle(widget,
 def test_unknown_replay_reports_counts_without_playing_another_compilation(widget, monkeypatch):
     played = []
     monkeypatch.setattr(widget.art, "collect", lambda: played.append(True))
-    widget.pending_reports.append({"request_id": "replay", "usable": True,
-                                   "input_tokens": 2000000, "memory_tokens": 200,
-                                   "reduced_tokens": 1999800, "counter": "regex-request-json-v1",
-                                   "context_input_tokens": None})
+    widget.pending_reports.append(
+        {
+            "request_id": "replay",
+            "usable": True,
+            "input_tokens": 2000000,
+            "memory_tokens": 200,
+            "reduced_tokens": 1999800,
+            "counter": "regex-request-json-v1",
+            "context_input_tokens": None,
+        }
+    )
     widget.start_collection()
     assert not played and not widget.animated_request_ids
     assert widget.art.level == 1
@@ -408,7 +482,9 @@ def test_mcp_burst_over_old_retention_limit_plays_every_event(widget, monkeypatc
     assert len(played) == 70
 
 
-def test_numeric_receipts_merge_with_prepared_queue_and_late_receipts_do_not_replay(widget, monkeypatch):
+def test_numeric_receipts_merge_with_prepared_queue_and_late_receipts_do_not_replay(
+    widget, monkeypatch
+):
     played = []
 
     def collect():
@@ -416,11 +492,21 @@ def test_numeric_receipts_merge_with_prepared_queue_and_late_receipts_do_not_rep
         widget.art.phase = 0
 
     monkeypatch.setattr(widget.art, "collect", collect)
-    prepared = {"request_id": "paired", "usable": True, "stage_only": True,
-                "context_input_tokens": 15000}
-    receipt = {"request_id": "paired", "usable": True, "input_tokens": 2000000,
-               "memory_tokens": 500, "reduced_tokens": 1999500,
-               "counter": "regex-request-json-v1", "context_input_tokens": 15000}
+    prepared = {
+        "request_id": "paired",
+        "usable": True,
+        "stage_only": True,
+        "context_input_tokens": 15000,
+    }
+    receipt = {
+        "request_id": "paired",
+        "usable": True,
+        "input_tokens": 2000000,
+        "memory_tokens": 500,
+        "reduced_tokens": 1999500,
+        "counter": "regex-request-json-v1",
+        "context_input_tokens": 15000,
+    }
     widget.enqueue_report(prepared)
     widget.enqueue_report(receipt)
     assert len(widget.pending_reports) == 1
@@ -439,9 +525,17 @@ def test_numeric_receipts_merge_with_prepared_queue_and_late_receipts_do_not_rep
 
 
 def test_transient_usage_read_failure_preserves_real_animation_queue(widget, monkeypatch):
-    widget.pending_reports.extend([
-        {"request_id": str(index), "usable": True, "stage_only": True,
-         "context_input_tokens": 15000} for index in range(2)])
+    widget.pending_reports.extend(
+        [
+            {
+                "request_id": str(index),
+                "usable": True,
+                "stage_only": True,
+                "context_input_tokens": 15000,
+            }
+            for index in range(2)
+        ]
+    )
     monkeypatch.setattr(widget.art, "collect", lambda: setattr(widget.art, "phase", 0))
     widget.start_collection()
 
@@ -456,17 +550,26 @@ def test_transient_usage_read_failure_preserves_real_animation_queue(widget, mon
 
 @pytest.mark.parametrize("active", [False, True])
 @pytest.mark.parametrize("receipt_length, expected", [(None, 15000), (100000, 100000)])
-def test_numeric_receipt_preserves_known_prepared_length(widget, monkeypatch, active,
-                                                        receipt_length, expected):
+def test_numeric_receipt_preserves_known_prepared_length(
+    widget, monkeypatch, active, receipt_length, expected
+):
     monkeypatch.setattr(widget.art, "collect", lambda: setattr(widget.art, "phase", 0))
-    widget.enqueue_report({"request_id": "paired", "usable": True, "stage_only": True,
-                           "context_input_tokens": 15000})
+    widget.enqueue_report(
+        {"request_id": "paired", "usable": True, "stage_only": True, "context_input_tokens": 15000}
+    )
     if active:
         widget.start_collection()
-    widget.enqueue_report({"request_id": "paired", "usable": True,
-                           "input_tokens": 2000000, "memory_tokens": 500,
-                           "reduced_tokens": 1999500, "counter": "regex-request-json-v1",
-                           "context_input_tokens": receipt_length})
+    widget.enqueue_report(
+        {
+            "request_id": "paired",
+            "usable": True,
+            "input_tokens": 2000000,
+            "memory_tokens": 500,
+            "reduced_tokens": 1999500,
+            "counter": "regex-request-json-v1",
+            "context_input_tokens": receipt_length,
+        }
+    )
     if not active:
         widget.start_collection()
     widget.restore_displayed_stage()
@@ -475,8 +578,9 @@ def test_numeric_receipt_preserves_known_prepared_length(widget, monkeypatch, ac
     assert widget.art.phase == 0
 
 
-def test_locked_startup_cursors_retry_baseline_without_replaying_history(app, tmp_path,
-                                                                        monkeypatch):
+def test_locked_startup_cursors_retry_baseline_without_replaying_history(
+    app, tmp_path, monkeypatch
+):
     path = tmp_path / "locked.sqlite3"
     record(UsageStore(path))
     activity = usage_widget_qt.RequestActivity(path)
@@ -525,9 +629,17 @@ def test_activity_read_failure_clears_stale_busy_and_preserves_animation(widget,
     assert widget.number.text() == "状态未知"
     assert widget.art.phase is None and widget.art.level == 1
     assert widget.materialization.opacity() == 0.35
-    widget.pending_reports.extend([
-        {"request_id": str(index), "usable": True, "stage_only": True,
-         "context_input_tokens": 15000} for index in range(2)])
+    widget.pending_reports.extend(
+        [
+            {
+                "request_id": str(index),
+                "usable": True,
+                "stage_only": True,
+                "context_input_tokens": 15000,
+            }
+            for index in range(2)
+        ]
+    )
     monkeypatch.setattr(widget.art, "collect", lambda: setattr(widget.art, "phase", 0))
     widget.refresh_request_activity()
     assert widget.art.phase == 0 and widget.art.level == 2

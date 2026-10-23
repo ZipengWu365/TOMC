@@ -23,8 +23,7 @@ _LABELS = {
 
 def _tomc(name, *, plugin=False):
     return isinstance(name, str) and (
-        name == "tomc-memory" or name.startswith("tomc-memory@")
-        or (not plugin and name == "tomc")
+        name == "tomc-memory" or name.startswith("tomc-memory@") or (not plugin and name == "tomc")
     )
 
 
@@ -62,8 +61,12 @@ def _summary(states, source_error=False):
     if state == "enabled" and (source_error or "unknown" in states):
         detail += "部分配置仍无法确认。"
     return {
-        "state": state, "label": _LABELS[state], "detail": detail,
-        "scope": "user", "runtime_verified": False, "project_scope": "unknown",
+        "state": state,
+        "label": _LABELS[state],
+        "detail": detail,
+        "scope": "user",
+        "runtime_verified": False,
+        "project_scope": "unknown",
     }
 
 
@@ -77,8 +80,9 @@ def get_integration_status(home=None):
         for name, settings in plugins.items():
             if _tomc(name, plugin=True):
                 enabled = settings.get("enabled") if isinstance(settings, dict) else None
-                states.append("enabled" if enabled is True else
-                              "disabled" if enabled is False else "unknown")
+                states.append(
+                    "enabled" if enabled is True else "disabled" if enabled is False else "unknown"
+                )
     else:
         codex_error = True
     codex_status = _summary(states, codex_error)
@@ -108,14 +112,16 @@ def get_integration_status(home=None):
     if isinstance(plugins, dict):
         for name, enabled in plugins.items():
             if _tomc(name, plugin=True):
-                states.append("enabled" if enabled is True else
-                              "disabled" if enabled is False else "unknown")
+                states.append(
+                    "enabled" if enabled is True else "disabled" if enabled is False else "unknown"
+                )
     else:
         settings_error = True
     mode = {
-            "id": "on_demand_tools", "label": "按需工具",
-            "detail": "全局配置使工具可用；仅在调用时准备上下文。自动全对话请求压缩尚未接入。",
-            "automatic_request_compression": False,
+        "id": "on_demand_tools",
+        "label": "按需工具",
+        "detail": "全局配置使工具可用；仅在调用时准备上下文。自动全对话请求压缩尚未接入。",
+        "automatic_request_compression": False,
     }
     gateway, gateway_error = _read(home / ".codex/tomc/gateway-routing.json")
     port = gateway.get("port")
@@ -124,23 +130,36 @@ def get_integration_status(home=None):
         routed = []
         if codex.get("openai_base_url") == f"http://127.0.0.1:{port}/codex":
             routed.append("codex")
-        if isinstance(env, dict) and env.get("ANTHROPIC_BASE_URL") == f"http://127.0.0.1:{port}/claude":
+        if (
+            isinstance(env, dict)
+            and env.get("ANTHROPIC_BASE_URL") == f"http://127.0.0.1:{port}/claude"
+        ):
             routed.append("claude")
         if routed:
             reload_detail = []
             if "claude" in routed:
                 reload_detail.append("Claude Code 用户设置支持热加载。")
             if "codex" in routed:
-                reload_detail.append("Codex 已打开的聊天需要正常退出并重开客户端一次，再继续原聊天。")
+                reload_detail.append(
+                    "Codex 已打开的聊天需要正常退出并重开客户端一次，再继续原聊天。"
+                )
             mode = {
-                "id": "automatic_request_gateway", "label": "自动压缩已配置",
-                "detail": "已配置用户级自动请求接入。" + "".join(reload_detail) +
-                          "每个现有会话是否接入，以后续请求活动为准。"
-                          "短历史和不支持的请求直接转发；关闭会话停止新编译。",
-                "automatic_request_compression": True, "configured_hosts": routed,
-                "runtime_verified": False, "gateway_port": port,
-                "client_reload": {host: "settings_env_hot_reload_supported" if host == "claude"
-                                  else "restart_or_new_thread_required" for host in routed},
+                "id": "automatic_request_gateway",
+                "label": "自动压缩已配置",
+                "detail": "已配置用户级自动请求接入。"
+                + "".join(reload_detail)
+                + "每个现有会话是否接入，以后续请求活动为准。"
+                "短历史和不支持的请求直接转发；关闭会话停止新编译。",
+                "automatic_request_compression": True,
+                "configured_hosts": routed,
+                "runtime_verified": False,
+                "gateway_port": port,
+                "client_reload": {
+                    host: "settings_env_hot_reload_supported"
+                    if host == "claude"
+                    else "restart_or_new_thread_required"
+                    for host in routed
+                },
             }
     return {
         "mode": mode,

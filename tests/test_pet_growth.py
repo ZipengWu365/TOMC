@@ -7,8 +7,13 @@ from tomc.usage import UsageStore
 
 
 def report(before, after, usable=True, counter="estimate"):
-    return {"counter": counter, "input_tokens": before, "memory_tokens": after,
-            "usable": usable, "reduced_tokens": before-after if usable else None}
+    return {
+        "counter": counter,
+        "input_tokens": before,
+        "memory_tokens": after,
+        "usable": usable,
+        "reduced_tokens": before - after if usable else None,
+    }
 
 
 def test_form_uses_this_input_and_can_decrease_after_restart(tmp_path):
@@ -28,10 +33,20 @@ def test_form_uses_this_input_and_can_decrease_after_restart(tmp_path):
     assert growth_state(store.summary("today")) == growth_state(store.summary("7d"))
 
 
-@pytest.mark.parametrize("tokens,level", [
-    (0, 1), (5000, 1), (9999, 1), (10000, 2), (99999, 2),
-    (100000, 3), (999999, 3), (1000000, 4), (2000000, 4),
-])
+@pytest.mark.parametrize(
+    "tokens,level",
+    [
+        (0, 1),
+        (5000, 1),
+        (9999, 1),
+        (10000, 2),
+        (99999, 2),
+        (100000, 3),
+        (999999, 3),
+        (1000000, 4),
+        (2000000, 4),
+    ],
+)
 def test_input_length_boundaries_keep_four_original_assets(tokens, level):
     state = request_stage(tokens)
     assert state["level"] == level and state["length_known"]
@@ -44,11 +59,18 @@ def test_input_length_boundaries_keep_four_original_assets(tokens, level):
 
 
 def test_totals_peaks_reduction_and_other_counters_do_not_choose_form():
-    summary = {"growth": [
-        {"counter": "estimate", "peak_net_tokens": 50_000_000, "net_tokens": 50_000_000},
-        {"counter": "tokenizer", "peak_net_tokens": 60_000_000, "net_tokens": 60_000_000}],
-        "last_preparation": {"counter": "estimate", "input_tokens": 10_000,
-                             "reduced_tokens": 1, "usable": True}}
+    summary = {
+        "growth": [
+            {"counter": "estimate", "peak_net_tokens": 50_000_000, "net_tokens": 50_000_000},
+            {"counter": "tokenizer", "peak_net_tokens": 60_000_000, "net_tokens": 60_000_000},
+        ],
+        "last_preparation": {
+            "counter": "estimate",
+            "input_tokens": 10_000,
+            "reduced_tokens": 1,
+            "usable": True,
+        },
+    }
     state = growth_state(summary)
     assert state["level"] == 2 and state["input_tokens"] == 10_000
     assert state["opacity"] == 0.58 and state["progress"] == 0
@@ -58,7 +80,8 @@ def test_totals_peaks_reduction_and_other_counters_do_not_choose_form():
     english = growth_state(summary, "en")
     assert "90,000 more input tokens in this request" in english["hint"]
     assert {k: v for k, v in state.items() if k != "hint"} == {
-        k: v for k, v in english.items() if k != "hint"}
+        k: v for k, v in english.items() if k != "hint"
+    }
 
 
 @pytest.mark.parametrize("length", [None, -1, True, "1000000", 1.5, float("nan")])
@@ -95,9 +118,16 @@ def test_gateway_envelope_length_is_never_used_as_context_length(counter):
 
 
 def test_explicit_context_length_takes_priority_for_ordinary_preparations_too():
-    state = growth_state({"last_preparation": {
-        "counter": "regex-v1 (estimate)", "input_tokens": 1_000_000,
-        "context_input_tokens": 100_000, "usable": True}})
+    state = growth_state(
+        {
+            "last_preparation": {
+                "counter": "regex-v1 (estimate)",
+                "input_tokens": 1_000_000,
+                "context_input_tokens": 100_000,
+                "usable": True,
+            }
+        }
+    )
     assert state["level"] == 3 and state["input_tokens"] == 100_000
 
 
@@ -105,7 +135,7 @@ def test_numeric_animation_queue_is_ordered_paged_and_read_only(tmp_path):
     store = UsageStore(tmp_path / "events.sqlite3")
     assert store.recent_events() == [] and not store.path.exists()
     for i in range(70):
-        store.record(report(100+i, 10))
+        store.record(report(100 + i, 10))
     # A burst is never silently truncated: every event can play once, in order.
     events = store.recent_events()
     assert [event["seq"] for event in events] == list(range(1, 71))

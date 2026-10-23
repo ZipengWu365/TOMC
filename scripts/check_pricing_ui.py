@@ -19,13 +19,22 @@ from tomc.usage import UsageStore  # noqa: E402
 out = Path(sys.argv[1]).resolve()
 out.mkdir(parents=True, exist_ok=False)
 config = out / "pricing.json"
-config.write_text(json.dumps({"provider": "anthropic", "model": "claude-opus-5-5", "variant": "standard"}))
+config.write_text(
+    json.dumps({"provider": "anthropic", "model": "claude-opus-5-5", "variant": "standard"})
+)
 ui.load_pricing = lambda: load_pricing(config)
 app = QApplication([])
 ui.load_preview_fonts()
 store = UsageStore(out / "test.sqlite3")
-store.record({"counter": "demo-estimate", "usable": True, "input_tokens": 100_000,
-              "memory_tokens": 0, "reduced_tokens": 100_000})
+store.record(
+    {
+        "counter": "demo-estimate",
+        "usable": True,
+        "input_tokens": 100_000,
+        "memory_tokens": 0,
+        "reduced_tokens": 100_000,
+    }
+)
 pet = ui.Companion(store.path, test_mode=True, connect_quota=False)
 pet.show()
 pet.toggle_details()
@@ -60,7 +69,17 @@ app.processEvents()
 assert "没有测量" in sheet.story.toPlainText()
 sheet.grab().save(str(out / "story.png"))
 pet.close()
-(out / "validation.json").write_text(json.dumps({"switch_model": True, "cached_rate": True,
-    "unknown_model_unpriced": True, "compact_panel_width": 240,
-    "production_statistics_written": False, "desktop_control": False}, indent=2))
+(out / "validation.json").write_text(
+    json.dumps(
+        {
+            "switch_model": True,
+            "cached_rate": True,
+            "unknown_model_unpriced": True,
+            "compact_panel_width": 240,
+            "production_statistics_written": False,
+            "desktop_control": False,
+        },
+        indent=2,
+    )
+)
 print(f"Pricing UI checks passed: {out}")

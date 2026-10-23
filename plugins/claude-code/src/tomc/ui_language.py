@@ -18,10 +18,20 @@ def system_language() -> str:
 def ui_font(point_size: int = 9) -> QFont:
     """Prefer a font with CJK coverage; keep Latin and cross-platform fallbacks."""
     font = QFont()
-    font.setFamilies(["Microsoft YaHei UI", "Microsoft YaHei", "Noto Sans CJK SC",
-                      "PingFang SC", "Segoe UI", "sans-serif"])
+    font.setFamilies(
+        [
+            "Microsoft YaHei UI",
+            "Microsoft YaHei",
+            "Noto Sans CJK SC",
+            "PingFang SC",
+            "Segoe UI",
+            "sans-serif",
+        ]
+    )
     font.setPointSize(point_size)
-    font.setStyleStrategy(QFont.StyleStrategy.PreferAntialias | QFont.StyleStrategy.NoSubpixelAntialias)
+    font.setStyleStrategy(
+        QFont.StyleStrategy.PreferAntialias | QFont.StyleStrategy.NoSubpixelAntialias
+    )
     return font
 
 
@@ -63,8 +73,14 @@ class UiLanguage(QObject):
         self.path.parent.mkdir(parents=True, exist_ok=True)
         temporary = None
         try:
-            with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", dir=self.path.parent,
-                                             prefix=".ui-settings-", suffix=".tmp", delete=False) as handle:
+            with tempfile.NamedTemporaryFile(
+                mode="w",
+                encoding="utf-8",
+                dir=self.path.parent,
+                prefix=".ui-settings-",
+                suffix=".tmp",
+                delete=False,
+            ) as handle:
                 temporary = Path(handle.name)
                 json.dump(settings, handle, ensure_ascii=False, indent=2)
                 handle.write("\n")

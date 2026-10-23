@@ -120,8 +120,14 @@ def test_global_settings_preserve_the_other_switch(tmp_path):
 def test_concurrent_writers_keep_all_sessions_and_monotonic_switches(tmp_path):
     path = tmp_path / "memory.sqlite3"
     with ThreadPoolExecutor(max_workers=8) as workers:
-        rows = list(workers.map(lambda number: SessionStore(path).register(
-            "codex", f"thread-{number}", title=f"任务 {number}"), range(40)))
+        rows = list(
+            workers.map(
+                lambda number: SessionStore(path).register(
+                    "codex", f"thread-{number}", title=f"任务 {number}"
+                ),
+                range(40),
+            )
+        )
     store = SessionStore(path)
     assert len(rows) == len(store.list()) == 40
     assert store.active()["event_seq"] == 40
@@ -139,7 +145,9 @@ def test_existing_notebook_table_is_untouched(tmp_path):
     assert store.get("codex", "missing") is None
     assert not store.requires_identity()
     with sqlite3.connect(path) as db:
-        assert db.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall() == [("entries",)]
+        assert db.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall() == [
+            ("entries",)
+        ]
     store.register("codex", "a")
     with sqlite3.connect(path) as db:
         assert db.execute("SELECT * FROM entries").fetchall() == [("existing note",)]

@@ -26,7 +26,12 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from urllib.request import ProxyHandler, build_opener
 
-MODULES = ("request_gateway.py", "responses_request.py", "anthropic_request.py", "request_activity.py")
+MODULES = (
+    "request_gateway.py",
+    "responses_request.py",
+    "anthropic_request.py",
+    "request_activity.py",
+)
 
 
 def _sha(path: Path) -> str | None:
@@ -38,23 +43,33 @@ def _stamp() -> str:
 
 
 def _powershell(command: str) -> str:
-    return subprocess.run(["powershell", "-NoProfile", "-NonInteractive", "-Command", command],
-                          capture_output=True, text=True, timeout=60).stdout.strip()
+    return subprocess.run(
+        ["powershell", "-NoProfile", "-NonInteractive", "-Command", command],
+        capture_output=True,
+        text=True,
+        timeout=60,
+    ).stdout.strip()
 
 
 def listener_pid(port: int) -> int | None:
-    value = _powershell(f"(Get-NetTCPConnection -LocalAddress 127.0.0.1 -LocalPort {port} -State Listen "
-                        "-ErrorAction SilentlyContinue | Select-Object -First 1).OwningProcess")
+    value = _powershell(
+        f"(Get-NetTCPConnection -LocalAddress 127.0.0.1 -LocalPort {port} -State Listen "
+        "-ErrorAction SilentlyContinue | Select-Object -First 1).OwningProcess"
+    )
     return int(value) if value.isdigit() else None
 
 
 def command_line(pid: int) -> str:
-    return _powershell(f'(Get-CimInstance Win32_Process -Filter "ProcessId={int(pid)}").CommandLine')
+    return _powershell(
+        f'(Get-CimInstance Win32_Process -Filter "ProcessId={int(pid)}").CommandLine'
+    )
 
 
 def healthy(port: int) -> bool:
     try:
-        with build_opener(ProxyHandler({})).open(f"http://127.0.0.1:{port}/health", timeout=1) as response:
+        with build_opener(ProxyHandler({})).open(
+            f"http://127.0.0.1:{port}/health", timeout=1
+        ) as response:
             data = json.loads(response.read(4096))
         return data.get("service") == "tomc-gateway" and data.get("ready") is True
     except (OSError, ValueError):
@@ -72,7 +87,9 @@ def pending_requests(store: Path, minutes: int = 10) -> int:
         return db.execute(
             "SELECT COUNT(*) FROM tomc_request_activity WHERE "
             "(sent=1 AND state IN ('forwarded','passthrough') AND provider_input_tokens IS NULL "
-            "AND started_utc>=?) OR (state='preparing' AND started_utc>=?)", (cutoff, preparing)).fetchone()[0]
+            "AND started_utc>=?) OR (state='preparing' AND started_utc>=?)",
+            (cutoff, preparing),
+        ).fetchone()[0]
     finally:
         db.close()
 
@@ -86,9 +103,18 @@ def import_check(runtime: Path, replacements: dict[str, bytes]) -> None:
         for name, data in replacements.items():
             (package / name).write_bytes(data)
         names = ", ".join(f"tomc.{Path(name).stem}" for name in MODULES)
-        result = subprocess.run([str(python), "-I", "-B", "-c",
-                                 f"import sys; sys.path.insert(0, {str(staged)!r}); import {names}"],
-                                capture_output=True, text=True, timeout=120)
+        result = subprocess.run(
+            [
+                str(python),
+                "-I",
+                "-B",
+                "-c",
+                f"import sys; sys.path.insert(0, {str(staged)!r}); import {names}",
+            ],
+            capture_output=True,
+            text=True,
+            timeout=120,
+        )
         if result.returncode != 0:
             raise RuntimeError("Staged import check failed:\n" + result.stderr[-2000:])
 
@@ -117,10 +143,18 @@ def restart_service(runtime: Path, port: int, timeout: float = 45) -> dict:
         except (OSError, ValueError):
             continue
         listener = listener_pid(port)
-        if (int(current.get("service_pid", service)) != service and listener
-                and listener != before_listener and healthy(port)):
-            return {"previous_service_pid": service, "service_pid": int(current["service_pid"]),
-                    "previous_listener_pid": before_listener, "listener_pid": listener}
+        if (
+            int(current.get("service_pid", service)) != service
+            and listener
+            and listener != before_listener
+            and healthy(port)
+        ):
+            return {
+                "previous_service_pid": service,
+                "service_pid": int(current["service_pid"]),
+                "previous_listener_pid": before_listener,
+                "listener_pid": listener,
+            }
     raise RuntimeError("The gateway did not come back healthy with a new listener in time")
 
 
@@ -131,15 +165,26 @@ def apply(runtime: Path, files: dict[str, bytes], label: str) -> dict:
     package = runtime / "src/tomc"
     backup = runtime / "backups" / f"{label}-{_stamp()}"
     backup.mkdir(parents=True)
-    receipt = {"format": "tomc-gateway-module-patch-v1", "created_utc": datetime.now(timezone.utc).isoformat(),
-               "runtime": str(runtime), "backup": str(backup), "status": "pending", "modules": []}
+    receipt = {
+        "format": "tomc-gateway-module-patch-v1",
+        "created_utc": datetime.now(timezone.utc).isoformat(),
+        "runtime": str(runtime),
+        "backup": str(backup),
+        "status": "pending",
+        "modules": [],
+    }
     for name, data in files.items():
         current = package / name
         if current.is_file():
             shutil.copyfile(current, backup / name)
-        receipt["modules"].append({"module": f"src/tomc/{name}", "before_sha256": _sha(current),
-                                   "after_sha256": hashlib.sha256(data).hexdigest(),
-                                   "backed_up": current.is_file()})
+        receipt["modules"].append(
+            {
+                "module": f"src/tomc/{name}",
+                "before_sha256": _sha(current),
+                "after_sha256": hashlib.sha256(data).hexdigest(),
+                "backed_up": current.is_file(),
+            }
+        )
     receipt_path = backup / "patch-receipt.json"
     receipt_path.write_text(json.dumps(receipt, indent=2), encoding="utf-8")
     try:
@@ -172,30 +217,58 @@ def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--runtime", type=Path, required=True)
     parser.add_argument("--source", type=Path, default=Path(__file__).resolve().parents[1])
-    parser.add_argument("--module", action="append", help="Module name under src/tomc (default: gateway set)")
+    parser.add_argument(
+        "--module", action="append", help="Module name under src/tomc (default: gateway set)"
+    )
     parser.add_argument("--label", default="modules")
     parser.add_argument("--install", action="store_true")
-    parser.add_argument("--rollback", type=Path, help="Backup directory written by an earlier --install")
-    parser.add_argument("--wait", type=int, default=120, help="Seconds to wait for in-flight requests")
-    parser.add_argument("--force", action="store_true", help="Restart even if requests look in flight")
+    parser.add_argument(
+        "--rollback", type=Path, help="Backup directory written by an earlier --install"
+    )
+    parser.add_argument(
+        "--wait", type=int, default=120, help="Seconds to wait for in-flight requests"
+    )
+    parser.add_argument(
+        "--force", action="store_true", help="Restart even if requests look in flight"
+    )
     args = parser.parse_args(argv)
     runtime = args.runtime.resolve()
     if args.rollback:
         backup = args.rollback.resolve()
         receipt = json.loads((backup / "patch-receipt.json").read_text(encoding="utf-8"))
-        files = {Path(m["module"]).name: (backup / Path(m["module"]).name).read_bytes()
-                 for m in receipt["modules"] if m["backed_up"]}
+        files = {
+            Path(m["module"]).name: (backup / Path(m["module"]).name).read_bytes()
+            for m in receipt["modules"]
+            if m["backed_up"]
+        }
         label = "rollback"
     else:
         names = args.module or list(MODULES)
         files = {name: (args.source / "src/tomc" / name).read_bytes() for name in names}
         label = args.label
-    plan = {name: {"current_sha256": _sha(runtime / "src/tomc" / name),
-                   "new_sha256": hashlib.sha256(data).hexdigest()} for name, data in files.items()}
-    changed = {name: data for name, data in files.items()
-               if plan[name]["current_sha256"] != plan[name]["new_sha256"]}
-    print(json.dumps({"mode": "install" if args.install or args.rollback else "preview",
-                      "runtime": str(runtime), "changed": sorted(changed), "plan": plan}, indent=2))
+    plan = {
+        name: {
+            "current_sha256": _sha(runtime / "src/tomc" / name),
+            "new_sha256": hashlib.sha256(data).hexdigest(),
+        }
+        for name, data in files.items()
+    }
+    changed = {
+        name: data
+        for name, data in files.items()
+        if plan[name]["current_sha256"] != plan[name]["new_sha256"]
+    }
+    print(
+        json.dumps(
+            {
+                "mode": "install" if args.install or args.rollback else "preview",
+                "runtime": str(runtime),
+                "changed": sorted(changed),
+                "plan": plan,
+            },
+            indent=2,
+        )
+    )
     if not (args.install or args.rollback) or not changed:
         return 0
     import_check(runtime, changed)

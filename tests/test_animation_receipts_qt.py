@@ -41,8 +41,10 @@ def widget(app, tmp_path, monkeypatch):
 
 
 def events(widget, request_id):
-    return [(row["event"], row.get("stage"), row.get("reason"))
-            for row in widget.receipts.read([request_id])]
+    return [
+        (row["event"], row.get("stage"), row.get("reason"))
+        for row in widget.receipts.read([request_id])
+    ]
 
 
 def prepare(widget, request_id, length):
@@ -50,7 +52,9 @@ def prepare(widget, request_id, length):
     widget.request_activity.finish(request_id, state="prepared", context_input_tokens=length)
 
 
-def test_prepared_request_leaves_queued_started_completed_and_late_usage_is_skipped(widget, monkeypatch):
+def test_prepared_request_leaves_queued_started_completed_and_late_usage_is_skipped(
+    widget, monkeypatch
+):
     monkeypatch.setattr(widget.art, "collect", lambda: setattr(widget.art, "phase", 0))
     prepare(widget, "real-1", 250_000)
     widget.refresh_request_activity()
@@ -60,15 +64,31 @@ def test_prepared_request_leaves_queued_started_completed_and_late_usage_is_skip
     widget.hide_report()
     assert events(widget, "real-1")[-1] == ("completed", 3, None)
     # The numeric usage receipt for the same request must not replay the animation.
-    widget.enqueue_report({"request_id": "real-1", "usable": True, "input_tokens": 300000,
-                           "memory_tokens": 90000, "reduced_tokens": 210000,
-                           "counter": "regex-request-json-v1", "context_input_tokens": 250_000})
+    widget.enqueue_report(
+        {
+            "request_id": "real-1",
+            "usable": True,
+            "input_tokens": 300000,
+            "memory_tokens": 90000,
+            "reduced_tokens": 210000,
+            "counter": "regex-request-json-v1",
+            "context_input_tokens": 250_000,
+        }
+    )
     widget.start_collection()
     assert events(widget, "real-1")[-1] == ("skipped", 3, "already_animated")
     receipts = widget.receipts.read(["real-1"])
     assert all(row["demo"] is True for row in receipts)  # This fixture runs in test mode.
     assert {key for row in receipts for key in row} <= {
-        "utc", "event", "request_id", "ui", "stage", "context_input_tokens", "reason", "demo"}
+        "utc",
+        "event",
+        "request_id",
+        "ui",
+        "stage",
+        "context_input_tokens",
+        "reason",
+        "demo",
+    }
 
 
 def test_shorter_next_request_steps_down_and_each_plays_once(widget, monkeypatch):
@@ -98,7 +118,10 @@ def test_closing_mid_animation_is_recorded_and_a_new_ui_does_not_replay(app, tmp
     pet.deleteLater()
     app.sendPostedEvents(None, QEvent.Type.DeferredDelete)
     assert [row["event"] for row in AnimationReceipts(tmp_path).read(["cut"])] == [
-        "queued", "started", "interrupted"]
+        "queued",
+        "started",
+        "interrupted",
+    ]
     again = Companion(path, test_mode=True, connect_quota=False)
     again.timer.stop()
     try:
@@ -112,23 +135,38 @@ def test_closing_mid_animation_is_recorded_and_a_new_ui_does_not_replay(app, tmp
 
 
 def test_status_names_host_compaction_separately_from_tomc_work():
-    state = {"state": "passthrough", "sent": True, "reason": "native_compaction_state",
-             "protocol_detail": {"compaction_items": 1, "window": 2, "agent": "subagent"}}
+    state = {
+        "state": "passthrough",
+        "sent": True,
+        "reason": "native_compaction_state",
+        "protocol_detail": {"compaction_items": 1, "window": 2, "agent": "subagent"},
+    }
     zh = request_activity_text(state, "zh")
     assert "宿主原生管理" in zh and "TOMC 本次未压缩" in zh
     assert "压缩代次 2" in zh and "1 个不透明状态项" in zh and "子代理" in zh
     en = request_activity_text(state, "en")
-    assert "Host-managed" in en and "compaction generation 2" in en and "1 opaque state item(s)" in en
-    compaction = {"state": "passthrough", "sent": True, "reason": "host_compaction_request",
-                  "protocol_detail": {"compaction_trigger": "auto", "compaction_phase": "pre_turn"}}
+    assert (
+        "Host-managed" in en and "compaction generation 2" in en and "1 opaque state item(s)" in en
+    )
+    compaction = {
+        "state": "passthrough",
+        "sent": True,
+        "reason": "host_compaction_request",
+        "protocol_detail": {"compaction_trigger": "auto", "compaction_phase": "pre_turn"},
+    }
     assert request_activity_text(compaction, "en") == (
         "Request forwarded unchanged · The host's own compaction request; TOMC not involved"
-        " · automatic, before the turn")
+        " · automatic, before the turn"
+    )
     assert "自动，回合开始前" in request_activity_text(compaction, "zh")
-    assert request_activity_text({"state": "failed", "reason": "client_disconnected"}, "en") == \
-        "Request cancelled or disconnected by the host"
+    assert (
+        request_activity_text({"state": "failed", "reason": "client_disconnected"}, "en")
+        == "Request cancelled or disconnected by the host"
+    )
     assert "上游连接或响应中断" in request_activity_text(
-        {"state": "failed", "reason": "upstream_transport_failed"}, "zh")
+        {"state": "failed", "reason": "upstream_transport_failed"}, "zh"
+    )
     # Historical rows written before the split keep their original wording.
     assert "Host native compaction retained" in request_activity_text(
-        {"state": "passthrough", "sent": True, "reason": "native_compaction"}, "en")
+        {"state": "passthrough", "sent": True, "reason": "native_compaction"}, "en"
+    )

@@ -41,20 +41,31 @@ def plan_refresh(home: Path | str, port: int = 43187) -> UpdatePlan:
     if before is None:
         raise ValueError("An existing Claude settings file is required.")
     try:
-        original = json.loads(before.decode("utf-8-sig"), object_pairs_hook=_unique_object,
-                              parse_constant=_invalid_constant)
+        original = json.loads(
+            before.decode("utf-8-sig"),
+            object_pairs_hook=_unique_object,
+            parse_constant=_invalid_constant,
+        )
     except (UnicodeError, json.JSONDecodeError) as error:
         raise ValueError("Claude settings must be valid UTF-8 JSON.") from error
     env = original.get("env") if isinstance(original, dict) else None
     if not isinstance(env, dict) or not all(key in env for key in KEYS):
-        raise ValueError("Both existing TOMC environment entries are required; use the installer for initial setup.")
+        raise ValueError(
+            "Both existing TOMC environment entries are required; use the installer for initial setup."
+        )
     existing = env[KEYS[0]]
     if not isinstance(existing, str):
         raise ValueError("The existing TOMC base URL must be a string.")
     parsed = urlsplit(existing)
-    if (parsed.scheme != "http" or parsed.hostname not in {"127.0.0.1", "localhost", "::1"}
-            or parsed.path.rstrip("/") != "/claude" or parsed.username or parsed.password
-            or parsed.query or parsed.fragment):
+    if (
+        parsed.scheme != "http"
+        or parsed.hostname not in {"127.0.0.1", "localhost", "::1"}
+        or parsed.path.rstrip("/") != "/claude"
+        or parsed.username
+        or parsed.password
+        or parsed.query
+        or parsed.fragment
+    ):
         raise ValueError("Refusing to replace a non-TOMC or credential-bearing upstream.")
     target = f"http://127.0.0.1:{port}/claude"
     updated = copy.deepcopy(original)
@@ -66,12 +77,17 @@ def plan_refresh(home: Path | str, port: int = 43187) -> UpdatePlan:
         if before.startswith(b"\xef\xbb\xbf"):
             after = b"\xef\xbb\xbf" + after
         changes = (FileChange(relative, before, after),)
-    return UpdatePlan(home, Path(__file__).resolve().parents[1], changes, (
-        "Only the two existing TOMC routing entries can change; all other JSON values are preserved.",
-        "Matching values are not rewritten merely to alter the file timestamp.",
-        "Claude Code supports settings env reload; a session's next observed request must verify routing.",
-        "Host-managed routing and Claude Desktop can override or ignore these settings.",
-    ))
+    return UpdatePlan(
+        home,
+        Path(__file__).resolve().parents[1],
+        changes,
+        (
+            "Only the two existing TOMC routing entries can change; all other JSON values are preserved.",
+            "Matching values are not rewritten merely to alter the file timestamp.",
+            "Claude Code supports settings env reload; a session's next observed request must verify routing.",
+            "Host-managed routing and Claude Desktop can override or ignore these settings.",
+        ),
+    )
 
 
 def main(argv=None):
@@ -80,7 +96,11 @@ def main(argv=None):
     parser.add_argument("--port", type=int, default=43187)
     mode = parser.add_mutually_exclusive_group()
     mode.add_argument("--dry-run", action="store_true", help="Preview only (the default).")
-    mode.add_argument("--apply", action="store_true", help="Back up and atomically correct differing TOMC entries.")
+    mode.add_argument(
+        "--apply",
+        action="store_true",
+        help="Back up and atomically correct differing TOMC entries.",
+    )
     args = parser.parse_args(argv)
     try:
         plan = plan_refresh(args.home, args.port)
@@ -89,8 +109,12 @@ def main(argv=None):
             before = json.loads(plan.changes[0].before.decode("utf-8-sig"))["env"]
             after = json.loads(plan.changes[0].after.decode("utf-8-sig"))["env"]
             changed_keys = [key for key in KEYS if before[key] != after[key]]
-        output = {"mode": "apply" if args.apply else "dry-run", "changed_keys": changed_keys,
-                  "status": "changes_planned" if plan.changes else "unchanged", "notes": plan.notes}
+        output = {
+            "mode": "apply" if args.apply else "dry-run",
+            "changed_keys": changed_keys,
+            "status": "changes_planned" if plan.changes else "unchanged",
+            "notes": plan.notes,
+        }
         if args.apply:
             result = install(plan)
             output.update(status=result["status"], receipt=result.get("receipt"))

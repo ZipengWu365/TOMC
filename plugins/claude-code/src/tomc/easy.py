@@ -43,7 +43,9 @@ def default_budget(history_tokens: int) -> int:
     The kept amount still grows with the history: a longer one never gets a smaller budget.
     """
     # The epsilon absorbs float noise such as 100,000 * 0.7 = 70,000.00000000001.
-    return max(MIN_DEFAULT_BUDGET, math.ceil(history_tokens * default_keep_ratio(history_tokens) - 1e-9))
+    return max(
+        MIN_DEFAULT_BUDGET, math.ceil(history_tokens * default_keep_ratio(history_tokens) - 1e-9)
+    )
 
 
 def prepare_context(history: object, task: str, budget: int | None = None) -> PreparedContext:

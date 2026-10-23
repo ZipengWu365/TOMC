@@ -74,7 +74,9 @@ def test_stdio_memory_roundtrip(tmp_path):
             assert prepared["context_reduction"]["recorded"]
             assert prepared["context_record"]["status"] == "saved"
             snapshot_id = prepared["context_record"]["id"]
-            assert (await call(client, "get_context", {"context_id": snapshot_id}))["memory"] == "A temporary note"
+            assert (await call(client, "get_context", {"context_id": snapshot_id}))[
+                "memory"
+            ] == "A temporary note"
             prompt = await call(client, "make_handoff", {"context_id": snapshot_id})
             assert "A temporary note" in prompt["prompt"]
             assert len((await call(client, "list_contexts"))["contexts"]) == 2
@@ -106,16 +108,22 @@ def test_session_pause_and_recording_are_independent(tmp_path):
     sessions.set_enabled("codex", "chat-a", False)
 
     async def run():
-        params = StdioServerParameters(command=sys.executable,
-                                      args=["-m", "tomc", "mcp", "--store", str(database)])
+        params = StdioServerParameters(
+            command=sys.executable, args=["-m", "tomc", "mcp", "--store", str(database)]
+        )
         async with connected(params) as client:
+
             async def call(tool, args=None):
                 result = await client.call_tool(tool, args)
                 assert not result.isError, result
                 return json.loads(result.content[0].text)
 
-            arguments = {"history": "project = TOMC", "task": "Continue project",
-                         "tomc_host": "codex", "tomc_session_id": "chat-a"}
+            arguments = {
+                "history": "project = TOMC",
+                "task": "Continue project",
+                "tomc_host": "codex",
+                "tomc_session_id": "chat-a",
+            }
             assert (await call("prepare_context", arguments))["status"] == "paused"
             assert (await call("get_usage_stats"))["preparations"] == 0
             assert (await call("list_contexts"))["contexts"] == []
@@ -138,7 +146,9 @@ def test_session_pause_and_recording_are_independent(tmp_path):
             sessions.update_settings(enabled=False)
             assert (await call("prepare_context", arguments))["status"] == "paused"
             assert (await call("get_usage_stats"))["preparations"] == 3
-            unknown = await client.call_tool("prepare_context", {**arguments, "tomc_session_id": "missing"})
+            unknown = await client.call_tool(
+                "prepare_context", {**arguments, "tomc_session_id": "missing"}
+            )
             assert unknown.isError
 
     asyncio.run(run())

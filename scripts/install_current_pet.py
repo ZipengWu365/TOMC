@@ -12,10 +12,21 @@ BASE = Path.home() / ".codex/tomc"
 RUNTIME = BASE / "pet-current"
 STAMP = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
 BACKUP = BASE / "archive" / ("pet-entrypoints-" + STAMP)
-UI_MODULES = ("usage_widget.py", "usage_widget_qt.py", "pet_art.py", "pet_growth.py",
-              "quota.py", "quota_qt.py", "cost_estimate.py", "oasis_qt.py",
-              "pricing_catalog.py", "pricing_qt.py", "model_detection.py", "impact_story.py",
-              "ui_language.py")
+UI_MODULES = (
+    "usage_widget.py",
+    "usage_widget_qt.py",
+    "pet_art.py",
+    "pet_growth.py",
+    "quota.py",
+    "quota_qt.py",
+    "cost_estimate.py",
+    "oasis_qt.py",
+    "pricing_catalog.py",
+    "pricing_qt.py",
+    "model_detection.py",
+    "impact_story.py",
+    "ui_language.py",
+)
 
 
 def backup(path):
@@ -35,17 +46,24 @@ def main():
     catalog = sync()
     detected, settings = install_detection()
     # A self-contained UI runtime; no dependency on the mutable project checkout.
-    shutil.copytree(source, RUNTIME / "src/tomc", dirs_exist_ok=True,
-                    ignore=shutil.ignore_patterns("__pycache__", "*.pyc", "pocket-*.png",
-                                                 "tomc-head-*.png", "plush-cat-head.png"))
+    shutil.copytree(
+        source,
+        RUNTIME / "src/tomc",
+        dirs_exist_ok=True,
+        ignore=shutil.ignore_patterns(
+            "__pycache__", "*.pyc", "pocket-*.png", "tomc-head-*.png", "plush-cat-head.png"
+        ),
+    )
     (RUNTIME / "scripts").mkdir(parents=True, exist_ok=True)
     shutil.copy2(ROOT / "scripts/desktop_pet_evolution.py", RUNTIME / "scripts")
     for name in ("pet.pyw", "pocket.pyw", "hourglass.pyw"):
         backup(BASE / name)
     shutil.copy2(ROOT / "scripts/pet_launcher.pyw", BASE / "pet.pyw")
-    shim = ('"""Compatibility entry: always launch the current TOMC cat head."""\n'
-            'import runpy\nfrom pathlib import Path\n'
-            'runpy.run_path(str(Path(__file__).parent / "pet.pyw"), run_name="__main__")\n')
+    shim = (
+        '"""Compatibility entry: always launch the current TOMC cat head."""\n'
+        "import runpy\nfrom pathlib import Path\n"
+        'runpy.run_path(str(Path(__file__).parent / "pet.pyw"), run_name="__main__")\n'
+    )
     for name in ("pocket.pyw", "hourglass.pyw"):
         (BASE / name).write_text(shim, encoding="utf-8")
     # Old installed Python module entry points also resolve to the same current UI files.
@@ -73,23 +91,38 @@ def main():
         entry = package / "usage_widget.py"
         text = entry.read_text("utf-8")
         start, end = text.index("def main():"), text.index('if __name__ == "__main__":')
-        delegate = ("def main():\n    import subprocess\n    import sys\n"
-                    f"    subprocess.Popen([{str(BASE / 'hourglass-ui/Scripts/pythonw.exe')!r}, "
-                    f"{str(BASE / 'pet.pyw')!r}, *sys.argv[1:]])\n\n\n")
+        delegate = (
+            "def main():\n    import subprocess\n    import sys\n"
+            f"    subprocess.Popen([{str(BASE / 'hourglass-ui/Scripts/pythonw.exe')!r}, "
+            f"{str(BASE / 'pet.pyw')!r}, *sys.argv[1:]])\n\n\n"
+        )
         entry.write_text(text[:start] + delegate + text[end:], encoding="utf-8")
-    receipt = {"installed_at": STAMP, "runtime": str(RUNTIME), "launcher": str(BASE / "pet.pyw"),
-               "legacy_launchers": [str(BASE / n) for n in ("pocket.pyw", "hourglass.pyw")],
-               "updated_ui_packages": [str(p) for p in installed], "backup": str(BACKUP),
-               "database": str(Path.home() / ".tomc/memory.sqlite3"),
-               "host": settings.get("host"), "model": settings.get("model"),
-               "model_detection": detected,
-               "pricing_sync": {key: {field: value.get(field) for field in
-                               ("status", "verified_at", "attempted_at", "source", "error")}
-                                for key, value in catalog["providers"].items()},
-               "backend_configuration_changed": False,
-               "assets": {f"tomc-expression-{i}.png": hashlib.sha256(
-                   (source / f"data/tomc-expression-{i}.png").read_bytes()).hexdigest()
-                   for i in range(1, 5)}}
+    receipt = {
+        "installed_at": STAMP,
+        "runtime": str(RUNTIME),
+        "launcher": str(BASE / "pet.pyw"),
+        "legacy_launchers": [str(BASE / n) for n in ("pocket.pyw", "hourglass.pyw")],
+        "updated_ui_packages": [str(p) for p in installed],
+        "backup": str(BACKUP),
+        "database": str(Path.home() / ".tomc/memory.sqlite3"),
+        "host": settings.get("host"),
+        "model": settings.get("model"),
+        "model_detection": detected,
+        "pricing_sync": {
+            key: {
+                field: value.get(field)
+                for field in ("status", "verified_at", "attempted_at", "source", "error")
+            }
+            for key, value in catalog["providers"].items()
+        },
+        "backend_configuration_changed": False,
+        "assets": {
+            f"tomc-expression-{i}.png": hashlib.sha256(
+                (source / f"data/tomc-expression-{i}.png").read_bytes()
+            ).hexdigest()
+            for i in range(1, 5)
+        },
+    }
     (RUNTIME / "CURRENT.json").write_text(json.dumps(receipt, indent=2), encoding="utf-8")
     # Supersede stale discovery markers, preserving their old contents in the receipt directory.
     markers = ("pet_final_path.txt", "cat_release_path.txt", "cat_demo_path.txt")
@@ -107,7 +140,8 @@ def main():
         "The first crown milestone plays a virtual desert-to-oasis celebration; no water savings are measured.\n"
         "Demo statistics are isolated. Close the demo to return to live statistics.\n"
         "Older asset folders are historical sources, not current launch targets.\n",
-        encoding="utf-8")
+        encoding="utf-8",
+    )
     print(json.dumps(receipt, indent=2))
 
 

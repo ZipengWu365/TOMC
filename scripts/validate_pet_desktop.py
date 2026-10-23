@@ -5,6 +5,7 @@ No fake requests or animation triggers. Default window flags remain unchanged;
 Captures contain only this companion's rendered widgets. The caller restores
 the normal launcher after this bounded recorder exits.
 """
+
 from __future__ import annotations
 
 import argparse
@@ -38,17 +39,24 @@ def animation_identity(pet, stage_for_report):
     # The active report, never the newest request, owns the displayed animation.
     active = pet.active_report or {}
     stage = stage_for_report({"last_preparation": active})
-    return {"request_id": active.get("request_id") or pet.request_animation_id,
-            "context_input_tokens": stage.get("input_tokens"),
-            "stage": pet.art.level, "expected_stage": stage["level"],
-            "length_known": stage.get("length_known", False)}
+    return {
+        "request_id": active.get("request_id") or pet.request_animation_id,
+        "context_input_tokens": stage.get("input_tokens"),
+        "stage": pet.art.level,
+        "expected_stage": stage["level"],
+        "length_known": stage.get("length_known", False),
+    }
 
 
 def phase_coverage(phases):
     active = [p for p in phases if isinstance(p, (int, float))]
-    return {"active_frames": len(active), "early": any(p <= .15 for p in active),
-            "middle": any(.35 <= p <= .65 for p in active),
-            "late": any(p >= .85 for p in active), "idle": None in phases}
+    return {
+        "active_frames": len(active),
+        "early": any(p <= 0.15 for p in active),
+        "middle": any(0.35 <= p <= 0.65 for p in active),
+        "late": any(p >= 0.85 for p in active),
+        "idle": None in phases,
+    }
 
 
 def main(argv=None):
@@ -86,18 +94,34 @@ def main(argv=None):
         raise
     pet.set_host((pet.pricing or {}).get("host", "claude"))
     if args.discoverable:
-        pet.setWindowFlags(Qt.WindowType.Window | Qt.WindowType.FramelessWindowHint
-                           | Qt.WindowType.WindowStaysOnTopHint)
+        pet.setWindowFlags(
+            Qt.WindowType.Window
+            | Qt.WindowType.FramelessWindowHint
+            | Qt.WindowType.WindowStaysOnTopHint
+        )
         pet.setWindowTitle("TOMC Desktop Acceptance")
-        pet.details.setWindowFlags(Qt.WindowType.Window | Qt.WindowType.FramelessWindowHint
-                                  | Qt.WindowType.WindowStaysOnTopHint)
+        pet.details.setWindowFlags(
+            Qt.WindowType.Window
+            | Qt.WindowType.FramelessWindowHint
+            | Qt.WindowType.WindowStaysOnTopHint
+        )
         pet.details.setWindowTitle("TOMC Statistics Acceptance")
     started = time.monotonic()
-    report = {"native_platform": app.platformName(), "test_mode": False,
-              "synthetic_activity_inserted": False, "window_discovery_flag_changed": args.discoverable,
-              "events": [], "frames": [], "languages": [], "panels": [], "idle_after_animation": False,
-              "duration_limit_seconds": args.seconds, "exit_reason": "window_closed",
-              "capture_errors": [], "animations": []}
+    report = {
+        "native_platform": app.platformName(),
+        "test_mode": False,
+        "synthetic_activity_inserted": False,
+        "window_discovery_flag_changed": args.discoverable,
+        "events": [],
+        "frames": [],
+        "languages": [],
+        "panels": [],
+        "idle_after_animation": False,
+        "duration_limit_seconds": args.seconds,
+        "exit_reason": "window_closed",
+        "capture_errors": [],
+        "animations": [],
+    }
     last_phase = None
     last_language = None
     previous_capture = 0.0
@@ -117,32 +141,53 @@ def main(argv=None):
             return
         name = f"animation-{len(report['frames']):04d}.png"
         if capture(name):
-            report["frames"].append({**current_animation["identity"], "file": name,
-                                     "animation_index": current_animation["index"],
-                                     "phase": phase, "elapsed": time.monotonic() - started,
-                                     "observed_stage": pet.art.level,
-                                     "expression": pet.art.expression,
-                                     "opacity": pet.materialization.opacity(),
-                                     "window_size": [pet.width(), pet.height()]})
+            report["frames"].append(
+                {
+                    **current_animation["identity"],
+                    "file": name,
+                    "animation_index": current_animation["index"],
+                    "phase": phase,
+                    "elapsed": time.monotonic() - started,
+                    "observed_stage": pet.art.level,
+                    "expression": pet.art.expression,
+                    "opacity": pet.materialization.opacity(),
+                    "window_size": [pet.width(), pet.height()],
+                }
+            )
 
     def collect():
         nonlocal current_animation
         identity = animation_identity(pet, growth_state)
-        current_animation = {"index": len(report["animations"]), "identity": identity,
-                             "completed": False}
+        current_animation = {
+            "index": len(report["animations"]),
+            "identity": identity,
+            "completed": False,
+        }
         report["animations"].append(current_animation)
-        report["events"].append({**identity, "event": "collect", "phase": pet.art.phase,
-                                 "animation_index": current_animation["index"],
-                                 "elapsed": time.monotonic() - started})
+        report["events"].append(
+            {
+                **identity,
+                "event": "collect",
+                "phase": pet.art.phase,
+                "animation_index": current_animation["index"],
+                "elapsed": time.monotonic() - started,
+            }
+        )
         frame(pet.art.phase)
         save()
 
     def collected():
         if current_animation is not None:
             current_animation["completed"] = True
-            report["events"].append({**current_animation["identity"], "event": "collected",
-                                     "animation_index": current_animation["index"],
-                                     "terminal_phase": 1.0, "elapsed": time.monotonic() - started})
+            report["events"].append(
+                {
+                    **current_animation["identity"],
+                    "event": "collected",
+                    "animation_index": current_animation["index"],
+                    "terminal_phase": 1.0,
+                    "elapsed": time.monotonic() - started,
+                }
+            )
             frame(None)
             save()
 
@@ -154,6 +199,7 @@ def main(argv=None):
                 report.setdefault("callback_errors", []).append(type(error).__name__)
                 report["exit_reason"] = "observer_error"
                 app.quit()
+
         return call
 
     pet.art.collecting.connect(guarded(collect))
@@ -179,7 +225,7 @@ def main(argv=None):
                 if capture(name, pet.details):
                     report["panels"].append(name)
                 save()
-        if phase is not None and elapsed - previous_capture >= .08:
+        if phase is not None and elapsed - previous_capture >= 0.08:
             frame(phase)
             previous_capture = elapsed
             save()
@@ -214,11 +260,16 @@ def main(argv=None):
             deadline.stop()
             pet.close()
             for animation in report["animations"]:
-                animation["coverage"] = phase_coverage([
-                    item["phase"] for item in report["frames"]
-                    if item["animation_index"] == animation["index"]])
+                animation["coverage"] = phase_coverage(
+                    [
+                        item["phase"]
+                        for item in report["frames"]
+                        if item["animation_index"] == animation["index"]
+                    ]
+                )
             report["animation_observed"] = any(
-                item["coverage"]["active_frames"] >= 3 for item in report["animations"])
+                item["coverage"]["active_frames"] >= 3 for item in report["animations"]
+            )
             report["elapsed_seconds"] = time.monotonic() - started
             save()
         finally:

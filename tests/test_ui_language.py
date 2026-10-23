@@ -23,7 +23,9 @@ def test_missing_settings_uses_locale_without_creating_files(tmp_path, monkeypat
     assert language.tr("数量 {count:,}", "Count {count:,}", count=1234) == "Count 1,234"
 
 
-@pytest.mark.parametrize("contents", [b"{broken", b"\xff", b"[]", b'{"language":"fr"}', b'{"language":{}}'])
+@pytest.mark.parametrize(
+    "contents", [b"{broken", b"\xff", b"[]", b'{"language":"fr"}', b'{"language":{}}']
+)
 def test_corrupt_or_unknown_settings_fall_back(tmp_path, monkeypatch, contents):
     monkeypatch.setattr(ui_language, "system_language", lambda: "zh")
     path = tmp_path / "ui_settings.json"
@@ -45,7 +47,10 @@ def test_atomic_persistence_preserves_other_ui_values_and_never_edits_db(tmp_pat
     language.set_language("en")
     assert changes == ["en"]
     assert UiLanguage(db).code == "en"
-    assert json.loads(path.read_text(encoding="utf-8")) == {"window_position": [1, 2], "language": "en"}
+    assert json.loads(path.read_text(encoding="utf-8")) == {
+        "window_position": [1, 2],
+        "language": "en",
+    }
     assert db.read_bytes() == b"DB session enabled=false; not a UI settings file"
     assert not list(tmp_path.glob(".ui-settings-*"))
 

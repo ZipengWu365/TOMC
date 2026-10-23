@@ -79,8 +79,11 @@ class AnimationReceipts:
                     row = json.loads(text)
                 except ValueError:
                     continue  # A line can be cut short by a crash mid-write.
-                if isinstance(row, dict) and row.get("event") in EVENTS and (
-                        wanted is None or row.get("request_id") in wanted):
+                if (
+                    isinstance(row, dict)
+                    and row.get("event") in EVENTS
+                    and (wanted is None or row.get("request_id") in wanted)
+                ):
                     rows.append(row)
         return rows
 
@@ -97,7 +100,11 @@ class AnimationReceipts:
             elif row["event"] in TERMINAL:
                 open_starts.pop(row["request_id"], None)
         for request_id, row in open_starts.items():
-            self.record("interrupted", request_id, stage=row.get("stage"),
-                        context_input_tokens=row.get("context_input_tokens"),
-                        reason="ui_exited_before_completion")
+            self.record(
+                "interrupted",
+                request_id,
+                stage=row.get("stage"),
+                context_input_tokens=row.get("context_input_tokens"),
+                reason="ui_exited_before_completion",
+            )
         return len(open_starts)

@@ -15,15 +15,23 @@ def test_recoverable_error_then_success_is_not_terminal_and_raw_error_is_not_rec
     events = [
         {"type": "thread.started", "thread_id": "test-thread"},
         {"type": "error", "message": "raw private error data"},
-        {"type": "item.completed", "item": {"type": "command_execution", "exit_code": 0,
-             "command": "private command", "aggregated_output": "TOMC_FIXTURE_OK_47"}},
+        {
+            "type": "item.completed",
+            "item": {
+                "type": "command_execution",
+                "exit_code": 0,
+                "command": "private command",
+                "aggregated_output": "TOMC_FIXTURE_OK_47",
+            },
+        },
         {"type": "turn.completed", "usage": {"input_tokens": 100, "output_tokens": 5}},
     ]
     result = validation.selected_events("\n".join(map(json.dumps, events)))
     assert result["completed"] and not result["error_seen"]
     assert result["recovery_error_events"] == 1
-    assert result["tools"] == [{"type": "command_execution", "exit_code": 0,
-                               "fixture_marker_seen": True}]
+    assert result["tools"] == [
+        {"type": "command_execution", "exit_code": 0, "fixture_marker_seen": True}
+    ]
     assert "private" not in json.dumps(result)
     assert "cumulative" in result["usage_scope"]
 
@@ -34,18 +42,31 @@ def test_terminal_failure_is_retained():
     assert "private" not in json.dumps(result)
 
 
-@pytest.mark.parametrize("url", [
-    "https://api.openai.com/codex", "http://127.0.0.1:1/v1",
-    "http://secret@127.0.0.1:1/codex", "http://127.0.0.1:1/codex?key=secret",
-])
+@pytest.mark.parametrize(
+    "url",
+    [
+        "https://api.openai.com/codex",
+        "http://127.0.0.1:1/v1",
+        "http://secret@127.0.0.1:1/codex",
+        "http://127.0.0.1:1/codex?key=secret",
+    ],
+)
 def test_only_credential_free_loopback_base_url_is_allowed(url):
     with pytest.raises(argparse.ArgumentTypeError):
         validation.gateway_url(url)
 
 
 def test_command_only_overrides_base_url_and_inherits_model_permissions():
-    result = validation.command("codex.exe", "http://127.0.0.1:18739/codex",
-                                Path("fixture"), "thread-123", None)
-    assert result == ["codex.exe", "exec", "-c",
-                      'openai_base_url="http://127.0.0.1:18739/codex"',
-                      "--json", "resume", "thread-123", "-"]
+    result = validation.command(
+        "codex.exe", "http://127.0.0.1:18739/codex", Path("fixture"), "thread-123", None
+    )
+    assert result == [
+        "codex.exe",
+        "exec",
+        "-c",
+        'openai_base_url="http://127.0.0.1:18739/codex"',
+        "--json",
+        "resume",
+        "thread-123",
+        "-",
+    ]

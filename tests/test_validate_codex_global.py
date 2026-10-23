@@ -10,7 +10,9 @@ from tomc.request_activity import RequestActivity
 def validation(monkeypatch):
     directory = Path(__file__).resolve().parents[1] / "scripts"
     monkeypatch.syspath_prepend(str(directory))
-    spec = importlib.util.spec_from_file_location("validate_codex_global", directory / "validate_codex_global.py")
+    spec = importlib.util.spec_from_file_location(
+        "validate_codex_global", directory / "validate_codex_global.py"
+    )
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module

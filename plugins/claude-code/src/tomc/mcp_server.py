@@ -62,16 +62,25 @@ def create_server(path: Path | str | None = None):
             raise ValueError("TOMC session is not registered by a host hook.")
         return tomc_host, tomc_session_id
 
-    def complete(factory, task, *, source="prepare", notebook_name=None,
-                 tomc_host=None, tomc_session_id=None):
+    def complete(
+        factory, task, *, source="prepare", notebook_name=None, tomc_host=None, tomc_session_id=None
+    ):
         host, session_id = identity(tomc_host, tomc_session_id)
         if host is None and sessions.requires_identity():
-            return {"status": "identity_required", "memory": "", "prepared": False,
-                    "message": "A conversation has TOMC paused. This call has no session identity, "
-                               "so no preparation ran. Load the host hook and supply its identity fields."}
+            return {
+                "status": "identity_required",
+                "memory": "",
+                "prepared": False,
+                "message": "A conversation has TOMC paused. This call has no session identity, "
+                "so no preparation ran. Load the host hook and supply its identity fields.",
+            }
         if not sessions.effective_enabled(host, session_id):
-            return {"status": "paused", "memory": "", "prepared": False,
-                    "message": "TOMC is paused for this session or globally. No preparation ran."}
+            return {
+                "status": "paused",
+                "memory": "",
+                "prepared": False,
+                "message": "TOMC is paused for this session or globally. No preparation ran.",
+            }
         settings = sessions.settings()
         preparation_id = uuid.uuid4().hex
         try:
@@ -83,10 +92,16 @@ def create_server(path: Path | str | None = None):
                 pass
             raise
         reply = _reply(prepared, usage)
-        reply.update({"status": "prepared", "preparation_id": preparation_id,
-                      "host": host, "session_id": session_id,
-                      "attribution": "registered_session_argument" if host else "unassociated",
-                      "request_replacement_verified": False})
+        reply.update(
+            {
+                "status": "prepared",
+                "preparation_id": preparation_id,
+                "host": host,
+                "session_id": session_id,
+                "attribution": "registered_session_argument" if host else "unassociated",
+                "request_replacement_verified": False,
+            }
+        )
         snapshot_id = None
         reply["context_record"] = {"status": "disabled"}
         if settings["save_contexts"]:
@@ -95,20 +110,34 @@ def create_server(path: Path | str | None = None):
             else:
                 try:
                     snapshot = library.save(
-                        prepared, task=task, source=source, notebook_name=notebook_name,
-                        host=host, session_id=session_id, preparation_id=preparation_id,
+                        prepared,
+                        task=task,
+                        source=source,
+                        notebook_name=notebook_name,
+                        host=host,
+                        session_id=session_id,
+                        preparation_id=preparation_id,
                     )
                     snapshot_id = snapshot["id"]
-                    reply["context_record"] = {"status": "saved", "id": snapshot_id,
-                                               "title": snapshot["title"]}
+                    reply["context_record"] = {
+                        "status": "saved",
+                        "id": snapshot_id,
+                        "title": snapshot["title"],
+                    }
                 except (sqlite3.Error, OSError, ValueError) as exc:
-                    reply["context_record"] = {"status": "save_failed",
-                                               "error": type(exc).__name__}
+                    reply["context_record"] = {"status": "save_failed", "error": type(exc).__name__}
         try:
             stats = prepared.compilation.stats
-            receipts.record(preparation_id, status="prepared", host=host, session_id=session_id,
-                            snapshot_id=snapshot_id, input_tokens=stats.input_tokens,
-                            output_tokens=stats.output_tokens, counter=stats.tokenizer)
+            receipts.record(
+                preparation_id,
+                status="prepared",
+                host=host,
+                session_id=session_id,
+                snapshot_id=snapshot_id,
+                input_tokens=stats.input_tokens,
+                output_tokens=stats.output_tokens,
+                counter=stats.tokenizer,
+            )
         except sqlite3.Error:
             reply["receipt_recorded"] = False
         else:
@@ -166,11 +195,20 @@ def create_server(path: Path | str | None = None):
     )
 
     @server.tool(name="prepare_context", annotations=write)
-    def prepare_tool(history: str, task: str, budget: int | None = None,
-                     tomc_host: str | None = None, tomc_session_id: str | None = None) -> dict:
+    def prepare_tool(
+        history: str,
+        task: str,
+        budget: int | None = None,
+        tomc_host: str | None = None,
+        tomc_session_id: str | None = None,
+    ) -> dict:
         """Prepare external history, respecting pause. Save the prepared context when local recording is enabled. Supply exact host-hook session fields when available. Show context_reduction.summary; estimates are not billed savings. The host's existing history is unchanged."""
-        return complete(lambda: prepare_context(history, task, budget), task,
-                        tomc_host=tomc_host, tomc_session_id=tomc_session_id)
+        return complete(
+            lambda: prepare_context(history, task, budget),
+            task,
+            tomc_host=tomc_host,
+            tomc_session_id=tomc_session_id,
+        )
 
     @server.tool(annotations=write)
     def remember_memory(name: str, content: str) -> dict:
@@ -178,12 +216,25 @@ def create_server(path: Path | str | None = None):
         return store.remember(name, content)
 
     @server.tool(annotations=write)
-    def recall_memory(name: str, task: str, budget: int | None = None,
-                      tomc_host: str | None = None, tomc_session_id: str | None = None) -> dict:
+    def recall_memory(
+        name: str,
+        task: str,
+        budget: int | None = None,
+        tomc_host: str | None = None,
+        tomc_session_id: str | None = None,
+    ) -> dict:
         """Prepare an optional notebook's history for the next task. Omit budget to keep 60-80% of the notebook (less for longer notebooks; at least 1,024 estimated tokens). Budget covers estimated memory tokens. Reports and old failures are not proof of current success."""
-        return {"name": name, **complete(lambda: store.recall(name, task, budget), task,
-                                        source="recall", notebook_name=name,
-                                        tomc_host=tomc_host, tomc_session_id=tomc_session_id)}
+        return {
+            "name": name,
+            **complete(
+                lambda: store.recall(name, task, budget),
+                task,
+                source="recall",
+                notebook_name=name,
+                tomc_host=tomc_host,
+                tomc_session_id=tomc_session_id,
+            ),
+        }
 
     @server.tool(annotations=read)
     def get_status(tomc_host: str | None = None, tomc_session_id: str | None = None) -> dict:
@@ -191,13 +242,17 @@ def create_server(path: Path | str | None = None):
         from .integration_status import get_integration_status
 
         host, session_id = identity(tomc_host, tomc_session_id)
-        return {"settings": sessions.settings(), "host": host, "session_id": session_id,
-                "effective_enabled": sessions.effective_enabled(host, session_id),
-                "attribution": "registered_session_argument" if host else "unassociated",
-                "unidentified_preparation_blocked": host is None and sessions.requires_identity(),
-                "integrations": get_integration_status(),
-                "last_preparation": usage.summary().get("last_preparation"),
-                "request_replacement_verified": False}
+        return {
+            "settings": sessions.settings(),
+            "host": host,
+            "session_id": session_id,
+            "effective_enabled": sessions.effective_enabled(host, session_id),
+            "attribution": "registered_session_argument" if host else "unassociated",
+            "unidentified_preparation_blocked": host is None and sessions.requires_identity(),
+            "integrations": get_integration_status(),
+            "last_preparation": usage.summary().get("last_preparation"),
+            "request_replacement_verified": False,
+        }
 
     @server.tool(annotations=read)
     def list_contexts(limit: int = 100) -> dict:

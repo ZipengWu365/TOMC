@@ -14,8 +14,10 @@ from PySide6.QtWidgets import QApplication, QFileDialog, QInputDialog, QMessageB
 from tomc.context_library_qt import ContextLibraryDialog, SessionNotice  # noqa: E402
 from tomc.session_store import SessionStore  # noqa: E402
 
-STATUS = {host: {"label": "已配置", "runtime_verified": False, "detail": "fixture"}
-          for host in ("codex", "claude_code")}
+STATUS = {
+    host: {"label": "已配置", "runtime_verified": False, "detail": "fixture"}
+    for host in ("codex", "claude_code")
+}
 
 
 @pytest.fixture(scope="module")
@@ -29,10 +31,17 @@ def app():
 
 
 def save_fixture(library, task="Continue the test task", before=2000, after=300):
-    prepared = SimpleNamespace(compilation=SimpleNamespace(
-        compiled_memory="Fixture historical evidence.\nKeep source IDs.",
-        stats=SimpleNamespace(token_budget=500, input_tokens=before,
-                              output_tokens=after, tokenizer="fixture-estimate")))
+    prepared = SimpleNamespace(
+        compilation=SimpleNamespace(
+            compiled_memory="Fixture historical evidence.\nKeep source IDs.",
+            stats=SimpleNamespace(
+                token_budget=500,
+                input_tokens=before,
+                output_tokens=after,
+                tokenizer="fixture-estimate",
+            ),
+        )
+    )
     return library.save(prepared, task=task, host="codex", session_id="session-a")
 
 
@@ -68,7 +77,9 @@ def test_search_preview_and_untruncated_self_contained_copy(dialog, app):
     assert dialog.memory.toPlainText() == first["memory"]
     dialog.copy_handoff()
     copied = app.clipboard().text()
-    assert copied == dialog.library.handoff_prompt(first["id"], inline=True, language=dialog.language.code)
+    assert copied == dialog.library.handoff_prompt(
+        first["id"], inline=True, language=dialog.language.code
+    )
     assert first["memory"] in copied and "Alpha continuation" in copied
     assert "未截断" in dialog.message.text()
     dialog.search.setText("absent title")
@@ -91,8 +102,11 @@ def test_global_processing_recording_and_session_controls_are_independent(dialog
     dialog.refresh()
     dialog.save_contexts.setChecked(False)
     assert dialog.sessions.settings() == {"enabled": True, "save_contexts": False}
-    item = next(dialog.session_list.item(i) for i in range(dialog.session_list.count())
-                if dialog.session_list.item(i).data(Qt.ItemDataRole.UserRole) == ("codex", "a"))
+    item = next(
+        dialog.session_list.item(i)
+        for i in range(dialog.session_list.count())
+        if dialog.session_list.item(i).data(Qt.ItemDataRole.UserRole) == ("codex", "a")
+    )
     item.setCheckState(Qt.CheckState.Unchecked)
     assert not dialog.sessions.effective_enabled("codex", "a")
     assert dialog.sessions.effective_enabled("claude", "b")
@@ -131,9 +145,11 @@ def test_notice_timeout_preserves_default_and_click_is_bound_to_displayed_sessio
 def test_export_import_rename_delete_actions_use_selected_snapshot(dialog, tmp_path, monkeypatch):
     row = save_fixture(dialog.library)
     dialog.refresh()
+
     def rename(dialog):
         dialog.setTextValue("Renamed record")
         return 1
+
     monkeypatch.setattr(QInputDialog, "exec", rename)
     dialog.rename_context()
     assert dialog.library.get(row["id"])["title"] == "Renamed record"
@@ -143,7 +159,11 @@ def test_export_import_rename_delete_actions_use_selected_snapshot(dialog, tmp_p
     dialog.export_context()
     bundles = list(export_root.iterdir())
     assert len(bundles) == 1
-    assert {p.name for p in bundles[0].iterdir()} == {"metadata.json", "CONTEXT.md", "START_HERE.md"}
+    assert {p.name for p in bundles[0].iterdir()} == {
+        "metadata.json",
+        "CONTEXT.md",
+        "START_HERE.md",
+    }
     monkeypatch.setattr(QMessageBox, "exec", lambda self: QMessageBox.StandardButton.Yes)
     dialog.delete_context()
     assert dialog.library.list() == []
@@ -156,7 +176,9 @@ def test_export_import_rename_delete_actions_use_selected_snapshot(dialog, tmp_p
     assert "未重复" in dialog.message.text()
 
 
-def test_companion_observed_switch_prompts_once_and_closes_child_windows(app, tmp_path, monkeypatch):
+def test_companion_observed_switch_prompts_once_and_closes_child_windows(
+    app, tmp_path, monkeypatch
+):
     from tomc import context_library_qt, usage_widget_qt
 
     monkeypatch.setattr(usage_widget_qt, "load_pricing", lambda: None)
@@ -189,12 +211,16 @@ def test_companion_observed_switch_prompts_once_and_closes_child_windows(app, tm
     app.sendPostedEvents(None, QEvent.Type.DeferredDelete)
 
 
-def test_request_preparation_animates_once_and_generation_is_not_compression(app, tmp_path, monkeypatch):
+def test_request_preparation_animates_once_and_generation_is_not_compression(
+    app, tmp_path, monkeypatch
+):
     from tomc import usage_widget_qt
 
     monkeypatch.setattr(usage_widget_qt, "load_pricing", lambda: None)
     monkeypatch.setattr(app, "quit", lambda: None)
-    pet = usage_widget_qt.Companion(tmp_path / "request.sqlite3", test_mode=True, connect_quota=False)
+    pet = usage_widget_qt.Companion(
+        tmp_path / "request.sqlite3", test_mode=True, connect_quota=False
+    )
     pet.language.set_language("zh")
     pet.timer.stop()
     calls = []
@@ -209,8 +235,14 @@ def test_request_preparation_animates_once_and_generation_is_not_compression(app
     pet.refresh()
     assert not calls and pet.preparing_request is not None
     assert "压缩中" in pet.number.text()
-    pet.request_activity.finish("request-1", state="prepared", reason="optimized",
-                                before_tokens=1000, after_tokens=500, context_input_tokens=900)
+    pet.request_activity.finish(
+        "request-1",
+        state="prepared",
+        reason="optimized",
+        before_tokens=1000,
+        after_tokens=500,
+        context_input_tokens=900,
+    )
     pet.refresh()
     assert pet.preparing_request is None and pet.art.phase is not None
     assert len(calls) == 1 and pet.art.level == 1
@@ -224,9 +256,17 @@ def test_request_preparation_animates_once_and_generation_is_not_compression(app
     # Model generation/streaming occurs after CPU preparation; it must not stay busy.
     pet.request_activity.sent("request-1")
     pet.request_activity.usage("request-1", provider_input_tokens=720, provider_cached_tokens=100)
-    pet.store.record({"counter": "fixture", "usable": True, "input_tokens": 1000,
-                      "memory_tokens": 500, "reduced_tokens": 500, "request_id": "request-1",
-                      "context_input_tokens": 900})
+    pet.store.record(
+        {
+            "counter": "fixture",
+            "usable": True,
+            "input_tokens": 1000,
+            "memory_tokens": 500,
+            "reduced_tokens": 500,
+            "request_id": "request-1",
+            "context_input_tokens": 900,
+        }
+    )
     pet.refresh()
     assert len(calls) == 1 and pet.art.phase is None
     assert "720" in pet.details.request_usage_detail.text()
@@ -245,8 +285,13 @@ def test_request_preparation_animates_once_and_generation_is_not_compression(app
 
 def test_manager_distinguishes_configured_from_observed_proxy_usage(dialog):
     dialog.activity.start("request-demo", "claude", "s")
-    dialog.activity.finish("request-demo", state="passthrough", reason="history_fits_memory_budget",
-                           before_tokens=80, after_tokens=80)
+    dialog.activity.finish(
+        "request-demo",
+        state="passthrough",
+        reason="history_fits_memory_budget",
+        before_tokens=80,
+        after_tokens=80,
+    )
     dialog.refresh()
     assert "连接待验证" in dialog.integration_labels["claude_code"].text()
     assert "将原样转发" in dialog.activity_status.text()
@@ -259,8 +304,14 @@ def test_manager_distinguishes_configured_from_observed_proxy_usage(dialog):
 
 
 def test_configured_gateway_without_request_is_visible_and_not_claimed_connected(dialog):
-    dialog.integrations = {**STATUS, "mode": {"id": "automatic_request_gateway",
-        "configured_hosts": ["codex"], "gateway_service": "offline"}}
+    dialog.integrations = {
+        **STATUS,
+        "mode": {
+            "id": "automatic_request_gateway",
+            "configured_hosts": ["codex"],
+            "gateway_service": "offline",
+        },
+    }
     dialog.refresh()
     assert "自动接入已配置" in dialog.mode.text()
     assert "重开客户端后等待请求" in dialog.mode.text()
@@ -277,8 +328,13 @@ def test_health_check_is_short_loopback_only_and_does_not_claim_session_verified
 
     from tomc import context_library_qt, integration_status
 
-    status = {"mode": {"id": "automatic_request_gateway", "gateway_port": 43187,
-                       "runtime_verified": False}}
+    status = {
+        "mode": {
+            "id": "automatic_request_gateway",
+            "gateway_port": 43187,
+            "runtime_verified": False,
+        }
+    }
     monkeypatch.setattr(integration_status, "get_integration_status", lambda: status)
     calls = []
 
@@ -309,7 +365,9 @@ def test_health_check_is_short_loopback_only_and_does_not_claim_session_verified
     assert result["mode"]["runtime_verified"] is False
 
 
-def test_short_preparation_missed_between_polls_still_plays_one_completion_animation(app, tmp_path, monkeypatch):
+def test_short_preparation_missed_between_polls_still_plays_one_completion_animation(
+    app, tmp_path, monkeypatch
+):
     from tomc import usage_widget_qt
 
     monkeypatch.setattr(usage_widget_qt, "load_pricing", lambda: None)
@@ -320,10 +378,20 @@ def test_short_preparation_missed_between_polls_still_plays_one_completion_anima
     calls = []
     monkeypatch.setattr(pet.art, "collect", lambda: calls.append(True))
     pet.request_activity.start("quick", "codex", "s")
-    pet.request_activity.finish("quick", state="prepared", reason="optimized", before_tokens=1000, after_tokens=500)
+    pet.request_activity.finish(
+        "quick", state="prepared", reason="optimized", before_tokens=1000, after_tokens=500
+    )
     pet.request_activity.sent("quick")
-    pet.store.record({"counter": "fixture", "usable": True, "input_tokens": 1000,
-                      "memory_tokens": 500, "reduced_tokens": 500, "request_id": "quick"})
+    pet.store.record(
+        {
+            "counter": "fixture",
+            "usable": True,
+            "input_tokens": 1000,
+            "memory_tokens": 500,
+            "reduced_tokens": 500,
+            "request_id": "quick",
+        }
+    )
     pet.refresh()
     pet.refresh()
     assert calls == [True] and pet.preparing_request is None
@@ -348,8 +416,13 @@ def test_language_switch_updates_all_authored_text_without_resetting_filters(dia
     row = save_fixture(dialog.library, "English fixture task")
     dialog.sessions.register("claude", "fixture-session", title="English session")
     dialog.activity.start("fixture-request", "claude", "fixture-session")
-    dialog.activity.finish("fixture-request", state="passthrough", reason="protected_system_history",
-                           before_tokens=200, after_tokens=200)
+    dialog.activity.finish(
+        "fixture-request",
+        state="passthrough",
+        reason="protected_system_history",
+        before_tokens=200,
+        after_tokens=200,
+    )
     dialog.activity.sent("fixture-request")
     dialog.activity.usage("fixture-request", provider_input_tokens=250, provider_cached_tokens=100)
     dialog.refresh()
@@ -363,14 +436,20 @@ def test_language_switch_updates_all_authored_text_without_resetting_filters(dia
     assert "Measured provider input 250" in dialog.activity_status.text()
     assert "tool definitions retained" in dialog.activity_status.text()
     texts = [dialog.windowTitle(), dialog.task.toPlainText()]
-    for widget in dialog.findChildren(QLabel) + dialog.findChildren(QPushButton) + dialog.findChildren(QCheckBox):
+    for widget in (
+        dialog.findChildren(QLabel)
+        + dialog.findChildren(QPushButton)
+        + dialog.findChildren(QCheckBox)
+    ):
         texts.extend((widget.text(), widget.toolTip(), widget.accessibleName()))
     for widget in dialog.findChildren(QLineEdit):
         texts.append(widget.placeholderText())
     for widget in dialog.findChildren(QComboBox):
         texts.extend(widget.itemText(i) for i in range(widget.count()))
     for widget in dialog.findChildren(QListWidget):
-        texts.extend(widget.item(i).text() + widget.item(i).toolTip() for i in range(widget.count()))
+        texts.extend(
+            widget.item(i).text() + widget.item(i).toolTip() for i in range(widget.count())
+        )
     for widget in dialog.findChildren(QTabWidget):
         texts.extend(widget.tabText(i) for i in range(widget.count()))
     assert not [text for text in texts if re.search(r"[\u3400-\u9fff]", text)]
@@ -410,8 +489,10 @@ def test_empty_error_and_disabled_messages_retranslate_immediately(dialog, monke
     dialog.language.set_language("en")
     assert dialog.message.text().startswith("TOMC is disabled")
     dialog.language.set_language("zh")
+
     def fail(*args, **kwargs):
         raise ValueError("fixture failure")
+
     monkeypatch.setattr(dialog.library, "handoff_prompt", fail)
     dialog.copy_handoff()
     assert dialog.message.text() == "复制失败：fixture failure"
@@ -439,29 +520,42 @@ def test_notice_uses_owner_language_and_keeps_bound_target_and_timer(dialog):
     notice.close()
 
 
-def test_open_confirmation_dialog_retranslates_buttons_without_changing_selection(dialog, monkeypatch):
+def test_open_confirmation_dialog_retranslates_buttons_without_changing_selection(
+    dialog, monkeypatch
+):
     row = save_fixture(dialog.library)
     dialog.refresh()
+
     def confirm(box):
         dialog.language.set_language("en")
         assert box.windowTitle() == "Delete local context"
         assert box.button(QMessageBox.StandardButton.Yes).text() == "Delete"
         assert box.button(QMessageBox.StandardButton.Cancel).text() == "Cancel"
         return QMessageBox.StandardButton.Cancel
+
     monkeypatch.setattr(QMessageBox, "exec", confirm)
     dialog.delete_context()
     assert dialog.library.get(row["id"])["memory"] == row["memory"]
 
 
-@pytest.mark.parametrize("record", [None, {"state": "preparing"}, {"state": "prepared"},
-    {"state": "forwarded", "reason": "disabled_compatible_replay"},
-    {"state": "passthrough", "sent": True, "reason": "session_disabled"},
-    {"state": "passthrough", "reason": "no_current_user_task"},
-    {"state": "failed", "reason": "upstream_failed"}, {"stale": True}])
+@pytest.mark.parametrize(
+    "record",
+    [
+        None,
+        {"state": "preparing"},
+        {"state": "prepared"},
+        {"state": "forwarded", "reason": "disabled_compatible_replay"},
+        {"state": "passthrough", "sent": True, "reason": "session_disabled"},
+        {"state": "passthrough", "reason": "no_current_user_task"},
+        {"state": "failed", "reason": "upstream_failed"},
+        {"stale": True},
+    ],
+)
 def test_activity_helper_accepts_english_or_defaults_to_chinese(record):
     import re
 
     from tomc.context_library_qt import request_activity_text
+
     assert re.search(r"[\u3400-\u9fff]", request_activity_text(record))
     assert not re.search(r"[\u3400-\u9fff]", request_activity_text(record, "en"))
     if record and record.get("reason") == "no_current_user_task":

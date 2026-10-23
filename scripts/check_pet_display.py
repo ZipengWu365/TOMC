@@ -42,8 +42,14 @@ def check(config, output, client_python):
     widget.grab().save(str(output / "empty.png"))
     for batch in (1, 2):
         subprocess.run(
-            [str(client_python), str(ROOT / "scripts/check_installed_usage.py"),
-             str(config), str(output), str(batch)], check=True,
+            [
+                str(client_python),
+                str(ROOT / "scripts/check_installed_usage.py"),
+                str(config),
+                str(output),
+                str(batch),
+            ],
+            check=True,
             stdout=subprocess.DEVNULL,
             env={**os.environ, "PYTHONIOENCODING": "utf-8"},
         )
@@ -56,7 +62,9 @@ def check(config, output, client_python):
         assert widget.summary == receipt["after"]
         assert widget.card.isVisible()
         reduced = receipt["per_call"]
-        expected_percent = 100*(reduced["input_tokens"]-reduced["memory_tokens"])/reduced["input_tokens"]
+        expected_percent = (
+            100 * (reduced["input_tokens"] - reduced["memory_tokens"]) / reduced["input_tokens"]
+        )
         assert widget.number.text() == f"{abs(expected_percent):.1f}%"
         widget.grab().save(str(output / f"compact_call_{batch}.png"))
     # These events are delivered directly to this offscreen widget, never the OS input stream.
@@ -84,21 +92,32 @@ def check(config, output, client_python):
     painter.setPen(QColor("#443B35"))
     painter.drawText(30, 35, "进化预览 · 独立模拟数据 · 应用自身离屏渲染")
     for index, (threshold, name, _) in enumerate(STAGES):
-        stage_db = output / f"stage_{index+1}.sqlite3"
+        stage_db = output / f"stage_{index + 1}.sqlite3"
         store = UsageStore(stage_db)
-        store.record({"counter": "lexical", "usable": True, "input_tokens": threshold+100,
-                      "memory_tokens": 100, "reduced_tokens": threshold})
+        store.record(
+            {
+                "counter": "lexical",
+                "usable": True,
+                "input_tokens": threshold + 100,
+                "memory_tokens": 100,
+                "reduced_tokens": threshold,
+            }
+        )
         widget.store, widget.last_signature = store, None
         widget.last_level = None
         widget.initialized = False
         widget.refresh()
         app.processEvents()
-        assert growth_state(widget.summary)["level"] == index+1
+        assert growth_state(widget.summary)["level"] == index + 1
         rendered = widget.grab()
-        rendered.save(str(output / f"stage_{index+1}.png"))
-        x, y = 20 + (index % 2)*550, 55 + (index // 2)*260
-        painter.drawPixmap(x+100, y, 180, 201, rendered)
-        painter.drawText(x+20, y+225, f"{name} · {threshold:,} · 凝实度 {widget.materialization.opacity():.0%}")
+        rendered.save(str(output / f"stage_{index + 1}.png"))
+        x, y = 20 + (index % 2) * 550, 55 + (index // 2) * 260
+        painter.drawPixmap(x + 100, y, 180, 201, rendered)
+        painter.drawText(
+            x + 20,
+            y + 225,
+            f"{name} · {threshold:,} · 凝实度 {widget.materialization.opacity():.0%}",
+        )
     painter.end()
     board.save(str(output / "evolution_preview.png"))
     # Render four different choreographies from the SAME production painting code.
@@ -113,14 +132,16 @@ def check(config, output, client_python):
         painter.setFont(QFont("Microsoft YaHei UI", 11))
         painter.drawText(20, 24, "上下文入袋 · 四阶段动画预览（模拟，不计入统计）")
         for i, (threshold, name, _) in enumerate(STAGES):
-            state = growth_state({"growth": [{"peak_net_tokens": threshold, "net_tokens": threshold}]})
+            state = growth_state(
+                {"growth": [{"peak_net_tokens": threshold, "net_tokens": threshold}]}
+            )
             widget.art.set_state(state)
             widget.materialization.setOpacity(state["opacity"])
-            widget.art.phase = frame/40 if frame < 40 else None
+            widget.art.phase = frame / 40 if frame < 40 else None
             widget.art.update()
             rendered = widget.grab()
-            painter.drawPixmap(30+i*255, 40, 180, 201, rendered)
-            painter.drawText(30+i*255, 268, name)
+            painter.drawPixmap(30 + i * 255, 40, 180, 201, rendered)
+            painter.drawText(30 + i * 255, 268, name)
         painter.end()
         sheet.save(str(frames / f"frame_{frame:03}.png"))
     widget.art.phase = None
@@ -134,15 +155,26 @@ def check(config, output, client_python):
     widget.refresh()
     assert not widget.error and widget.summary["preparations"] == 2
     widget.close()
-    (output / "validation.json").write_text(json.dumps({
-        "mode": "offscreen application render; no desktop screenshot or OS input",
-        "installed_mcp_calls": 2, "period_buttons": ["today", "7d", "all"],
-        "four_forms_rendered": True, "error_recovery": True,
-        "completion_animation_then_bubble": True, "bubble_auto_hides": True,
-        "four_animation_frame_sequences": True,
-        "actual_desktop_interaction": "not automated; user requested no Computer Use",
-        "test_database": str(db), "production_database_written": False,
-    }, ensure_ascii=False, indent=2), encoding="utf-8")
+    (output / "validation.json").write_text(
+        json.dumps(
+            {
+                "mode": "offscreen application render; no desktop screenshot or OS input",
+                "installed_mcp_calls": 2,
+                "period_buttons": ["today", "7d", "all"],
+                "four_forms_rendered": True,
+                "error_recovery": True,
+                "completion_animation_then_bubble": True,
+                "bubble_auto_hides": True,
+                "four_animation_frame_sequences": True,
+                "actual_desktop_interaction": "not automated; user requested no Computer Use",
+                "test_database": str(db),
+                "production_database_written": False,
+            },
+            ensure_ascii=False,
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
     print(f"Pet display checks passed: {output}")
 
 

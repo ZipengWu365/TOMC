@@ -101,8 +101,13 @@ def test_latest_preparation_is_replaced_without_losing_totals(tmp_path):
     first = reduction_report(prepare_context("first private note", "continue"))
     store.record(first)
     first_time = store.summary()["last_preparation"]["recorded_at"]
-    second = {**first, "input_tokens": 100, "memory_tokens": 25,
-              "reduced_tokens": 75, "reduction_percent": 75}
+    second = {
+        **first,
+        "input_tokens": 100,
+        "memory_tokens": 25,
+        "reduced_tokens": 75,
+        "reduction_percent": 75,
+    }
     store.record(second)
     summary = store.summary()
     assert summary["preparations"] == 2
@@ -115,8 +120,17 @@ def test_latest_preparation_is_replaced_without_losing_totals(tmp_path):
 def test_widget_retains_negative_values_and_separates_encodings():
     from tomc.usage_widget import display_values
 
-    summary = {"preparations": 1, "by_counter": [{"input_tokens": 10,
-               "memory_tokens": 20, "reduced_tokens": -10, "reduction_percent": -100}]}
+    summary = {
+        "preparations": 1,
+        "by_counter": [
+            {
+                "input_tokens": 10,
+                "memory_tokens": 20,
+                "reduced_tokens": -10,
+                "reduction_percent": -100,
+            }
+        ],
+    }
     assert display_values(summary)["total"] == "-10"
     summary["by_counter"].append(dict(summary["by_counter"][0]))
     assert display_values(summary)["total"] == "分计数器查看"
@@ -124,9 +138,15 @@ def test_widget_retains_negative_values_and_separates_encodings():
 
 def test_context_length_is_independent_of_request_totals_and_idempotency(tmp_path):
     store = UsageStore(tmp_path / "usage.sqlite3")
-    report = {"counter": "regex-request-json-v1 (estimate)", "usable": True,
-              "input_tokens": 9000, "memory_tokens": 7000, "reduced_tokens": 2000,
-              "context_input_tokens": 2500, "request_id": "first"}
+    report = {
+        "counter": "regex-request-json-v1 (estimate)",
+        "usable": True,
+        "input_tokens": 9000,
+        "memory_tokens": 7000,
+        "reduced_tokens": 2000,
+        "context_input_tokens": 2500,
+        "request_id": "first",
+    }
     store.record(report)
     store.record({**report, "context_input_tokens": 8000})
     summary = store.summary()
@@ -135,8 +155,9 @@ def test_context_length_is_independent_of_request_totals_and_idempotency(tmp_pat
     assert summary["by_counter"][0]["reduced_tokens"] == 2000
     assert summary["last_preparation"]["context_input_tokens"] == 2500
     assert store.recent_events()[0]["context_input_tokens"] == 2500
-    store.record({k: v for k, v in {**report, "request_id": "replay"}.items()
-                  if k != "context_input_tokens"})
+    store.record(
+        {k: v for k, v in {**report, "request_id": "replay"}.items() if k != "context_input_tokens"}
+    )
     assert store.summary()["preparations"] == 2
     assert store.summary()["last_preparation"]["context_input_tokens"] is None
     assert store.recent_events()[-1]["context_input_tokens"] is None
@@ -145,34 +166,57 @@ def test_context_length_is_independent_of_request_totals_and_idempotency(tmp_pat
 def test_legacy_usage_read_and_old_writer_remain_compatible_after_migration(tmp_path):
     path = tmp_path / "legacy.sqlite3"
     with sqlite3.connect(path) as db:
-        db.execute("CREATE TABLE context_usage_latest (id INTEGER PRIMARY KEY, recorded_at TEXT, "
-                   "counter TEXT, input_tokens INTEGER, memory_tokens INTEGER, usable INTEGER)")
-        db.execute("CREATE TABLE context_usage_events (seq INTEGER PRIMARY KEY AUTOINCREMENT, "
-                   "recorded_at TEXT, counter TEXT, input_tokens INTEGER, memory_tokens INTEGER, "
-                   "usable INTEGER, request_id TEXT)")
-        db.execute("INSERT INTO context_usage_latest VALUES (1,'old','regex-request-json-v1 (estimate)',1000,500,1)")
-        db.execute("INSERT INTO context_usage_events VALUES (1,'old','regex-request-json-v1 (estimate)',1000,500,1,NULL)")
+        db.execute(
+            "CREATE TABLE context_usage_latest (id INTEGER PRIMARY KEY, recorded_at TEXT, "
+            "counter TEXT, input_tokens INTEGER, memory_tokens INTEGER, usable INTEGER)"
+        )
+        db.execute(
+            "CREATE TABLE context_usage_events (seq INTEGER PRIMARY KEY AUTOINCREMENT, "
+            "recorded_at TEXT, counter TEXT, input_tokens INTEGER, memory_tokens INTEGER, "
+            "usable INTEGER, request_id TEXT)"
+        )
+        db.execute(
+            "INSERT INTO context_usage_latest VALUES (1,'old','regex-request-json-v1 (estimate)',1000,500,1)"
+        )
+        db.execute(
+            "INSERT INTO context_usage_events VALUES (1,'old','regex-request-json-v1 (estimate)',1000,500,1,NULL)"
+        )
     original = path.read_bytes()
     store = UsageStore(path)
     assert store.summary()["last_preparation"]["context_input_tokens"] is None
     assert store.recent_events()[0]["context_input_tokens"] is None
     assert path.read_bytes() == original  # Read-only views do not migrate the DB.
-    store.record({"counter": "regex-request-json-v1 (estimate)", "usable": True,
-                  "input_tokens": 9000, "memory_tokens": 7000, "reduced_tokens": 2000,
-                  "context_input_tokens": 2500})
+    store.record(
+        {
+            "counter": "regex-request-json-v1 (estimate)",
+            "usable": True,
+            "input_tokens": 9000,
+            "memory_tokens": 7000,
+            "reduced_tokens": 2000,
+            "context_input_tokens": 2500,
+        }
+    )
     with sqlite3.connect(path) as db:
         assert len(list(db.execute("PRAGMA table_info(context_usage_latest)"))) == 6
         # Already-running old MCP/gateway modules retain these exact SQL forms.
-        db.execute("INSERT OR REPLACE INTO context_usage_latest VALUES (1,'old-writer','regex',100,50,1)")
-        db.execute("INSERT INTO context_usage_events "
-                   "(recorded_at,counter,input_tokens,memory_tokens,usable,request_id) "
-                   "VALUES ('old-writer','regex',100,50,1,NULL)")
+        db.execute(
+            "INSERT OR REPLACE INTO context_usage_latest VALUES (1,'old-writer','regex',100,50,1)"
+        )
+        db.execute(
+            "INSERT INTO context_usage_events "
+            "(recorded_at,counter,input_tokens,memory_tokens,usable,request_id) "
+            "VALUES ('old-writer','regex',100,50,1,NULL)"
+        )
     assert store.summary()["last_preparation"]["context_input_tokens"] is None
     assert store.recent_events()[-1]["context_input_tokens"] is None
     # Even a legacy writer with no event must not inherit the preceding length.
     with sqlite3.connect(path) as db:
-        db.execute("UPDATE context_usage_events SET context_input_tokens=9999 WHERE recorded_at='old-writer'")
-        db.execute("INSERT OR REPLACE INTO context_usage_latest VALUES (1,'no-event','regex',200,80,1)")
+        db.execute(
+            "UPDATE context_usage_events SET context_input_tokens=9999 WHERE recorded_at='old-writer'"
+        )
+        db.execute(
+            "INSERT OR REPLACE INTO context_usage_latest VALUES (1,'no-event','regex',200,80,1)"
+        )
     assert store.summary()["last_preparation"]["context_input_tokens"] is None
 
 
@@ -187,8 +231,13 @@ def test_invalid_context_length_does_not_create_accounting_records(tmp_path, val
 def test_usage_event_cursor_and_paging_do_not_drop_bursts_larger_than_64(tmp_path):
     store = UsageStore(tmp_path / "usage.sqlite3")
     assert store.event_cursor() == 0 and not store.path.exists()
-    report = {"counter": "regex", "usable": True, "input_tokens": 1000,
-              "memory_tokens": 100, "reduced_tokens": 900}
+    report = {
+        "counter": "regex",
+        "usable": True,
+        "input_tokens": 1000,
+        "memory_tokens": 100,
+        "reduced_tokens": 900,
+    }
     store.record({**report, "request_id": "historical"})
     cursor = store.event_cursor()
     for number in range(80):

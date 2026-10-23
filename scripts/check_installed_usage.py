@@ -13,7 +13,8 @@ async def run(config_path: Path, output: Path, batch: int):
     config = json.loads(config_path.read_text(encoding="utf-8"))["mcpServers"]["tomc"]
     database = output / "widget_test.sqlite3"
     params = StdioServerParameters(
-        command=config["command"], args=config["args"],
+        command=config["command"],
+        args=config["args"],
         env={**config.get("env", {}), "TOMC_MEMORY_PATH": str(database.resolve())},
     )
     async with stdio_client(params) as (read, write), ClientSession(read, write) as client:
@@ -28,10 +29,14 @@ async def run(config_path: Path, output: Path, batch: int):
 
         before = await call("get_usage_stats")
         count = 300 if batch == 1 else 600
-        response = await call("prepare_context", {
-            "history": "\n".join(f"project_{i} = status_{i}" for i in range(count)),
-            "task": f"What is project_{count-1}?", "budget": 128,
-        })
+        response = await call(
+            "prepare_context",
+            {
+                "history": "\n".join(f"project_{i} = status_{i}" for i in range(count)),
+                "task": f"What is project_{count - 1}?",
+                "budget": 128,
+            },
+        )
         after = await call("get_usage_stats")
         unchanged = await call("get_usage_stats")
         assert after == unchanged
@@ -41,9 +46,14 @@ async def run(config_path: Path, output: Path, batch: int):
         before_total = before["by_counter"][0]["reduced_tokens"] if before["by_counter"] else 0
         assert after["by_counter"][0]["reduced_tokens"] == before_total + delta
         assert after["last_preparation"]["reduced_tokens"] == delta
-        receipt = {"batch": batch, "installed_configuration": str(config_path),
-                   "test_database": str(database.resolve()), "tools": names,
-                   "per_call": response["context_reduction"], "after": after}
+        receipt = {
+            "batch": batch,
+            "installed_configuration": str(config_path),
+            "test_database": str(database.resolve()),
+            "tools": names,
+            "per_call": response["context_reduction"],
+            "after": after,
+        }
         (output / f"installed_call_{batch}.json").write_text(
             json.dumps(receipt, ensure_ascii=False, indent=2), encoding="utf-8"
         )

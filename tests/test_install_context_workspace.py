@@ -21,19 +21,32 @@ def _fixture(tmp_path, *, claude=True, pet=True):
     package = runtime / "src/tomc"
     package.mkdir(parents=True)
     (runtime / "src/server.py").write_text("# configured server\n", encoding="utf-8")
-    server = {"type": "stdio", "command": "uv", "args": [
-        "run", "--locked", "--directory", str(runtime), "src/server.py"],
-        "env": {"MUST_NOT_COPY_RUNTIME_ENV": "runtime-value"}}
-    (runtime / "mcp.json").write_text(json.dumps({"mcpServers": {"tomc": server}}), encoding="utf-8")
+    server = {
+        "type": "stdio",
+        "command": "uv",
+        "args": ["run", "--locked", "--directory", str(runtime), "src/server.py"],
+        "env": {"MUST_NOT_COPY_RUNTIME_ENV": "runtime-value"},
+    }
+    (runtime / "mcp.json").write_text(
+        json.dumps({"mcpServers": {"tomc": server}}), encoding="utf-8"
+    )
     for name in installer.PET_MODULES:
         (package / name).write_bytes(f"# updated {name}\nVALUE = '上下文'\n".encode())
     if claude:
-        config = {"mcpServers": {
-            "tomc-memory": {"type": "stdio", "command": "old-uv", "args": ["old"],
-                            "env": {"KEEP_SECRET": "do-not-print-me", "TOMC_MEMORY_PATH": "chosen.sqlite3"},
-                            "timeout": 5000},
-            "other": {"command": "keep-other", "env": {"TOKEN": "keep-me"}},
-        }, "projects": {"project": {"otherData": True}}, "disabledMcpServers": ["other"]}
+        config = {
+            "mcpServers": {
+                "tomc-memory": {
+                    "type": "stdio",
+                    "command": "old-uv",
+                    "args": ["old"],
+                    "env": {"KEEP_SECRET": "do-not-print-me", "TOMC_MEMORY_PATH": "chosen.sqlite3"},
+                    "timeout": 5000,
+                },
+                "other": {"command": "keep-other", "env": {"TOKEN": "keep-me"}},
+            },
+            "projects": {"project": {"otherData": True}},
+            "disabledMcpServers": ["other"],
+        }
         (home / ".claude.json").write_bytes(b"\xef\xbb\xbf" + json.dumps(config).encode() + b"\r\n")
     if pet:
         target = home / ".codex/tomc/pet-current/src/tomc"
@@ -48,7 +61,9 @@ def _fixture(tmp_path, *, claude=True, pet=True):
 
 
 def _files(root):
-    return {str(path.relative_to(root)): path.read_bytes() for path in root.rglob("*") if path.is_file()}
+    return {
+        str(path.relative_to(root)): path.read_bytes() for path in root.rglob("*") if path.is_file()
+    }
 
 
 def test_default_dry_run_changes_nothing_and_does_not_print_config(tmp_path, capsys):
@@ -89,7 +104,8 @@ def test_install_preserves_claude_fields_artwork_and_exact_backups(tmp_path, cap
             assert (home / relative).read_bytes() == contents
     for name in installer.PET_MODULES:
         assert (home / ".codex/tomc/pet-current/src/tomc" / name).read_bytes() == (
-            runtime / "src/tomc" / name).read_bytes()
+            runtime / "src/tomc" / name
+        ).read_bytes()
     assert not (home / ".codex/plugins/cache").exists()
     assert not (home / ".claude/settings.json").exists()
     assert not (home / ".tomc").exists()
@@ -123,7 +139,9 @@ def test_second_install_is_noop_without_another_backup(tmp_path):
     assert _files(home) == before
 
 
-@pytest.mark.parametrize("damage", ["missing_module", "syntax", "bad_config", "wrong_directory", "bad_claude"])
+@pytest.mark.parametrize(
+    "damage", ["missing_module", "syntax", "bad_config", "wrong_directory", "bad_claude"]
+)
 def test_all_inputs_are_validated_before_changes_or_backup(tmp_path, damage):
     home, runtime = _fixture(tmp_path)
     if damage == "missing_module":

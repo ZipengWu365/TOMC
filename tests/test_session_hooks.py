@@ -16,16 +16,23 @@ ROOT = Path(__file__).resolve().parents[1]
 
 @pytest.fixture
 def installer():
-    spec = importlib.util.spec_from_file_location("install_hooks", ROOT / "scripts/install_session_hooks.py")
+    spec = importlib.util.spec_from_file_location(
+        "install_hooks", ROOT / "scripts/install_session_hooks.py"
+    )
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
 
 
 def event(kind="PreToolUse", **updates):
-    return {"hook_event_name": kind, "session_id": "session-a", "cwd": "/project",
-            "tool_name": "mcp__tomc__prepare_context", "tool_input": {"history": "PRIVATE", "task": "q"},
-            **updates}
+    return {
+        "hook_event_name": kind,
+        "session_id": "session-a",
+        "cwd": "/project",
+        "tool_name": "mcp__tomc__prepare_context",
+        "tool_input": {"history": "PRIVATE", "task": "q"},
+        **updates,
+    }
 
 
 def test_registration_never_reads_transcript_or_stores_prompt(tmp_path):
@@ -60,8 +67,11 @@ def test_claude_injects_only_identity_and_keeps_approval_unchanged(tmp_path):
     hook = output["hookSpecificOutput"]
     assert "permissionDecision" not in hook
     assert hook["updatedInput"] == {
-        "name": "notes", "task": "q", "budget": 20,
-        "tomc_host": "claude", "tomc_session_id": "session-a",
+        "name": "notes",
+        "task": "q",
+        "budget": 20,
+        "tomc_host": "claude",
+        "tomc_session_id": "session-a",
     }
     assert payload["tool_input"]["tomc_session_id"] == "wrong"
 
@@ -70,8 +80,15 @@ def test_codex_does_not_autoapprove_for_injection(tmp_path):
     assert session_hook.handle_event(event(), host="codex", store=tmp_path / "s.db") == {}
 
 
-@pytest.mark.parametrize("name", ["Bash", "mcp__other__prepare_context", "mcp__tomc__forget_memory",
-                                  "mcp__evil_tomc__prepare_context"])
+@pytest.mark.parametrize(
+    "name",
+    [
+        "Bash",
+        "mcp__other__prepare_context",
+        "mcp__tomc__forget_memory",
+        "mcp__evil_tomc__prepare_context",
+    ],
+)
 def test_unrelated_tools_never_modified_or_registered(tmp_path, name):
     db = tmp_path / "s.db"
     assert session_hook.handle_event(event(tool_name=name), host="codex", store=db) == {}
@@ -87,8 +104,12 @@ def test_unknown_or_subagent_identity_cannot_bypass_guard(tmp_path):
 def test_global_pause_is_enforced(tmp_path):
     db = tmp_path / "s.db"
     SessionStore(db).update_settings(enabled=False)
-    assert session_hook.handle_event(event(), host="claude_code", store=db)["hookSpecificOutput"][
-        "permissionDecision"] == "deny"
+    assert (
+        session_hook.handle_event(event(), host="claude_code", store=db)["hookSpecificOutput"][
+            "permissionDecision"
+        ]
+        == "deny"
+    )
 
 
 @pytest.mark.parametrize("kind", ["Stop", "PreToolUse"])
@@ -106,7 +127,12 @@ def test_background_activity_does_not_steal_selected_session(tmp_path, kind):
 
 def test_malformed_target_hook_fails_closed_without_echo(tmp_path, monkeypatch, capsys):
     monkeypatch.setattr(sys, "stdin", io.StringIO("{SECRET"))
-    assert session_hook.main(["--host", "codex", "--event", "PreToolUse", "--store", str(tmp_path / "s.db")]) == 0
+    assert (
+        session_hook.main(
+            ["--host", "codex", "--event", "PreToolUse", "--store", str(tmp_path / "s.db")]
+        )
+        == 0
+    )
     output = capsys.readouterr()
     assert json.loads(output.out)["hookSpecificOutput"]["permissionDecision"] == "deny"
     assert "SECRET" not in output.out + output.err
@@ -127,8 +153,15 @@ def test_dryrun_is_read_only_and_does_not_print_other_settings(tmp_path, install
 def test_fakehome_install_preserves_settings_and_is_idempotent(tmp_path, installer):
     path = tmp_path / ".claude/settings.json"
     path.parent.mkdir()
-    old = {"permissions": {"defaultMode": "plan"}, "env": {"PRIVATE": "unchanged"}, "hooks": {
-        "SessionStart": [{"matcher": "startup", "hooks": [{"type": "command", "command": "existing"}]}]}}
+    old = {
+        "permissions": {"defaultMode": "plan"},
+        "env": {"PRIVATE": "unchanged"},
+        "hooks": {
+            "SessionStart": [
+                {"matcher": "startup", "hooks": [{"type": "command", "command": "existing"}]}
+            ]
+        },
+    }
     raw = json.dumps(old, indent=4)
     path.write_text(raw, encoding="utf-8")
     args = ["--home", str(tmp_path), "--install"]
@@ -155,13 +188,30 @@ def test_bad_existing_config_prevents_both_installs(tmp_path, installer, capsys)
 @pytest.mark.skipif(os.name != "nt", reason="Actual Windows PowerShell pipe and quoting smoke test")
 def test_windows_command_handles_unicode_spaces_and_shell_metacharacters(tmp_path, installer):
     store = tmp_path / "猫 $money; & 'test' `echo`" / "store.sqlite3"
-    handler = installer.hook_definition("codex", python=Path(sys.executable),
-        script=ROOT / "src/tomc/session_hook.py", store=store, event="SessionStart")
+    handler = installer.hook_definition(
+        "codex",
+        python=Path(sys.executable),
+        script=ROOT / "src/tomc/session_hook.py",
+        store=store,
+        event="SessionStart",
+    )
     encoded = handler["commandWindows"].split("-EncodedCommand ", 1)[1]
     completed = subprocess.run(
-        ["powershell.exe", "-NoLogo", "-NoProfile", "-NonInteractive", "-WindowStyle", "Hidden",
-         "-EncodedCommand", encoded], input=json.dumps(event("SessionStart", cwd="C:/项目")),
-        capture_output=True, text=True, encoding="utf-8", timeout=20,
+        [
+            "powershell.exe",
+            "-NoLogo",
+            "-NoProfile",
+            "-NonInteractive",
+            "-WindowStyle",
+            "Hidden",
+            "-EncodedCommand",
+            encoded,
+        ],
+        input=json.dumps(event("SessionStart", cwd="C:/项目")),
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        timeout=20,
         creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
     )
     assert completed.returncode == 0, completed.stderr

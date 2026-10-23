@@ -25,15 +25,19 @@ def request_rows(store: Path, thread_id: str) -> list[dict]:
         return []
     with sqlite3.connect(store.resolve().as_uri() + "?mode=ro", uri=True, timeout=2) as db:
         db.row_factory = sqlite3.Row
-        if not db.execute("SELECT 1 FROM sqlite_master WHERE type='table' "
-                          "AND name='tomc_request_activity'").fetchone():
+        if not db.execute(
+            "SELECT 1 FROM sqlite_master WHERE type='table' AND name='tomc_request_activity'"
+        ).fetchone():
             return []
-        return [dict(row) for row in db.execute(
-            "SELECT request_id,host,session_id,state,reason,sent,before_tokens,after_tokens,"
-            "provider_input_tokens,provider_cached_tokens,updated_utc "
-            "FROM tomc_request_activity WHERE host='codex' AND session_id=? ORDER BY started_utc",
-            (thread_id,),
-        )]
+        return [
+            dict(row)
+            for row in db.execute(
+                "SELECT request_id,host,session_id,state,reason,sent,before_tokens,after_tokens,"
+                "provider_input_tokens,provider_cached_tokens,updated_utc "
+                "FROM tomc_request_activity WHERE host='codex' AND session_id=? ORDER BY started_utc",
+                (thread_id,),
+            )
+        ]
 
 
 def command(executable: str, thread_id: str) -> list[str]:
@@ -44,8 +48,9 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--codex", default=shutil.which("codex"))
     parser.add_argument("--thread-id", required=True)
-    parser.add_argument("--workdir", type=Path, required=True,
-                        help="Previous authorized test's fixture directory.")
+    parser.add_argument(
+        "--workdir", type=Path, required=True, help="Previous authorized test's fixture directory."
+    )
     parser.add_argument("--store", type=Path, default=Path.home() / ".tomc" / "memory.sqlite3")
     parser.add_argument("--output-directory", type=Path, default=Path("outputs"))
     parser.add_argument("--timeout", type=int, default=300)
@@ -58,11 +63,20 @@ def main(argv: list[str] | None = None) -> int:
     if args.timeout < 1:
         parser.error("--timeout must be positive")
     if not args.run:
-        print(json.dumps({"mode": "dry-run", "thread_id": args.thread_id,
-                          "command": command(args.codex or "codex", args.thread_id),
-                          "provider_override": False, "model_override": False,
-                          "store_scope": "Read only rows for this test thread",
-                          "desktop_visual_verification": "separate check required"}, indent=2))
+        print(
+            json.dumps(
+                {
+                    "mode": "dry-run",
+                    "thread_id": args.thread_id,
+                    "command": command(args.codex or "codex", args.thread_id),
+                    "provider_override": False,
+                    "model_override": False,
+                    "store_scope": "Read only rows for this test thread",
+                    "desktop_visual_verification": "separate check required",
+                },
+                indent=2,
+            )
+        )
         return 0
     if not args.codex:
         parser.error("Codex executable not found; provide --codex")
@@ -76,12 +90,24 @@ def main(argv: list[str] | None = None) -> int:
         "inspect real projects, or read configuration or credentials. Answer in one compact line."
     )
     started = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-    report = {"created_utc": started, "thread_id": args.thread_id, "synthetic_prompt": prompt,
-              "configuration_overrides": [], "desktop_visual_verified": False}
+    report = {
+        "created_utc": started,
+        "thread_id": args.thread_id,
+        "synthetic_prompt": prompt,
+        "configuration_overrides": [],
+        "desktop_visual_verified": False,
+    }
     try:
-        completed = subprocess.run(command(args.codex, args.thread_id), input=prompt,
-                                   cwd=args.workdir.resolve(), capture_output=True, text=True,
-                                   encoding="utf-8", errors="replace", timeout=args.timeout)
+        completed = subprocess.run(
+            command(args.codex, args.thread_id),
+            input=prompt,
+            cwd=args.workdir.resolve(),
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            timeout=args.timeout,
+        )
         report["turn"] = selected_events(completed.stdout)
         report["exit_code"] = completed.returncode
         report["stderr_present"] = bool(completed.stderr.strip())
@@ -90,8 +116,11 @@ def main(argv: list[str] | None = None) -> int:
         report["failure_class"] = type(error).__name__
     new_rows = []
     for _ in range(25):
-        new_rows = [row for row in request_rows(args.store, args.thread_id)
-                    if row["request_id"] not in old_ids]
+        new_rows = [
+            row
+            for row in request_rows(args.store, args.thread_id)
+            if row["request_id"] not in old_ids
+        ]
         if any(row["sent"] and row["provider_input_tokens"] is not None for row in new_rows):
             break
         time.sleep(0.2)
@@ -100,30 +129,51 @@ def main(argv: list[str] | None = None) -> int:
     if new_rows:
         try:
             from tomc.context_library_qt import request_activity_text
+
             report["cat_status_text"] = request_activity_text(new_rows[-1])
         except ImportError:
             report["cat_status_formatter_unavailable"] = True
     answer = " ".join(report["turn"].get("answers", [])).lower()
     report["checks"] = {
         "same_thread_completed": report["turn"].get("completed")
-            and not report["turn"].get("error_seen")
-            and report["turn"].get("thread_id") == args.thread_id,
-        "five_facts_correct": all(value in answer for value in
-                                  ("blueglass", "teal", "eu", "friday", "tomc_fixture_ok_47")),
+        and not report["turn"].get("error_seen")
+        and report["turn"].get("thread_id") == args.thread_id,
+        "five_facts_correct": all(
+            value in answer for value in ("blueglass", "teal", "eu", "friday", "tomc_fixture_ok_47")
+        ),
         "global_gateway_observed_and_forwarded": any(row["sent"] for row in new_rows),
-        "provider_usage_observed": any(row["provider_input_tokens"] is not None for row in new_rows),
-        "old_context_rewritten": any(row["state"] == "forwarded"
-            and isinstance(row["before_tokens"], int) and isinstance(row["after_tokens"], int)
-            and row["after_tokens"] < row["before_tokens"] for row in new_rows),
+        "provider_usage_observed": any(
+            row["provider_input_tokens"] is not None for row in new_rows
+        ),
+        "old_context_rewritten": any(
+            row["state"] == "forwarded"
+            and isinstance(row["before_tokens"], int)
+            and isinstance(row["after_tokens"], int)
+            and row["after_tokens"] < row["before_tokens"]
+            for row in new_rows
+        ),
         "cat_activity_data_available": bool(report["cat_status_text"]),
     }
     report["passed"] = all(report["checks"].values())
     args.output_directory.mkdir(parents=True, exist_ok=True)
-    path = args.output_directory.resolve() / f"codex_global_verified_{started}_{uuid.uuid4().hex[:8]}.json"
+    path = (
+        args.output_directory.resolve()
+        / f"codex_global_verified_{started}_{uuid.uuid4().hex[:8]}.json"
+    )
     path.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
-    print(json.dumps({"report": str(path), "passed": report["passed"],
-                      "checks": report["checks"], "cat_status_text": report["cat_status_text"],
-                      "desktop_visual_verified": False}, ensure_ascii=False, indent=2))
+    print(
+        json.dumps(
+            {
+                "report": str(path),
+                "passed": report["passed"],
+                "checks": report["checks"],
+                "cat_status_text": report["cat_status_text"],
+                "desktop_visual_verified": False,
+            },
+            ensure_ascii=False,
+            indent=2,
+        )
+    )
     return 0 if report["passed"] else 1
 
 

@@ -38,8 +38,14 @@ from datetime import datetime, timezone
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
-DROP_HEADERS = {"authorization", "cookie", "chatgpt-account-id", "openai-organization",
-                "openai-project", "proxy-authorization"}
+DROP_HEADERS = {
+    "authorization",
+    "cookie",
+    "chatgpt-account-id",
+    "openai-organization",
+    "openai-project",
+    "proxy-authorization",
+}
 FACT = "FIXTURE_FACT_ALPHA_17"
 TOMC_MARKER = "TOMC_FIXTURE_WINDOW"
 OPAQUE_MARKER = "FIXTURE_OPAQUE_STATE"
@@ -52,6 +58,7 @@ def _decode(raw: bytes, encoding: str) -> bytes:
         return gzip.decompress(raw)
     if encoding == "zstd":
         import zstandard
+
         with zstandard.ZstdDecompressor().stream_reader(io.BytesIO(raw)) as source:
             return source.read()
     raise ValueError(encoding)
@@ -71,13 +78,28 @@ class Fixture:
 
     def window(self, body: dict) -> list[dict]:
         items = body.get("input") if isinstance(body.get("input"), list) else []
-        users = [i for i in items if isinstance(i, dict) and i.get("type", "message") == "message"
-                 and i.get("role") == "user"]
+        users = [
+            i
+            for i in items
+            if isinstance(i, dict)
+            and i.get("type", "message") == "message"
+            and i.get("role") == "user"
+        ]
         retained = users[-1:] if users else []
         if self.compact_mode == "tomc":
-            memory = {"type": "message", "role": "user", "content": [{"type": "input_text", "text": (
-                f"{TOMC_MARKER}: <tomc_history>compiled fixture evidence; the earlier code was "
-                f"{FACT}</tomc_history>")}]}
+            memory = {
+                "type": "message",
+                "role": "user",
+                "content": [
+                    {
+                        "type": "input_text",
+                        "text": (
+                            f"{TOMC_MARKER}: <tomc_history>compiled fixture evidence; the earlier code was "
+                            f"{FACT}</tomc_history>"
+                        ),
+                    }
+                ],
+            }
             return [memory, *retained]
         return [*retained, {"type": "compaction", "encrypted_content": OPAQUE_MARKER}]
 
@@ -104,15 +126,23 @@ class Fixture:
                 return self.rfile.read(int(self.headers.get("Content-Length", "0")))
 
             def _record(self, body):
-                headers = {k.lower(): v for k, v in self.headers.items() if k.lower() not in DROP_HEADERS}
+                headers = {
+                    k.lower(): v for k, v in self.headers.items() if k.lower() not in DROP_HEADERS
+                }
                 with fixture.lock:
                     seq = len(fixture.records) + 1
-                    entry = {"seq": seq, "method": self.command, "path": self.path.split("?")[0],
-                             "headers": headers, "body_file": None}
+                    entry = {
+                        "seq": seq,
+                        "method": self.command,
+                        "path": self.path.split("?")[0],
+                        "headers": headers,
+                        "body_file": None,
+                    }
                     if body is not None:
                         name = f"requests/{seq:03d}.json"
                         (fixture.directory / name).write_text(
-                            json.dumps(body, ensure_ascii=False, indent=1), encoding="utf-8")
+                            json.dumps(body, ensure_ascii=False, indent=1), encoding="utf-8"
+                        )
                         entry["body_file"] = name
                         entry["body"] = body
                     fixture.records.append(entry)
@@ -129,81 +159,194 @@ class Fixture:
                 self._record(None)
                 if self.headers.get("Upgrade"):
                     return self._send(426, b"", "text/plain")
-                self._send(404, b'{"error":{"message":"fixture","type":"not_found"}}', "application/json")
+                self._send(
+                    404, b'{"error":{"message":"fixture","type":"not_found"}}', "application/json"
+                )
 
             def do_POST(self):
                 raw = self._body()
                 try:
-                    body = json.loads(_decode(raw, self.headers.get("Content-Encoding", "").lower()))
+                    body = json.loads(
+                        _decode(raw, self.headers.get("Content-Encoding", "").lower())
+                    )
                 except Exception:
                     body = {"undecodable": True, "bytes": len(raw)}
                 entry = self._record(body)
                 path = entry["path"].rstrip("/")
                 if path.endswith("/responses/compact"):
                     if fixture.compact_mode == "error":
-                        return self._send(500, b'{"error":{"message":"fixture compact failure",'
-                                               b'"type":"server_error"}}', "application/json")
+                        return self._send(
+                            500,
+                            b'{"error":{"message":"fixture compact failure",'
+                            b'"type":"server_error"}}',
+                            "application/json",
+                        )
                     window = fixture.window(body)
                     entry["served_window"] = window
-                    return self._send(200, json.dumps({"output": window}).encode(), "application/json")
+                    return self._send(
+                        200, json.dumps({"output": window}).encode(), "application/json"
+                    )
                 if not path.endswith("/responses"):
                     return self._send(404, b"{}", "application/json")
                 fixture.replies += 1
                 rid = f"resp_fixture_{fixture.replies}"
-                events = [("response.created", {"type": "response.created", "response": {"id": rid}})]
+                events = [
+                    ("response.created", {"type": "response.created", "response": {"id": rid}})
+                ]
                 failure = fixture.fail_next_turn
                 fixture.fail_next_turn = None
                 inputs = body.get("input") if isinstance(body.get("input"), list) else []
-                compaction_turn = bool(inputs) and isinstance(inputs[-1], dict) and \
-                    inputs[-1].get("type") == "compaction_trigger"
+                compaction_turn = (
+                    bool(inputs)
+                    and isinstance(inputs[-1], dict)
+                    and inputs[-1].get("type") == "compaction_trigger"
+                )
                 entry["compaction_turn"] = compaction_turn
                 if compaction_turn and fixture.compact_mode == "error":
-                    return self._send(500, b'{"error":{"message":"fixture compaction failure",'
-                                           b'"type":"server_error"}}', "application/json")
+                    return self._send(
+                        500,
+                        b'{"error":{"message":"fixture compaction failure","type":"server_error"}}',
+                        "application/json",
+                    )
                 if compaction_turn and fixture.compact_mode == "v2_item":
-                    item = {"type": "compaction", "id": f"cmp_{rid}",
-                            "encrypted_content": f"{OPAQUE_MARKER}_{fixture.replies}"}
+                    item = {
+                        "type": "compaction",
+                        "id": f"cmp_{rid}",
+                        "encrypted_content": f"{OPAQUE_MARKER}_{fixture.replies}",
+                    }
                     entry["served_window"] = [item]
-                    events.append(("response.output_item.done",
-                                   {"type": "response.output_item.done", "item": item}))
-                    events.append(("response.completed", {"type": "response.completed", "response": {
-                        "id": rid, "status": "completed", "usage": {
-                            "input_tokens": fixture.usage_input, "input_tokens_details": {"cached_tokens": 0},
-                            "output_tokens": 5, "output_tokens_details": {"reasoning_tokens": 0},
-                            "total_tokens": fixture.usage_input + 5}}}))
+                    events.append(
+                        (
+                            "response.output_item.done",
+                            {"type": "response.output_item.done", "item": item},
+                        )
+                    )
+                    events.append(
+                        (
+                            "response.completed",
+                            {
+                                "type": "response.completed",
+                                "response": {
+                                    "id": rid,
+                                    "status": "completed",
+                                    "usage": {
+                                        "input_tokens": fixture.usage_input,
+                                        "input_tokens_details": {"cached_tokens": 0},
+                                        "output_tokens": 5,
+                                        "output_tokens_details": {"reasoning_tokens": 0},
+                                        "total_tokens": fixture.usage_input + 5,
+                                    },
+                                },
+                            },
+                        )
+                    )
                     stream = "".join(f"event: {n}\ndata: {json.dumps(d)}\n\n" for n, d in events)
                     return self._send(200, stream.encode(), "text/event-stream")
                 if compaction_turn and fixture.compact_mode == "tomc":
                     # Readable replacement text where Codex expects one compaction item.
-                    entry["served_window"] = [{"type": "message", "role": "assistant", "text": TOMC_MARKER}]
-                    events.append(("response.output_item.done", {"type": "response.output_item.done",
-                                   "item": {"type": "message", "role": "assistant", "id": f"msg_{rid}",
-                                            "content": [{"type": "output_text", "text": (
-                                                f"{TOMC_MARKER}: <tomc_history>{FACT}</tomc_history>")}]}}))
-                    events.append(("response.completed", {"type": "response.completed", "response": {
-                        "id": rid, "status": "completed", "usage": {
-                            "input_tokens": fixture.usage_input, "input_tokens_details": {"cached_tokens": 0},
-                            "output_tokens": 5, "output_tokens_details": {"reasoning_tokens": 0},
-                            "total_tokens": fixture.usage_input + 5}}}))
+                    entry["served_window"] = [
+                        {"type": "message", "role": "assistant", "text": TOMC_MARKER}
+                    ]
+                    events.append(
+                        (
+                            "response.output_item.done",
+                            {
+                                "type": "response.output_item.done",
+                                "item": {
+                                    "type": "message",
+                                    "role": "assistant",
+                                    "id": f"msg_{rid}",
+                                    "content": [
+                                        {
+                                            "type": "output_text",
+                                            "text": (
+                                                f"{TOMC_MARKER}: <tomc_history>{FACT}</tomc_history>"
+                                            ),
+                                        }
+                                    ],
+                                },
+                            },
+                        )
+                    )
+                    events.append(
+                        (
+                            "response.completed",
+                            {
+                                "type": "response.completed",
+                                "response": {
+                                    "id": rid,
+                                    "status": "completed",
+                                    "usage": {
+                                        "input_tokens": fixture.usage_input,
+                                        "input_tokens_details": {"cached_tokens": 0},
+                                        "output_tokens": 5,
+                                        "output_tokens_details": {"reasoning_tokens": 0},
+                                        "total_tokens": fixture.usage_input + 5,
+                                    },
+                                },
+                            },
+                        )
+                    )
                     stream = "".join(f"event: {n}\ndata: {json.dumps(d)}\n\n" for n, d in events)
                     return self._send(200, stream.encode(), "text/event-stream")
                 if failure:
-                    events.append(("response.failed", {"type": "response.failed", "response": {
-                        "id": rid, "status": "failed",
-                        "error": {"code": failure, "message": f"fixture {failure}"}}}))
+                    events.append(
+                        (
+                            "response.failed",
+                            {
+                                "type": "response.failed",
+                                "response": {
+                                    "id": rid,
+                                    "status": "failed",
+                                    "error": {"code": failure, "message": f"fixture {failure}"},
+                                },
+                            },
+                        )
+                    )
                 else:
-                    events.append(("response.output_item.done", {"type": "response.output_item.done",
-                                   "item": {"type": "message", "role": "assistant", "id": f"msg_{rid}",
-                                            "content": [{"type": "output_text",
-                                                         "text": f"FIXTURE_REPLY_{fixture.replies}"}]}}))
-                    events.append(("response.completed", {"type": "response.completed", "response": {
-                        "id": rid, "status": "completed", "usage": {
-                            "input_tokens": fixture.usage_input,
-                            "input_tokens_details": {"cached_tokens": 0},
-                            "output_tokens": 5, "output_tokens_details": {"reasoning_tokens": 0},
-                            "total_tokens": fixture.usage_input + 5}}}))
-                stream = "".join(f"event: {name}\ndata: {json.dumps(data)}\n\n" for name, data in events)
+                    events.append(
+                        (
+                            "response.output_item.done",
+                            {
+                                "type": "response.output_item.done",
+                                "item": {
+                                    "type": "message",
+                                    "role": "assistant",
+                                    "id": f"msg_{rid}",
+                                    "content": [
+                                        {
+                                            "type": "output_text",
+                                            "text": f"FIXTURE_REPLY_{fixture.replies}",
+                                        }
+                                    ],
+                                },
+                            },
+                        )
+                    )
+                    events.append(
+                        (
+                            "response.completed",
+                            {
+                                "type": "response.completed",
+                                "response": {
+                                    "id": rid,
+                                    "status": "completed",
+                                    "usage": {
+                                        "input_tokens": fixture.usage_input,
+                                        "input_tokens_details": {"cached_tokens": 0},
+                                        "output_tokens": 5,
+                                        "output_tokens_details": {"reasoning_tokens": 0},
+                                        "total_tokens": fixture.usage_input + 5,
+                                    },
+                                },
+                            },
+                        )
+                    )
+                stream = "".join(
+                    f"event: {name}\ndata: {json.dumps(data)}\n\n" for name, data in events
+                )
                 self._send(200, stream.encode(), "text/event-stream")
+
         return Handler
 
 
@@ -219,11 +362,16 @@ def _summary(entry: dict) -> dict:
         if label == "message":
             label += ":" + str(item.get("role"))
         text = json.dumps(item, ensure_ascii=False)
-        tags = [tag for tag, marker in (("TOMC", TOMC_MARKER), ("OPAQUE", OPAQUE_MARKER), ("FACT", FACT))
-                if marker in text]
+        tags = [
+            tag
+            for tag, marker in (("TOMC", TOMC_MARKER), ("OPAQUE", OPAQUE_MARKER), ("FACT", FACT))
+            if marker in text
+        ]
         shape.append(label + ("[" + ",".join(tags) + "]" if tags else ""))
     turn_header = entry["headers"].get("x-codex-turn-metadata")
-    metadata = body.get("client_metadata") if isinstance(body.get("client_metadata"), dict) else None
+    metadata = (
+        body.get("client_metadata") if isinstance(body.get("client_metadata"), dict) else None
+    )
 
     def parse(value):
         try:
@@ -232,14 +380,18 @@ def _summary(entry: dict) -> dict:
             return {"unparseable": True}
 
     return {
-        "seq": entry["seq"], "method": entry["method"], "path": entry["path"],
+        "seq": entry["seq"],
+        "method": entry["method"],
+        "path": entry["path"],
         "thread_id_header": entry["headers"].get("thread-id"),
         "turn_metadata_header": parse(turn_header),
         "client_metadata": {k: parse(v) for k, v in (metadata or {}).items()},
         "top_level_keys": sorted(body) if isinstance(body, dict) else None,
-        "store": body.get("store"), "previous_response_id": body.get("previous_response_id"),
+        "store": body.get("store"),
+        "previous_response_id": body.get("previous_response_id"),
         "has_context_management": "context_management" in body,
-        "input_shape": shape, "served_window": entry.get("served_window"),
+        "input_shape": shape,
+        "served_window": entry.get("served_window"),
         "body_file": entry.get("body_file"),
     }
 
@@ -263,24 +415,55 @@ def main(argv=None) -> int:
     threading.Thread(target=server.serve_forever, daemon=True).start()
     url = f"http://127.0.0.1:{server.server_port}/v1"
     (home / "config.toml").write_text(
-        f'model = {json.dumps(args.model)}\nopenai_base_url = {json.dumps(url)}\n'
-        f'chatgpt_base_url = {json.dumps(url)}\nmodel_auto_compact_token_limit = 3000\n'
-        'check_for_update_on_startup = false\n', encoding="utf-8")
-    allowed = {"SYSTEMROOT", "WINDIR", "PATH", "PATHEXT", "TEMP", "TMP", "USERPROFILE",
-               "HOMEDRIVE", "HOMEPATH", "LOCALAPPDATA", "APPDATA", "COMSPEC"}
+        f"model = {json.dumps(args.model)}\nopenai_base_url = {json.dumps(url)}\n"
+        f"chatgpt_base_url = {json.dumps(url)}\nmodel_auto_compact_token_limit = 3000\n"
+        "check_for_update_on_startup = false\n",
+        encoding="utf-8",
+    )
+    allowed = {
+        "SYSTEMROOT",
+        "WINDIR",
+        "PATH",
+        "PATHEXT",
+        "TEMP",
+        "TMP",
+        "USERPROFILE",
+        "HOMEDRIVE",
+        "HOMEPATH",
+        "LOCALAPPDATA",
+        "APPDATA",
+        "COMSPEC",
+    }
     env = {k: v for k, v in os.environ.items() if k.upper() in allowed}
     env.update(CODEX_HOME=str(home), OPENAI_API_KEY="fixture-not-a-real-key", RUST_LOG="error")
-    version = subprocess.run([str(args.executable), "--version"], capture_output=True, text=True).stdout.strip()
-    report: dict = {"schema_version": 1, "executable_version": version, "label": args.label,
-                    "created_utc": stamp, "no_model_execution": True, "production_touched": False,
-                    "fixture_auth_only": True, "auth_mode": "api_key_placeholder",
-                    "auto_compact_token_limit": 3000, "steps": []}
+    version = subprocess.run(
+        [str(args.executable), "--version"], capture_output=True, text=True
+    ).stdout.strip()
+    report: dict = {
+        "schema_version": 1,
+        "executable_version": version,
+        "label": args.label,
+        "created_utc": stamp,
+        "no_model_execution": True,
+        "production_touched": False,
+        "fixture_auth_only": True,
+        "auth_mode": "api_key_placeholder",
+        "auto_compact_token_limit": 3000,
+        "steps": [],
+    }
     state: dict = {}
 
     def launch():
-        process = subprocess.Popen([str(args.executable), "app-server"], cwd=work, env=env,
-                                   stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-                                   stderr=subprocess.DEVNULL, text=True, encoding="utf-8")
+        process = subprocess.Popen(
+            [str(args.executable), "app-server"],
+            cwd=work,
+            env=env,
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
+            text=True,
+            encoding="utf-8",
+        )
         inbox: queue.Queue = queue.Queue()
 
         def reader():
@@ -332,8 +515,13 @@ def main(argv=None) -> int:
         return False
 
     def initialize():
-        init = call("initialize", {"clientInfo": {"name": "tomc-compaction-probe", "version": "0.0.0"},
-                                   "capabilities": {"experimentalApi": True}})
+        init = call(
+            "initialize",
+            {
+                "clientInfo": {"name": "tomc-compaction-probe", "version": "0.0.0"},
+                "capabilities": {"experimentalApi": True},
+            },
+        )
         if "error" in init:
             raise RuntimeError("initialize failed")
         write({"method": "initialized"})
@@ -345,25 +533,47 @@ def main(argv=None) -> int:
         time.sleep(0.3)
         notices = state["notices"][notice_start:]
         record = {
-            "step": label, "rpc": method,
+            "step": label,
+            "rpc": method,
             "rpc_error": response.get("error", {}).get("message") if "error" in response else None,
             "settled": settled,
             "notifications": sorted({n.get("method") for n in notices}),
-            "turn_status": next((n["params"]["turn"].get("status") for n in notices
-                                 if n.get("method") == "turn/completed"), None),
-            "turn_error": next((n["params"]["turn"].get("error") for n in notices
-                                if n.get("method") == "turn/completed"
-                                and n["params"]["turn"].get("error")), None),
-            "item_types": sorted({n["params"].get("item", {}).get("type") for n in notices
-                                  if n.get("method") in {"item/started", "item/completed"}} - {None}),
+            "turn_status": next(
+                (
+                    n["params"]["turn"].get("status")
+                    for n in notices
+                    if n.get("method") == "turn/completed"
+                ),
+                None,
+            ),
+            "turn_error": next(
+                (
+                    n["params"]["turn"].get("error")
+                    for n in notices
+                    if n.get("method") == "turn/completed" and n["params"]["turn"].get("error")
+                ),
+                None,
+            ),
+            "item_types": sorted(
+                {
+                    n["params"].get("item", {}).get("type")
+                    for n in notices
+                    if n.get("method") in {"item/started", "item/completed"}
+                }
+                - {None}
+            ),
             "traffic": [_summary(e) for e in fixture.records[first:]],
         }
         report["steps"].append(record)
         return response
 
     def turn(label, thread_id, text, **kwargs):
-        return step(label, "turn/start", {"threadId": thread_id, "input": [{"type": "text", "text": text}]},
-                    **kwargs)
+        return step(
+            label,
+            "turn/start",
+            {"threadId": thread_id, "input": [{"type": "text", "text": text}]},
+            **kwargs,
+        )
 
     def new_thread():
         response = call("thread/start", {"cwd": str(work), "model": args.model})
@@ -375,7 +585,11 @@ def main(argv=None) -> int:
         # S1: explicit compaction answered with readable replacement text.
         t1 = new_thread()
         report["S1_thread"] = t1
-        turn("S1.turn1_fresh_thread", t1, f"Fixture turn one. Remember the code {FACT}. Reply briefly.")
+        turn(
+            "S1.turn1_fresh_thread",
+            t1,
+            f"Fixture turn one. Remember the code {FACT}. Reply briefly.",
+        )
         turn("S1.turn2", t1, "Fixture turn two. Reply briefly.")
         fixture.compact_mode = "tomc"
         step("S1.compact_readable_text", "thread/compact/start", {"threadId": t1})

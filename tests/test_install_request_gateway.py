@@ -8,7 +8,9 @@ import tomlkit
 
 SCRIPTS = Path(__file__).parents[1] / "scripts"
 sys.path.insert(0, str(SCRIPTS))
-spec = importlib.util.spec_from_file_location("gateway_installer", SCRIPTS / "install_request_gateway.py")
+spec = importlib.util.spec_from_file_location(
+    "gateway_installer", SCRIPTS / "install_request_gateway.py"
+)
 module = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(module)
 
@@ -20,8 +22,12 @@ def home_runtime(tmp_path):
     (home / ".claude").mkdir()
     (runtime / "src/tomc").mkdir(parents=True)
     (runtime / "src/tomc/request_gateway.py").write_text("# fixture")
-    (home / ".codex/config.toml").write_text('# comment\nmodel="existing"\napproval_policy="on-request"\n[plugins.test]\nenabled=true\n')
-    (home / ".claude/settings.json").write_text(json.dumps({"env": {"KEEP": "fixture"}, "permissions": {"allow": []}}))
+    (home / ".codex/config.toml").write_text(
+        '# comment\nmodel="existing"\napproval_policy="on-request"\n[plugins.test]\nenabled=true\n'
+    )
+    (home / ".claude/settings.json").write_text(
+        json.dumps({"env": {"KEEP": "fixture"}, "permissions": {"allow": []}})
+    )
     return home, runtime
 
 
@@ -37,14 +43,18 @@ def test_preview_preserves_settings_and_places_root_key(home_runtime):
     assert document["approval_policy"] == "on-request"
     assert document["plugins"]["test"]["enabled"] is True
     assert codex.after.startswith(b"# comment")
-    claude = json.loads(next(c.after for c in plan.changes if c.relative == ".claude/settings.json"))
+    claude = json.loads(
+        next(c.after for c in plan.changes if c.relative == ".claude/settings.json")
+    )
     assert claude["env"]["KEEP"] == "fixture"
     assert claude["permissions"] == {"allow": []}
 
 
 def test_activation_and_exact_rollback(home_runtime):
     home, runtime = home_runtime
-    originals = {p: p.read_bytes() for p in (home / ".codex/config.toml", home / ".claude/settings.json")}
+    originals = {
+        p: p.read_bytes() for p in (home / ".codex/config.toml", home / ".claude/settings.json")
+    }
     result = module.install(module.plan_activation(home, runtime))
     assert result["status"] == "installed"
     assert module.plan_activation(home, runtime).changes == ()
@@ -76,15 +86,21 @@ def test_host_specific_install(home_runtime):
     assert ".claude/settings.json" not in [c.relative for c in plan.changes]
 
 
-@pytest.mark.parametrize("hosts,restart", [(("claude",), False), (("codex",), True), (("codex", "claude"), True)])
+@pytest.mark.parametrize(
+    "hosts,restart", [(("claude",), False), (("codex",), True), (("codex", "claude"), True)]
+)
 def test_reload_marker_distinguishes_configuration_from_live_sessions(home_runtime, hosts, restart):
     home, runtime = home_runtime
     plan = module.plan_activation(home, runtime, hosts=hosts)
-    marker = json.loads(next(c.after for c in plan.changes if c.relative.endswith("gateway-routing.json")))
+    marker = json.loads(
+        next(c.after for c in plan.changes if c.relative.endswith("gateway-routing.json"))
+    )
     assert marker["requires_client_restart"] is restart
     assert marker["existing_sessions_verified"] is False
     assert marker["client_reload"] == {
-        host: "settings_env_hot_reload_supported" if host == "claude" else "restart_or_new_thread_required"
+        host: "settings_env_hot_reload_supported"
+        if host == "claude"
+        else "restart_or_new_thread_required"
         for host in hosts
     }
 
@@ -151,9 +167,13 @@ def test_stage_receipt_covers_requirements_and_does_not_activate_clients(tmp_pat
     package = source / "src/tomc"
     package.mkdir(parents=True)
     (package / "request_gateway.py").write_text("# fixture gateway")
-    (package / "data.json").write_text('{}')
+    (package / "data.json").write_text("{}")
     (source / "scripts").mkdir()
-    for name in ("install_request_gateway.py", "install_context_workspace.py", "request_gateway_launcher.pyw"):
+    for name in (
+        "install_request_gateway.py",
+        "install_context_workspace.py",
+        "request_gateway_launcher.pyw",
+    ):
         (source / "scripts" / name).write_text("# fixture script")
     (source / "requirements-gateway.txt").write_text("fixture==1")
     result = staging.stage(source, target)
@@ -165,7 +185,9 @@ def test_stage_receipt_covers_requirements_and_does_not_activate_clients(tmp_pat
 
 
 @pytest.mark.parametrize("failure", ["status_write", "interrupt"])
-def test_supervisor_does_not_orphan_child_on_status_failure_or_interruption(tmp_path, monkeypatch, failure):
+def test_supervisor_does_not_orphan_child_on_status_failure_or_interruption(
+    tmp_path, monkeypatch, failure
+):
     launcher = _load_script("gateway_launcher", "request_gateway_launcher.pyw")
     actions = []
 
@@ -184,7 +206,12 @@ def test_supervisor_does_not_orphan_child_on_status_failure_or_interruption(tmp_
             actions.append("terminate")
 
     def launch(arguments, **options):
-        assert options["stdin"] == options["stdout"] == options["stderr"] == launcher.subprocess.DEVNULL
+        assert (
+            options["stdin"]
+            == options["stdout"]
+            == options["stderr"]
+            == launcher.subprocess.DEVNULL
+        )
         assert options["creationflags"] == getattr(launcher.subprocess, "CREATE_NO_WINDOW", 0)
         actions.append("start")
         return Child()

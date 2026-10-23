@@ -99,8 +99,12 @@ def test_concurrent_saves_and_explicit_retry_keys(tmp_path):
     path = tmp_path / "memory.sqlite3"
     prepared = _prepared()
     with ThreadPoolExecutor(max_workers=6) as workers:
-        results = list(workers.map(lambda _: ContextLibrary(path).save(
-            prepared, preparation_id="one-request"), range(20)))
+        results = list(
+            workers.map(
+                lambda _: ContextLibrary(path).save(prepared, preparation_id="one-request"),
+                range(20),
+            )
+        )
     assert len({row["id"] for row in results}) == 1
     library = ContextLibrary(path)
     assert len(library.list()) == 1
@@ -149,7 +153,9 @@ def test_handoff_and_repeat_exports_are_portable_and_do_not_overwrite(tmp_path):
 
 def test_handoff_language_changes_only_instructions_not_saved_content(tmp_path):
     library = ContextLibrary(tmp_path / "memory.sqlite3")
-    record = library.save(_prepared(), task="用户原任务：保留中文", host="codex", session_id="source")
+    record = library.save(
+        _prepared(), task="用户原任务：保留中文", host="codex", session_id="source"
+    )
     library.rename(record["id"], "用户标题保持原文")
     before = library.get(record["id"])
     chinese = library.handoff_prompt(record["id"], language="zh")
@@ -159,7 +165,9 @@ def test_handoff_language_changes_only_instructions_not_saved_content(tmp_path):
     for text in (chinese, english):
         assert before["task"] in text and before["memory"] in text
     bundle = library.export(record["id"], tmp_path / "export", language="zh")
-    assert "读取与本文件位于同一目录的 CONTEXT.md" in (bundle / "START_HERE.md").read_text(encoding="utf-8")
+    assert "读取与本文件位于同一目录的 CONTEXT.md" in (bundle / "START_HERE.md").read_text(
+        encoding="utf-8"
+    )
     assert (bundle / "CONTEXT.md").read_text(encoding="utf-8") == before["memory"]
     assert library.get(record["id"]) == before
     with pytest.raises(ValueError, match="language"):
@@ -169,8 +177,9 @@ def test_handoff_language_changes_only_instructions_not_saved_content(tmp_path):
 
 def test_import_deduplicates_without_usage_or_local_session_attribution(tmp_path):
     original = ContextLibrary(tmp_path / "first" / "memory.sqlite3")
-    saved = original.save(_prepared(), host="codex", session_id="origin-thread",
-                          preparation_id="origin-preparation")
+    saved = original.save(
+        _prepared(), host="codex", session_id="origin-thread", preparation_id="origin-preparation"
+    )
     bundle = original.export(saved["id"], tmp_path / "project")
     moved = tmp_path / "another-computer" / "copied-bundle"
     moved.parent.mkdir()
@@ -207,7 +216,9 @@ def test_import_same_id_with_valid_but_changed_content_is_a_conflict(tmp_path):
     assert library.get(saved["id"])["memory"] == saved["memory"]
 
 
-@pytest.mark.parametrize("damage", ["memory", "metadata", "version", "path", "duplicate", "missing"])
+@pytest.mark.parametrize(
+    "damage", ["memory", "metadata", "version", "path", "duplicate", "missing"]
+)
 def test_damaged_or_unsafe_bundle_does_not_create_target_database(tmp_path, damage):
     source = ContextLibrary(tmp_path / "source.sqlite3")
     saved = source.save(_prepared())
@@ -256,7 +267,9 @@ def test_concurrent_import_is_idempotent(tmp_path):
     bundle = source.export(saved["id"], tmp_path / "project")
     path = tmp_path / "target.sqlite3"
     with ThreadPoolExecutor(max_workers=6) as workers:
-        imported = list(workers.map(lambda _: ContextLibrary(path).import_bundle(bundle), range(20)))
+        imported = list(
+            workers.map(lambda _: ContextLibrary(path).import_bundle(bundle), range(20))
+        )
     assert sum(row["imported"] for row in imported) == 1
     assert len(ContextLibrary(path).list()) == 1
 

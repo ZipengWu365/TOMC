@@ -69,8 +69,16 @@ def slug(text):
 
 
 def entry(model, label, variant, input_rate, cached, output, condition, **extra):
-    return dict(model=model, label=label, variant=variant, input=input_rate,
-                cached=cached, output=output, condition=condition, **extra)
+    return dict(
+        model=model,
+        label=label,
+        variant=variant,
+        input=input_rate,
+        cached=cached,
+        output=output,
+        condition=condition,
+        **extra,
+    )
 
 
 def parse(provider, raw):
@@ -79,7 +87,9 @@ def parse(provider, raw):
     if provider == "openai":
         if "Short context: ≤272K input tokens. Long context: >272K input tokens." not in raw:
             raise ValueError("OpenAI context thresholds changed")
-        for section in re.finditer(r"### (Standard|Batch|Flex|Fast) pricing data\s+(.*?)(?=\n###|\Z)", raw, re.S):
+        for section in re.finditer(
+            r"### (Standard|Batch|Flex|Fast) pricing data\s+(.*?)(?=\n###|\Z)", raw, re.S
+        ):
             tier, body = section[1], section[2]
             if "Short context cached input" not in body or "Long context output" not in body:
                 raise ValueError("OpenAI pricing schema changed")
@@ -89,41 +99,79 @@ def parse(provider, raw):
                     continue
                 model = cells[0].split(" (")[0]
                 for band, offset in (("short", 1), ("long", 5)):
-                    prices = [money(c) for c in cells[offset:offset+4]]
+                    prices = [money(c) for c in cells[offset : offset + 4]]
                     if prices[0] is None:
                         continue
-                    rows.append(entry(model, model, f"{tier.lower()}-{band}",
-                                      prices[0], prices[1], prices[3],
-                                      f"{tier} · {'≤272K' if band == 'short' else '>272K'} 输入 · 全球基础价",
-                                      cache_write=prices[2]))
+                    rows.append(
+                        entry(
+                            model,
+                            model,
+                            f"{tier.lower()}-{band}",
+                            prices[0],
+                            prices[1],
+                            prices[3],
+                            f"{tier} · {'≤272K' if band == 'short' else '>272K'} 输入 · 全球基础价",
+                            cache_write=prices[2],
+                        )
+                    )
     else:
         tables = Tables()
         tables.feed(raw)
         if provider == "anthropic":
-            table = next(t for t in tables.tables if t[:2] == [
-                ["Model", "Base tokens", "Prompt caching"],
-                ["Name", "Input", "Output", "5m writes", "1h writes", "Hits and refreshes"]])
+            table = next(
+                t
+                for t in tables.tables
+                if t[:2]
+                == [
+                    ["Model", "Base tokens", "Prompt caching"],
+                    ["Name", "Input", "Output", "5m writes", "1h writes", "Hits and refreshes"],
+                ]
+            )
             for index, cells in enumerate(table):
-                match = re.match(r"Claude (Fable|Opus|Sonnet|Haiku|Mythos) (\d+(?:\.\d+)?)", cells[0])
+                match = re.match(
+                    r"Claude (Fable|Opus|Sonnet|Haiku|Mythos) (\d+(?:\.\d+)?)", cells[0]
+                )
                 if not match or len(cells) != 6:
                     continue
                 label = match[0]
                 model = slug(label)
                 prices = [money(c) for c in cells[1:]]
                 limited = "100,000" in cells[1]
-                rows.append(entry(model, label, "standard", prices[0], prices[4], prices[1],
-                                  "Standard · 全球基础价" + (" · ≤100K 输入" if limited else ""),
-                                  cache_write=prices[2], cache_write_1h=prices[3]))
+                rows.append(
+                    entry(
+                        model,
+                        label,
+                        "standard",
+                        prices[0],
+                        prices[4],
+                        prices[1],
+                        "Standard · 全球基础价" + (" · ≤100K 输入" if limited else ""),
+                        cache_write=prices[2],
+                        cache_write_1h=prices[3],
+                    )
+                )
                 if limited:
-                    prices = [money(c) for c in table[index+1]]
+                    prices = [money(c) for c in table[index + 1]]
                     if len(prices) != 5:
                         raise ValueError("Claude long-context row changed")
-                    rows.append(entry(model, label, "standard-long", prices[0], prices[4], prices[1],
-                                      "Standard · 全球基础价 · >100K 输入",
-                                      cache_write=prices[2], cache_write_1h=prices[3]))
+                    rows.append(
+                        entry(
+                            model,
+                            label,
+                            "standard-long",
+                            prices[0],
+                            prices[4],
+                            prices[1],
+                            "Standard · 全球基础价 · >100K 输入",
+                            cache_write=prices[2],
+                            cache_write_1h=prices[3],
+                        )
+                    )
         elif provider == "deepseek":
             plain = unescape(re.sub(r"<[^>]+>", " ", raw))
-            schedule = re.search(r"Peak hours are (.*?All other hours are off-peak.*?in full\.)", plain, re.S)
+            schedule = re.search(
+                r"Peak hours are (.*?All other hours are off-peak.*?in full\.)", plain, re.S
+            )
             if not schedule:
                 raise ValueError("DeepSeek schedule changed")
             table = next(t for t in tables.tables if t[0][0] == "MODEL")
@@ -145,9 +193,20 @@ def parse(provider, raw):
                         rates[tier][kind] = [money(c) for c in cells[-2:]]
             for tier, values in rates.items():
                 for i, model in enumerate(models):
-                    rows.append(entry(model, model, tier, values["input"][i], values["cached"][i],
-                                      values["output"][i], "峰时" if tier == "peak" else "谷时",
-                                      schedule="Peak hours are " + " ".join(schedule[1].split()) + " 按选择的时段折算历史，不自动回溯。"))
+                    rows.append(
+                        entry(
+                            model,
+                            model,
+                            tier,
+                            values["input"][i],
+                            values["cached"][i],
+                            values["output"][i],
+                            "峰时" if tier == "peak" else "谷时",
+                            schedule="Peak hours are "
+                            + " ".join(schedule[1].split())
+                            + " 按选择的时段折算历史，不自动回溯。",
+                        )
+                    )
         elif provider == "cursor":
             seen = set()
             for table in tables.tables:
@@ -159,13 +218,32 @@ def parse(provider, raw):
                     seen.add(cells[0])
                     model = slug(cells[0])
                     own = model.startswith(("grok-", "composer-"))
-                    rows.append(entry(model, cells[0], "listed", money(cells[1]), money(cells[3]),
-                                      money(cells[4]), "Cursor 公布基础价 · " + ("额外用量" if own else "第三方模型；基础上下文档位，长上下文需另核费率"),
-                                      cache_write=money(cells[2]), own_model=own))
+                    rows.append(
+                        entry(
+                            model,
+                            cells[0],
+                            "listed",
+                            money(cells[1]),
+                            money(cells[3]),
+                            money(cells[4]),
+                            "Cursor 公布基础价 · "
+                            + (
+                                "额外用量"
+                                if own
+                                else "第三方模型；基础上下文档位，长上下文需另核费率"
+                            ),
+                            cache_write=money(cells[2]),
+                            own_model=own,
+                        )
+                    )
     if not rows or any(r["input"] is None or r["output"] is None for r in rows):
         raise ValueError("Missing input/output prices")
     for row in rows:
-        row.update(provider=provider, key=f"{provider}:{row['model']}:{row['variant']}", source=SOURCES[provider])
+        row.update(
+            provider=provider,
+            key=f"{provider}:{row['model']}:{row['variant']}",
+            source=SOURCES[provider],
+        )
     return rows
 
 
@@ -186,8 +264,11 @@ def read_catalog(path=None):
 def all_rates(catalog=None):
     for provider in (catalog or read_catalog())["providers"].values():
         for row in provider.get("rates", []):
-            yield {**row, "verified_at": provider["verified_at"],
-                   "sync_status": provider.get("status", "bundled")}
+            yield {
+                **row,
+                "verified_at": provider["verified_at"],
+                "sync_status": provider.get("status", "bundled"),
+            }
 
 
 def fetch(url):
@@ -207,11 +288,22 @@ def sync(path=None, fetcher=fetch):
         try:
             raw = fetcher(url)
             rates = parse(provider, raw)
-            return provider, dict(rates=rates, verified_at=now, attempted_at=now,
-                                  status="live", source=url, sha256=hashlib.sha256(raw.encode()).hexdigest())
+            return provider, dict(
+                rates=rates,
+                verified_at=now,
+                attempted_at=now,
+                status="live",
+                source=url,
+                sha256=hashlib.sha256(raw.encode()).hexdigest(),
+            )
         except Exception as exc:
-            return provider, {**catalog["providers"].get(provider, {}), "attempted_at": now,
-                              "status": "stale", "error": type(exc).__name__, "source": url}
+            return provider, {
+                **catalog["providers"].get(provider, {}),
+                "attempted_at": now,
+                "status": "stale",
+                "error": type(exc).__name__,
+                "source": url,
+            }
 
     with ThreadPoolExecutor(max_workers=4) as pool:
         catalog["providers"].update(dict(pool.map(update, SOURCES.items())))

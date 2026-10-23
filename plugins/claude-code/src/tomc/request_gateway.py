@@ -26,8 +26,18 @@ from .session_store import SessionStore
 from .usage import UsageStore
 
 MAX_BODY = 64 * 1024 * 1024
-HOP = {"connection", "keep-alive", "proxy-authenticate", "proxy-authorization",
-       "te", "trailer", "transfer-encoding", "upgrade", "host", "content-length"}
+HOP = {
+    "connection",
+    "keep-alive",
+    "proxy-authenticate",
+    "proxy-authorization",
+    "te",
+    "trailer",
+    "transfer-encoding",
+    "upgrade",
+    "host",
+    "content-length",
+}
 
 
 class ClientDisconnected(Exception):
@@ -87,8 +97,9 @@ class ResponseMetrics:
                 self.sse = True
                 self._framing_checked = True
                 self.buffer = self.buffer.removeprefix(b"\xef\xbb\xbf")
-            elif prefix and not any(marker.startswith(prefix) for marker in (
-                    b"event:", b"data:", b":", b"\xef\xbb\xbf")):
+            elif prefix and not any(
+                marker.startswith(prefix) for marker in (b"event:", b"data:", b":", b"\xef\xbb\xbf")
+            ):
                 self._framing_checked = True
             elif len(self.buffer) >= 512:
                 self._framing_checked = True
@@ -121,6 +132,7 @@ def decode_body(raw, encoding):
         import io
 
         import zstandard
+
         with zstandard.ZstdDecompressor().stream_reader(io.BytesIO(raw)) as source:
             data = source.read(MAX_BODY + 1)
         if len(data) > MAX_BODY:
@@ -128,6 +140,7 @@ def decode_body(raw, encoding):
         return data
     if encoding == "gzip":
         import io
+
         with gzip.GzipFile(fileobj=io.BytesIO(raw)) as source:
             data = source.read(MAX_BODY + 1)
         if len(data) > MAX_BODY:
@@ -149,15 +162,26 @@ class Gateway:
             if name not in {"codex", "claude"}:
                 raise ValueError("Unsupported gateway route")
             url = urlsplit(route["upstream"])
-            if (url.scheme not in {"https", "http"} or not url.hostname or url.username
-                    or url.password or url.query or url.fragment):
+            if (
+                url.scheme not in {"https", "http"}
+                or not url.hostname
+                or url.username
+                or url.password
+                or url.query
+                or url.fragment
+            ):
                 raise ValueError("Invalid upstream URL")
             if url.scheme == "http" and url.hostname not in {"127.0.0.1", "localhost", "::1"}:
                 raise ValueError("Remote upstream requires HTTPS")
-        self.client = httpx.Client(transport=transport, timeout=httpx.Timeout(600, connect=30),
-                                   follow_redirects=False, trust_env=transport is None)
+        self.client = httpx.Client(
+            transport=transport,
+            timeout=httpx.Timeout(600, connect=30),
+            follow_redirects=False,
+            trust_env=transport is None,
+        )
         self._locks = [threading.Lock() for _ in range(64)]
         from .anthropic_request import AnthropicAdapter
+
         self._claude = AnthropicAdapter(self.path)
 
     def close(self):
@@ -178,8 +202,11 @@ class Gateway:
         endpoint = suffix.split("?", 1)[0].rstrip("/")
         # Older Codex builds compact through a standalone endpoint; it is recorded, never rewritten.
         compact_endpoint = host == "codex" and endpoint.endswith("/responses/compact")
-        target = (host == "codex" and endpoint.endswith("/responses")) or compact_endpoint or (
-            host == "claude" and endpoint.endswith("/messages"))
+        target = (
+            (host == "codex" and endpoint.endswith("/responses"))
+            or compact_endpoint
+            or (host == "claude" and endpoint.endswith("/messages"))
+        )
         if not target:
             return None, session_id, plan, body, changed
         payload = None
@@ -202,14 +229,21 @@ class Gateway:
             except Exception:
                 native, detail = None, None  # Classification only labels; it never blocks.
             if compact_endpoint:
-                native, detail = "host_compaction_request", {**(detail or {}), "endpoint": "responses_compact"}
+                native, detail = (
+                    "host_compaction_request",
+                    {**(detail or {}), "endpoint": "responses_compact"},
+                )
         self._event("start", request_id, host, session_id)
         try:
             enabled = False
             if session_id:
-                self.sessions.register(host, session_id, event="model_request",
-                                       activate=host == "codex" or headers.get(
-                                           "x-claude-code-request-class") == "main")
+                self.sessions.register(
+                    host,
+                    session_id,
+                    event="model_request",
+                    activate=host == "codex"
+                    or headers.get("x-claude-code-request-class") == "main",
+                )
                 enabled = self.sessions.effective_enabled(host, session_id)
             if payload is None:
                 pass
@@ -220,20 +254,28 @@ class Gateway:
             elif host == "claude" and headers.get("x-claude-code-request-class") != "main":
                 reason = "non_main_request"
             elif host == "codex" and not enabled:
-                reason = "session_disabled" if self.sessions.settings()["enabled"] else "global_disabled"
+                reason = (
+                    "session_disabled" if self.sessions.settings()["enabled"] else "global_disabled"
+                )
             elif host == "codex" and native is not None:
                 # The host owns this context: its compaction turn, opaque compaction
                 # state, server-side history or an auxiliary request.
                 reason = native
             else:
-                options = {**self.config.get("compression", {}),
-                           **self.routes[host].get("compression", {})}
-                options = {key: options[key] for key in (
-                    "memory_budget", "recent_messages", "min_history_tokens") if key in options}
+                options = {
+                    **self.config.get("compression", {}),
+                    **self.routes[host].get("compression", {}),
+                }
+                options = {
+                    key: options[key]
+                    for key in ("memory_budget", "recent_messages", "min_history_tokens")
+                    if key in options
+                }
                 lock = self._locks[hash((host, session_id)) % len(self._locks)]
                 with lock:
                     if host == "codex":
                         from .responses_request import adapt_request
+
                         plan = adapt_request(payload, **options)
                     else:
                         plan = self._claude.adapt(payload, headers, enabled=enabled, **options)
@@ -242,35 +284,65 @@ class Gateway:
                 if reason == "session_disabled" and not self.sessions.settings()["enabled"]:
                     reason = "global_disabled"
                 if plan is not None and plan.transformed:
-                    body = json.dumps(plan.payload, ensure_ascii=False,
-                                      separators=(",", ":")).encode("utf-8")
+                    body = json.dumps(
+                        plan.payload, ensure_ascii=False, separators=(",", ":")
+                    ).encode("utf-8")
                     changed = True
         except Exception:
             # A preparation failure never blocks or silently retries a model request.
             reason, plan, changed, body = "preparation_failed", None, False, raw
-        self._event("finish", request_id, state="prepared" if changed else "passthrough",
-                    reason=reason, before_tokens=plan.before_tokens if plan else None,
-                    after_tokens=plan.after_tokens if plan else None,
-                    context_input_tokens=plan.prepared.compilation.stats.input_tokens
-                    if plan and plan.prepared is not None else None, detail=detail)
+        self._event(
+            "finish",
+            request_id,
+            state="prepared" if changed else "passthrough",
+            reason=reason,
+            before_tokens=plan.before_tokens if plan else None,
+            after_tokens=plan.after_tokens if plan else None,
+            context_input_tokens=plan.prepared.compilation.stats.input_tokens
+            if plan and plan.prepared is not None
+            else None,
+            detail=detail,
+        )
         return request_id, session_id, plan, body, changed
 
     def complete(self, request_id, host, session_id, plan, metrics):
-        self._event("usage", request_id, provider_input_tokens=metrics.input_tokens,
-                    provider_cached_tokens=metrics.cached_tokens)
-        if (not plan or not plan.transformed or metrics.failed or not metrics.completed
-                or plan.reason == "disabled_compatible_replay"):
+        self._event(
+            "usage",
+            request_id,
+            provider_input_tokens=metrics.input_tokens,
+            provider_cached_tokens=metrics.cached_tokens,
+        )
+        if (
+            not plan
+            or not plan.transformed
+            or metrics.failed
+            or not metrics.completed
+            or plan.reason == "disabled_compatible_replay"
+        ):
             return
         try:
-            self.usage.record({"request_id": request_id, "counter": plan.counter,
-                               "usable": True, "input_tokens": plan.before_tokens,
-                               "memory_tokens": plan.after_tokens,
-                               "context_input_tokens": plan.prepared.compilation.stats.input_tokens
-                               if plan.prepared is not None else None,
-                               "reduced_tokens": plan.before_tokens - plan.after_tokens})
+            self.usage.record(
+                {
+                    "request_id": request_id,
+                    "counter": plan.counter,
+                    "usable": True,
+                    "input_tokens": plan.before_tokens,
+                    "memory_tokens": plan.after_tokens,
+                    "context_input_tokens": plan.prepared.compilation.stats.input_tokens
+                    if plan.prepared is not None
+                    else None,
+                    "reduced_tokens": plan.before_tokens - plan.after_tokens,
+                }
+            )
             if plan.prepared is not None and self.sessions.settings()["save_contexts"]:
-                self.library.save(plan.prepared, task=plan.task, source="automatic_request",
-                                  host=host, session_id=session_id, preparation_id=request_id)
+                self.library.save(
+                    plan.prepared,
+                    task=plan.task,
+                    source="automatic_request",
+                    host=host,
+                    session_id=session_id,
+                    preparation_id=request_id,
+                )
         except (OSError, ValueError, sqlite3.Error):
             pass  # A local reporting failure cannot discard the delivered answer.
 
@@ -347,8 +419,12 @@ class Handler(BaseHTTPRequestHandler):
             return self.error(403, "loopback_host_required")
         path = urlsplit(self.path)
         decoded_path = unquote(path.path)
-        if (path.scheme or path.netloc or "\\" in decoded_path
-                or any(part in {".", ".."} for part in decoded_path.split("/"))):
+        if (
+            path.scheme
+            or path.netloc
+            or "\\" in decoded_path
+            or any(part in {".", ".."} for part in decoded_path.split("/"))
+        ):
             return self.error(400, "invalid_path")
         parts = path.path.split("/", 2)
         gateway = self.server.gateway
@@ -369,7 +445,9 @@ class Handler(BaseHTTPRequestHandler):
         request_id = session_id = plan = None
         body, changed = raw, False
         if self.command == "POST":
-            request_id, session_id, plan, body, changed = gateway.prepare(host, suffix, headers, raw)
+            request_id, session_id, plan, body, changed = gateway.prepare(
+                host, suffix, headers, raw
+            )
         excluded = HOP | {x.strip() for x in headers.get("connection", "").lower().split(",")}
         outgoing = {k: v for k, v in headers.items() if k not in excluded}
         if changed:
@@ -378,11 +456,16 @@ class Handler(BaseHTTPRequestHandler):
         url = gateway.routes[host]["upstream"].rstrip("/") + suffix
         started = False
         try:
-            with gateway.client.stream(self.command, url, headers=outgoing, content=body) as response:
+            with gateway.client.stream(
+                self.command, url, headers=outgoing, content=body
+            ) as response:
                 if request_id:
                     gateway._event("sent", request_id)
-                drop = HOP | {"content-encoding"} | {
-                    x.strip() for x in response.headers.get("connection", "").lower().split(",")}
+                drop = (
+                    HOP
+                    | {"content-encoding"}
+                    | {x.strip() for x in response.headers.get("connection", "").lower().split(",")}
+                )
                 try:
                     self.send_response(response.status_code)
                     for key, value in response.headers.multi_items():
@@ -393,7 +476,9 @@ class Handler(BaseHTTPRequestHandler):
                 except OSError as exc:
                     raise ClientDisconnected from exc
                 started = True
-                metrics = ResponseMetrics("text/event-stream" in response.headers.get("content-type", "").lower())
+                metrics = ResponseMetrics(
+                    "text/event-stream" in response.headers.get("content-type", "").lower()
+                )
                 if response.status_code >= 400:
                     metrics.failed = True
                 for chunk in response.iter_bytes():
@@ -405,7 +490,9 @@ class Handler(BaseHTTPRequestHandler):
                 metrics.end()
                 if request_id:
                     if metrics.failed:
-                        gateway._event("finish", request_id, state="failed", reason="upstream_failed")
+                        gateway._event(
+                            "finish", request_id, state="failed", reason="upstream_failed"
+                        )
                     gateway.complete(request_id, host, session_id, plan, metrics)
         except ClientDisconnected:
             # The host stopped reading (cancelled turn or closed app); nothing to send back.
@@ -414,7 +501,9 @@ class Handler(BaseHTTPRequestHandler):
             self.close_connection = True
         except (httpx.HTTPError, OSError):
             if request_id:
-                gateway._event("finish", request_id, state="failed", reason="upstream_transport_failed")
+                gateway._event(
+                    "finish", request_id, state="failed", reason="upstream_transport_failed"
+                )
             if not started:
                 try:
                     self.error(502, "upstream_unavailable")

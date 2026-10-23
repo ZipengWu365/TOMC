@@ -26,37 +26,72 @@ FAKE_API_KEY = "fixture-only-never-a-real-api-key"
 def payload(host="codex", session="fixture-session", *, stream=False):
     messages = []
     for index in range(8):
-        messages.extend([
-            {"role": "user", "content": "\n".join(
-                f"Project decision {index}-{j}: capacity {40 + j}; keep the teal design."
-                for j in range(35))},
-            {"role": "assistant", "content": f"Recorded decision {index}."},
-        ])
+        messages.extend(
+            [
+                {
+                    "role": "user",
+                    "content": "\n".join(
+                        f"Project decision {index}-{j}: capacity {40 + j}; keep the teal design."
+                        for j in range(35)
+                    ),
+                },
+                {"role": "assistant", "content": f"Recorded decision {index}."},
+            ]
+        )
     messages.append({"role": "user", "content": "What is the latest capacity?"})
     if host == "codex":
-        return {"model": "fixture-model", "stream": stream, "input": messages,
-                "instructions": "Retain this exact instruction.",
-                "client_metadata": {"thread_id": session}}
-    return {"model": "fixture-model", "max_tokens": 20, "stream": stream,
-            "messages": messages, "system": "Retain this exact instruction.",
-            "metadata": {"user_id": json.dumps({"session_id": session})}}
+        return {
+            "model": "fixture-model",
+            "stream": stream,
+            "input": messages,
+            "instructions": "Retain this exact instruction.",
+            "client_metadata": {"thread_id": session},
+        }
+    return {
+        "model": "fixture-model",
+        "max_tokens": 20,
+        "stream": stream,
+        "messages": messages,
+        "system": "Retain this exact instruction.",
+        "metadata": {"user_id": json.dumps({"session_id": session})},
+    }
 
 
 def response_body(host="codex", *, stream=False, failed=False):
     if host == "codex":
-        response = {"id": "response-fixture", "status": "completed",
-                    "usage": {"input_tokens": 750, "input_tokens_details": {"cached_tokens": 125}},
-                    "output": []}
+        response = {
+            "id": "response-fixture",
+            "status": "completed",
+            "usage": {"input_tokens": 750, "input_tokens_details": {"cached_tokens": 125}},
+            "output": [],
+        }
         if stream:
-            event = {"type": "response.failed" if failed else "response.completed", "response": response}
-            return b": fixture keepalive\r\n\r\n" + b"data: " + json.dumps(event).encode() + b"\r\n\r\n"
+            event = {
+                "type": "response.failed" if failed else "response.completed",
+                "response": response,
+            }
+            return (
+                b": fixture keepalive\r\n\r\n"
+                + b"data: "
+                + json.dumps(event).encode()
+                + b"\r\n\r\n"
+            )
         return json.dumps(response).encode()
-    response = {"id": "message-fixture", "content": [{"type": "text", "text": "Fixture reply."}],
-                "usage": {"input_tokens": 500, "cache_creation_input_tokens": 100,
-                          "cache_read_input_tokens": 150}}
+    response = {
+        "id": "message-fixture",
+        "content": [{"type": "text", "text": "Fixture reply."}],
+        "usage": {
+            "input_tokens": 500,
+            "cache_creation_input_tokens": 100,
+            "cache_read_input_tokens": 150,
+        },
+    }
     if stream:
-        return (b"event: message_start\ndata: " + json.dumps({"type": "message_start", "message": response}).encode()
-                + b"\n\nevent: message_stop\ndata: {\"type\":\"message_stop\"}\n\n")
+        return (
+            b"event: message_start\ndata: "
+            + json.dumps({"type": "message_start", "message": response}).encode()
+            + b'\n\nevent: message_stop\ndata: {"type":"message_stop"}\n\n'
+        )
     return json.dumps(response).encode()
 
 
@@ -80,8 +115,14 @@ class UpstreamHandler(BaseHTTPRequestHandler):
     def do_POST(self):
         fixture = self.server.fixture
         data = self.rfile.read(int(self.headers.get("Content-Length", "0")))
-        fixture.received.append({"path": self.path, "method": self.command,
-                                 "headers": {k.lower(): v for k, v in self.headers.items()}, "body": data})
+        fixture.received.append(
+            {
+                "path": self.path,
+                "method": self.command,
+                "headers": {k.lower(): v for k, v in self.headers.items()},
+                "body": data,
+            }
+        )
         if fixture.disconnect_before_headers:
             self.connection.shutdown(socket.SHUT_RDWR)
             self.connection.close()
@@ -102,7 +143,7 @@ class UpstreamHandler(BaseHTTPRequestHandler):
             assert fixture.response_gate.wait(4)
         # Deliberately split UTF-8 and SSE lines across transport chunks.
         for offset in range(0, len(fixture.reply), 13):
-            self.wfile.write(fixture.reply[offset:offset + 13])
+            self.wfile.write(fixture.reply[offset : offset + 13])
             self.wfile.flush()
         if fixture.truncate:
             self.connection.shutdown(socket.SHUT_RDWR)
@@ -132,27 +173,41 @@ class Harness:
         self.upstream = FakeUpstream(("127.0.0.1", 0), UpstreamHandler)
         self.upstream.fixture = self
         upstream = f"http://127.0.0.1:{self.upstream.server_port}/provider"
-        self.gateway = Gateway({"store": str(path), "routes": {
-            host: {"upstream": upstream} for host in ("codex", "claude")},
-            "compression": {"memory_budget": 500, "min_history_tokens": 20}},
-            transport=httpx.HTTPTransport(trust_env=False))
+        self.gateway = Gateway(
+            {
+                "store": str(path),
+                "routes": {host: {"upstream": upstream} for host in ("codex", "claude")},
+                "compression": {"memory_budget": 500, "min_history_tokens": 20},
+            },
+            transport=httpx.HTTPTransport(trust_env=False),
+        )
         self.server = GatewayHTTPServer(("127.0.0.1", 0), self.gateway)
         self.server.RequestHandlerClass = ObservedHandler
         self.server.request_done = threading.Event()
-        self.threads = [threading.Thread(target=server.serve_forever, kwargs={"poll_interval": 0.01}, daemon=True)
-                        for server in (self.upstream, self.server)]
+        self.threads = [
+            threading.Thread(
+                target=server.serve_forever, kwargs={"poll_interval": 0.01}, daemon=True
+            )
+            for server in (self.upstream, self.server)
+        ]
         for thread in self.threads:
             thread.start()
 
     def exchange(self, data, *, host="codex", path=None, headers=None, encode_chunked=False):
         self.server.request_done.clear()
         client = http.client.HTTPConnection("127.0.0.1", self.server.server_port, timeout=5)
-        request_headers = {"Content-Type": "application/json", "Authorization": FAKE_AUTH,
-                           "x-api-key": FAKE_API_KEY, "x-claude-code-request-class": "main"}
+        request_headers = {
+            "Content-Type": "application/json",
+            "Authorization": FAKE_AUTH,
+            "x-api-key": FAKE_API_KEY,
+            "x-claude-code-request-class": "main",
+        }
         request_headers.update(headers or {})
         target = path or f"/{host}/v1/{'responses' if host == 'codex' else 'messages'}"
         try:
-            client.request("POST", target, data, headers=request_headers, encode_chunked=encode_chunked)
+            client.request(
+                "POST", target, data, headers=request_headers, encode_chunked=encode_chunked
+            )
             response = client.getresponse()
             body = response.read()
             return response.status, {k.lower(): v for k, v in response.getheaders()}, body
@@ -181,13 +236,22 @@ def harness(tmp_path):
 
 @pytest.mark.parametrize("host", ["codex", "claude"])
 @pytest.mark.parametrize("stream", [False, True])
-def test_http_and_sse_compress_preserve_auth_headers_and_record_actual_usage(harness, host, stream, capsys):
+def test_http_and_sse_compress_preserve_auth_headers_and_record_actual_usage(
+    harness, host, stream, capsys
+):
     original = payload(host, stream=stream)
     harness.reply = response_body(host, stream=stream)
     harness.content_type = "text/event-stream" if stream else "application/json"
-    status, headers, body = harness.exchange(json.dumps(original).encode(), host=host, headers={
-        "Anthropic-Version": "2023-06-01", "Anthropic-Beta": "fixture-feature",
-        "OpenAI-Organization": "fixture-org", "X-Client-Request-Id": "fixture-client-id"})
+    status, headers, body = harness.exchange(
+        json.dumps(original).encode(),
+        host=host,
+        headers={
+            "Anthropic-Version": "2023-06-01",
+            "Anthropic-Beta": "fixture-feature",
+            "OpenAI-Organization": "fixture-org",
+            "X-Client-Request-Id": "fixture-client-id",
+        },
+    )
     assert status == 200 and body == harness.reply
     assert headers["x-request-id"] == "fixture-upstream-request-id"
     assert len(harness.received) == 1
@@ -203,7 +267,8 @@ def test_http_and_sse_compress_preserve_auth_headers_and_record_actual_usage(har
     key = "input" if host == "codex" else "messages"
     assert rewritten[key][-6:] == original[key][-6:]
     assert {k: v for k, v in rewritten.items() if k != key} == {
-        k: v for k, v in original.items() if k != key}
+        k: v for k, v in original.items() if k != key
+    }
     activity = harness.gateway.activity.last()
     assert activity["state"] == "forwarded" and activity["sent"]
     assert activity["before_tokens"] > activity["after_tokens"]
@@ -211,7 +276,10 @@ def test_http_and_sse_compress_preserve_auth_headers_and_record_actual_usage(har
     assert activity["provider_input_tokens"] == 750
     assert activity["provider_cached_tokens"] == (125 if host == "codex" else 150)
     assert harness.gateway.usage.summary()["preparations"] == 1
-    assert harness.gateway.usage.summary()["last_preparation"]["context_input_tokens"] == activity["context_input_tokens"]
+    assert (
+        harness.gateway.usage.summary()["last_preparation"]["context_input_tokens"]
+        == activity["context_input_tokens"]
+    )
     assert len(harness.gateway.library.list()) == 1
     assert harness.gateway.activity.active() is None
     database = harness.gateway.path.read_bytes()
@@ -250,7 +318,9 @@ def test_unknown_identity_never_borrows_last_enabled_session(harness):
     assert harness.gateway.usage.summary()["preparations"] == 0
 
 
-@pytest.mark.parametrize("encoding,encode", [("zstd", zstandard.ZstdCompressor().compress), ("gzip", gzip.compress)])
+@pytest.mark.parametrize(
+    "encoding,encode", [("zstd", zstandard.ZstdCompressor().compress), ("gzip", gzip.compress)]
+)
 def test_encoded_request_is_decoded_only_when_rewritten(harness, encoding, encode):
     raw = json.dumps(payload()).encode()
     assert harness.exchange(encode(raw), headers={"Content-Encoding": encoding})[0] == 200
@@ -267,21 +337,35 @@ def test_encoded_request_is_decoded_only_when_rewritten(harness, encoding, encod
 
 def test_chunked_request_body_is_reassembled_and_forwarded_once(harness):
     raw = json.dumps(payload()).encode()
-    parts = [raw[start:start + 79] for start in range(0, len(raw), 79)]
+    parts = [raw[start : start + 79] for start in range(0, len(raw), 79)]
     assert harness.exchange(parts, encode_chunked=True)[0] == 200
     assert len(harness.received) == 1
     assert "transfer-encoding" not in harness.received[0]["headers"]
-    assert harness.gateway.activity.last()["before_tokens"] > harness.gateway.activity.last()["after_tokens"]
+    assert (
+        harness.gateway.activity.last()["before_tokens"]
+        > harness.gateway.activity.last()["after_tokens"]
+    )
     assert harness.gateway.usage.summary()["preparations"] == 1
 
 
-@pytest.mark.parametrize("kind,reason", [("turn", "old_history_compiled_cache_may_change"),
-                                         ("prewarm", "auxiliary_request"), ("memory", "auxiliary_request"),
-                                         ("compaction", "host_compaction_request")])
+@pytest.mark.parametrize(
+    "kind,reason",
+    [
+        ("turn", "old_history_compiled_cache_may_change"),
+        ("prewarm", "auxiliary_request"),
+        ("memory", "auxiliary_request"),
+        ("compaction", "host_compaction_request"),
+    ],
+)
 def test_codex_header_request_kind_allows_turn_and_preserves_auxiliary(harness, kind, reason):
     raw = json.dumps(payload()).encode()
     transformed = kind == "turn"
-    assert harness.exchange(raw, headers={"x-codex-turn-metadata": json.dumps({"request_kind": kind})})[0] == 200
+    assert (
+        harness.exchange(
+            raw, headers={"x-codex-turn-metadata": json.dumps({"request_kind": kind})}
+        )[0]
+        == 200
+    )
     assert (harness.received[0]["body"] != raw) is transformed
     assert harness.gateway.usage.summary()["preparations"] == int(transformed)
     last = harness.gateway.activity.last()
@@ -294,15 +378,27 @@ def test_codex_header_request_kind_allows_turn_and_preserves_auxiliary(harness, 
 def test_codex_turn_with_opaque_compaction_state_is_host_managed_and_content_never_stored(harness):
     request = payload()
     request["input"][2:2] = [{"type": "compaction", "encrypted_content": "FIXTURE_OPAQUE_STATE"}]
-    metadata = json.dumps({"request_kind": "turn", "window_number": 3, "agent_name": "/root",
-                           "thread_id": "fixture-session", "turn_id": "fixture-turn"})
+    metadata = json.dumps(
+        {
+            "request_kind": "turn",
+            "window_number": 3,
+            "agent_name": "/root",
+            "thread_id": "fixture-session",
+            "turn_id": "fixture-turn",
+        }
+    )
     raw = json.dumps(request).encode()
     assert harness.exchange(raw, headers={"x-codex-turn-metadata": metadata})[0] == 200
     assert harness.received[-1]["body"] == raw
     last = harness.gateway.activity.last()
     assert last["state"] == "passthrough" and last["sent"]
     assert last["reason"] == "native_compaction_state"
-    assert last["protocol_detail"] == {"agent": "root", "compaction_items": 1, "request_kind": "turn", "window": 3}
+    assert last["protocol_detail"] == {
+        "agent": "root",
+        "compaction_items": 1,
+        "request_kind": "turn",
+        "window": 3,
+    }
     assert harness.gateway.activity.prepared_events() == []
     database = harness.gateway.path.read_bytes()
     assert b"FIXTURE_OPAQUE_STATE" not in database and b"fixture-turn" not in database
@@ -324,21 +420,40 @@ def test_codex_disabled_session_keeps_switch_reason_and_records_compaction_detai
     harness.gateway.sessions.set_enabled("codex", "fixture-session", False)
     request = payload()
     request["input"].append({"type": "compaction_trigger"})
-    metadata = json.dumps({"request_kind": "compaction", "compaction": {"trigger": "auto", "phase": "pre_turn"}})
-    assert harness.exchange(json.dumps(request).encode(), headers={"x-codex-turn-metadata": metadata})[0] == 200
+    metadata = json.dumps(
+        {"request_kind": "compaction", "compaction": {"trigger": "auto", "phase": "pre_turn"}}
+    )
+    assert (
+        harness.exchange(json.dumps(request).encode(), headers={"x-codex-turn-metadata": metadata})[
+            0
+        ]
+        == 200
+    )
     last = harness.gateway.activity.last()
     assert last["reason"] == "session_disabled"
     assert last["protocol_detail"]["compaction_trigger"] == "auto"
 
 
-@pytest.mark.parametrize("headers,reason,detail", [
-    ({"x-claude-code-request-class": "compaction", "x-claude-code-compaction": "auto"},
-     "host_compaction_request", {"request_class": "compaction", "compaction_trigger": "auto"}),
-    ({"x-claude-code-request-class": "main", "x-claude-code-compaction": "reactive"},
-     "host_compaction_request", {"request_class": "main", "compaction_trigger": "reactive"}),
-    ({"x-claude-code-request-class": "subagent", "x-claude-code-agent-id": "fixture-agent"},
-     "non_main_request", {"request_class": "subagent", "agent": "subagent"}),
-])
+@pytest.mark.parametrize(
+    "headers,reason,detail",
+    [
+        (
+            {"x-claude-code-request-class": "compaction", "x-claude-code-compaction": "auto"},
+            "host_compaction_request",
+            {"request_class": "compaction", "compaction_trigger": "auto"},
+        ),
+        (
+            {"x-claude-code-request-class": "main", "x-claude-code-compaction": "reactive"},
+            "host_compaction_request",
+            {"request_class": "main", "compaction_trigger": "reactive"},
+        ),
+        (
+            {"x-claude-code-request-class": "subagent", "x-claude-code-agent-id": "fixture-agent"},
+            "non_main_request",
+            {"request_class": "subagent", "agent": "subagent"},
+        ),
+    ],
+)
 def test_claude_host_compaction_and_side_requests_are_labelled(harness, headers, reason, detail):
     raw = json.dumps(payload("claude")).encode()
     harness.reply = response_body("claude")
@@ -355,7 +470,10 @@ def test_claude_native_reset_reaches_stateful_adapter_and_removes_previous_mappi
     assert harness.exchange(raw, host="claude")[0] == 200
     with sqlite3.connect(harness.gateway.path) as db:
         assert db.execute("SELECT COUNT(*) FROM tomc_anthropic_prefixes").fetchone()[0] == 1
-    assert harness.exchange(raw, host="claude", headers={"x-claude-code-context-compacted": "1"})[0] == 200
+    assert (
+        harness.exchange(raw, host="claude", headers={"x-claude-code-context-compacted": "1"})[0]
+        == 200
+    )
     assert harness.received[-1]["body"] == raw
     assert harness.gateway.activity.last()["reason"] == "native_compaction_reset"
     with sqlite3.connect(harness.gateway.path) as db:
@@ -370,12 +488,27 @@ def test_claude_disabled_existing_signed_prefix_is_compatible_replay_without_new
     assert harness.exchange(raw, host="claude")[0] == 200
     established = json.loads(harness.received[-1]["body"])["messages"][0]
     harness.gateway.sessions.set_enabled("claude", "fixture-session", False)
-    request["messages"].extend([
-        {"role": "assistant", "content": [
-            {"type": "thinking", "thinking": "fixture private block", "signature": "fixture signature"},
-            {"type": "tool_use", "id": "tool-fixture", "name": "lookup", "input": {}}]},
-        {"role": "user", "content": [{"type": "tool_result", "tool_use_id": "tool-fixture", "content": "42"}]},
-    ])
+    request["messages"].extend(
+        [
+            {
+                "role": "assistant",
+                "content": [
+                    {
+                        "type": "thinking",
+                        "thinking": "fixture private block",
+                        "signature": "fixture signature",
+                    },
+                    {"type": "tool_use", "id": "tool-fixture", "name": "lookup", "input": {}},
+                ],
+            },
+            {
+                "role": "user",
+                "content": [
+                    {"type": "tool_result", "tool_use_id": "tool-fixture", "content": "42"}
+                ],
+            },
+        ]
+    )
     assert harness.exchange(json.dumps(request).encode(), host="claude")[0] == 200
     observed = json.loads(harness.received[-1]["body"])
     assert observed["messages"][0] == established
@@ -384,11 +517,18 @@ def test_claude_disabled_existing_signed_prefix_is_compatible_replay_without_new
     assert harness.gateway.usage.summary()["preparations"] == 1
 
 
-@pytest.mark.parametrize("raw,encoding", [
-    (b"not a JSON document", ""), (b"[]", ""), (b"null", ""),
-    (b"\xff\xfe\x80", ""), (b"opaque encoded body", "future-provider-encoding"),
-    (b"invalid zstd", "zstd"), (gzip.compress(b"{}")[0:5], "gzip"),
-])
+@pytest.mark.parametrize(
+    "raw,encoding",
+    [
+        (b"not a JSON document", ""),
+        (b"[]", ""),
+        (b"null", ""),
+        (b"\xff\xfe\x80", ""),
+        (b"opaque encoded body", "future-provider-encoding"),
+        (b"invalid zstd", "zstd"),
+        (gzip.compress(b"{}")[0:5], "gzip"),
+    ],
+)
 def test_unsupported_or_malformed_payload_is_forwarded_unchanged(harness, raw, encoding):
     status, _, _ = harness.exchange(raw, headers={"Content-Encoding": encoding})
     assert status == 200 and len(harness.received) == 1
@@ -397,38 +537,62 @@ def test_unsupported_or_malformed_payload_is_forwarded_unchanged(harness, raw, e
     assert harness.gateway.usage.summary()["preparations"] == 0
 
 
-@pytest.mark.parametrize("encoding,encode", [("zstd", zstandard.ZstdCompressor().compress), ("gzip", gzip.compress)])
-def test_decoded_body_size_limit_also_applies_to_frames_with_known_size(monkeypatch, encoding, encode):
+@pytest.mark.parametrize(
+    "encoding,encode", [("zstd", zstandard.ZstdCompressor().compress), ("gzip", gzip.compress)]
+)
+def test_decoded_body_size_limit_also_applies_to_frames_with_known_size(
+    monkeypatch, encoding, encode
+):
     monkeypatch.setattr(request_gateway, "MAX_BODY", 32)
     with pytest.raises(ValueError, match="large"):
         decode_body(encode(b"x" * 512), encoding)
 
 
 def test_hop_by_hop_headers_are_removed_in_both_directions(harness):
-    harness.response_headers = [("Connection", "keep-alive, X-Upstream-Private"),
-                                ("X-Upstream-Private", "must-not-cross-proxy")]
-    status, headers, _ = harness.exchange(json.dumps(payload()).encode(), headers={
-        "Connection": "keep-alive, X-Client-Private", "X-Client-Private": "must-not-cross-proxy"})
+    harness.response_headers = [
+        ("Connection", "keep-alive, X-Upstream-Private"),
+        ("X-Upstream-Private", "must-not-cross-proxy"),
+    ]
+    status, headers, _ = harness.exchange(
+        json.dumps(payload()).encode(),
+        headers={
+            "Connection": "keep-alive, X-Client-Private",
+            "X-Client-Private": "must-not-cross-proxy",
+        },
+    )
     assert status == 200
     assert "x-client-private" not in harness.received[0]["headers"]
     assert "x-upstream-private" not in headers
 
 
-@pytest.mark.parametrize("path", [
-    "/codex/../admin", "/codex/%2e%2e/admin", "/codex/%2E%2E/admin",
-    "/codex/a/%2e%2e/admin", "/codex/%2e%2e%5cadmin", "/codex/v1\\..\\admin",
-    "http://external.invalid/codex/v1/responses", "//external.invalid/codex/v1/responses",
-])
+@pytest.mark.parametrize(
+    "path",
+    [
+        "/codex/../admin",
+        "/codex/%2e%2e/admin",
+        "/codex/%2E%2E/admin",
+        "/codex/a/%2e%2e/admin",
+        "/codex/%2e%2e%5cadmin",
+        "/codex/v1\\..\\admin",
+        "http://external.invalid/codex/v1/responses",
+        "//external.invalid/codex/v1/responses",
+    ],
+)
 def test_unsafe_paths_never_reach_upstream(harness, path):
     assert harness.exchange(b"{}", path=path)[0] in {400, 403, 404}
     assert harness.received == []
 
 
-@pytest.mark.parametrize("headers,status", [
-    ({"Host": "external.invalid"}, 403), ({"Origin": "https://external.invalid"}, 403),
-    ({"Transfer-Encoding": "chunked", "Content-Length": "2"}, 400), ({"Content-Length": "-1"}, 400),
-    ({"Content-Length": str(1024**3)}, 400),
-])
+@pytest.mark.parametrize(
+    "headers,status",
+    [
+        ({"Host": "external.invalid"}, 403),
+        ({"Origin": "https://external.invalid"}, 403),
+        ({"Transfer-Encoding": "chunked", "Content-Length": "2"}, 400),
+        ({"Content-Length": "-1"}, 400),
+        ({"Content-Length": str(1024**3)}, 400),
+    ],
+)
 def test_invalid_host_browser_or_body_framing_is_rejected(harness, headers, status):
     assert harness.exchange(b"{}", headers=headers)[0] == status
     assert harness.received == []
@@ -447,7 +611,9 @@ def test_unknown_routes_and_health_never_forward(harness):
 
 
 def test_websocket_upgrade_returns_codex_http_fallback_without_upstream_call(harness):
-    status, _, body = harness.exchange(b"", headers={"Connection": "Upgrade", "Upgrade": "websocket"})
+    status, _, body = harness.exchange(
+        b"", headers={"Connection": "Upgrade", "Upgrade": "websocket"}
+    )
     assert status == 426 and json.loads(body)["error"]["code"] == "use_http_sse"
     assert harness.received == []
 
@@ -500,9 +666,10 @@ def test_client_disconnect_is_recorded_separately_from_upstream_failure(harness)
     # Close with a reset, as a cancelled host turn does, so the next relay write fails.
     linger = struct.pack("HH" if sys.platform == "win32" else "ii", 1, 0)
     client.setsockopt(socket.SOL_SOCKET, socket.SO_LINGER, linger)
-    client.sendall(b"POST /codex/v1/responses HTTP/1.1\r\nHost: 127.0.0.1\r\n"
-                   b"Content-Type: application/json\r\n"
-                   + f"Content-Length: {len(raw)}\r\n\r\n".encode() + raw)
+    client.sendall(
+        b"POST /codex/v1/responses HTTP/1.1\r\nHost: 127.0.0.1\r\n"
+        b"Content-Type: application/json\r\n" + f"Content-Length: {len(raw)}\r\n\r\n".encode() + raw
+    )
     try:
         assert harness.header_ready.wait(3)
     finally:
@@ -527,7 +694,7 @@ def test_compiler_failure_preserves_original_and_does_not_claim_reduction(harnes
     assert harness.gateway.usage.summary()["preparations"] == 0
 
 
-@pytest.mark.parametrize("response", [b'[{"error":"fixture"}]', b'null', b'not json', b'{}'])
+@pytest.mark.parametrize("response", [b'[{"error":"fixture"}]', b"null", b"not json", b"{}"])
 def test_unrecognized_response_json_does_not_invent_completion(harness, response):
     harness.reply = response
     assert harness.exchange(json.dumps(payload()).encode())[2] == response
@@ -538,7 +705,9 @@ def test_unrecognized_response_json_does_not_invent_completion(harness, response
 def test_model_stream_lifetime_is_not_cpu_preparation_lifetime(harness):
     harness.response_gate = threading.Event()
     result = []
-    worker = threading.Thread(target=lambda: result.append(harness.exchange(json.dumps(payload()).encode())))
+    worker = threading.Thread(
+        target=lambda: result.append(harness.exchange(json.dumps(payload()).encode()))
+    )
     worker.start()
     try:
         assert harness.header_ready.wait(3)
@@ -557,8 +726,11 @@ def test_model_stream_lifetime_is_not_cpu_preparation_lifetime(harness):
 def test_context_length_comes_from_compiler_before_transport_not_whole_json(harness, host):
     original = payload(host)
     request_id, session_id, plan, _, changed = harness.gateway.prepare(
-        host, "/v1/responses" if host == "codex" else "/v1/messages",
-        {"x-claude-code-request-class": "main"}, json.dumps(original).encode())
+        host,
+        "/v1/responses" if host == "codex" else "/v1/messages",
+        {"x-claude-code-request-class": "main"},
+        json.dumps(original).encode(),
+    )
     assert changed and plan.prepared is not None
     context_input = plan.prepared.compilation.stats.input_tokens
     activity = harness.gateway.activity.last()
@@ -578,7 +750,9 @@ def test_context_length_comes_from_compiler_before_transport_not_whole_json(harn
     harness.gateway.complete(request_id, host, session_id, plan, metrics)
     assert harness.gateway.usage.summary()["preparations"] == 1
     assert harness.gateway.usage.summary()["last_preparation"]["input_tokens"] == plan.before_tokens
-    assert harness.gateway.usage.summary()["last_preparation"]["context_input_tokens"] == context_input
+    assert (
+        harness.gateway.usage.summary()["last_preparation"]["context_input_tokens"] == context_input
+    )
     assert harness.gateway.usage.recent_events()[0]["context_input_tokens"] == context_input
     assert harness.gateway.activity.prepared_events() == prepared_events
 
@@ -626,20 +800,33 @@ def test_sse_usage_is_detected_even_with_generic_upstream_content_type(harness, 
 
 def test_sse_detection_handles_first_prefix_split_across_chunks():
     metrics = ResponseMetrics(False)
-    raw = b"event: response.completed\ndata: " + json.dumps({
-        "type": "response.completed", "response": {"usage": {"input_tokens": 77}}}).encode() + b"\n\n"
+    raw = (
+        b"event: response.completed\ndata: "
+        + json.dumps(
+            {"type": "response.completed", "response": {"usage": {"input_tokens": 77}}}
+        ).encode()
+        + b"\n\n"
+    )
     for byte in raw:
         metrics.feed(bytes([byte]))
     metrics.end()
     assert metrics.sse and metrics.completed and metrics.input_tokens == 77
 
 
-@pytest.mark.parametrize("upstream", [
-    "http://external.invalid/v1", "https://name:secret@external.invalid/v1",
-    "https://external.invalid/v1?key=secret", "https://external.invalid/v1#secret",
-    "file:///tmp/fixture", "https:///missing-host",
-])
+@pytest.mark.parametrize(
+    "upstream",
+    [
+        "http://external.invalid/v1",
+        "https://name:secret@external.invalid/v1",
+        "https://external.invalid/v1?key=secret",
+        "https://external.invalid/v1#secret",
+        "file:///tmp/fixture",
+        "https:///missing-host",
+    ],
+)
 def test_upstream_configuration_rejects_nonlocal_http_and_credential_urls(tmp_path, upstream):
     with pytest.raises(ValueError):
-        Gateway({"store": str(tmp_path / "unused.sqlite3"), "routes": {"codex": {"upstream": upstream}}})
+        Gateway(
+            {"store": str(tmp_path / "unused.sqlite3"), "routes": {"codex": {"upstream": upstream}}}
+        )
     assert not (tmp_path / "unused.sqlite3").exists()

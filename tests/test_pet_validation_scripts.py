@@ -26,13 +26,20 @@ def scripts(monkeypatch):
 
 
 def test_real_recorder_identifies_displayed_report_not_newer_busy_request(scripts):
-    pet = SimpleNamespace(active_report={"request_id": "displayed", "usable": True,
-                                        "context_input_tokens": 100000},
-                          preparing_request={"request_id": "newer-unrelated"},
-                          request_animation_id="displayed", art=SimpleNamespace(level=3))
+    pet = SimpleNamespace(
+        active_report={"request_id": "displayed", "usable": True, "context_input_tokens": 100000},
+        preparing_request={"request_id": "newer-unrelated"},
+        request_animation_id="displayed",
+        art=SimpleNamespace(level=3),
+    )
     identity = scripts["validate_pet_desktop"].animation_identity(pet, growth_state)
-    assert identity == {"request_id": "displayed", "context_input_tokens": 100000,
-                        "stage": 3, "expected_stage": 3, "length_known": True}
+    assert identity == {
+        "request_id": "displayed",
+        "context_input_tokens": 100000,
+        "stage": 3,
+        "expected_stage": 3,
+        "length_known": True,
+    }
 
 
 def test_duration_bounds_and_coverage_do_not_claim_missing_frames(scripts):
@@ -41,9 +48,14 @@ def test_duration_bounds_and_coverage_do_not_claim_missing_frames(scripts):
     for value in (0, 29, 901):
         with pytest.raises(argparse.ArgumentTypeError):
             script.duration_seconds(value)
-    assert script.phase_coverage([0, .45, .9, None]) == {
-        "active_frames": 3, "early": True, "middle": True, "late": True, "idle": True}
-    assert not script.phase_coverage([.4, .5])["late"]
+    assert script.phase_coverage([0, 0.45, 0.9, None]) == {
+        "active_frames": 3,
+        "early": True,
+        "middle": True,
+        "late": True,
+        "idle": True,
+    }
+    assert not script.phase_coverage([0.4, 0.5])["late"]
     assert not script.phase_coverage([])["idle"]
 
 
@@ -66,12 +78,18 @@ def test_atomic_utf8_report_preserves_previous_on_failure(scripts, tmp_path, mon
 def test_recorder_never_injects_compilation_or_calls_animation(scripts):
     source = Path(scripts["validate_pet_desktop"].__file__).read_text(encoding="utf-8")
     tree = ast.parse(source)
-    calls = [node.func.attr for node in ast.walk(tree)
-             if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute)]
+    calls = [
+        node.func.attr
+        for node in ast.walk(tree)
+        if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute)
+    ]
     assert "collect" not in calls and "record" not in calls and "finish" not in calls
     # Flags may change only inside the explicit discoverability branch.
-    branches = [node for node in ast.walk(tree) if isinstance(node, ast.If)
-                and ast.unparse(node.test) == "args.discoverable"]
+    branches = [
+        node
+        for node in ast.walk(tree)
+        if isinstance(node, ast.If) and ast.unparse(node.test) == "args.discoverable"
+    ]
     assert len(branches) == 1
     assert source.count("setWindowFlags(") == ast.unparse(branches[0]).count("setWindowFlags(")
     assert "app.quit()" in source and "lock.unlock()" in source

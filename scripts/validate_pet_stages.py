@@ -1,4 +1,5 @@
 """Native four-stage visual review using installed art, without any usage writes."""
+
 from __future__ import annotations
 
 import argparse
@@ -14,8 +15,11 @@ def main(argv=None):
     parser.add_argument("--runtime", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--seconds", type=duration_seconds, default=300)
-    parser.add_argument("--auto-play", action="store_true",
-                        help="Play the isolated preview once without mouse/keyboard input")
+    parser.add_argument(
+        "--auto-play",
+        action="store_true",
+        help="Play the isolated preview once without mouse/keyboard input",
+    )
     args = parser.parse_args(argv)
     args.output.mkdir(parents=True, exist_ok=False)
     sys.path.insert(0, str(args.runtime.resolve() / "src"))
@@ -40,11 +44,15 @@ def main(argv=None):
     window = QWidget()
     window.setWindowTitle("TOMC Four-stage Animation Review")
     window.setWindowFlag(Qt.WindowType.WindowStaysOnTopHint)
-    window.setStyleSheet("QWidget { background: #FFFCF7; color: #443B35; }"
-                        "QPushButton { padding: 10px; background: #E4ECE5; border-radius: 8px; }")
+    window.setStyleSheet(
+        "QWidget { background: #FFFCF7; color: #443B35; }"
+        "QPushButton { padding: 10px; background: #E4ECE5; border-radius: 8px; }"
+    )
     layout = QVBoxLayout(window)
     layout.addWidget(QLabel("Four original animation stages / 四阶段动画验收"))
-    layout.addWidget(QLabel("Animation preview only · no production usage or chat records are written"))
+    layout.addWidget(
+        QLabel("Animation preview only · no production usage or chat records are written")
+    )
     row = QHBoxLayout()
     arts = []
     for number, (threshold, _, _) in enumerate(STAGES, 1):
@@ -61,12 +69,20 @@ def main(argv=None):
     layout.addLayout(row)
     play = QPushButton("Play all four stages / 播放四阶段")
     layout.addWidget(play)
-    report = {"native_platform": app.platformName(), "production_database_written": False,
-              "preview_only": True, "frames": [], "completed": [], "events": [],
-              "runs": [], "capture_errors": [], "duration_limit_seconds": args.seconds,
-              "exit_reason": "window_closed",
-              "automatic_preview": args.auto_play,
-              "stage_inputs": [max(1, item[0]) for item in STAGES]}
+    report = {
+        "native_platform": app.platformName(),
+        "production_database_written": False,
+        "preview_only": True,
+        "frames": [],
+        "completed": [],
+        "events": [],
+        "runs": [],
+        "capture_errors": [],
+        "duration_limit_seconds": args.seconds,
+        "exit_reason": "window_closed",
+        "automatic_preview": args.auto_play,
+        "stage_inputs": [max(1, item[0]) for item in STAGES],
+    }
     started = time.monotonic()
     current_run = None
     timer = QTimer(window)
@@ -83,15 +99,21 @@ def main(argv=None):
                 report.setdefault("callback_errors", []).append(type(error).__name__)
                 report["exit_reason"] = "observer_error"
                 app.quit()
+
         return call
 
     def event(kind, index):
         if current_run is not None:
-            report["events"].append({"event": kind, "stage": index + 1,
-                                     "context_input_tokens": report["stage_inputs"][index],
-                                     "run": current_run["index"],
-                                     "phase": 0.0 if kind == "collect" else 1.0,
-                                     "elapsed": time.monotonic() - started})
+            report["events"].append(
+                {
+                    "event": kind,
+                    "stage": index + 1,
+                    "context_input_tokens": report["stage_inputs"][index],
+                    "run": current_run["index"],
+                    "phase": 0.0 if kind == "collect" else 1.0,
+                    "elapsed": time.monotonic() - started,
+                }
+            )
             if kind == "collected":
                 current_run["completed"].append(index + 1)
             save()
@@ -103,11 +125,17 @@ def main(argv=None):
     def frame():
         name = f"stages-{len(report['frames']):03d}.png"
         if window.grab().save(str(args.output / name)):
-            report["frames"].append({"file": name, "phases": [art.phase for art in arts],
-                                     "run": current_run["index"], "elapsed": time.monotonic() - started,
-                                     "stages": [art.level for art in arts],
-                                     "context_input_tokens": report["stage_inputs"],
-                                     "expressions": [art.expression for art in arts]})
+            report["frames"].append(
+                {
+                    "file": name,
+                    "phases": [art.phase for art in arts],
+                    "run": current_run["index"],
+                    "elapsed": time.monotonic() - started,
+                    "stages": [art.level for art in arts],
+                    "context_input_tokens": report["stage_inputs"],
+                    "expressions": [art.expression for art in arts],
+                }
+            )
         else:
             report["capture_errors"].append(name)
         save()
@@ -134,6 +162,7 @@ def main(argv=None):
     QTimer.singleShot(500, lambda: window.grab().save(str(args.output / "idle-all-four.png")))
     if args.auto_play:
         QTimer.singleShot(1000, guarded(start))
+
     def timeout():
         report["exit_reason"] = "duration_limit"
         app.quit()
@@ -153,10 +182,17 @@ def main(argv=None):
         window.close()
         for run in report["runs"]:
             frames = [item for item in report["frames"] if item["run"] == run["index"]]
-            run["stage_coverage"] = [phase_coverage([item["phases"][i] for item in frames]) for i in range(4)]
-        report["all_four_stages_observed"] = any(run["finished"] and all(
-            item["early"] and item["middle"] and item["late"] and item["idle"]
-            for item in run["stage_coverage"]) for run in report["runs"])
+            run["stage_coverage"] = [
+                phase_coverage([item["phases"][i] for item in frames]) for i in range(4)
+            ]
+        report["all_four_stages_observed"] = any(
+            run["finished"]
+            and all(
+                item["early"] and item["middle"] and item["late"] and item["idle"]
+                for item in run["stage_coverage"]
+            )
+            for run in report["runs"]
+        )
         report["elapsed_seconds"] = time.monotonic() - started
         save()
     return 1 if report.get("callback_errors") or report["capture_errors"] else 0

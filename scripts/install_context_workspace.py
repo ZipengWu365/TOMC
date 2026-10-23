@@ -81,9 +81,9 @@ def _safe_target(home: Path, relative: str) -> Path:
             attributes = cursor.lstat()
         except FileNotFoundError:
             continue
-        if (stat.S_ISLNK(attributes.st_mode)
-                or getattr(attributes, "st_file_attributes", 0)
-                & getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0)):
+        if stat.S_ISLNK(attributes.st_mode) or getattr(
+            attributes, "st_file_attributes", 0
+        ) & getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0):
             raise ValueError("Update targets must not traverse symbolic links or junctions.")
     return candidate
 
@@ -107,11 +107,17 @@ def plan_update(home: Path | str, runtime: Path | str) -> UpdatePlan:
     if not isinstance(server, dict) or server.get("type", "stdio") != "stdio":
         raise ValueError("Runtime mcp.json must contain a configured stdio tomc server.")
     command, arguments = server.get("command"), server.get("args")
-    if (not isinstance(command, str) or not command.strip()
-            or not isinstance(arguments, list) or not arguments
-            or any(not isinstance(item, str) for item in arguments)
-            or any("${" in item for item in [command, *arguments])):
-        raise ValueError("Runtime tomc command/args are missing or contain unresolved placeholders.")
+    if (
+        not isinstance(command, str)
+        or not command.strip()
+        or not isinstance(arguments, list)
+        or not arguments
+        or any(not isinstance(item, str) for item in arguments)
+        or any("${" in item for item in [command, *arguments])
+    ):
+        raise ValueError(
+            "Runtime tomc command/args are missing or contain unresolved placeholders."
+        )
     if not (runtime / "src/server.py").is_file():
         raise ValueError("The configured runtime is missing src/server.py.")
     if "--directory" in arguments:
@@ -143,7 +149,9 @@ def plan_update(home: Path | str, runtime: Path | str) -> UpdatePlan:
         else:
             entry = entries["tomc-memory"]
             if not isinstance(entry, dict) or entry.get("type", "stdio") != "stdio":
-                raise ValueError("The existing Claude tomc-memory entry is not a stdio configuration.")
+                raise ValueError(
+                    "The existing Claude tomc-memory entry is not a stdio configuration."
+                )
             if entry.get("command") != command or entry.get("args") != arguments:
                 # All other fields, including env, stay in the existing object.
                 entry["command"], entry["args"] = command, list(arguments)
@@ -165,7 +173,9 @@ def plan_update(home: Path | str, runtime: Path | str) -> UpdatePlan:
             previous = _read_current(_safe_target(home, relative))
             if previous != sources[name]:
                 changes.append(FileChange(relative, previous, sources[name]))
-        notes.append("Desktop scope: five context/UI modules only; artwork, animation and launchers stay intact.")
+        notes.append(
+            "Desktop scope: five context/UI modules only; artwork, animation and launchers stay intact."
+        )
     _safe_target(home, ".codex/tomc/archive")
     return UpdatePlan(home, runtime, tuple(changes), tuple(notes))
 
@@ -174,8 +184,9 @@ def _atomic_write(path, contents):
     """Replace one file atomically using a flushed temporary sibling."""
     temporary = None
     try:
-        with tempfile.NamedTemporaryFile(prefix=f".{path.name}.", suffix=".tmp",
-                                         dir=path.parent, delete=False) as stream:
+        with tempfile.NamedTemporaryFile(
+            prefix=f".{path.name}.", suffix=".tmp", dir=path.parent, delete=False
+        ) as stream:
             temporary = Path(stream.name)
             stream.write(contents)
             stream.flush()
@@ -208,13 +219,25 @@ def install(plan: UpdatePlan) -> dict:
                 stream.write(change.before)
                 stream.flush()
                 os.fsync(stream.fileno())
-        details.append({"target": change.relative, "backup": backup_name,
-                        "before_sha256": _digest(change.before), "after_sha256": _digest(change.after),
-                        "state": "pending"})
-    receipt = {"format": "tomc-context-workspace-update", "version": "0.1.5",
-               "created_utc": datetime.now(timezone.utc).isoformat(), "runtime": str(plan.runtime),
-               "status": "pending", "changes": details, "notes": list(plan.notes),
-               "processes_restarted": False}
+        details.append(
+            {
+                "target": change.relative,
+                "backup": backup_name,
+                "before_sha256": _digest(change.before),
+                "after_sha256": _digest(change.after),
+                "state": "pending",
+            }
+        )
+    receipt = {
+        "format": "tomc-context-workspace-update",
+        "version": "0.1.5",
+        "created_utc": datetime.now(timezone.utc).isoformat(),
+        "runtime": str(plan.runtime),
+        "status": "pending",
+        "changes": details,
+        "notes": list(plan.notes),
+        "processes_restarted": False,
+    }
     receipt_path = _safe_target(plan.home, f"{relative_archive}/receipt.json")
     _atomic_write(receipt_path, (json.dumps(receipt, indent=2) + "\n").encode())
     completed = []
@@ -222,7 +245,9 @@ def install(plan: UpdatePlan) -> dict:
         for index, change in enumerate(plan.changes):
             destination = _safe_target(plan.home, change.relative)
             if _read_current(destination) != change.before:
-                raise ValueError("An intended file changed during the update; remaining writes stopped.")
+                raise ValueError(
+                    "An intended file changed during the update; remaining writes stopped."
+                )
             _atomic_write(destination, change.after)
             completed.append(index)
             details[index]["state"] = "updated"
@@ -245,17 +270,27 @@ def install(plan: UpdatePlan) -> dict:
                 details[index]["state"] = "rollback_needs_attention"
                 receipt["status"] = "rollback_needs_attention"
         _atomic_write(receipt_path, (json.dumps(receipt, indent=2) + "\n").encode())
-        raise RuntimeError(f"Update stopped; status {receipt['status']}. Inspect {receipt_path}") from exc
+        raise RuntimeError(
+            f"Update stopped; status {receipt['status']}. Inspect {receipt_path}"
+        ) from exc
     _atomic_write(receipt_path, (json.dumps(receipt, indent=2) + "\n").encode())
     return {**receipt, "receipt": str(receipt_path), "backup_directory": str(archive)}
 
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--home", type=Path, default=Path.home(), help="Existing user home directory.")
-    parser.add_argument("--runtime", type=Path, required=True,
-                        help="Configured independent bundle's plugins/tomc-memory directory.")
-    parser.add_argument("--install", action="store_true", help="Apply the validated update; default is dry-run.")
+    parser.add_argument(
+        "--home", type=Path, default=Path.home(), help="Existing user home directory."
+    )
+    parser.add_argument(
+        "--runtime",
+        type=Path,
+        required=True,
+        help="Configured independent bundle's plugins/tomc-memory directory.",
+    )
+    parser.add_argument(
+        "--install", action="store_true", help="Apply the validated update; default is dry-run."
+    )
     args = parser.parse_args(argv)
     try:
         plan = plan_update(args.home, args.runtime)

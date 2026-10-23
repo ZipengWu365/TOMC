@@ -23,16 +23,27 @@ from tomc.usage_widget_qt import Companion, load_preview_fonts  # noqa: E402
 
 
 def record(store, before, after, counter="demo-estimate"):
-    store.record({"counter": counter, "usable": True, "input_tokens": before,
-                  "memory_tokens": after, "reduced_tokens": before-after})
+    store.record(
+        {
+            "counter": counter,
+            "usable": True,
+            "input_tokens": before,
+            "memory_tokens": after,
+            "reduced_tokens": before - after,
+        }
+    )
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("output", type=Path)
     parser.add_argument("--check", action="store_true")
-    parser.add_argument("--quota", action="store_true", help="Read the signed-in Codex account allowance")
-    parser.add_argument("--store", type=Path, help="Read existing real statistics; do not create demo records")
+    parser.add_argument(
+        "--quota", action="store_true", help="Read the signed-in Codex account allowance"
+    )
+    parser.add_argument(
+        "--store", type=Path, help="Read existing real statistics; do not create demo records"
+    )
     args = parser.parse_args()
     output = args.output.resolve()
     output.mkdir(parents=True, exist_ok=True)
@@ -49,8 +60,12 @@ def main():
     load_preview_fonts()
     pet = Companion(db, test_mode=not args.store, connect_quota=args.quota)
     if args.quota:
+
         def quota_received(state):
-            (output / "quota_state.json").write_text(json.dumps(state, ensure_ascii=False, indent=2), encoding="utf-8")
+            (output / "quota_state.json").write_text(
+                json.dumps(state, ensure_ascii=False, indent=2), encoding="utf-8"
+            )
+
         pet.quota_reader.updated.connect(quota_received)
     pet.show()
 
@@ -61,16 +76,22 @@ def main():
     def open_panel():
         pet.toggle_details()
         app.processEvents()
-        result = {"panel_visible": pet.details.isVisible(),
-                  "panel_size": [pet.details.width(), pet.details.height()],
-                  "pet_width": pet.width(), "expression": pet.art.expression,
-                  "statistics_are_simulated": not bool(args.store), "production_database_written": False,
-                  "desktop_control_used": False}
+        result = {
+            "panel_visible": pet.details.isVisible(),
+            "panel_size": [pet.details.width(), pet.details.height()],
+            "pet_width": pet.width(),
+            "expression": pet.art.expression,
+            "statistics_are_simulated": not bool(args.store),
+            "production_database_written": False,
+            "desktop_control_used": False,
+        }
         if args.check:
             pet.timer.stop()
             snapshot("profile")
             assert pet.details.isVisible() and pet.width() == 72
-            assert pet.art.expression == "dejected" and pet.details.portrait.expression == "dejected"
+            assert (
+                pet.art.expression == "dejected" and pet.details.portrait.expression == "dejected"
+            )
             for period in ("today", "7d", "all"):
                 QTest.mouseClick(pet.details.buttons[period], Qt.MouseButton.LeftButton)
                 assert pet.period == period and pet.details.buttons[period].isChecked()
@@ -110,8 +131,14 @@ def main():
             pet.store, pet.last_signature, pet.initialized = store, None, False
             pet.refresh()
             assert pet.details.total.text() == "92.1%"
-            pet.details.set_quota({"status": "ready", "windows": [
-                {"bucket": "codex", "period": "本周", "remaining": 68, "resets_at": None}]})
+            pet.details.set_quota(
+                {
+                    "status": "ready",
+                    "windows": [
+                        {"bucket": "codex", "period": "本周", "remaining": 68, "resets_at": None}
+                    ],
+                }
+            )
             assert pet.details.quota_value.text() == "剩余 68%"
             snapshot("quota-simulated")
             pet.details.set_quota({"status": "unavailable", "windows": []})
@@ -122,13 +149,26 @@ def main():
             pet.toggle_details()
             QTest.mouseClick(pet.details.close_button, Qt.MouseButton.LeftButton)
             assert not pet.details.isVisible() and pet.isVisible()
-            result["checks"] = ["periods", "no_smile_on_click", "scope_toggle", "empty",
-                                "negative", "mixed_counters", "long_numbers", "read_error_recovery",
-                                "escape_dismiss", "close_dismiss", "quota_remaining_not_savings",
-                                "quota_failure_clears_stale_values"]
+            result["checks"] = [
+                "periods",
+                "no_smile_on_click",
+                "scope_toggle",
+                "empty",
+                "negative",
+                "mixed_counters",
+                "long_numbers",
+                "read_error_recovery",
+                "escape_dismiss",
+                "close_dismiss",
+                "quota_remaining_not_savings",
+                "quota_failure_clears_stale_values",
+            ]
             # Deliver a context event to our own Qt widget, never the OS input stream.
-            menu_event = QContextMenuEvent(QContextMenuEvent.Reason.Mouse,
-                                          pet.rect().center(), pet.mapToGlobal(pet.rect().center()))
+            menu_event = QContextMenuEvent(
+                QContextMenuEvent.Reason.Mouse,
+                pet.rect().center(),
+                pet.mapToGlobal(pet.rect().center()),
+            )
             QApplication.sendEvent(pet, menu_event)
             app.processEvents()
             assert pet.pet_menu.isVisible()
@@ -136,7 +176,9 @@ def main():
             assert not pet.isVisible() and not pet.details.isVisible()
             assert not pet.timer.isActive() and not pet.art.animation_timer.isActive()
             result["checks"].append("right_click_exit")
-        (output / "state.json").write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
+        (output / "state.json").write_text(
+            json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8"
+        )
         if args.check:
             pet.close()
 

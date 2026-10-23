@@ -31,8 +31,14 @@ def test_registration_observation_dispatch_and_preparation_are_separate_and_read
     sessions.register("codex", "selected")
     sessions.set_enabled("codex", "selected", False)
     activity.start("prepared", "codex", "selected")
-    activity.finish("prepared", state="prepared", reason="optimized", context_input_tokens=15000,
-                    before_tokens=50000, after_tokens=10000)
+    activity.finish(
+        "prepared",
+        state="prepared",
+        reason="optimized",
+        context_input_tokens=15000,
+        before_tokens=50000,
+        after_tokens=10000,
+    )
     activity.sent("prepared")
     activity.usage("prepared", provider_input_tokens=20000, provider_cached_tokens=5000)
     activity.start("off", "codex", "selected")
@@ -84,11 +90,23 @@ def test_manifest_cli_deduplication_limits_and_global_pause(tmp_path, capsys):
     sessions.update_settings(enabled=False)
     for index in range(3):
         activity.start(f"r{index}", "claude", "a")
-        activity.finish(f"r{index}", state="prepared", context_input_tokens=10000+index)
+        activity.finish(f"r{index}", state="prepared", context_input_tokens=10000 + index)
     manifest = tmp_path / "selected.json"
-    manifest.write_text(json.dumps({"sessions": [{"host": "claude", "session_id": "a"}, "b"]}), "utf-8")
-    exit_code = audit_script.main(["--store", str(path), "--sessions-json", str(manifest),
-                                  "--session-id", "b", "--event-limit", "2"])
+    manifest.write_text(
+        json.dumps({"sessions": [{"host": "claude", "session_id": "a"}, "b"]}), "utf-8"
+    )
+    exit_code = audit_script.main(
+        [
+            "--store",
+            str(path),
+            "--sessions-json",
+            str(manifest),
+            "--session-id",
+            "b",
+            "--event-limit",
+            "2",
+        ]
+    )
     assert exit_code == 0
     report = json.loads(capsys.readouterr().out)
     assert len(report["sessions"]) == 2

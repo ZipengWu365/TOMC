@@ -15,9 +15,17 @@ def test_receipt_lines_hold_ids_stage_counts_and_codes_only(tmp_path):
     assert not receipts.record("played", "req-1")
     assert not receipts.record("started", "bad id with spaces")
     assert not receipts.record("started", None)
-    assert receipts.record("skipped", "req-2", reason="Free text, not a code", stage=9, context_input_tokens=-1)
+    assert receipts.record(
+        "skipped", "req-2", reason="Free text, not a code", stage=9, context_input_tokens=-1
+    )
     rows = receipts.read()
-    assert [row["event"] for row in rows] == ["queued", "started", "completed", "skipped", "skipped"]
+    assert [row["event"] for row in rows] == [
+        "queued",
+        "started",
+        "completed",
+        "skipped",
+        "skipped",
+    ]
     assert rows[1]["stage"] == 2 and rows[1]["context_input_tokens"] == 15000
     assert set(rows[-1]) == {"utc", "event", "request_id", "ui"}
     assert all(row["ui"] == receipts.instance and "demo" not in row for row in rows)
