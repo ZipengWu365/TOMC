@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import sqlite3
+import sys
 from pathlib import Path
 from urllib.request import ProxyHandler, build_opener
 
@@ -18,12 +19,14 @@ from PySide6.QtWidgets import (
     QHBoxLayout,
     QInputDialog,
     QLabel,
+    QLayout,
     QLineEdit,
     QListWidget,
     QListWidgetItem,
     QMessageBox,
     QPlainTextEdit,
     QPushButton,
+    QScrollArea,
     QSizePolicy,
     QSplitter,
     QStackedWidget,
@@ -859,7 +862,23 @@ class ContextLibraryDialog(QDialog):
         self.content_tabs.addTab(self.memory, "")
         self.content_tabs.addTab(self.task, "")
         detail_layout.addWidget(self.content_tabs, 1)
-        self.preview_stack.addWidget(detail)
+        if sys.platform == "darwin":
+            # Keep short macOS windows from squeezing the summary and its buttons.
+            # Only the selected context pane scrolls; navigation stays in place.
+            detail_layout.setSizeConstraint(QLayout.SizeConstraint.SetMinimumSize)
+            detail_scroll = QScrollArea()
+            detail_scroll.setObjectName("contextDetailScroll")
+            detail_scroll.setWidgetResizable(True)
+            detail_scroll.setFrameShape(QFrame.Shape.NoFrame)
+            detail.setObjectName("contextDetailBody")
+            detail_scroll.setStyleSheet(
+                "QScrollArea#contextDetailScroll, QWidget#contextDetailBody "
+                "{ background: #FBF8F2; border: none; }"
+            )
+            detail_scroll.setWidget(detail)
+            self.preview_stack.addWidget(detail_scroll)
+        else:
+            self.preview_stack.addWidget(detail)
         split.addWidget(self.preview_stack)
         split.setStretchFactor(1, 1)
         split.setSizes([330, 700])

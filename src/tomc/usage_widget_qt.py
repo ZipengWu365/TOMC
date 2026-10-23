@@ -749,8 +749,11 @@ class Details(QWidget):
         )
         if folder:
             try:
+                options = {}
+                if sys.platform == "darwin":
+                    options["conversation"] = self.macos_export_conversation(record)
                 destination = self.library.export(
-                    record["id"], Path(folder), language=self.language.code
+                    record["id"], Path(folder), language=self.language.code, **options
                 )
                 self.message = (
                     "已导出到 {path}。在另一台电脑上点“导入”即可继续。",
@@ -760,6 +763,29 @@ class Details(QWidget):
             except (OSError, sqlite3.Error, ValueError, KeyError) as exc:
                 self.message = ("导出失败：{error}", "Export failed: {error}", {"error": str(exc)})
         self.owner.show_details()
+
+    def macos_export_conversation(self, record):
+        """Use the same conversation name as All records for Mac quick exports."""
+        from .conversation_names import resolve
+        from .conversations import conversation_key, group_conversations
+
+        key = conversation_key(record)
+        if key[0] == "unlinked":
+            return None
+        records = [row for row in self.library.list(limit=10000) if conversation_key(row) == key]
+        conversations = group_conversations(
+            records,
+            names=resolve({(key[1], key[2])}) if key[0] == "session" else {},
+            imported=self.library.conversation_titles(),
+        )
+        if not conversations:
+            return None
+        conversation = conversations[0]
+        return (
+            conversation["title"]
+            or conversation["first_title"]
+            or self.language.tr("未命名对话", "Untitled conversation")
+        )
 
     def import_bundle(self):
         self.hide()

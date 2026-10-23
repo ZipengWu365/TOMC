@@ -1691,8 +1691,8 @@
     },
     {
       "path": "plugins/claude-code/src/tomc/context_library_qt.py",
-      "bytes": 82685,
-      "sha256": "8bf332f22e0ff417b967e4e50642be6bd281a4442e1e06ccddedbd389882d34a"
+      "bytes": 83590,
+      "sha256": "2b28c5513e43c6b8cc2b7f906612894941bdac86e4a1835878cf0cb7cd39ac07"
     },
     {
       "path": "plugins/claude-code/src/tomc/conversation_names.py",
@@ -1961,8 +1961,8 @@
     },
     {
       "path": "plugins/claude-code/src/tomc/usage_widget_qt.py",
-      "bytes": 75085,
-      "sha256": "0baf8594c9c78f4cd79ddb2060aa9f9397b2c2c6681859b27d9635ff89393382"
+      "bytes": 76189,
+      "sha256": "6ff3d3116d9a68dc50828b7982b1ad4d3718f5055aa9c24d0f1de9cc2fece2a6"
     },
     {
       "path": "plugins/claude-code/uv.lock",
@@ -2511,8 +2511,8 @@
     },
     {
       "path": "src/tomc/context_library_qt.py",
-      "bytes": 82685,
-      "sha256": "8bf332f22e0ff417b967e4e50642be6bd281a4442e1e06ccddedbd389882d34a"
+      "bytes": 83590,
+      "sha256": "2b28c5513e43c6b8cc2b7f906612894941bdac86e4a1835878cf0cb7cd39ac07"
     },
     {
       "path": "src/tomc/conversation_names.py",
@@ -2826,8 +2826,8 @@
     },
     {
       "path": "src/tomc/usage_widget_qt.py",
-      "bytes": 75085,
-      "sha256": "0baf8594c9c78f4cd79ddb2060aa9f9397b2c2c6681859b27d9635ff89393382"
+      "bytes": 76189,
+      "sha256": "6ff3d3116d9a68dc50828b7982b1ad4d3718f5055aa9c24d0f1de9cc2fece2a6"
     },
     {
       "path": "tests/fixtures/pricing/anthropic.txt",
@@ -2896,8 +2896,8 @@
     },
     {
       "path": "tests/test_context_library_qt.py",
-      "bytes": 30047,
-      "sha256": "02c5e3d712eb4d51812788e643cbced9e9e10dce3ea5e20ab7fe6f72f76b8af8"
+      "bytes": 32962,
+      "sha256": "828037e358733fcb8595df7b911d80a0e7a1f90782965a2b39c92ff23c734b0c"
     },
     {
       "path": "tests/test_conversation_names.py",
@@ -3041,8 +3041,8 @@
     },
     {
       "path": "tests/test_savings_dashboard_qt.py",
-      "bytes": 12336,
-      "sha256": "1256ecb05ea3da9544d84dd273c5805453f7db92ee84e4c12e5ee16d8cabea2e"
+      "bytes": 15303,
+      "sha256": "35832d1a92b97c91eac3bce62822b7cc9b702bc504c77ab6d0399807046333ad"
     },
     {
       "path": "tests/test_session_hooks.py",
@@ -3090,7 +3090,7 @@
       "sha256": "be8dbb0aa75e27d1625255b99019c1b078833d1afc864951da7d6de1c4b70807"
     }
   ],
-  "total_bytes": 147066729,
+  "total_bytes": 147076629,
   "self_excluded": [
     "PUBLIC_RELEASE_MANIFEST.json",
     "SHA256SUMS"

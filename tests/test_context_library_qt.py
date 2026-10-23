@@ -729,6 +729,76 @@ def test_export_carries_the_conversation_name_to_the_other_computer(
         app.sendPostedEvents(None, QEvent.Type.DeferredDelete)
 
 
+@pytest.mark.parametrize("platform", ["darwin", "win32", "linux"])
+def test_only_macos_scrolls_the_selected_context_pane(app, tmp_path, monkeypatch, platform):
+    from PySide6.QtWidgets import QScrollArea
+
+    from tomc import context_library_qt
+
+    with monkeypatch.context() as patch:
+        patch.setattr(context_library_qt.sys, "platform", platform)
+        window = ContextLibraryDialog(
+            tmp_path / "layout.sqlite3", integrations=STATUS, pricing=None
+        )
+    try:
+        pane = window.preview_stack.widget(1)
+        assert isinstance(pane, QScrollArea) == (platform == "darwin")
+        if platform == "darwin":
+            assert pane.widgetResizable()
+            assert pane.widget().isAncestorOf(window.copy_button)
+            assert not pane.widget().isAncestorOf(window.conversation_list)
+        else:
+            assert pane.isAncestorOf(window.copy_button)
+    finally:
+        window.close()
+        window.deleteLater()
+        app.sendPostedEvents(None, QEvent.Type.DeferredDelete)
+
+
+@pytest.mark.parametrize("language", ["zh", "en"])
+@pytest.mark.parametrize("size", [(900, 680), (1100, 860), (1400, 960)])
+def test_macos_context_actions_remain_readable_and_reachable(
+    app, tmp_path, monkeypatch, fixed_prices, language, size
+):
+    from PySide6.QtCore import QPoint, QRect
+    from PySide6.QtWidgets import QScrollArea
+
+    from tomc import context_library_qt
+
+    with monkeypatch.context() as patch:
+        patch.setattr(context_library_qt.sys, "platform", "darwin")
+        window = ContextLibraryDialog(
+            tmp_path / "layout.sqlite3", integrations=STATUS, pricing=None
+        )
+    try:
+        for index in range(4):
+            selected = save_fixture(window.library, f"Synthetic context {index}")
+        compiled_request(window, "fixture-request", 100_000, 60_000)
+        window.language.set_language(language)
+        window.refresh(select_id=selected["id"])
+        window.resize(*size)
+        window.show()
+        app.processEvents()
+        pane = window.preview_stack.widget(1)
+        assert isinstance(pane, QScrollArea)
+        assert window.width() == size[0] and window.height() == size[1]
+        for button in window.record_buttons:
+            assert button.height() >= button.minimumSizeHint().height()
+            assert button.width() >= button.minimumSizeHint().width()
+            pane.ensureWidgetVisible(button)
+            app.processEvents()
+            bounds = QRect(button.mapTo(pane.viewport(), QPoint()), button.size())
+            assert pane.viewport().rect().contains(bounds)
+        assert window.selected_record["id"] == selected["id"]
+        assert window.conversation_list.currentRow() == 0
+        if size == (900, 680):
+            assert pane.verticalScrollBar().maximum() > 0
+    finally:
+        window.close()
+        window.deleteLater()
+        app.sendPostedEvents(None, QEvent.Type.DeferredDelete)
+
+
 @pytest.mark.parametrize(
     "record",
     [

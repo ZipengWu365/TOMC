@@ -1,5 +1,6 @@
 """Offscreen savings dashboard: per-model money, trend, and handoff/export actions."""
 
+import json
 import os
 import re
 import sqlite3
@@ -15,7 +16,7 @@ pytest.importorskip("PySide6")
 from PySide6.QtCore import QEvent  # noqa: E402
 from PySide6.QtWidgets import QApplication, QLabel, QPushButton  # noqa: E402
 
-from tomc import pricing_catalog, savings, usage_widget_qt  # noqa: E402
+from tomc import conversation_names, pricing_catalog, savings, usage_widget_qt  # noqa: E402
 from tomc.context_library import ContextLibrary  # noqa: E402
 from tomc.request_activity import RequestActivity  # noqa: E402
 from tomc.ui_language import UiLanguage  # noqa: E402
@@ -121,9 +122,11 @@ def close(app, pet):
 
 
 @pytest.fixture(autouse=True)
-def hermetic_prices(monkeypatch):
+def hermetic_prices(monkeypatch, tmp_path):
     monkeypatch.setattr(pricing_catalog, "read_catalog", lambda path=None: CATALOG)
     monkeypatch.setattr(savings, "load_detected", lambda path=None: {})
+    monkeypatch.setattr(conversation_names, "codex_home", lambda: tmp_path / "codex")
+    monkeypatch.setattr(conversation_names, "claude_home", lambda: tmp_path / "claude")
 
 
 def texts(widget):
@@ -293,6 +296,73 @@ def test_cancelled_export_reopens_without_a_message(app, tmp_path, monkeypatch):
         app.processEvents()
         assert pet.details.isVisible() and not pet.details.records_message.isVisible()
         assert not list(Path(tmp_path).glob("task-*"))
+    finally:
+        close(app, pet)
+
+
+@pytest.mark.parametrize("platform", ["darwin", "win32", "linux"])
+@pytest.mark.parametrize("host", ["codex", "claude"])
+def test_quick_export_preserves_conversation_name_only_on_mac(
+    app, tmp_path, monkeypatch, platform, host
+):
+    path = tmp_path / "memory.sqlite3"
+    record = snapshot(path, "A context task", host=host)
+    original = "Original conversation · 原对话名"
+    resolved = []
+
+    def names(pairs):
+        resolved.append(pairs)
+        return {(host, "session"): {"title": original}}
+
+    monkeypatch.setattr(conversation_names, "resolve", names)
+    target = tmp_path / "exports"
+    target.mkdir()
+    monkeypatch.setattr(usage_widget_qt.QFileDialog, "getExistingDirectory", lambda *a: str(target))
+    pet = make_pet(app, path, monkeypatch)
+    try:
+        with monkeypatch.context() as patch:
+            patch.setattr(usage_widget_qt.sys, "platform", platform)
+            pet.details.export_record(record)
+        bundle = next(target.iterdir())
+        metadata = json.loads((bundle / "metadata.json").read_text(encoding="utf-8"))
+        if platform == "darwin":
+            assert metadata["conversation"]["title"] == original
+            assert resolved == [{(host, "session")}]
+            receiver = ContextLibrary(tmp_path / "receiver.sqlite3")
+            imported = receiver.import_bundle(bundle)
+            assert receiver.conversation_titles()[imported["id"]] == original
+        else:
+            assert "conversation" not in metadata
+            assert resolved == []
+    finally:
+        close(app, pet)
+
+
+def test_mac_quick_reexport_keeps_imported_conversation_name(app, tmp_path, monkeypatch):
+    source = tmp_path / "source.sqlite3"
+    record = snapshot(source, "A saved task")
+    original = "Portable conversation · 跨电脑"
+    bundle = ContextLibrary(source).export(
+        record["id"], tmp_path / "incoming", conversation=original
+    )
+    path = tmp_path / "receiver.sqlite3"
+    imported = ContextLibrary(path).import_bundle(bundle)
+    target = tmp_path / "exports"
+    target.mkdir()
+    monkeypatch.setattr(usage_widget_qt.QFileDialog, "getExistingDirectory", lambda *a: str(target))
+    monkeypatch.setattr(
+        conversation_names,
+        "resolve",
+        lambda pairs: pytest.fail("Imported names need no host lookup"),
+    )
+    pet = make_pet(app, path, monkeypatch)
+    try:
+        with monkeypatch.context() as patch:
+            patch.setattr(usage_widget_qt.sys, "platform", "darwin")
+            pet.details.export_record(imported)
+        exported = next(target.iterdir())
+        metadata = json.loads((exported / "metadata.json").read_text(encoding="utf-8"))
+        assert metadata["conversation"]["title"] == original
     finally:
         close(app, pet)
 
