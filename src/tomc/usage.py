@@ -25,10 +25,15 @@ def reduction_report(prepared: PreparedContext) -> dict:
     percent = round(100 * delta / before, 2) if usable else None
     if not usable:
         summary = "TOMC: no usable context; excluded from estimated reduction totals."
+    elif delta >= 0:
+        summary = (
+            f"TOMC compressed {before:,} context tokens to {after:,}, "
+            f"saving {delta:,} tokens ({percent:.2f}%)."
+        )
     else:
         summary = (
-            f"TOMC estimated context tokens: {before:,} -> {after:,}; "
-            f"reduction {delta:+,} ({percent:+.2f}%). Not API/billing savings."
+            f"TOMC context tokens: {before:,} -> {after:,}, "
+            f"{-delta:,} tokens added ({-percent:.2f}%)."
         )
     return {
         "input_tokens": before,

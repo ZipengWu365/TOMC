@@ -51,7 +51,7 @@ _STATIC_TEXT = {
     "导入上下文包": "Import context bundle",
     "已处理上下文列表": "Prepared context list",
     "暂无处理记录\n\n成功准备并保存的上下文会出现在这里。\n旧版数字统计不含正文，无法还原历史上下文。": "No prepared contexts yet\n\nSaved contexts will appear here after preparation.\nOlder numeric statistics contain no text and cannot restore past contexts.",
-    "此快照的请求用量 / 账单差异：未关联测量": "Request usage / billing difference for this snapshot: no linked measurement",
+    "此快照的请求用量：未关联": "Request usage for this snapshot: not linked",
     "选中上下文正文，只读": "Selected context content, read-only",
     "原任务与记录信息，只读": "Original task and record details, read-only",
     "重命名": "Rename",
@@ -686,7 +686,7 @@ class ContextLibraryDialog(QDialog):
         self.record_tokens = text_label()
         self.record_tokens.setStyleSheet("font-size: 14px; color: #345743;")
         self.record_cost = text_label(muted=True)
-        self.request_status = text_label("此快照的请求用量 / 账单差异：未关联测量", muted=True)
+        self.request_status = text_label("此快照的请求用量：未关联", muted=True)
         for widget in (
             self.record_title,
             self.record_meta,
@@ -845,9 +845,6 @@ class ContextLibraryDialog(QDialog):
                     detail += self.t(
                         " · provider 用量尚未返回", " · Provider usage not yet returned"
                     )
-                detail += self.t(
-                    "；实测用量不是节省差额。", "; measured usage is not the amount saved."
-                )
             self.activity_status.setText(detail)
             for host, label in self.integration_labels.items():
                 item = status.get(host, {})
@@ -1031,11 +1028,11 @@ class ContextLibraryDialog(QDialog):
         )
         before, after = row["input_estimated_tokens"], row["output_estimated_tokens"]
         delta = before - after
-        direction = self.t("减少", "decrease") if delta >= 0 else self.t("增加", "increase")
+        direction = self.t("节省", "saved") if delta >= 0 else self.t("增加", "added")
         self.record_tokens.setText(
             self.t(
-                "上下文估算  {before:,} → {after:,} tokens · {direction} {delta:,}",
-                "Context estimate  {before:,} → {after:,} tokens · {direction} {delta:,}",
+                "上下文  {before:,} → {after:,} tokens · {direction} {delta:,}",
+                "Context  {before:,} → {after:,} tokens · {direction} {delta:,}",
                 before=before,
                 after=after,
                 direction=direction,
@@ -1069,8 +1066,8 @@ class ContextLibraryDialog(QDialog):
         self.memory.setPlainText(row.get("memory", ""))
         self.task.setPlainText(
             self.t(
-                "原任务\n{task}\n\n快照 ID：{identity}\n准备 ID：{preparation}\n预算：{budget} tokens\n本机会话：{session}\n来源宿主：{host}\n笔记本：{notebook}\n\n这是为原任务准备的上下文，可能有遗漏，不是完整聊天的无损副本。\n此快照的数量与金额均为估算；请求转发与实测用量见上方请求记录。未测量账单差异。",
-                "Original task\n{task}\n\nSnapshot ID: {identity}\nPreparation ID: {preparation}\nBudget: {budget} tokens\nLocal session: {session}\nSource host: {host}\nNotebook: {notebook}\n\nThis context was prepared for the original task and may omit details. It is not a lossless copy of the full conversation.\nSnapshot counts and values are estimates. Request forwarding and measured usage appear above; billing differences have not been measured.",
+                "原任务\n{task}\n\n快照 ID：{identity}\n准备 ID：{preparation}\n预算：{budget} tokens\n本机会话：{session}\n来源宿主：{host}\n笔记本：{notebook}\n\n这是为原任务准备的上下文，可能有遗漏，不是完整聊天的无损副本。\n请求转发与实测用量见上方请求记录。",
+                "Original task\n{task}\n\nSnapshot ID: {identity}\nPreparation ID: {preparation}\nBudget: {budget} tokens\nLocal session: {session}\nSource host: {host}\nNotebook: {notebook}\n\nThis context was prepared for the original task and may omit details. It is not a lossless copy of the full conversation.\nRequest forwarding and measured usage appear above.",
                 task=row.get("task") or self.t("未记录", "Not recorded"),
                 identity=row["id"],
                 preparation=row.get("preparation_id") or self.t("未提供", "Not provided"),

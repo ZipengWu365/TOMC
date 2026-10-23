@@ -119,8 +119,7 @@ def test_all_items_after_latest_user_including_reasoning_are_unchanged():
 def test_installed_codex_metadata_and_custom_tool_schema_support_complete_old_turns():
     payload = request()
     for item in payload["input"]:
-        if item.get("type") != "reasoning":
-            item["internal_chat_message_metadata_passthrough"] = {"test": "fixture metadata"}
+        item["internal_chat_message_metadata_passthrough"] = {"test": "fixture metadata"}
         if item.get("role") == "assistant":
             item["content"][0].update(annotations=[], logprobs=[])
         if item.get("type") == "function_call":
@@ -134,6 +133,122 @@ def test_installed_codex_metadata_and_custom_tool_schema_support_complete_old_tu
     assert result.payload["input"][-6:] == original["input"][-6:]
     assert result.payload["input"][0] == original["input"][0]
     assert payload == original
+
+
+def codex_context(cwd="/fixture/project"):
+    """Codex 0.163 sends AGENTS.md and environment details as one user-role message."""
+    return {
+        "type": "message",
+        "role": "user",
+        "content": [
+            {
+                "type": "input_text",
+                "text": f"# AGENTS.md instructions for {cwd}\n\n<INSTRUCTIONS>\n"
+                + "Always run the fixture tests before answering. " * 300
+                + "\n</INSTRUCTIONS>",
+            },
+            {
+                "type": "input_text",
+                "text": f"<environment_context>\n  <cwd>{cwd}</cwd>\n</environment_context>",
+            },
+        ],
+    }
+
+
+def test_host_context_messages_stay_instructions_and_are_never_compiled():
+    payload = request()
+    context = codex_context()
+    update = message("user", "<environment_context>\n  <cwd>/other</cwd>\n</environment_context>")
+    payload["input"].insert(1, context)
+    # [developer, context, turn 0 (5 items), environment update, turn 1, ...]
+    payload["input"].insert(7, update)
+    original = copy.deepcopy(payload)
+    result = adapt(payload)
+    assert result.transformed
+    memory = result.prepared.compilation.compiled_memory
+    assert "AGENTS.md" not in memory and "environment_context" not in memory
+    assert "fixture tests" not in memory
+    assert result.payload["input"][:2] == original["input"][:2]
+    assert "<tomc_history>" in result.payload["input"][2]["content"][0]["text"]
+    assert update in result.payload["input"]
+    assert original["input"][2] not in result.payload["input"]
+
+
+def test_host_context_alone_is_not_old_history():
+    payload = {
+        "input": [
+            message("developer", "Keep developer rules exactly."),
+            codex_context(),
+            message("user", "Hello."),
+            message("assistant", "Hi."),
+            message("user", "What changed?"),
+        ]
+    }
+    result = adapt(payload, recent_messages=1)
+    assert not result.transformed and result.reason == "history_below_threshold"
+
+
+def test_user_turn_mixing_host_context_with_its_text_stays_verbatim():
+    payload = request()
+    environment = "<environment_context>\n  <cwd>/fixture</cwd>\n</environment_context>"
+    payload["input"][1]["content"].insert(0, {"type": "input_text", "text": environment})
+    original = copy.deepcopy(payload)
+    result = adapt(payload)
+    assert result.transformed
+    assert result.payload["input"][1:6] == original["input"][1:6]
+    assert "environment_context" not in result.prepared.compilation.compiled_memory
+
+
+def test_codex_reasoning_metadata_tool_namespace_and_agent_message_compile():
+    payload = request()
+    for item in payload["input"]:
+        item["internal_chat_message_metadata_passthrough"] = {"turn_id": "fixture"}
+        if item.get("type") == "function_call":
+            item["namespace"] = "fixture_tools"
+    agent = {
+        "type": "agent_message",
+        "id": "am_0",
+        "author": "/root/worker",
+        "recipient": "/root",
+        "content": [{"type": "input_text", "text": "Worker confirmed the teal setting."}],
+        "internal_chat_message_metadata_passthrough": {"turn_id": "fixture"},
+    }
+    payload["input"].insert(5, agent)
+    original = copy.deepcopy(payload)
+    result = adapt(payload)
+    assert result.transformed
+    for item in original["input"][1:7]:
+        assert item not in result.payload["input"]
+    assert result.payload["input"][-6:] == original["input"][-6:]
+
+
+def test_encrypted_agent_message_keeps_its_whole_turn_verbatim():
+    payload = request()
+    agent = {
+        "type": "agent_message",
+        "author": "/root/worker",
+        "recipient": "/root",
+        "content": [
+            {"type": "input_text", "text": "Done."},
+            {"type": "encrypted_content", "encrypted_content": "opaque"},
+        ],
+    }
+    payload["input"].insert(5, agent)
+    original = copy.deepcopy(payload)
+    result = adapt(payload)
+    assert result.transformed
+    assert result.payload["input"][1:7] == original["input"][1:7]
+
+
+def test_configuration_update_stays_in_place_while_its_turn_compiles():
+    payload = request()
+    update = {"type": "configuration_update", "reasoning": {"effort": "xhigh"}}
+    payload["input"].insert(3, update)
+    original = copy.deepcopy(payload)
+    result = adapt(payload)
+    assert result.transformed
+    assert update in result.payload["input"]
+    assert original["input"][1] not in result.payload["input"]
 
 
 def test_unknown_fields_multimodal_and_encrypted_output_pairs_remain_identical():

@@ -225,7 +225,7 @@ class Details(QWidget):
         self.progress.setFixedHeight(3)
         layout.addSpacing(6)
         self.price_note = label(
-            tr("上下文估算，不等于额度节省", "Context estimate, not allowance savings"),
+            tr("参考模型未选择 · 点击估价", "No reference model · Select Pricing"),
             10,
             "#706659",
         )
@@ -478,8 +478,8 @@ class Details(QWidget):
                 tr("参考模型未选择 · 点击估价", "No reference model · Select Pricing")
             )
         cost_note = tr(
-            "按参考输入单价折算，非账单节省。压缩可能降低缓存命中、增加实际费用。费率与更新时间见「估价」。",
-            "Uses a reference input rate, not bill savings. Compression can reduce cache hits and increase actual cost. See Pricing for rates and dates.",
+            "节省的 tokens 按参考输入单价折算。费率与更新时间见「估价」。",
+            "Saved tokens at the reference input rate. See Pricing for rates and dates.",
         )
         self.price_note.setToolTip(cost_note)
         self.cost_detail.setText(cost_note)
@@ -996,13 +996,10 @@ class Companion(QWidget):
                             "; cached: {count:,}",
                             count=latest["provider_cached_tokens"],
                         )
-                    detail += tr(
-                        "。这是使用量，不是节省差额。", ". This is usage, not measured savings."
-                    )
+                    detail += tr("。", ".")
                 else:
                     detail += tr(
-                        "\n模型实测用量尚未返回；未测量账单差异。",
-                        "\nProvider usage is not available yet; bill differences have not been measured.",
+                        "\n模型实测用量尚未返回。", "\nProvider usage has not been returned yet."
                     )
             self.details.request_usage_detail.setText(detail)
             self.details.resize_to_content()
@@ -1094,16 +1091,18 @@ class Companion(QWidget):
         self.oasis_action.setVisible(growth["level"] == 4 or self.test_mode)
         self.number.setStyleSheet("font-size: 20px; font-weight: 600; color: #443B35;")
         self.number.setText("—")
-        self.caption.setText(tr("上下文估算", "Context estimate"))
+        self.caption.setText(tr("上下文压缩", "Context compression"))
         last = summary.get("last_preparation")
         latest = tr("等待本次上下文", "Waiting for context")
         long_latest = tr("等待 TOMC 准备上下文。", "Waiting for TOMC to prepare context.")
         if last and last["usable"]:
             delta = last["reduced_tokens"]
             latest = (
-                tr("本次增加 {count:,}", "Latest: {count:,} more", count=abs(delta))
+                tr("本次增加 {count:,} tokens", "Latest: {count:,} tokens added", count=abs(delta))
                 if delta < 0
-                else tr("本次减少 {count:,}", "Latest: {count:,} fewer", count=abs(delta))
+                else tr(
+                    "本次节省 {count:,} tokens", "Latest: {count:,} tokens saved", count=abs(delta)
+                )
             )
             long_latest = tr(
                 "最近一次  {before:,} → {after:,} tokens",
@@ -1132,8 +1131,8 @@ class Companion(QWidget):
         )
         self.card.setToolTip(
             tr(
-                "{name} · {hint}\n仅上下文估算，非账单节省。点击展开统计。",
-                "{name} · {hint}\nContext estimate, not bill savings. Click for statistics.",
+                "{name} · {hint}\n点击展开统计。",
+                "{name} · {hint}\nClick for statistics.",
                 name=growth["name"],
                 hint=hint,
             )
@@ -1234,14 +1233,23 @@ class Companion(QWidget):
 
     def report_text(self, report):
         tr = self.language.tr
+        self.number.setStyleSheet("font-size: 18px; font-weight: 600; color: #443B35;")
+        context = report.get("context_input_tokens")
+        if type(context) is not int or context < 0:
+            # A whole-request (envelope) count is not the compressed context length.
+            envelope = any(
+                marker in str(report.get("counter", "")).lower()
+                for marker in ("request-json", "entire-payload")
+            )
+            context = None if envelope else report.get("input_tokens")
         if report.get("stage_only"):
             stage = growth_state({"last_preparation": report}, self.language)
-            self.caption.setText(tr("上下文已准备", "Context prepared"))
+            self.caption.setText(tr("上下文已压缩", "Context compressed"))
             self.number.setText(tr("第 {level} 阶段", "Stage {level}/4", level=stage["level"]))
             self.latest.setText(
                 tr(
-                    "本次输入 {count:,} tokens",
-                    "Input: {count:,} tokens",
+                    "压缩上下文 {count:,} tokens",
+                    "Compressed {count:,} tokens",
                     count=stage["input_tokens"],
                 )
             )
@@ -1250,20 +1258,24 @@ class Companion(QWidget):
             delta = report["reduced_tokens"]
             self.caption.setText(
                 (tr("演示 · ", "Demo · ") if self.test_mode else "")
-                + (
-                    tr("本次估算增加", "Estimated increase")
-                    if delta < 0
-                    else tr("本次估算减少", "Estimated reduction")
+                + (tr("本次增加", "Added") if delta < 0 else tr("本次节省", "Saved"))
+            )
+            self.number.setText(tr("{count:,} tokens", "{count:,} tokens", count=abs(delta)))
+            if context is None:
+                self.latest.setText(tr("上下文已压缩", "Context compressed"))
+            elif delta < 0:
+                self.latest.setText(
+                    tr("上下文 {count:,} tokens", "Context {count:,} tokens", count=context)
                 )
-            )
-            self.number.setText(
-                percent_text(context_percent(report["input_tokens"], report["memory_tokens"]))
-            )
-        else:
-            self.caption.setText(tr("本次准备", "Latest preparation"))
-            self.number.setText(tr("无可用输出", "No usable output"))
-            self.number.setStyleSheet("font-size: 16px; font-weight: 600; color: #443B35;")
-        self.latest.setText(tr("上下文估算 · 非账单节省", "Context estimate, not savings"))
+            else:
+                self.latest.setText(
+                    tr("压缩上下文 {count:,} tokens", "Compressed {count:,} tokens", count=context)
+                )
+            return
+        self.caption.setText(tr("本次准备", "Latest preparation"))
+        self.number.setText(tr("无可用输出", "No usable output"))
+        self.number.setStyleSheet("font-size: 16px; font-weight: 600; color: #443B35;")
+        self.latest.setText(tr("本次未压缩", "Not compressed"))
 
     def estimate_note(self):
         return (

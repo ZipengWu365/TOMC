@@ -35,12 +35,12 @@ def gateway_url(value: str) -> str:
     return value.rstrip("/")
 
 
-def prompts(fixture_name: str) -> list[str]:
+def prompts(fixture_name: str, archive_rows: int = 150) -> list[str]:
     records = "\n".join(
         f"Synthetic archive row {index:03d}: This test sample describes an imaginary room. "
         "The room contains a wooden desk, a green notebook, three empty boxes, a printed map, "
         "and a small lamp. These background observations do not change the release facts."
-        for index in range(150)
+        for index in range(archive_rows)
     )
     return [
         "This is an authorized synthetic context test. Do not inspect any real project, "
@@ -160,6 +160,12 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--model", help="Optional per-run model; omitted preserves current model.")
     parser.add_argument("--timeout", type=int, default=300, help="Seconds allowed per turn.")
     parser.add_argument(
+        "--archive-rows",
+        type=int,
+        default=150,
+        help="Synthetic first-turn archive rows (about 50 estimated tokens each).",
+    )
+    parser.add_argument(
         "--run", action="store_true", help="Actually call the existing logged-in model."
     )
     parser.add_argument(
@@ -175,6 +181,8 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     if args.timeout < 1:
         parser.error("--timeout must be positive")
+    if not 1 <= args.archive_rows <= 999:
+        parser.error("--archive-rows must be between 1 and 999")
     if args.verify_disabled and args.store is None:
         parser.error("--verify-disabled needs the isolated gateway --store")
     if not args.run:
@@ -235,7 +243,7 @@ def main(argv: list[str] | None = None) -> int:
         report_path = directory / "validation.json"
     fixture = directory / "synthetic_fixture.txt"
     fixture.write_text("TOMC_FIXTURE_OK_47\nSynthetic release receipt only.\n", encoding="utf-8")
-    synthetic_prompts = prompts(fixture.name)
+    synthetic_prompts = prompts(fixture.name, args.archive_rows)
     if args.verify_disabled:
         synthetic_prompts.append(
             "One final continuity check. Give the release codename, primary color, launch region, "

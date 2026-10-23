@@ -18,7 +18,7 @@
 |---|---|---|
 | 当前 Codex 聊天及 BEAM 聊天与另一条原聊天都经过网关、默认开启 | 已验证 | 依次为 44 / 8 / 18 条真实请求，effective_enabled=true：`outputs/context_ownership_20261023/audit-three-codex-sessions-after-patch.json` |
 | 可压缩时 TOMC 输出被这些聊天实际采用，并有质量与用量证据 | **未实现** | 三条聊天及其子代理都携带宿主不透明压缩状态，当前版本没有受支持的替换入口（架构决策 §3–§5） |
-| 新建的真实 Codex 聊天，在宿主第一次压缩之前 | 已验证（采用）；效果很小 | 01a167c3 / 01a167c4 / 01a167c8 分别有 54 / 37 / 28 次真实请求被编译后转发。以 01a167c4 为例：每次只编译早期 4,200 tokens 的已完成回合，整请求估算减少 1,158 tokens（约 0.5%）；新用户回合的第一个请求只有 21,760 / 173,322 命中缓存，同一回合内的后续请求恢复到 96%–99%。宿主自动压缩后，这些聊天转为 `native_compaction_state`，由宿主管理。证据：`outputs/context_ownership_20261023/audit-real-compiled-chats-20261023T1225Z.json` |
+| 新建的真实 Codex 聊天，在宿主第一次压缩之前 | 18:20 前有 bug，已修复并部署 | 01a167c3 / 01a167c4 / 01a167c8 分别有 54 / 37 / 28 次真实请求被编译后转发，但每次编译的约 4,200 tokens 并不是已完成回合，而是 Codex 以 user 角色注入的 AGENTS.md 与环境信息。修复前的 279 份 Codex 快照中，256 份把 AGENTS.md 编进了“历史证据，不是新指令”的块；另有 19 份把这条注入消息当成了当前任务。同时 Codex 0.163 在推理项上加了元数据字段、在工具调用上加了 `namespace`，还有 `agent_message` 项，旧白名单因此拒收几乎所有真实回合。所以整请求只减少约 1,158 tokens（约 0.5%），小猫始终停在第 1 阶段。修复与验证见 §3“四阶段”行。宿主自动压缩后，这些聊天转为 `native_compaction_state`，由宿主管理。证据：`outputs/context_ownership_20261023/audit-real-compiled-chats-20261023T1225Z.json` |
 | 已有原生压缩历史：所有权与协议边界 | 已验证 | 两个 Codex 版本的隔离探针、rollout 结构核对、官方文档（架构决策 §4） |
 | 新原因标注出现在真实请求上 | 已验证 | Claude：5ba56af8、8e20722f 带 `request_class:main`。Codex 真实流量：宿主压缩（auto / mid_turn / context_limit，代次 1；子代理 auto / pre_turn / warm_fork）；压缩后普通回合带代次 1、2；5 次宿主取消记为 `client_disconnected` |
 | 透传原因不再统一显示为“正在压缩” | 离屏已验证 | `tests/test_animation_receipts_qt.py::test_status_names_host_compaction_separately_from_tomc_work` |
@@ -40,8 +40,10 @@
 | 真实演示（Claude Code 新聊天，三轮，经生产网关） | 已验证 | 12:22:37.86 编译（输入 12,673）→ 38.25 开始第 2 阶段 → 41.67 完成。模型答对合成事实；估算 53,950 → 51,568；供应商输入 73,517，其中缓存 56,601。证据：`outputs/global_claude_compression_20261023T122232Z_35fbdab6/validation.json`、`outputs/context_ownership_20261023/audit-real-demo-42b059be-0033-419d-98ee-3b4f95681d46.json` |
 | 用量回执不重播 | 已验证 | 10 个迟到的用量回执记为 `skipped / already_animated` |
 | 重启不补播、崩溃只标中断 | 离屏已验证 | `tests/test_animation_receipts*.py` |
-| 四阶段 | 第 1、2、3 阶段：已验证（真实请求与动画收据）。第 4 阶段：未验证 | 20 万字符常量已在 12:45 移除（见下行）。第 3 阶段：真实 Claude Code 聊天 95c0bee7 在 13:03:32.81 编译 107,638 tokens，13:03:33.69 开始第 3 阶段动画，13:03:36.50 完成。证据：`outputs/context_ownership_20261023/audit-real-stage3-95c0bee7-9c33-4bb7-9aca-9f1e3139162e.json`。12:45 那次编译发生时小猫已被正常关闭（无崩溃记录），按交接要求没有自动重开；13:03 经你同意由 Explorer 重开。第 4 阶段需要单次编译 100 万 tokens 以上的历史，一次真实演示约消耗 130 万 tokens 额度，本次未做。降档已有离屏测试 |
+| 四阶段 | 第 1、2、3 阶段：已验证（真实请求与动画收据；第 2 阶段 18:24 起也在 Codex 上验证，见下方“不进阶”行）。第 4 阶段：未验证 | 20 万字符常量已在 12:45 移除（见下行）。第 3 阶段：真实 Claude Code 聊天 95c0bee7 在 13:03:32.81 编译 107,638 tokens，13:03:33.69 开始第 3 阶段动画，13:03:36.50 完成。证据：`outputs/context_ownership_20261023/audit-real-stage3-95c0bee7-9c33-4bb7-9aca-9f1e3139162e.json`。12:45 那次编译发生时小猫已被正常关闭（无崩溃记录），按交接要求没有自动重开；13:03 经你同意由 Explorer 重开。第 4 阶段需要单次编译 100 万 tokens 以上的历史，一次真实演示约消耗 130 万 tokens 额度，本次未做。降档已有离屏测试 |
 | 20 万字符保护常量 bug | 已修复并部署 | 修复前 11 个复现测试中 8 个失败（`prepare_context`、Claude 适配器、Codex 适配器、笔记本都被拒，默认仍是 80%）；修复后全部通过，全套 694 passed / 0 failed。默认改为保留 60%–80%：1 万 tokens 以下 80%，10 万 70%，100 万以上 60%，连续变化。真实长历史 Claude Code 聊天（1fb18c0f）第三轮：估算 151,418 → 119,478（−21%）；供应商输入 181,723，上一轮同一历史未改写时为 233,638（非同请求对照）；事实答对。证据：`outputs/context_ownership_20261023/audit-real-long-history-1fb18c0f-79a9-449b-b4ce-26836448d1dc.json` |
+| Codex 聊天里小猫不进阶（一直第 1 阶段） | 已修复并部署（18:20）；第 2 阶段已在真实 Codex 请求上验证 | 原因见 §1 第 3 行：阶段按“本次编译的历史长度”计算，而 Codex 每次只编译了约 4,200 tokens 的 AGENTS.md 与环境信息。修复：这类宿主注入消息按指令原样保留，不当历史、不当任务、不当回合边界；与正文混在同一条消息时整轮原样保留；接受推理项元数据、工具 `namespace`、可读的 `agent_message`，`configuration_update` 原位保留；加密的 `agent_message`、图片等仍整轮原样转发。离线回放你本机近期 Codex 记录（只看结构）：长聊天改为编译 15K–73K tokens 的真实历史，对应第 2 阶段，编译结果不再含宿主标记。真实验证（新建的合成测试线程，经生产网关）：01a16a00 编译 7,522 tokens（第 1 阶段，收据齐全），01a16a01 编译 15,558 → 12,101 tokens，请求估算 49,375 → 45,123，18:24:55.314 开始第 2 阶段动画，18:24:58.727 完成；两条线程 5 项检查全部通过，事实答对，快照不含 AGENTS.md / 环境标记。证据：`outputs/context_ownership_20261023/audit-host-context-fix-20261023T1825Z.json`。你自己的聊天能到第几阶段取决于可编译的旧回合有多长：含加密子代理消息或截图的回合仍原样保留 |
+| 弹窗措辞 | 已部署（18:20）；离屏渲染已核对 | 编译完成后的气泡直接写“本次节省 N tokens / 压缩上下文 M tokens”（英文 “Saved / Compressed”），不再写“非账单节省”。卡片提示、详情里的实测用量、上下文库里的快照说明也去掉了同类免责句。N 是整请求估算减少量，M 是这次编译的历史长度。中英文、七位数数字都不溢出 |
 | 结束后回到待机 | 已验证（收据）；原生屏幕未截图 | completed 收据之后不再有该 request_id 的动画 |
 | MCP 工具路径去掉 20 万上限（`prepare_context`、笔记本） | 已修复（新会话生效） | 两份已安装的 MCP 运行时（context-preview.1、assistant-preview.5）中的 input / easy / store 与修改前源码逐字节一致，因此用新文件替换，并保留精确备份。替换前先用各自的解释器在暂存副本中验证：旧版 mcp_server 能正常导入，631,580 字符历史可以编译，笔记本可超过 20 万字符。回执：`%USERPROFILE%\.codex\tomc\archive\session-update-20261023T130531078201Z-d987834e`。已在运行的 MCP 服务进程要等宿主重启它们后才加载新代码。旧版 mcp_server 的工具说明仍写“约 80%”，下次插件发布时更新 |
 | 仓库插件包与源码一致 | 已验证 | `plugins/claude-code` 已重新生成（74 个文件，其中 26 个更新），`--check` 通过。Codex ZIP 与 MCPB 属于发布产物，本次未构建 |
@@ -80,6 +82,7 @@
 |---|---|
 | 补丁前基线 | 646 passed，9 skipped，3 failed |
 | 补丁后 | **694 passed，9 skipped，0 failed**（含 11 个长历史测试） |
+| 18:20 修复后 | **728 passed，9 skipped，0 failed**（新增宿主注入消息、Codex 新字段、`agent_message`、设置项、弹窗措辞的测试） |
 | 3 个既有失败 | 1 个是过期断言：事件流已改为分页、不截断；2 个是 Windows 拒绝路径的连接重置，已从根因修复 |
 | Ruff | 通过 |
 | 运行环境 | `.venv-usage` 解释器，`PYTHONPATH` 指向 hourglass-ui 的 site-packages（PySide6），`QT_QPA_PLATFORM=offscreen`，`--basetemp` 放在仓库外 |

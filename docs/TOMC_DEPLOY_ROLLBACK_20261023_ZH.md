@@ -12,10 +12,14 @@
 | 08:43:04 | 小猫 | context_library_qt、request_activity | `…\archive\session-update-20261023T084304400536Z-35c8da60\receipt.json` |
 | 12:45:17 | 网关 | input、easy、responses_request（移除 20 万字符常量；默认保留 60%–80%） | `…\backups\no-char-cap-20261023T124517Z\patch-receipt.json` |
 | 13:05:31 | MCP 运行时 `context-preview.1`、`assistant-preview.5` 的 `plugins\tomc-memory\src\tomc` | input、easy、store（替换前与修改前源码逐字节一致；工具：`scripts\update_mcp_runtime_core.py --base-ref refs/snapshots/handoff-20261023T074454Z`） | `…\archive\session-update-20261023T130531078201Z-d987834e\receipt.json` |
+| 18:20:22 | 网关 | responses_request（宿主注入的 AGENTS.md / 环境信息不再当历史编译；支持 Codex 0.163 的新字段）、usage（摘要直接写节省量） | `…\backups\host-context-stage-20261023T182022Z\patch-receipt.json` |
+| 18:20:48 | 小猫 | 全部 13 个界面模块（只有 usage_widget_qt、context_library_qt、usage 有实际改动：弹窗直接写节省与压缩量；其余与已部署版本语法树一致，仅格式不同） | `…\archive\session-update-20261023T182048683981Z-b842c5c9\receipt.json` |
+
+18:20:22 部署前，已安装的 responses_request、usage 与当时的提交（8492321）语法树一致。MCP 运行时里的 usage.py 是更早的构建，与 8492321 不同，更新工具按规则没有替换它，所以 `prepare_context` 的聊天摘要仍是旧措辞，下次重建插件时更新。
 
 MCP 运行时的回滚方式与小猫相同：用 §3 的循环，把回执目录换成 `session-update-20261023T130531078201Z-d987834e`。已在运行的 MCP 服务进程不受文件替换影响，要等宿主重启后才会加载新代码。
 
-三次网关部署开始时进行中的请求都为 0。每次都只重启受监督的 `--serve` 子进程，健康检查通过并出现新的监听进程（PID 48860 → 69248 → 25364 → 40276）。小猫在 08:43:32 由 Explorer 重启。部署后哈希核对：`outputs/context_ownership_20261023/runtime-vs-source-sha256.json`。
+四次网关部署开始时进行中的请求都为 0。每次都只重启受监督的 `--serve` 子进程，健康检查通过并出现新的监听进程（PID 48860 → 69248 → 25364 → 40276 → 75240）。小猫在 08:43:32、13:03:06、18:21:09 由 Explorer 重启。部署后哈希核对：`outputs/context_ownership_20261023/runtime-vs-source-sha256.json`。
 
 源码补丁（相对交接快照，不含被忽略的 outputs）：`outputs/context_ownership_20261023/tomc_context_ownership_20261023.patch`。交接快照引用：`refs/snapshots/handoff-20261023T074454Z`。
 
@@ -52,7 +56,8 @@ cd scripts; ..\.venv-usage\Scripts\python.exe -B update_pet_ui.py; ..\.venv-usag
 
 ```powershell
 $rt = "$env:USERPROFILE\.codex\tomc\gateway-016-20261022T210600Z"
-# 只撤销 20 万字符修复与 60–80% 默认时，执行第一行即可：
+# 只撤销宿主注入消息与新字段的修复时，执行第一行即可：
+.venv-usage\Scripts\python.exe -B scripts/patch_gateway_runtime.py --runtime $rt --rollback "$rt\backups\host-context-stage-20261023T182022Z"
 .venv-usage\Scripts\python.exe -B scripts/patch_gateway_runtime.py --runtime $rt --rollback "$rt\backups\no-char-cap-20261023T124517Z"
 .venv-usage\Scripts\python.exe -B scripts/patch_gateway_runtime.py --runtime $rt --rollback "$rt\backups\compact-endpoint-20261023T084244Z"
 .venv-usage\Scripts\python.exe -B scripts/patch_gateway_runtime.py --runtime $rt --rollback "$rt\backups\classify-receipts-20261023T083721Z"
@@ -62,7 +67,7 @@ $rt = "$env:USERPROFILE\.codex\tomc\gateway-016-20261022T210600Z"
 
 ```powershell
 $t = "$env:USERPROFILE\.codex\tomc"
-foreach ($r in "session-update-20261023T084304400536Z-35c8da60", "session-update-20261023T083758451024Z-37e00b07") {
+foreach ($r in "session-update-20261023T182048683981Z-b842c5c9", "session-update-20261023T084304400536Z-35c8da60", "session-update-20261023T083758451024Z-37e00b07") {
   $receipt = Get-Content "$t\archive\$r\receipt.json" -Raw | ConvertFrom-Json
   foreach ($c in $receipt.changes) {
     $target = Join-Path $env:USERPROFILE $c.target

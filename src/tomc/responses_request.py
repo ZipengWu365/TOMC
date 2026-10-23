@@ -1,8 +1,9 @@
 """Offline Responses request adaptation; transport and authorization belong to the caller.
 
-Only older, complete user turns are compiled from readable evidence. Instructions
+Only older, complete user turns are compiled from readable evidence. Instructions,
+including host context sent as user-role messages (AGENTS.md, environment details),
 and the complete current user turn retain their original JSON data. Estimates cover
-the complete request JSON, not provider token usage or billable savings.
+the complete request JSON, not provider token usage.
 """
 
 from __future__ import annotations
@@ -29,12 +30,21 @@ _MESSAGE_FIELDS = {
     "encrypted_content",
     "internal_chat_message_metadata_passthrough",
 }
-_REASONING_FIELDS = {"type", "id", "summary", "content", "encrypted_content", "status"}
+_REASONING_FIELDS = {
+    "type",
+    "id",
+    "summary",
+    "content",
+    "encrypted_content",
+    "status",
+    "internal_chat_message_metadata_passthrough",
+}
 _CALL_FIELDS = {
     "type",
     "id",
     "call_id",
     "name",
+    "namespace",
     "arguments",
     "input",
     "status",
@@ -44,10 +54,26 @@ _OUTPUT_FIELDS = {
     "type",
     "id",
     "call_id",
+    "name",
+    "namespace",
     "output",
     "status",
     "internal_chat_message_metadata_passthrough",
 }
+# Messages between agents in Codex multi-agent mode; encrypted parts stay unreadable.
+_AGENT_MESSAGE_FIELDS = {
+    "type",
+    "id",
+    "author",
+    "recipient",
+    "content",
+    "internal_chat_message_metadata_passthrough",
+}
+# Codex sends AGENTS.md and environment details as user-role messages, e.g.
+# "# AGENTS.md instructions for <dir> ... </INSTRUCTIONS>" or
+# "<environment_context>...</environment_context>". They are instructions.
+_AGENTS_MD_PREFIX = "# AGENTS.md instructions for "
+_HOST_TAG = re.compile(r"<([a-z][a-z0-9_]*)>")
 _CALL_TYPES = {
     "function_call": "function_call_output",
     "custom_tool_call": "custom_tool_call_output",
@@ -55,6 +81,8 @@ _CALL_TYPES = {
 _OUTPUT_TYPES = set(_CALL_TYPES.values())
 _CODE = re.compile(r"[A-Za-z0-9_.:-]{1,40}\Z")
 _COMPACTION_ITEMS = {"compaction", "context_compaction"}
+# Setting markers such as {"reasoning": {"effort": "xhigh"}}; kept in place like instructions.
+_SETTING_ITEMS = {"configuration_update"}
 # Ordinary user turns; earlier Codex builds used the last two names.
 _TURN_KINDS = {None, "turn", "regular", "main"}
 
@@ -117,6 +145,49 @@ def _readable_message(item: Mapping[str, Any]) -> str | None:
     if item.get("role") in {"system", "developer"}:
         return None
     return _text(item.get("content"))
+
+
+def _host_fragment(text: str) -> bool:
+    text = text.strip()
+    if text.startswith(_AGENTS_MD_PREFIX):
+        return text.endswith("</INSTRUCTIONS>")
+    match = _HOST_TAG.match(text)
+    return match is not None and text.endswith(f"</{match.group(1)}>")
+
+
+def _host_blocks(item: Mapping[str, Any]) -> tuple[int, int]:
+    """Count a user message's host-context text blocks and all of its blocks."""
+    content = item.get("content")
+    blocks = [content] if isinstance(content, str) else content
+    if not isinstance(blocks, list):
+        return 0, 0
+    host = 0
+    for block in blocks:
+        if isinstance(block, dict) and block.get("type") in {"input_text", "text"}:
+            block = block.get("text")
+        if isinstance(block, str) and _host_fragment(block):
+            host += 1
+    return host, len(blocks)
+
+
+def _host_context(item: Mapping[str, Any]) -> bool:
+    """A user-role message made only of host context, which is never a turn."""
+    if not _is_message(item) or item.get("role") != "user":
+        return False
+    host, total = _host_blocks(item)
+    return 0 < host == total
+
+
+def _agent_message(item: Mapping[str, Any]) -> str | None:
+    if set(item) - _AGENT_MESSAGE_FIELDS:
+        return None
+    author, recipient = item.get("author"), item.get("recipient")
+    text = _text(item.get("content"))
+    if not isinstance(author, str) or not isinstance(recipient, str) or text is None:
+        return None
+    return "HISTORICAL_AGENT_MESSAGE=" + _dump(
+        {"author": author, "recipient": recipient, "text": text}
+    )
 
 
 def _tool_pairs(
@@ -262,7 +333,8 @@ def adapt_request(
     A selected old turn is removed atomically, including its opaque reasoning
     and message replay data, so no reasoning ID is orphaned from its outputs.
     Unknown/multimodal turns and the complete current/recent turns remain intact.
-    Only readable old messages and complete tools enter TOMC as evidence.
+    Only readable old messages, agent messages and complete tools enter TOMC as
+    evidence. Host-context user messages are neither turns nor evidence.
     Host compaction turns, turns carrying opaque host compaction state and
     server-side/incremental history pass through (see ``classify_request``).
     """
@@ -292,8 +364,11 @@ def adapt_request(
     items = payload.get("input")
     if not isinstance(items, list) or not items or not all(isinstance(i, dict) for i in items):
         return unchanged("unsupported_input")
+    host_context = {i for i, item in enumerate(items) if _host_context(item)}
     user_indices = [
-        i for i, item in enumerate(items) if _is_message(item) and item.get("role") == "user"
+        i
+        for i, item in enumerate(items)
+        if _is_message(item) and item.get("role") == "user" and i not in host_context
     ]
     if not user_indices:
         return unchanged("no_current_user_task")
@@ -325,15 +400,26 @@ def adapt_request(
         for index in range(start, end):
             item = items[index]
             kind = item.get("type", "message")
-            if item.get("role") in {"system", "developer"}:
+            if (
+                item.get("role") in {"system", "developer"}
+                or index in host_context
+                or kind in _SETTING_ITEMS
+            ):
                 # Instructions may appear between turns and always survive.
                 continue
             if _is_message(item):
                 text = _readable_message(item)
-                if text is None:
+                if text is None or item["role"] == "user" and _host_blocks(item)[0]:
+                    # Host context mixed into a user message is never demoted to evidence.
                     supported = False
                     break
                 evidence.append({"role": item["role"], "content": text})
+            elif kind == "agent_message":
+                text = _agent_message(item)
+                if text is None:
+                    supported = False
+                    break
+                evidence.append({"role": "tool", "content": text})
             elif kind == "reasoning" and not set(item) - _REASONING_FIELDS:
                 # Do not decode, summarize or persist opaque reasoning. Dropping
                 # the whole closed turn avoids reasoning/output ID orphans.

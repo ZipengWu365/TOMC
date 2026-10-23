@@ -280,8 +280,9 @@ def test_unknown_busy_waits_for_real_context_length_then_animates_once(widget, m
     widget.art.animation_timer.stop()
     widget.art.phase = None
     widget.finish_collection()
-    assert widget.caption.text() == "Context prepared"
+    assert widget.caption.text() == "Context compressed"
     assert widget.number.text() == "Stage 2/4"
+    assert widget.latest.text() == "Compressed 15,000 tokens"
     widget.hide_report()
     assert widget.art.phase is None and widget.request_animation_id is None
     assert widget.art.level == 2
@@ -301,6 +302,11 @@ def test_unknown_busy_waits_for_real_context_length_then_animates_once(widget, m
     )
     widget.refresh()
     assert not played and widget.art.level == 2
+    # The numeric receipt states the saving directly, with the compressed context length.
+    assert widget.caption.text() == "Demo · Saved"
+    assert widget.number.text() == "499,800 tokens"
+    assert widget.latest.text() == "Compressed 15,000 tokens"
+    assert "not" not in widget.card.toolTip().lower()
 
 
 def test_expanded_many_counter_rows_scroll_without_clipping_on_small_screen(

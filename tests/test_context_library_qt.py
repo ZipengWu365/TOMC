@@ -93,7 +93,7 @@ def test_estimate_keeps_negative_change_separate_from_unmeasured_request(dialog)
     dialog.refresh()
     assert "增加 200" in dialog.record_tokens.text()
     assert "参考输入金额增加 $0.0004" in dialog.record_cost.text()
-    assert "未关联测量" in dialog.request_status.text()
+    assert "请求用量：未关联" in dialog.request_status.text()
 
 
 def test_global_processing_recording_and_session_controls_are_independent(dialog):
@@ -251,7 +251,8 @@ def test_request_preparation_animates_once_and_generation_is_not_compression(
     pet.art.animation_timer.stop()
     pet.art.phase = None
     pet.finish_collection()
-    assert "上下文已准备" in pet.caption.text()
+    assert "上下文已压缩" in pet.caption.text()
+    assert pet.latest.text() == "压缩上下文 900 tokens"
     pet.hide_report()
     # Model generation/streaming occurs after CPU preparation; it must not stay busy.
     pet.request_activity.sent("request-1")
@@ -270,7 +271,8 @@ def test_request_preparation_animates_once_and_generation_is_not_compression(
     pet.refresh()
     assert len(calls) == 1 and pet.art.phase is None
     assert "720" in pet.details.request_usage_detail.text()
-    assert "不是节省差额" in pet.details.request_usage_detail.text()
+    assert "不是" not in pet.details.request_usage_detail.text()
+    assert "账单" not in pet.details.request_usage_detail.text()
     assert pet.store.summary()["preparations"] == 1
     pet.request_activity.start("request-2", "codex", "b")
     pet.request_activity.finish("request-2", state="passthrough", reason="session_disabled")
@@ -300,7 +302,7 @@ def test_manager_distinguishes_configured_from_observed_proxy_usage(dialog):
     dialog.refresh()
     assert "代理转发曾被观察" in dialog.integration_labels["claude_code"].text()
     assert "实测 provider 输入 120" in dialog.activity_status.text()
-    assert "不是节省差额" in dialog.activity_status.text()
+    assert "不是节省差额" not in dialog.activity_status.text()
 
 
 def test_configured_gateway_without_request_is_visible_and_not_claimed_connected(dialog):
