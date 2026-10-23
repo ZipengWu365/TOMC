@@ -842,7 +842,10 @@ class Companion(QWidget):
         self.setFont(ui_font())
         self.test_mode, self.state_file = test_mode, state_file
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
-        self.setAttribute(Qt.WidgetAttribute.WA_ShowWithoutActivating)
+        self.setAttribute(Qt.WidgetAttribute.WA_ShowWithoutActivating, sys.platform != "darwin")
+        if sys.platform == "darwin":
+            # Cocoa hides Qt.Tool windows when their application loses focus by default.
+            self.setAttribute(Qt.WidgetAttribute.WA_MacAlwaysShowToolWindow)
         self.setWindowTitle("TOMC" + (" — 测试数据" if test_mode else ""))
         self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.setAccessibleName("TOMC；点击查看统计与上下文入口，拖动移动，右键打开菜单")
@@ -1714,6 +1717,10 @@ def run(path, test_mode=False, state_file=None, host="codex"):
     )
     widget.set_host(host)
     widget.show()
+    if sys.platform == "darwin":
+        # Explicit launch should reveal the pet; background refreshes never take focus.
+        widget.raise_()
+        widget.activateWindow()
     try:
         app.exec()
     finally:

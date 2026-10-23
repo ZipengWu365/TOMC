@@ -26,7 +26,7 @@ from PySide6.QtWidgets import (  # noqa: E402
 )
 
 from tomc.pet_art import PetArt  # noqa: E402
-from tomc.pet_growth import STAGES, growth_state  # noqa: E402
+from tomc.pet_growth import STAGES, request_stage  # noqa: E402
 from tomc.usage_widget_qt import STYLE, load_preview_fonts  # noqa: E402
 
 
@@ -43,8 +43,8 @@ class StagePlayer(QWidget):
         super().__init__()
         self.output, self.check = output, check
         self.setWindowTitle("TOMC · 省 token 小猫 · 四阶段演示")
-        self.setWindowFlag(Qt.WindowType.WindowStaysOnTopHint)
-        self.setAttribute(Qt.WidgetAttribute.WA_ShowWithoutActivating)
+        self.setWindowFlag(Qt.WindowType.WindowStaysOnTopHint, sys.platform != "darwin")
+        self.setAttribute(Qt.WidgetAttribute.WA_ShowWithoutActivating, sys.platform != "darwin")
         self.setStyleSheet(STYLE + "QWidget#stagePlayer { background: #F7F4ED; }")
         self.setObjectName("stagePlayer")
         self.setFixedSize(900, 530)
@@ -60,7 +60,7 @@ class StagePlayer(QWidget):
         layout.addWidget(
             QLabel("从轻绒虚影到蓬密实体 / 黄毛只在究极阶段出现    ·    演示数字不计入真实统计")
         )
-        self.status = QLabel("即将依次演示四种收上下文动作。点击任意小猫查看该阶段累计。")
+        self.status = QLabel("即将依次演示四种收上下文动作。点击任意小猫查看该阶段输入长度。")
         self.status.setStyleSheet("color: #507461; padding-top: 6px;")
         layout.addWidget(self.status)
         cards = QHBoxLayout()
@@ -80,9 +80,7 @@ class StagePlayer(QWidget):
             col.addWidget(label)
             art = ClickCat()
             art.setFixedSize(186, 207)
-            state = growth_state(
-                {"growth": [{"peak_net_tokens": threshold, "net_tokens": threshold}]}
-            )
+            state = request_stage(max(1, threshold))
             art.set_state(state)
             opacity = QGraphicsOpacityEffect(art)
             opacity.setOpacity(state["opacity"])
@@ -106,7 +104,7 @@ class StagePlayer(QWidget):
             self.cards.append(frame)
             self.reports.append(report)
         layout.addLayout(cards)
-        self.stats = QLabel("点击小猫查看累计；重播动画不会增加任何统计。")
+        self.stats = QLabel("点击小猫查看示例输入长度；重播动画不会增加任何统计。")
         self.stats.setStyleSheet(
             "background: #EAF0E6; border-radius: 10px; padding: 10px; color: #345743;"
         )
@@ -171,9 +169,9 @@ class StagePlayer(QWidget):
     def finished(self, index):
         if index + 1 not in self.played:
             self.played.append(index + 1)
-        self.reports[index].setText("收好了！本次预计少用 1,674 tokens")
+        self.reports[index].setText("动画完成 · 未写入真实统计")
         self.show_stats(index)
-        self.status.setText(f"{STAGES[index][1]}：吃纸片动画完成，已展示本次及累计。")
+        self.status.setText(f"第 {index + 1} 阶段：吃纸片动画完成。")
         self.record("stage_complete")
         if self.automatic:
             self.next_timer.start(800 if self.check else 2000)
@@ -183,7 +181,7 @@ class StagePlayer(QWidget):
             self.play(self.current + 1)
         else:
             self.automatic = False
-            self.status.setText("四阶段演示完毕。可单独重播、点击小猫看累计，或从头再看一遍。")
+            self.status.setText("四阶段演示完毕。可单独重播、查看输入长度，或从头再看一遍。")
             self.record("all_stages_complete")
             if self.check:
                 self.grab().save(str(self.output / "four_stages.png"))
@@ -192,8 +190,8 @@ class StagePlayer(QWidget):
     def show_stats(self, index):
         threshold = STAGES[index][0]
         self.stats.setText(
-            f"演示 · {STAGES[index][1]}    累计预计减少 {threshold + 1674:,} tokens\n"
-            f"本次 1,800 → 126，预计少用 1,674；阶段起始累计 {threshold:,}。非实际账单节省。"
+            f"素材预览 · 第 {index + 1} 阶段    示例输入 {max(1, threshold):,} 估算 tokens\n"
+            "这里只播放动作，不执行压缩、不写统计，也不代表真实聊天已经接入。"
         )
 
 
@@ -210,6 +208,9 @@ def main():
     area = app.primaryScreen().availableGeometry()
     window.move(area.center() - window.rect().center())
     window.show()
+    if sys.platform == "darwin":
+        window.raise_()
+        window.activateWindow()
     app.exec()
     if args.restore_launcher and not args.check:
         subprocess.Popen(
