@@ -5,6 +5,12 @@ import pytest
 
 from tomc import integration_status as status
 
+# Codex settings are TOML. Python 3.10 has no tomllib, and the reader then reports
+# "unknown" by design instead of guessing (test_no_toml_parser_does_not_guess).
+requires_toml = pytest.mark.skipif(
+    status.tomllib is None, reason="reading Codex TOML needs Python 3.11+ tomllib"
+)
+
 
 def write(home, name, data):
     path = home / name
@@ -24,6 +30,7 @@ def test_missing_home_does_not_create_anything(tmp_path):
     assert result["mode"]["automatic_request_compression"] is False
 
 
+@requires_toml
 @pytest.mark.parametrize("enabled,state", [("true", "enabled"), ("false", "disabled")])
 def test_codex_explicit_user_plugin_state(tmp_path, enabled, state):
     write(tmp_path, ".codex/config.toml", f'[plugins."tomc-memory@tomc-local"]\nenabled={enabled}')
@@ -98,6 +105,7 @@ def test_home_default_is_explicitly_mockable(tmp_path, monkeypatch):
     assert status.get_integration_status() == status.get_integration_status(tmp_path)
 
 
+@requires_toml
 def test_gateway_marker_requires_matching_client_configuration(tmp_path):
     write(
         tmp_path, ".codex/tomc/gateway-routing.json", {"port": 43187, "hosts": ["codex", "claude"]}

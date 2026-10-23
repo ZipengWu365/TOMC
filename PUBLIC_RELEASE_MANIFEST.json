@@ -2881,8 +2881,8 @@
     },
     {
       "path": "tests/test_integration_status.py",
-      "bytes": 5676,
-      "sha256": "8287eccd60884cba71c6c1947792758ff0b69db30684fe72393838c2408cca36"
+      "bytes": 5991,
+      "sha256": "daa27eef4b45ca5dfd09471ca29d31c99ddbc54820ea972f51830996ebb88f0b"
     },
     {
       "path": "tests/test_integrations.py",
@@ -3015,7 +3015,7 @@
       "sha256": "be8dbb0aa75e27d1625255b99019c1b078833d1afc864951da7d6de1c4b70807"
     }
   ],
-  "total_bytes": 146843970,
+  "total_bytes": 146844285,
   "self_excluded": [
     "PUBLIC_RELEASE_MANIFEST.json",
     "SHA256SUMS"
