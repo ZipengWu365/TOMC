@@ -19,7 +19,7 @@ The host owns active-chat compaction when enabled or unknown. Do not proactively
 
 ## Tools
 
-- `prepare_context`: prepare supplied history for the next task. Successful prepared context and its task are saved to the local library by default; recording can be disabled independently. Omit `budget` to keep about 80% of the history (at least 1,024 estimated tokens).
+- `prepare_context`: prepare supplied history for the next task. Successful prepared context and its task are saved to the local library by default; recording can be disabled independently. Omit `budget` to keep 60-80% of the history (80% when short, 60% from a million estimated tokens; at least 1,024).
 - `get_status`, `list_contexts`, `get_context`, `make_handoff`: inspect configuration, browse saved context, and create a self-contained continuation prompt without sending it.
 - `get_usage_stats`: view local cumulative estimated context reduction (`all`, `today`, or `7d`, UTC). Preparation and recall return a per-call summary for the assistant to display. These are context-text estimates, not API or billing savings; repeated preparations count separately.
 - `remember_memory`, `recall_memory`, `list_memories`, `forget_memory`: optional named notebooks for reusing supplied notes in later sessions.

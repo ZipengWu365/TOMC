@@ -23,6 +23,7 @@ from .tokenization import get_counter
 
 _SESSION = re.compile(r"[A-Za-z0-9][A-Za-z0-9._:-]{0,255}\Z")
 _PROMPT = re.compile(r"[0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}\Z")
+_CODE = re.compile(r"[A-Za-z0-9_.:-]{1,40}\Z")
 _COUNTER = get_counter("regex")
 _TEXT_FIELDS = {"type", "text", "cache_control"}
 _USE_FIELDS = {"type", "id", "name", "input", "cache_control", "caller"}
@@ -58,6 +59,35 @@ def extract_session_id(payload: Mapping[str, Any], headers: Mapping[str, Any]) -
     if header_id and metadata_id and header_id != metadata_id:
         return None
     return header_id or metadata_id
+
+
+def classify_request(
+    payload: Mapping[str, Any], headers: Mapping[str, Any],
+) -> tuple[str | None, dict[str, Any]]:
+    """Structural ownership facts from Claude Code's documented gateway hint headers.
+
+    ``x-claude-code-compaction`` marks the host's own summarization request
+    (``auto``, ``manual`` or ``reactive``); ``x-claude-code-context-compacted``
+    marks the first main request after it. Returns ``(reason, detail)`` with
+    short codes only; ``reason`` names a host-owned compaction request.
+    """
+    lowered = {k.lower(): v for k, v in headers.items()}
+    detail: dict[str, Any] = {}
+
+    def code(name):
+        value = lowered.get(name)
+        return value if isinstance(value, str) and _CODE.fullmatch(value) else None
+
+    if code("x-claude-code-request-class"):
+        detail["request_class"] = code("x-claude-code-request-class")
+    if lowered.get("x-claude-code-agent-id"):
+        detail["agent"] = "subagent"
+    trigger = code("x-claude-code-compaction") or code("x-claude-code-context-compacted")
+    if trigger:
+        detail["compaction_trigger"] = trigger
+    if lowered.get("x-claude-code-compaction") or detail.get("request_class") == "compaction":
+        return "host_compaction_request", detail
+    return None, detail
 
 
 def _dump(value: Any) -> str:
@@ -128,7 +158,8 @@ def _validate_messages(messages: Any) -> str | None:
                     return "unsupported_thinking_fields"
                 other_seen = True
             elif kind == "compaction":
-                return "native_compaction"
+                # Opaque server-side compaction state the host resends.
+                return "native_compaction_state"
             elif kind == "text":
                 if set(block) - _TEXT_FIELDS or not isinstance(block.get("text"), str):
                     return "unsupported_text_fields"
@@ -377,8 +408,10 @@ class AnthropicAdapter:
             return unchanged("non_main_request")
         if lowered.get("x-claude-code-agent-id"):
             return unchanged("subagent_request")
-        if "compaction" in payload or lowered.get("x-claude-code-compaction"):
-            return unchanged("native_compaction")
+        if lowered.get("x-claude-code-compaction"):
+            return unchanged("host_compaction_request")
+        if "compaction" in payload:
+            return unchanged("native_context_management")
         messages = payload.get("messages")
         if not isinstance(messages, list) or not messages:
             return unchanged("missing_messages")

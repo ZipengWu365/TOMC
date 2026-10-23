@@ -197,6 +197,11 @@ def request_activity_text(record, language=None):
         "server_side_or_incremental_history": ("保留服务端会话上下文", "Server-side conversation context retained"),
         "native_or_unknown_request": ("宿主整理或辅助请求，保留原文", "Host compaction or auxiliary request; original content retained"),
         "native_compaction_reset": ("宿主已整理上下文，旧映射已清除", "Host context compacted; old prefix mapping cleared"),
+        "host_compaction_request": ("宿主自身的压缩请求，TOMC 不参与", "The host's own compaction request; TOMC not involved"),
+        "native_compaction_state": ("宿主原生管理：含不透明压缩状态，TOMC 本次未压缩",
+                                    "Host-managed: opaque compaction state present; TOMC did not compress this request"),
+        "unknown_request_metadata": ("宿主请求元数据无法识别，保留原文", "Unrecognized host request metadata; original content retained"),
+        "upstream_transport_failed": ("上游连接或响应中断", "Upstream connection or response interrupted"),
     }
     state = record.get("state")
     if record.get("stale"):
@@ -213,11 +218,40 @@ def request_activity_text(record, language=None):
             return t("已复用并转发已有上下文", "Existing context reused and forwarded")
         return t("已观察到处理后请求转发", "A processed request was observed being forwarded")
     reason = record.get("reason")
+    if reason == "client_disconnected":
+        return t("请求已由宿主取消或断开", "Request cancelled or disconnected by the host")
     detail = t(*reasons[reason]) if reason in reasons else (reason or t("未提供原因", "No reason provided"))
+    facts = protocol_detail_text(record.get("protocol_detail"), language)
+    if facts:
+        detail = f"{detail} · {facts}"
     if state == "passthrough":
         status = t("请求已原样转发", "Request forwarded unchanged") if record.get("sent") else t("请求将原样转发", "Request will be forwarded unchanged")
         return f"{status} · {detail}"
     return t("请求失败 · {detail}", "Request failed · {detail}", detail=detail)
+
+
+def protocol_detail_text(detail, language=None):
+    """Short structural facts the host declared; never request content."""
+    if not isinstance(detail, dict):
+        return ""
+    parts = []
+    trigger = {"manual": ("手动", "manual"), "auto": ("自动", "automatic"),
+               "reactive": ("超长后触发", "after an overlong request")}.get(detail.get("compaction_trigger"))
+    if trigger:
+        parts.append(_tr(language, *trigger))
+    phase = {"pre_turn": ("回合开始前", "before the turn"), "mid_turn": ("回合进行中", "mid-turn"),
+             "standalone_turn": ("单独整理", "standalone")}.get(detail.get("compaction_phase"))
+    if phase:
+        parts.append(_tr(language, *phase))
+    if detail.get("endpoint") == "responses_compact":
+        parts.append(_tr(language, "独立压缩端点", "standalone compact endpoint"))
+    if type(detail.get("window")) is int:
+        parts.append(_tr(language, "压缩代次 {n}", "compaction generation {n}", n=detail["window"]))
+    if type(detail.get("compaction_items")) is int:
+        parts.append(_tr(language, "{n} 个不透明状态项", "{n} opaque state item(s)", n=detail["compaction_items"]))
+    if detail.get("agent") == "subagent":
+        parts.append(_tr(language, "子代理", "subagent"))
+    return _tr(language, "，", ", ").join(parts)
 
 
 def integration_snapshot():

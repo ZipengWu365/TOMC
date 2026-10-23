@@ -34,7 +34,8 @@ def main(argv: list[str] | None = None) -> int:
         "--budget",
         type=int,
         default=None,
-        help="Memory budget in estimated tokens; default keeps about 80%% of the history (at least 1,024)",
+        help="Memory budget in estimated tokens; default keeps 80%% of a short history, "
+             "falling to 60%% from a million tokens (at least 1,024)",
     )
     easy.add_argument("--output", type=Path)
     easy.add_argument(

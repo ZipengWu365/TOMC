@@ -2,6 +2,7 @@
 
 import json
 import math
+import re
 from pathlib import Path
 
 from .pricing_catalog import all_rates
@@ -49,7 +50,69 @@ def dollars(value):
     return f"${magnitude:,.4f}" if magnitude < 1 else f"${magnitude:,.2f}"
 
 
-def explanation(pricing):
+def is_english(language=None):
+    return getattr(language, "code", language) == "en"
+
+
+def reference_note(value, language=None):
+    """Translate known stored display notes; label any unrecognized original text."""
+    value = str(value or "")
+    if not is_english(language):
+        return value
+    replacements = {
+        "手选参考模型；未读取实际调用的模型、缓存和档位": "Manually selected reference; actual request model, cache and tier are unverified",
+        "用户选定的参考模型；不代表每次实际调用": "User-selected reference model; not the model used for every request",
+        "Codex config.toml 的默认模型；可能被当前会话覆盖": "Default model in Codex config.toml; a session may override it",
+        "未读取到 Codex 默认模型": "Codex default model was not found",
+        "运行中的 Claude Code 会话最近一条 assistant 的模型元数据；不代表下一次调用": "Model metadata from the latest assistant entry in an active Claude Code session; not a prediction of the next request",
+        "Claude Code 当前模型未确认（无活动记录或多个模型）": "Current Claude Code model is unconfirmed (no active record or multiple models)",
+        "未接入 Cursor 的逐请求模型记录；Auto 不猜测，需手选参考模型": "Per-request Cursor model data is unavailable; select a reference model for Auto",
+        "未缓存、标准服务、基础上下文档位；未读取实际请求缓存/档位": "Uncached input, standard service, base context tier; actual cache and tier are unverified",
+        "按所选档位折算；未确认实际发送量、缓存命中或账单": "Calculated at the selected tier; actual transmitted input, cache hits and billing are unverified",
+        "手选计价条件，不代表实际请求计费": "Manually selected pricing assumptions, not actual request charges",
+        "手选参考模型": "Manually selected reference model", "其他 / API": "Other / API",
+        "Cursor 公布基础价": "Cursor listed base rate", "第三方模型；基础上下文档位，长上下文需另核费率": "Third-party model; base context tier; check long-context rates separately",
+        "额外用量": "Additional usage", "全球基础价": "Global base rate", "峰时": "Peak hours", "谷时": "Off-peak hours",
+        "输入": "input", " 按选择的时段折算历史，不自动回溯。": " Historical estimates use the selected period; no automatic historical rate lookup.",
+        " · 检查于 ": " · Checked at ",
+    }
+    for before, after in replacements.items():
+        value = value.replace(before, after)
+    if re.search(r"[\u3400-\u9fff]", value):
+        return "Original stored note (not translated): " + value
+    return value
+
+
+def explanation(pricing, language=None):
+    if is_english(language):
+        if not pricing:
+            return ("Model or rate is unconfirmed; no monetary estimate is shown. Choose a reference model in Models & estimates. "
+                    "Auto does not borrow another model's rate.")
+        originals = []
+
+        def note(field, fallback):
+            value = reference_note(pricing.get(field, fallback), language)
+            if value.startswith("Original stored note (not translated): "):
+                originals.append(f"{field}: {pricing.get(field, fallback)}")
+                return f"{field.capitalize()}: see original stored note below."
+            return value
+
+        kind = "cache read" if pricing["mode"] == "cached" else "uncached input"
+        freshness = "last sync succeeded" if pricing.get("sync_status") == "live" else "offline or older snapshot; check the date"
+        body = (f"{reference_note(pricing.get('host', 'Reference'), language)} · {pricing['model']}\n"
+                f"{note('evidence', 'Manually selected reference model')}\n"
+                f"{note('condition', 'Standard')} · {kind} ${pricing['rate']:g}/million tokens\n"
+                f"Verified {pricing.get('verified_at', 'unknown')} · {freshness}\n"
+                f"{note('assumption', '')}\n{note('schedule', '')}\n"
+                "Reference value = estimated input-token reduction × selected rate, assuming the text would otherwise be sent once at that rate. "
+                "Totals apply this rate to all preparation records; they are not actual charges summed across requests. "
+                "Input sizes are text estimates, not confirmed transmitted amounts. Repeated preparations count separately. "
+                "Tool/request overhead, output and repeated sends are excluded. Changes in caching can erase the benefit or increase cost. "
+                "Cursor uses base reference rates without team fees, legacy Max markups, regional premiums or plan discounts. "
+                "Subscription fees do not fall directly as a result.\n" + pricing.get("source", ""))
+        if originals:
+            body += "\n\nOriginal stored notes (not translated)\n" + "\n".join(originals)
+        return body
     if not pricing:
         return "模型或费率未确认，暂不估算金额。请在「模型与估价」选择参考模型。Auto 不套用其他模型单价。"
     kind = "缓存读取" if pricing["mode"] == "cached" else "未缓存输入"

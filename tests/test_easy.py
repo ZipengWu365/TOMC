@@ -56,7 +56,7 @@ def test_default_budget_keeps_most_of_a_long_history_and_short_ones_intact():
     result = prepare_context(lines, "Which items were reviewed?")
     assert tokens > MIN_DEFAULT_BUDGET
     assert result.compilation.stats.token_budget == default_budget(tokens)
-    assert default_budget(tokens) == max(MIN_DEFAULT_BUDGET, -(-tokens * 8 // 10))
+    assert tokens <= 10_000 and default_budget(tokens) == max(MIN_DEFAULT_BUDGET, -(-tokens * 8 // 10))
     assert result.compilation.stats.output_tokens <= result.compilation.stats.token_budget
     short = prepare_context("drink = tea", "current drink")
     assert short.compilation.stats.token_budget == MIN_DEFAULT_BUDGET
@@ -97,12 +97,12 @@ def test_notebooks_survive_restart_isolate_names_and_delete_exactly(tmp_path):
         restarted.recall("work", "continue")
 
 
-def test_store_rolls_back_overflow_and_serializes_concurrent_appends(tmp_path):
+def test_store_has_no_size_cap_and_serializes_concurrent_appends(tmp_path):
     store = MemoryStore(tmp_path / "memory.sqlite3")
-    store.remember("full", "a" * 150_000)
-    with pytest.raises(ValueError, match="full"):
-        store.remember("full", "b" * 100_000)
-    assert store.list()[0]["entries"] == 1
+    store.remember("large", "a" * 150_000)
+    # Notebooks are no longer refused at 200,000 characters.
+    assert store.remember("large", "b" * 100_000)["saved"]
+    assert store.list()[0]["entries"] == 2
     with ThreadPoolExecutor(max_workers=4) as pool:
         list(pool.map(lambda i: store.remember("parallel", f"note {i}"), range(10)))
     assert next(n for n in store.list() if n["name"] == "parallel")["entries"] == 10

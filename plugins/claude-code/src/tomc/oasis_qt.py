@@ -6,7 +6,7 @@ from PySide6.QtCore import QElapsedTimer, QPointF, QRectF, Qt, QTimer
 from PySide6.QtGui import QColor, QFont, QLinearGradient, QPainter, QPainterPath, QPen
 from PySide6.QtWidgets import QWidget
 
-from .impact_story import CAPTIONS
+from .impact_story import captions
 
 
 def ease(t):
@@ -21,16 +21,31 @@ class OasisCelebration(QWidget):
         super().__init__(owner, Qt.WindowType.Tool | Qt.WindowType.FramelessWindowHint |
                          Qt.WindowType.WindowStaysOnTopHint)
         self.owner = owner
+        self.language = getattr(owner, "language", None)
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
         self.setAttribute(Qt.WidgetAttribute.WA_ShowWithoutActivating)
-        self.setWindowTitle("TOMC · 绿洲诞生")
-        self.setAccessibleName("减少重复输入，若实际计算需求下降，有机会减少用电和冷却用水。绿洲象征把资源留给自然；未实测节水或植树。点击关闭。完整故事见右键菜单。")
         self.setFixedSize(420, 260)
         self.phase = 0.
         self.clock = QElapsedTimer()
         self.timer = QTimer(self)
         self.timer.setInterval(25)
         self.timer.timeout.connect(self.advance)
+        if self.language is not None:
+            self.language.changed.connect(self.retranslate)
+        self.retranslate()
+
+    def tr_text(self, zh, en):
+        return en if getattr(self.language, "code", self.language) == "en" else zh
+
+    def retranslate(self, *_):
+        self.setWindowTitle(self.tr_text("TOMC · 绿洲诞生", "TOMC · An oasis grows"))
+        self.setAccessibleName(self.tr_text(
+            "减少重复输入，若实际计算需求下降，有机会减少用电和冷却用水。绿洲象征把资源留给自然；未实测节水或植树。点击关闭。完整故事见右键菜单。",
+            "Reducing repeated input may lower electricity and cooling water demand if actual computation falls. "
+            "The oasis symbolizes resources left for nature; water savings and tree planting are not measured. "
+            "Click to close. The full story is in the cat's context menu."))
+        self.setToolTip(self.tr_text("点击收起 · 右键小猫可读完整故事", "Click to dismiss · Right-click the cat for the full story"))
+        self.update()
 
     def start(self):
         area = self.owner.screen().availableGeometry()
@@ -162,13 +177,14 @@ class OasisCelebration(QWidget):
                      QRectF(half, 0, half, sprite.height()))
         p.setPen(QColor("#3F5945"))
         p.setFont(QFont("Microsoft YaHei UI", 14, QFont.Weight.DemiBold))
-        title, subtitle = CAPTIONS[min(3, int(t*4))]
+        title, subtitle = captions(self.language)[min(3, int(t*4))]
         p.drawText(QRectF(20, 20, 380, 27), Qt.AlignmentFlag.AlignCenter, title)
         p.setFont(QFont("Microsoft YaHei UI", 8))
         p.setPen(QColor("#756C59"))
         p.drawText(QRectF(16, 51, 388, 21), Qt.AlignmentFlag.AlignCenter, subtitle)
         p.setFont(QFont("Microsoft YaHei UI", 7))
-        p.drawText(QRectF(20, 74, 380, 16), Qt.AlignmentFlag.AlignCenter, "点击收起 · 右键小猫可读完整故事")
+        p.drawText(QRectF(20, 74, 380, 16), Qt.AlignmentFlag.AlignCenter,
+                   self.tr_text("点击收起 · 右键小猫可读完整故事", "Click to dismiss · Right-click the cat for the full story"))
         p.setClipping(False)
         p.setPen(QPen(QColor("#D3D5BF"), 1))
         p.setBrush(Qt.BrushStyle.NoBrush)

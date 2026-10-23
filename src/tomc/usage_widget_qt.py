@@ -444,6 +444,11 @@ class Companion(QWidget):
         self.preparing_request = None
         self.request_animation_id = None
         self.animated_request_ids = set()
+        from .animation_receipts import AnimationReceipts
+
+        # Per request ID: queued / started / completed / skipped / interrupted.
+        self.receipts = AnimationReceipts(Path(path).parent, demo=test_mode)
+        self.receipts.recover_interrupted()
         # Establish read cursors before constructing windows. Requests completed
         # after these reads are consumed by the first refresh, never skipped.
         self.prepared_cursor = self.event_cursor = None
@@ -763,6 +768,7 @@ class Companion(QWidget):
                 self.art.animation_timer.stop()
                 self.art.phase = None
                 self.art.update()
+                self.receipts.record("interrupted", self.request_animation_id, reason="report_dismissed")
                 self.request_animation_id = None
             if self.active_report is None:
                 self.caption.setText((tr("演示 · ", "Demo · ") if self.test_mode else "") + tr("自动请求", "Automatic request"))
@@ -777,6 +783,8 @@ class Companion(QWidget):
             stage_report = {"request_id": event["request_id"], "usable": True,
                             "stage_only": True,
                             "context_input_tokens": event["context_input_tokens"]}
+            self.receipts.record("queued", event["request_id"],
+                                 context_input_tokens=event["context_input_tokens"])
             self.latest_prepared_report = stage_report
             self.latest_prepared_at = event["prepared_utc"]
             self.idle_stage = growth_state({"last_preparation": stage_report}, self.language)
@@ -851,11 +859,18 @@ class Companion(QWidget):
         if (not stage["length_known"] or identifier in self.animated_request_ids
                 or envelope and not (self.active_report.get("stage_only")
                                      or self.active_report.get("animate_prepared"))):
+            # A usage receipt for an already played request is never replayed.
+            skip = ("already_animated" if identifier in self.animated_request_ids
+                    else "length_unknown" if not stage["length_known"] else "envelope_estimate_only")
+            self.receipts.record("skipped", identifier, stage=stage["level"],
+                                 context_input_tokens=stage["input_tokens"], reason=skip)
             self.finish_collection()
             return
         if identifier:
             self.animated_request_ids.add(identifier)
             self.request_animation_id = identifier
+            self.receipts.record("started", identifier, stage=stage["level"],
+                                 context_input_tokens=stage["input_tokens"])
         self.layout_report(False)
         self.report_timer.stop()
         self.art.collect()
@@ -911,6 +926,7 @@ class Companion(QWidget):
 
     def finish_collection(self):
         if self.request_animation_id:
+            self.receipts.record("completed", self.request_animation_id, stage=self.art.level)
             self.request_animation_id = None
             if self.preparing_request and self.active_report is None:
                 self.show_request_busy()
@@ -1044,6 +1060,9 @@ class Companion(QWidget):
         self.timer.stop()
         self.report_timer.stop()
         self.art.animation_timer.stop()
+        if self.request_animation_id:
+            self.receipts.record("interrupted", self.request_animation_id, reason="ui_closed")
+            self.request_animation_id = None
         self.details.close()
         super().closeEvent(event)
         QApplication.instance().quit()

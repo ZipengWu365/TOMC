@@ -112,12 +112,38 @@ def get_integration_status(home=None):
                               "disabled" if enabled is False else "unknown")
     else:
         settings_error = True
-    return {
-        "mode": {
+    mode = {
             "id": "on_demand_tools", "label": "按需工具",
             "detail": "全局配置使工具可用；仅在调用时准备上下文。自动全对话请求压缩尚未接入。",
             "automatic_request_compression": False,
-        },
+    }
+    gateway, gateway_error = _read(home / ".codex/tomc/gateway-routing.json")
+    port = gateway.get("port")
+    if not gateway_error and isinstance(port, int) and 1024 <= port <= 65535:
+        env = settings.get("env", {})
+        routed = []
+        if codex.get("openai_base_url") == f"http://127.0.0.1:{port}/codex":
+            routed.append("codex")
+        if isinstance(env, dict) and env.get("ANTHROPIC_BASE_URL") == f"http://127.0.0.1:{port}/claude":
+            routed.append("claude")
+        if routed:
+            reload_detail = []
+            if "claude" in routed:
+                reload_detail.append("Claude Code 用户设置支持热加载。")
+            if "codex" in routed:
+                reload_detail.append("Codex 已打开的聊天需要正常退出并重开客户端一次，再继续原聊天。")
+            mode = {
+                "id": "automatic_request_gateway", "label": "自动压缩已配置",
+                "detail": "已配置用户级自动请求接入。" + "".join(reload_detail) +
+                          "每个现有会话是否接入，以后续请求活动为准。"
+                          "短历史和不支持的请求直接转发；关闭会话停止新编译。",
+                "automatic_request_compression": True, "configured_hosts": routed,
+                "runtime_verified": False, "gateway_port": port,
+                "client_reload": {host: "settings_env_hot_reload_supported" if host == "claude"
+                                  else "restart_or_new_thread_required" for host in routed},
+            }
+    return {
+        "mode": mode,
         "codex": codex_status,
         "claude_code": _summary(states, claude_error or settings_error),
     }

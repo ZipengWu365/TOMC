@@ -140,7 +140,8 @@ def create_server(path: Path | str | None = None):
             "the user's language alongside the answer. Keep the estimate and context-only scope; "
             "never claim API/billing savings. Use get_usage_stats when asked for cumulative "
             "statistics; do not call it after every preparation. Omit budget to keep "
-            "about 80% of the history (at least 1,024 estimated tokens), or set a smaller budget "
+            "60-80% of the history (80% when short, 60% from a million tokens; at least 1,024 "
+            "estimated tokens), or set a smaller budget "
             "when the user accepts more risk of omissions. In an assistant chat, each tool call "
             "adds model requests: for a history under about 10,000 tokens, answer directly "
             "instead of calling TOMC. "
@@ -179,7 +180,7 @@ def create_server(path: Path | str | None = None):
     @server.tool(annotations=write)
     def recall_memory(name: str, task: str, budget: int | None = None,
                       tomc_host: str | None = None, tomc_session_id: str | None = None) -> dict:
-        """Prepare an optional notebook's history for the next task. Omit budget to keep about 80% of the notebook (at least 1,024 estimated tokens). Budget covers estimated memory tokens. Reports and old failures are not proof of current success."""
+        """Prepare an optional notebook's history for the next task. Omit budget to keep 60-80% of the notebook (less for longer notebooks; at least 1,024 estimated tokens). Budget covers estimated memory tokens. Reports and old failures are not proof of current success."""
         return {"name": name, **complete(lambda: store.recall(name, task, budget), task,
                                         source="recall", notebook_name=name,
                                         tomc_host=tomc_host, tomc_session_id=tomc_session_id)}

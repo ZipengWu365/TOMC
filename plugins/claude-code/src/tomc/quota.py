@@ -23,10 +23,11 @@ def codex_executable():
     return str(candidates[0]) if candidates else None
 
 
-def quota_windows(payload):
+def quota_windows(payload, language=None):
     """Missing != zero; prefer multi-bucket data and don't combine quotas."""
     if not isinstance(payload, dict):
         return []
+    english = getattr(language, "code", language) == "en"
     buckets = payload.get("rateLimitsByLimitId")
     if not isinstance(buckets, dict):
         legacy = payload.get("rateLimits")
@@ -42,9 +43,11 @@ def quota_windows(payload):
             used, minutes = window.get("usedPercent"), window.get("windowDurationMins")
             if isinstance(used, bool) or not isinstance(used, (float, int)) or not math.isfinite(used):
                 continue
-            duration = {300: "5小时", 10080: "本周", 1440: "今日"}.get(minutes)
+            names = {300: "5 hours", 10080: "This week", 1440: "Today"} if english else {300: "5小时", 10080: "本周", 1440: "今日"}
+            duration = names.get(minutes)
             if duration is None:
-                duration = f"{minutes}分钟" if isinstance(minutes, (int, float)) else "当前周期"
+                duration = ((f"{minutes} minutes" if english else f"{minutes}分钟") if isinstance(minutes, (int, float))
+                            else "Current window" if english else "当前周期")
             windows.append({"bucket": key, "period": duration,
                             "remaining": max(0, min(100, 100-used)),
                             "resets_at": window.get("resetsAt")})

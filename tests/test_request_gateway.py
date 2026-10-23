@@ -7,6 +7,8 @@ import http.client
 import json
 import socket
 import sqlite3
+import struct
+import sys
 import threading
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
@@ -273,16 +275,78 @@ def test_chunked_request_body_is_reassembled_and_forwarded_once(harness):
     assert harness.gateway.usage.summary()["preparations"] == 1
 
 
-@pytest.mark.parametrize("kind,transformed", [("turn", True), ("prewarm", False), ("memory", False),
-                                            ("compaction", False)])
-def test_codex_header_request_kind_allows_turn_and_preserves_auxiliary(harness, kind, transformed):
+@pytest.mark.parametrize("kind,reason", [("turn", "old_history_compiled_cache_may_change"),
+                                         ("prewarm", "auxiliary_request"), ("memory", "auxiliary_request"),
+                                         ("compaction", "host_compaction_request")])
+def test_codex_header_request_kind_allows_turn_and_preserves_auxiliary(harness, kind, reason):
     raw = json.dumps(payload()).encode()
+    transformed = kind == "turn"
     assert harness.exchange(raw, headers={"x-codex-turn-metadata": json.dumps({"request_kind": kind})})[0] == 200
     assert (harness.received[0]["body"] != raw) is transformed
     assert harness.gateway.usage.summary()["preparations"] == int(transformed)
+    last = harness.gateway.activity.last()
+    assert last["reason"] == reason and last["protocol_detail"]["request_kind"] == kind
     if not transformed:
-        assert harness.gateway.activity.last()["before_tokens"] is None
-        assert harness.gateway.activity.last()["after_tokens"] is None
+        assert last["before_tokens"] is None
+        assert last["after_tokens"] is None
+
+
+def test_codex_turn_with_opaque_compaction_state_is_host_managed_and_content_never_stored(harness):
+    request = payload()
+    request["input"][2:2] = [{"type": "compaction", "encrypted_content": "FIXTURE_OPAQUE_STATE"}]
+    metadata = json.dumps({"request_kind": "turn", "window_number": 3, "agent_name": "/root",
+                           "thread_id": "fixture-session", "turn_id": "fixture-turn"})
+    raw = json.dumps(request).encode()
+    assert harness.exchange(raw, headers={"x-codex-turn-metadata": metadata})[0] == 200
+    assert harness.received[-1]["body"] == raw
+    last = harness.gateway.activity.last()
+    assert last["state"] == "passthrough" and last["sent"]
+    assert last["reason"] == "native_compaction_state"
+    assert last["protocol_detail"] == {"agent": "root", "compaction_items": 1, "request_kind": "turn", "window": 3}
+    assert harness.gateway.activity.prepared_events() == []
+    database = harness.gateway.path.read_bytes()
+    assert b"FIXTURE_OPAQUE_STATE" not in database and b"fixture-turn" not in database
+
+
+def test_legacy_standalone_compact_endpoint_is_recorded_and_never_rewritten(harness):
+    raw = json.dumps(payload()).encode()
+    harness.reply = b'{"output":[]}'
+    assert harness.exchange(raw, path="/codex/v1/responses/compact")[0] == 200
+    assert harness.received[-1]["path"] == "/provider/v1/responses/compact"
+    assert harness.received[-1]["body"] == raw
+    last = harness.gateway.activity.last()
+    assert last["reason"] == "host_compaction_request" and last["sent"]
+    assert last["protocol_detail"]["endpoint"] == "responses_compact"
+    assert harness.gateway.usage.summary()["preparations"] == 0
+
+
+def test_codex_disabled_session_keeps_switch_reason_and_records_compaction_detail(harness):
+    harness.gateway.sessions.set_enabled("codex", "fixture-session", False)
+    request = payload()
+    request["input"].append({"type": "compaction_trigger"})
+    metadata = json.dumps({"request_kind": "compaction", "compaction": {"trigger": "auto", "phase": "pre_turn"}})
+    assert harness.exchange(json.dumps(request).encode(), headers={"x-codex-turn-metadata": metadata})[0] == 200
+    last = harness.gateway.activity.last()
+    assert last["reason"] == "session_disabled"
+    assert last["protocol_detail"]["compaction_trigger"] == "auto"
+
+
+@pytest.mark.parametrize("headers,reason,detail", [
+    ({"x-claude-code-request-class": "compaction", "x-claude-code-compaction": "auto"},
+     "host_compaction_request", {"request_class": "compaction", "compaction_trigger": "auto"}),
+    ({"x-claude-code-request-class": "main", "x-claude-code-compaction": "reactive"},
+     "host_compaction_request", {"request_class": "main", "compaction_trigger": "reactive"}),
+    ({"x-claude-code-request-class": "subagent", "x-claude-code-agent-id": "fixture-agent"},
+     "non_main_request", {"request_class": "subagent", "agent": "subagent"}),
+])
+def test_claude_host_compaction_and_side_requests_are_labelled(harness, headers, reason, detail):
+    raw = json.dumps(payload("claude")).encode()
+    harness.reply = response_body("claude")
+    assert harness.exchange(raw, host="claude", headers=headers)[0] == 200
+    assert harness.received[-1]["body"] == raw
+    last = harness.gateway.activity.last()
+    assert last["reason"] == reason and last["protocol_detail"] == detail
+    assert b"fixture-agent" not in harness.gateway.path.read_bytes()
 
 
 def test_claude_native_reset_reaches_stateful_adapter_and_removes_previous_mapping(harness):
@@ -422,6 +486,31 @@ def test_upstream_failures_do_not_grow_pet_or_retry_request(harness, failure):
     assert harness.gateway.usage.summary()["preparations"] == 0
     assert harness.gateway.library.list() == []
     assert harness.gateway.activity.active() is None
+    if failure in {"truncated", "disconnect"}:
+        assert harness.gateway.activity.last()["reason"] == "upstream_transport_failed"
+
+
+def test_client_disconnect_is_recorded_separately_from_upstream_failure(harness):
+    harness.content_type = "text/event-stream"
+    harness.reply = b'data: {"type":"response.output_text.delta","delta":"x"}\n\n' * 8000
+    harness.response_gate = threading.Event()
+    raw = json.dumps(payload()).encode()
+    harness.server.request_done.clear()
+    client = socket.create_connection(("127.0.0.1", harness.server.server_port), timeout=5)
+    # Close with a reset, as a cancelled host turn does, so the next relay write fails.
+    linger = struct.pack("HH" if sys.platform == "win32" else "ii", 1, 0)
+    client.setsockopt(socket.SOL_SOCKET, socket.SO_LINGER, linger)
+    client.sendall(b"POST /codex/v1/responses HTTP/1.1\r\nHost: 127.0.0.1\r\n"
+                   b"Content-Type: application/json\r\n"
+                   + f"Content-Length: {len(raw)}\r\n\r\n".encode() + raw)
+    try:
+        assert harness.header_ready.wait(3)
+    finally:
+        client.close()
+        harness.response_gate.set()
+    assert harness.server.request_done.wait(5)
+    last = harness.gateway.activity.last()
+    assert last["state"] == "failed" and last["reason"] == "client_disconnected" and last["sent"]
 
 
 def test_compiler_failure_preserves_original_and_does_not_claim_reduction(harness, monkeypatch):

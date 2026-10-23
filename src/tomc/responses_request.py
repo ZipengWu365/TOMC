@@ -15,7 +15,6 @@ from typing import Any
 
 from .easy import prepare_context
 from .gateway_protocol import AdaptedRequest
-from .input import MAX_INPUT_CHARS
 from .tokenization import get_counter
 
 _COUNTER = get_counter("regex")
@@ -29,6 +28,10 @@ _OUTPUT_FIELDS = {"type", "id", "call_id", "output", "status",
                   "internal_chat_message_metadata_passthrough"}
 _CALL_TYPES = {"function_call": "function_call_output", "custom_tool_call": "custom_tool_call_output"}
 _OUTPUT_TYPES = set(_CALL_TYPES.values())
+_CODE = re.compile(r"[A-Za-z0-9_.:-]{1,40}\Z")
+_COMPACTION_ITEMS = {"compaction", "context_compaction"}
+# Ordinary user turns; earlier Codex builds used the last two names.
+_TURN_KINDS = {None, "turn", "regular", "main"}
 
 
 def _dump(value: Any) -> str:
@@ -116,22 +119,85 @@ def _tool_pairs(
     return pairs, [start for start, _ in pending.values()], None
 
 
-def _request_kind(payload: dict[str, Any]) -> str | None:
+def _code(value: object) -> str | None:
+    return value if isinstance(value, str) and _CODE.fullmatch(value) else None
+
+
+def classify_request(
+    payload: Mapping[str, Any], headers: Mapping[str, Any] | None = None,
+) -> tuple[str | None, dict[str, Any]]:
+    """Name who owns this request's context, from structural fields only.
+
+    Codex 0.163.x declares turn metadata in both the ``x-codex-turn-metadata``
+    header and ``client_metadata``. A host compaction is an ordinary
+    ``/responses`` turn with ``request_kind: compaction`` whose input ends with
+    ``compaction_trigger``; the host keeps the single opaque ``compaction`` item
+    it returns and resends it on later turns. Returns ``(reason, detail)``:
+    ``reason`` is None only when TOMC may consider rewriting the request, and
+    ``detail`` holds short codes and counts, never text or identifiers.
+    """
+    sources = [value for key, value in (headers or {}).items() if key.lower() == "x-codex-turn-metadata"]
     metadata = payload.get("client_metadata")
-    if not isinstance(metadata, dict):
-        return None
-    kind = metadata.get("request_kind")
-    encoded = metadata.get("x-codex-turn-metadata")
-    if isinstance(encoded, str):
+    if isinstance(metadata, Mapping):
+        if "x-codex-turn-metadata" in metadata:
+            sources.append(metadata["x-codex-turn-metadata"])
+        elif metadata.get("request_kind") is not None:
+            sources.append({"request_kind": metadata["request_kind"]})
+    detail: dict[str, Any] = {}
+    kinds: set[str] = set()
+    unreadable = False
+    for source in sources:
         try:
-            turn = json.loads(encoded)
+            turn = json.loads(source) if isinstance(source, str) else source
         except (ValueError, TypeError):
-            return "unknown"
-        if isinstance(turn, dict):
-            kind = turn.get("request_kind", kind)
-            if turn.get("compaction") is not None:
-                return "compaction"
-    return kind if isinstance(kind, str) else None
+            turn = None
+        if not isinstance(turn, Mapping):
+            unreadable = True
+            continue
+        compaction = turn.get("compaction")
+        if compaction is not None:
+            kinds.add("compaction")
+        elif turn.get("request_kind") is not None:
+            kinds.add(_code(turn["request_kind"]) or "other")
+        if isinstance(compaction, Mapping):
+            for source_key, key in (("trigger", "compaction_trigger"), ("phase", "compaction_phase"),
+                                    ("reason", "compaction_reason")):
+                if _code(compaction.get(source_key)):
+                    detail[key] = compaction[source_key]
+        window = turn.get("window_number")
+        if type(window) is int and window >= 0:
+            detail["window"] = window
+        if _code(turn.get("history_initialization")):
+            detail["history_initialization"] = turn["history_initialization"]
+        if isinstance(turn.get("agent_name"), str):
+            # A sub-agent's own name is never recorded, only its relation to the root.
+            detail["agent"] = "root" if turn["agent_name"] == "/root" else "subagent"
+    # Header and body copies normally agree; any compaction or auxiliary claim wins.
+    special = sorted(kinds - _TURN_KINDS)
+    kind = "compaction" if "compaction" in kinds else special[0] if special else min(kinds, default=None)
+    if kind is not None:
+        detail["request_kind"] = kind
+    items = payload.get("input")
+    if isinstance(items, list):
+        count = sum(1 for item in items if isinstance(item, Mapping) and item.get("type") in _COMPACTION_ITEMS)
+        if count:
+            detail["compaction_items"] = count
+        if items and isinstance(items[-1], Mapping) and items[-1].get("type") == "compaction_trigger":
+            detail["compaction_trigger_item"] = True
+    if unreadable:
+        return "unknown_request_metadata", detail
+    if kind == "compaction" or detail.get("compaction_trigger_item"):
+        return "host_compaction_request", detail
+    if kind not in _TURN_KINDS:
+        return "auxiliary_request", detail
+    if payload.get("previous_response_id") or payload.get("conversation"):
+        return "server_side_or_incremental_history", detail
+    if "context_management" in payload or "compaction" in payload:
+        return "native_context_management", detail
+    if detail.get("compaction_items"):
+        # An ordinary turn that carries earlier opaque host compaction state.
+        return "native_compaction_state", detail
+    return None, detail
 
 
 def adapt_request(
@@ -144,7 +210,8 @@ def adapt_request(
     and message replay data, so no reasoning ID is orphaned from its outputs.
     Unknown/multimodal turns and the complete current/recent turns remain intact.
     Only readable old messages and complete tools enter TOMC as evidence.
-    Native compaction and server-side/incremental history are passed through.
+    Host compaction turns, turns carrying opaque host compaction state and
+    server-side/incremental history pass through (see ``classify_request``).
     """
     before = _COUNTER.count(_dump(payload))
 
@@ -158,18 +225,12 @@ def adapt_request(
                 isinstance(memory_budget, bool) or not isinstance(memory_budget, int)
                 or memory_budget < 1)):
         return unchanged("invalid_adapter_options")
-    if payload.get("previous_response_id") or payload.get("conversation"):
-        return unchanged("server_side_or_incremental_history")
-    if "context_management" in payload or "compaction" in payload:
-        return unchanged("native_context_management")
-    kind = _request_kind(payload)
-    if kind is not None and kind != "turn":
-        return unchanged("native_compaction" if kind == "compaction" else "auxiliary_request")
+    native, _ = classify_request(payload)
+    if native is not None:
+        return unchanged(native)
     items = payload.get("input")
     if not isinstance(items, list) or not items or not all(isinstance(i, dict) for i in items):
         return unchanged("unsupported_input")
-    if any(i.get("type") in {"compaction", "context_compaction"} for i in items):
-        return unchanged("native_compaction")
     user_indices = [i for i, item in enumerate(items)
                     if _is_message(item) and item.get("role") == "user"]
     if not user_indices:
@@ -193,7 +254,6 @@ def adapt_request(
         return unchanged("insufficient_old_history")
     selected: set[int] = set()
     history: list[dict[str, str]] = []
-    used = 0
     boundaries = [i for i in user_indices if i <= cut]
     pair_members = {index: (start, end) for start, end in pairs for index in (start, end)}
     for start, end in zip(boundaries, boundaries[1:]):
@@ -237,13 +297,10 @@ def adapt_request(
                 supported = False
                 break
             group.add(index)
-        size = sum(len(row["content"]) + len(row["role"]) + 16 for row in evidence)
-        # The compiler's bound applies to whole turns. Unselected long/unknown
-        # turns stay verbatim; no source is silently truncated to fit the limit.
-        if supported and evidence and used + size <= MAX_INPUT_CHARS:
+        # Whole supported turns only; unknown turns stay verbatim, never truncated.
+        if supported and evidence:
             selected.update(group)
             history.extend(evidence)
-            used += size
     if not selected:
         return unchanged("no_readable_old_history")
     if _COUNTER.count(_dump(history)) < min_history_tokens:

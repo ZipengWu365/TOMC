@@ -23,23 +23,37 @@ class PreparedContext:
 
 
 # Without an explicit budget, keep most of the history. In the Claude Code trial,
-# keeping 40-70% matched the full history on every question; 80% leaves margin.
-DEFAULT_KEEP_RATIO = 0.8
+# keeping 40-70% matched the full history on every question. Short histories keep
+# 80%; longer ones keep less, down to 60% at a million estimated tokens.
 MIN_DEFAULT_BUDGET = 1024
 
 
+def default_keep_ratio(history_tokens: int) -> float:
+    """0.8 up to 10K estimated tokens, 0.6 from 1M, continuous log-linear between (0.7 at 100K)."""
+    if history_tokens <= 10_000:
+        return 0.8
+    if history_tokens >= 1_000_000:
+        return 0.6
+    return 0.8 - 0.1 * (math.log10(history_tokens) - 4)
+
+
 def default_budget(history_tokens: int) -> int:
-    """Return the budget used when none is given: 80% of the history, at least 1,024."""
-    return max(MIN_DEFAULT_BUDGET, math.ceil(history_tokens * DEFAULT_KEEP_RATIO))
+    """Return the budget used when none is given: 60-80% of the history, at least 1,024.
+
+    The kept amount still grows with the history: a longer one never gets a smaller budget.
+    """
+    # The epsilon absorbs float noise such as 100,000 * 0.7 = 70,000.00000000001.
+    return max(MIN_DEFAULT_BUDGET, math.ceil(history_tokens * default_keep_ratio(history_tokens) - 1e-9))
 
 
 def prepare_context(history: object, task: str, budget: int | None = None) -> PreparedContext:
     """Keep a fitting history intact; otherwise use existing hybrid routing offline.
 
-    Budget covers memory only, using the lexical counter. Without a budget, about
-    80% of the history's estimated tokens are kept (at least 1,024), so short
-    histories stay intact. Task and prompt framing add overhead. No reader is
-    called and no persistent memory is written.
+    Budget covers memory only, using the lexical counter. Without a budget, 80%
+    of a short history's estimated tokens are kept, falling to 60% for a history
+    of a million or more (at least 1,024), so short histories stay intact. Task
+    and prompt framing add overhead. No reader is called and no persistent memory
+    is written.
     """
     if not isinstance(task, str) or not task.strip():
         raise ValueError("Describe what you want the model to do next.")

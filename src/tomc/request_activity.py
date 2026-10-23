@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import re
 import sqlite3
 from contextlib import contextmanager
@@ -12,8 +13,32 @@ STATES = {"preparing", "prepared", "forwarded", "passthrough", "failed"}
 SCOPE = (
     "Observed local-proxy request stages. Before/after are lexical estimates; provider usage "
     "is observed usage only, not a counterfactual saving or a billing difference. "
-    "Context input is the estimated history submitted to a new compilation, when known."
+    "Context input is the estimated history submitted to a new compilation, when known. "
+    "Protocol detail holds structural host facts only, never request content."
 )
+# Structural facts a host declares about a request: kind, compaction trigger/phase,
+# compaction generation and opaque-item counts. Never message text or identifiers.
+DETAIL_KEYS = {"request_kind", "request_class", "compaction_trigger", "compaction_phase",
+               "compaction_reason", "window", "history_initialization", "compaction_items",
+               "compaction_trigger_item", "agent", "endpoint"}
+_DETAIL_CODE = re.compile(r"[A-Za-z0-9_.:-]{1,40}\Z")
+
+
+def protocol_detail(value):
+    """Keep allowlisted keys with short codes, booleans or small counts; drop the rest.
+
+    Dropping instead of raising keeps the request's state record even when a host
+    sends an unexpected value; nothing outside the allowlist is ever stored.
+    """
+    if not isinstance(value, dict):
+        return None
+    clean = {}
+    for key in sorted(DETAIL_KEYS & set(value)):
+        item = value[key]
+        if type(item) is bool or (type(item) is int and 0 <= item <= 1_000_000_000) or (
+                isinstance(item, str) and _DETAIL_CODE.fullmatch(item)):
+            clean[key] = item
+    return clean or None
 
 
 def _stamp():
@@ -63,6 +88,8 @@ class RequestActivity:
         columns = {row[1] for row in db.execute("PRAGMA table_info(tomc_request_activity)")}
         if "context_input_tokens" not in columns:
             db.execute("ALTER TABLE tomc_request_activity ADD COLUMN context_input_tokens INTEGER")
+        if "protocol_detail" not in columns:
+            db.execute("ALTER TABLE tomc_request_activity ADD COLUMN protocol_detail TEXT")
         db.execute("CREATE INDEX IF NOT EXISTS tomc_request_activity_updated "
                    "ON tomc_request_activity(updated_utc)")
         db.execute(
@@ -109,6 +136,10 @@ class RequestActivity:
             return None
         result = dict(row)
         result.setdefault("context_input_tokens", None)
+        try:
+            result["protocol_detail"] = protocol_detail(json.loads(result.get("protocol_detail") or "null"))
+        except (TypeError, ValueError):
+            result["protocol_detail"] = None
         result["sent"] = bool(result["sent"])
         before, after = result["before_tokens"], result["after_tokens"]
         result["estimated_reduced_tokens"] = before - after if before is not None and after is not None else None
@@ -141,7 +172,8 @@ class RequestActivity:
             return self._record(self._row(db, request_id))
 
     def finish(self, request_id, *, state, reason=None, before_tokens=None, after_tokens=None,
-               provider_input_tokens=None, provider_cached_tokens=None, context_input_tokens=None):
+               provider_input_tokens=None, provider_cached_tokens=None, context_input_tokens=None,
+               detail=None):
         if state not in STATES - {"preparing"}:
             raise ValueError("Use prepared, forwarded, passthrough or failed.")
         request_id = _text(request_id, "request_id")
@@ -151,6 +183,8 @@ class RequestActivity:
             ("before_tokens", before_tokens), ("after_tokens", after_tokens),
             ("provider_input_tokens", provider_input_tokens), ("provider_cached_tokens", provider_cached_tokens),
             ("context_input_tokens", context_input_tokens))]
+        detail = protocol_detail(detail)
+        encoded = json.dumps(detail, sort_keys=True, separators=(",", ":")) if detail else None
         with self._write() as db:
             old = self._row(db, request_id)
             if old["state"] != "preparing" and state == "prepared":
@@ -162,8 +196,9 @@ class RequestActivity:
                        "before_tokens=COALESCE(?,before_tokens),after_tokens=COALESCE(?,after_tokens), "
                        "provider_input_tokens=COALESCE(?,provider_input_tokens), "
                        "provider_cached_tokens=COALESCE(?,provider_cached_tokens), "
-                       "context_input_tokens=COALESCE(?,context_input_tokens) WHERE request_id=?",
-                       (state, reason, _stamp(), state, *values, request_id))
+                       "context_input_tokens=COALESCE(?,context_input_tokens), "
+                       "protocol_detail=COALESCE(?,protocol_detail) WHERE request_id=?",
+                       (state, reason, _stamp(), state, *values, encoded, request_id))
             if state in {"prepared", "forwarded"} and context_input_tokens is not None:
                 # A durable ordered event, independent of later requests and
                 # provider completion. Repeated finish calls cannot replay it.

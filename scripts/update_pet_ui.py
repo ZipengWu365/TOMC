@@ -15,6 +15,7 @@ MODULES = (
     "ui_language.py", "usage_widget_qt.py", "context_library_qt.py", "context_library.py",
     "pricing_qt.py", "oasis_qt.py", "cost_estimate.py", "pet_growth.py",
     "impact_story.py", "usage_widget.py", "quota.py", "usage.py", "request_activity.py",
+    "animation_receipts.py",
 )
 
 

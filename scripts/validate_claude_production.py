@@ -22,8 +22,9 @@ from validate_claude_gateway import DEFAULT_CLAUDE, ROOT, activity, selected_tur
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--run", action="store_true")
-    parser.add_argument("--history-copies", type=int, choices=(1, 2), default=1,
-                        help="Use two copies of synthetic history to exercise the 10k context stage.")
+    parser.add_argument("--history-copies", type=int, choices=range(1, 41), default=1, metavar="1-40",
+                        help="Repeat the synthetic history: 2 reaches the 10K context stage, "
+                             "17 the 100K stage (well over 200,000 characters).")
     parser.add_argument("--store", type=Path, default=Path.home() / ".tomc/memory.sqlite3")
     args = parser.parse_args(argv)
     if not args.run:

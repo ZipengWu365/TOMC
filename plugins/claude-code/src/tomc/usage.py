@@ -69,12 +69,31 @@ class UsageStore:
             "CREATE TABLE IF NOT EXISTS context_usage_events ("
             "seq INTEGER PRIMARY KEY AUTOINCREMENT, recorded_at TEXT NOT NULL, "
             "counter TEXT NOT NULL, input_tokens INTEGER NOT NULL, "
-            "memory_tokens INTEGER NOT NULL, usable INTEGER NOT NULL)"
+            "memory_tokens INTEGER NOT NULL, usable INTEGER NOT NULL, request_id TEXT, "
+            "context_input_tokens INTEGER)"
         )
+        columns = {row[1] for row in db.execute("PRAGMA table_info(context_usage_events)")}
+        if "request_id" not in columns:
+            db.execute("ALTER TABLE context_usage_events ADD COLUMN request_id TEXT")
+        if "context_input_tokens" not in columns:
+            db.execute("ALTER TABLE context_usage_events ADD COLUMN context_input_tokens INTEGER")
+        db.execute("CREATE TABLE IF NOT EXISTS context_usage_request_ids (request_id TEXT PRIMARY KEY)")
 
     def record(self, report: dict) -> None:
         """Atomically count one completed preparation, including zero/negative reduction."""
         usable = report["usable"]
+        request_id = report.get("request_id")
+        context_input_tokens = report.get("context_input_tokens")
+        if context_input_tokens is not None and (
+            isinstance(context_input_tokens, bool) or not isinstance(context_input_tokens, int)
+            or context_input_tokens < 0
+        ):
+            raise ValueError("context_input_tokens must be a nonnegative integer or None.")
+        if request_id is not None and (
+            not isinstance(request_id, str) or not request_id.strip() or len(request_id) > 256
+            or any(ord(char) < 32 for char in request_id)
+        ):
+            raise ValueError("request_id must be a nonempty single-line identifier.")
         values = (
             datetime.now(timezone.utc).date().isoformat(), report["counter"], 1,
             int(usable), int(usable and report["reduced_tokens"] < 0),
@@ -82,7 +101,13 @@ class UsageStore:
             report["memory_tokens"] if usable else 0,
         )
         with closing(sqlite3.connect(self.path, timeout=10)) as db, db:
+            db.execute("BEGIN IMMEDIATE")
             self._schema(db)
+            if request_id is not None:
+                inserted = db.execute("INSERT OR IGNORE INTO context_usage_request_ids VALUES (?)",
+                                      (request_id,)).rowcount
+                if not inserted:
+                    return
             db.execute(
                 "INSERT INTO context_usage_daily VALUES (?,?,?,?,?,?,?) "
                 "ON CONFLICT(day,counter) DO UPDATE SET "
@@ -99,12 +124,11 @@ class UsageStore:
             )
             db.execute(
                 "INSERT INTO context_usage_events "
-                "(recorded_at,counter,input_tokens,memory_tokens,usable) VALUES (?,?,?,?,?)",
+                "(recorded_at,counter,input_tokens,memory_tokens,usable,request_id,context_input_tokens) "
+                "VALUES (?,?,?,?,?,?,?)",
                 (recorded_at, report["counter"], report["input_tokens"],
-                 report["memory_tokens"], int(usable)),
+                 report["memory_tokens"], int(usable), request_id, context_input_tokens),
             )
-            db.execute("DELETE FROM context_usage_events WHERE seq <= "
-                       "(SELECT MAX(seq)-64 FROM context_usage_events)")
             # Keep earned forms even when a later preparation increases context.
             # Growth uses the signed cumulative net, never a sum of positive calls.
             net = db.execute(
@@ -118,8 +142,23 @@ class UsageStore:
                 (report["counter"], max(0, net)),
             )
 
-    def recent_events(self, after: int = 0) -> list[dict]:
-        """Bounded numeric-only animation queue, not notebook/conversation content."""
+    def event_cursor(self) -> int:
+        """Read the current position without loading or replaying historical events."""
+        if not self.path.exists():
+            return 0
+        with closing(sqlite3.connect(self.path.resolve().as_uri() + "?mode=ro", uri=True,
+                                     timeout=0.2)) as db:
+            if not db.execute("SELECT 1 FROM sqlite_master WHERE type='table' "
+                              "AND name='context_usage_events'").fetchone():
+                return 0
+            return db.execute("SELECT COALESCE(MAX(seq),0) FROM context_usage_events").fetchone()[0]
+
+    def recent_events(self, after: int = 0, *, limit: int | None = None) -> list[dict]:
+        """Numeric-only event stream; callers can page without losing burst events."""
+        if isinstance(after, bool) or not isinstance(after, int) or after < 0:
+            raise ValueError("after must be a nonnegative integer.")
+        if limit is not None and (isinstance(limit, bool) or not isinstance(limit, int) or limit < 1):
+            raise ValueError("limit must be a positive integer or None.")
         if not self.path.exists():
             return []
         with closing(sqlite3.connect(self.path.resolve().as_uri() + "?mode=ro", uri=True,
@@ -127,12 +166,18 @@ class UsageStore:
             if not db.execute("SELECT 1 FROM sqlite_master WHERE type='table' "
                               "AND name='context_usage_events'").fetchone():
                 return []
-            rows = db.execute("SELECT seq,recorded_at,counter,input_tokens,memory_tokens,usable "
-                              "FROM context_usage_events WHERE seq>? ORDER BY seq", (after,)).fetchall()
+            columns = {row[1] for row in db.execute("PRAGMA table_info(context_usage_events)")}
+            request_column = "request_id" if "request_id" in columns else "NULL"
+            context_column = "context_input_tokens" if "context_input_tokens" in columns else "NULL"
+            rows = db.execute("SELECT seq,recorded_at,counter,input_tokens,memory_tokens,usable,"
+                              + request_column + "," + context_column + " "
+                              "FROM context_usage_events WHERE seq>? ORDER BY seq LIMIT ?",
+                              (after, limit if limit is not None else -1)).fetchall()
         return [{"seq": seq, "recorded_at": at, "counter": counter,
                  "input_tokens": before, "memory_tokens": after_tokens, "usable": bool(usable),
-                 "reduced_tokens": before-after_tokens if usable else None}
-                for seq, at, counter, before, after_tokens, usable in rows]
+                 "reduced_tokens": before-after_tokens if usable else None, "request_id": request_id,
+                 "context_input_tokens": context_input_tokens}
+                for seq, at, counter, before, after_tokens, usable, request_id, context_input_tokens in rows]
 
     def summary(self, period: str = "all") -> dict:
         """Read all time, today UTC, or the rolling seven UTC calendar days."""
@@ -162,6 +207,18 @@ class UsageStore:
                 "SELECT recorded_at,counter,input_tokens,memory_tokens,usable "
                 "FROM context_usage_latest WHERE id=1"
             ).fetchone()
+            # Keep the legacy latest table shape: already-running MCP writers
+            # use INSERT ... VALUES without naming columns. Match its snapshot
+            # to the event, never borrow context length from an older request.
+            latest_context_input_tokens = None
+            event_columns = {row[1] for row in db.execute("PRAGMA table_info(context_usage_events)")}
+            if latest and "context_input_tokens" in event_columns:
+                event = db.execute(
+                    "SELECT recorded_at,counter,input_tokens,memory_tokens,usable,context_input_tokens "
+                    "FROM context_usage_events ORDER BY seq DESC LIMIT 1"
+                ).fetchone()
+                if event and event[:5] == latest:
+                    latest_context_input_tokens = event[5]
             has_growth = db.execute(
                 "SELECT 1 FROM sqlite_master WHERE type='table' AND name='context_usage_growth'"
             ).fetchone()
@@ -190,6 +247,7 @@ class UsageStore:
             at, counter, before, after, usable = latest
             result["last_preparation"] = {
                 "recorded_at": at, "counter": counter, "input_tokens": before,
+                "context_input_tokens": latest_context_input_tokens,
                 "memory_tokens": after, "usable": bool(usable),
                 "reduced_tokens": before - after if usable else None,
                 "reduction_percent": round(100 * (before - after) / before, 2)

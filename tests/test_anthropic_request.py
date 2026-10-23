@@ -168,6 +168,32 @@ def test_unsupported_requests_are_untouched(mutation, reason):
     assert result.prepared is None
 
 
+@pytest.mark.parametrize("headers,expected", [
+    ({"X-Claude-Code-Compaction": "auto", "x-claude-code-request-class": "compaction"},
+     ("host_compaction_request", {"request_class": "compaction", "compaction_trigger": "auto"})),
+    ({"x-claude-code-request-class": "compaction"},
+     ("host_compaction_request", {"request_class": "compaction"})),
+    ({"x-claude-code-request-class": "main", "x-claude-code-context-compacted": "manual"},
+     (None, {"request_class": "main", "compaction_trigger": "manual"})),
+    ({"x-claude-code-request-class": "subagent", "x-claude-code-agent-id": "agent-fixture"},
+     (None, {"request_class": "subagent", "agent": "subagent"})),
+    ({"x-claude-code-compaction": "free text\nwith newline"}, ("host_compaction_request", {})),
+])
+def test_documented_hint_headers_classify_host_compaction(headers, expected):
+    from tomc.anthropic_request import classify_request
+
+    assert classify_request(_request(), headers) == expected
+
+
+def test_host_compaction_and_opaque_server_blocks_are_named_and_untouched(tmp_path):
+    payload = _request()
+    adapter = AnthropicAdapter(tmp_path / "state.sqlite3")
+    result = adapter.adapt(payload, {"x-claude-code-compaction": "manual"}, min_history_tokens=20)
+    assert result.reason == "host_compaction_request" and result.payload is payload
+    payload["messages"][1]["content"] = [{"type": "compaction", "content": "opaque server summary"}]
+    assert adapt_request(payload, min_history_tokens=20).reason == "native_compaction_state"
+
+
 def test_tool_result_order_and_parallel_pairs_are_validated():
     payload = _request()
     payload["messages"] += _tool_loop()[:2]

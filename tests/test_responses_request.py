@@ -5,7 +5,7 @@ import json
 
 import pytest
 
-from tomc.responses_request import adapt_request, extract_session_id
+from tomc.responses_request import adapt_request, classify_request, extract_session_id
 from tomc.tokenization import get_counter
 
 
@@ -125,12 +125,13 @@ def test_unknown_fields_multimodal_and_encrypted_output_pairs_remain_identical()
     ({"previous_response_id": "resp_existing"}, "server_side_or_incremental_history"),
     ({"conversation": "conv_existing"}, "server_side_or_incremental_history"),
     ({"context_management": []}, "native_context_management"),
-    ({"input": [{"type": "compaction", "encrypted_content": "opaque"}]}, "native_compaction"),
+    ({"input": [{"type": "compaction", "encrypted_content": "opaque"}]}, "native_compaction_state"),
     ({"input": "Short new prompt"}, "unsupported_input"),
     ({"client_metadata": {"x-codex-turn-metadata": json.dumps({"request_kind": "compaction"})}},
-     "native_compaction"),
+     "host_compaction_request"),
     ({"client_metadata": {"x-codex-turn-metadata": json.dumps({"request_kind": "memory"})}},
      "auxiliary_request"),
+    ({"client_metadata": {"x-codex-turn-metadata": "{not json"}}, "unknown_request_metadata"),
 ])
 def test_stateful_native_and_auxiliary_requests_pass_through(change, reason):
     payload = request()
@@ -188,21 +189,26 @@ def test_empty_memory_and_nonreduction_return_original(monkeypatch):
     assert result.reason == "no_request_size_reduction" and result.payload is payload
 
 
-def test_long_history_does_not_truncate_to_fit_compiler_limit():
+def test_long_old_turn_is_compiled_whole_not_truncated():
     payload = request()
     payload["input"][1]["content"][0]["text"] = "x " * 110000
     result = adapt(payload)
     assert result.transformed
-    assert payload["input"][1] in result.payload["input"]
+    assert payload["input"][1] not in result.payload["input"]
+    # The entire 110,000-token turn reached the compiler; nothing was cut to fit.
+    assert result.prepared.compilation.stats.input_tokens >= 110_000
 
 
-def test_overlong_tool_output_and_its_call_are_retained_as_an_atomic_pair():
+def test_overlong_tool_output_and_its_call_are_compiled_as_an_atomic_pair():
     payload = request()
     payload["input"][4]["output"] = "oversized tool result " * 12000
     result = adapt(payload)
     assert result.transformed
-    assert payload["input"][3] in result.payload["input"]
-    assert payload["input"][4] in result.payload["input"]
+    assert payload["input"][3] not in result.payload["input"]
+    assert payload["input"][4] not in result.payload["input"]
+    calls = {i["call_id"] for i in result.payload["input"] if i.get("type") == "function_call"}
+    outputs = {i["call_id"] for i in result.payload["input"] if i.get("type") == "function_call_output"}
+    assert calls == outputs
 
 
 def test_utf8_evidence_and_default_short_history():
@@ -234,3 +240,91 @@ def test_invalid_options_do_not_change_request(options):
 ])
 def test_identity_uses_only_confirmed_nonconflicting_thread_fields(payload, headers, expected):
     assert extract_session_id(payload, headers) == expected
+
+
+def codex_turn(kind="turn", window=0, agent="/root", **extra):
+    """Turn metadata shaped like Codex 0.163.0-alpha.11.2 and 0.163.0 (isolated probe, 2026-10-23)."""
+    return json.dumps({"installation_id": "fixture-installation", "session_id": "thread-123",
+                       "thread_id": "thread-123", "agent_name": agent, "turn_id": "fixture-turn",
+                       "window_id": f"thread-123:{window}", "window_number": window,
+                       "context_window_id": "fixture-window", "request_kind": kind,
+                       "history_initialization": "new", "root_turn_id": "fixture-turn",
+                       "sandbox": "none", "sandbox_mode": "read-only", **extra})
+
+
+def compaction_meta(trigger="manual", phase="standalone_turn", reason="user_requested"):
+    return {"trigger": trigger, "reason": reason, "implementation": "responses_compaction_v2",
+            "phase": phase, "strategy": "memento"}
+
+
+def memento_input(task="Continue the task."):
+    """History after a v2 compaction: re-injected context, kept user turns, one opaque item."""
+    return [{"type": "additional_tools", "role": "developer", "tools": []},
+            message("developer", "Keep developer rules exactly."),
+            message("user", "Earlier user request retained by the host."),
+            {"type": "compaction", "id": "cmp_fixture", "encrypted_content": "FIXTURE_OPAQUE_STATE"},
+            message("user", task)]
+
+
+def test_fresh_codex_turn_is_eligible_and_detail_is_structural_only():
+    payload = request()
+    payload["client_metadata"]["x-codex-turn-metadata"] = codex_turn()
+    reason, detail = classify_request(payload, {"x-codex-turn-metadata": codex_turn()})
+    assert reason is None
+    assert detail == {"request_kind": "turn", "window": 0, "history_initialization": "new", "agent": "root"}
+    assert adapt(payload).transformed
+
+
+@pytest.mark.parametrize("trigger,phase,reason", [
+    ("manual", "standalone_turn", "user_requested"), ("auto", "pre_turn", "context_limit")])
+def test_v2_host_compaction_turn_is_the_hosts_and_never_rewritten(trigger, phase, reason):
+    payload = request()
+    payload["input"].append({"type": "compaction_trigger"})
+    metadata = codex_turn("compaction", window=1, compaction=compaction_meta(trigger, phase, reason))
+    payload["client_metadata"]["x-codex-turn-metadata"] = metadata
+    label, detail = classify_request(payload, {"X-Codex-Turn-Metadata": metadata})
+    assert label == "host_compaction_request"
+    assert detail == {"request_kind": "compaction", "compaction_trigger": trigger, "compaction_phase": phase,
+                      "compaction_reason": reason, "window": 1, "history_initialization": "new",
+                      "agent": "root", "compaction_trigger_item": True}
+    result = adapt(payload)
+    assert not result.transformed and result.reason == "host_compaction_request" and result.payload is payload
+
+
+def test_header_alone_identifies_compaction_when_body_metadata_is_absent():
+    payload = request()
+    metadata = codex_turn("compaction", compaction=compaction_meta("auto", "pre_turn", "context_limit"))
+    assert classify_request(payload, {"x-codex-turn-metadata": metadata})[0] == "host_compaction_request"
+
+
+def test_ordinary_turn_carrying_opaque_state_is_host_managed_with_generation():
+    payload = {"model": "gpt-6-astra", "store": False, "input": memento_input(),
+               "client_metadata": {"thread_id": "thread-123", "x-codex-turn-metadata": codex_turn(window=2)}}
+    reason, detail = classify_request(payload, {})
+    assert reason == "native_compaction_state"
+    assert detail["compaction_items"] == 1 and detail["window"] == 2 and detail["request_kind"] == "turn"
+    serialized = json.dumps(detail)
+    for private in ("FIXTURE_OPAQUE_STATE", "fixture-installation", "fixture-turn", "thread-123",
+                    "Earlier user request", "Keep developer rules"):
+        assert private not in serialized
+    assert adapt(payload).reason == "native_compaction_state"
+
+
+def test_guardian_subagent_inherits_parent_opaque_state_and_is_labelled_without_its_name():
+    payload = {"input": memento_input("Review this action."), "client_metadata": {
+        "thread_id": "child", "x-codex-turn-metadata": codex_turn(agent="/root/guardian_review")}}
+    reason, detail = classify_request(payload, {})
+    assert reason == "native_compaction_state" and detail["agent"] == "subagent"
+    assert "guardian" not in json.dumps(detail)
+
+
+def test_unreadable_turn_metadata_header_is_unknown_not_eligible():
+    payload = request()
+    assert classify_request(payload, {"x-codex-turn-metadata": "{broken"})[0] == "unknown_request_metadata"
+
+
+def test_conflicting_kinds_favour_the_host_owned_label():
+    payload = request()
+    payload["client_metadata"]["x-codex-turn-metadata"] = codex_turn("turn")
+    header = codex_turn("memory")
+    assert classify_request(payload, {"x-codex-turn-metadata": header})[0] == "auxiliary_request"

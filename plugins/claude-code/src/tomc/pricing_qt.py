@@ -20,8 +20,8 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from .cost_estimate import SETTINGS, dollars, explanation, input_value
-from .impact_story import STORY
+from .cost_estimate import SETTINGS, dollars, explanation, input_value, is_english
+from .impact_story import story_html
 from .pricing_catalog import all_rates
 
 
@@ -40,6 +40,9 @@ class ReferenceSheet(QDialog):
     def __init__(self, owner, settings_path=None):
         super().__init__(owner, Qt.WindowType.Tool | Qt.WindowType.WindowStaysOnTopHint)
         self.owner = owner
+        self.language = getattr(owner, "language", None)
+        self.applied = False
+        self.notice = None
         self.path = settings_path or SETTINGS
         self.setWindowTitle("TOMC · 模型与估价")
         self.resize(520, 530)
@@ -75,7 +78,8 @@ class ReferenceSheet(QDialog):
         for key, name in (("anthropic", "Claude 官方"), ("openai", "OpenAI / Codex"),
                           ("deepseek", "DeepSeek"), ("cursor", "Cursor")):
             self.provider.addItem(name, key)
-        row.addWidget(QLabel("宿主"))
+        self.host_label = QLabel("宿主")
+        row.addWidget(self.host_label)
         row.addWidget(self.host)
         row.addWidget(self.provider, 1)
         layout.addLayout(row)
@@ -103,15 +107,17 @@ class ReferenceSheet(QDialog):
         self.table.horizontalHeader().setStretchLastSection(True)
         self.table.itemSelectionChanged.connect(self.select_table)
         layout.addWidget(self.table)
-        layout.addWidget(QLabel("单价：USD / 百万 tokens · 折算使用当前统计范围；负值表示增加"))
+        self.units = QLabel()
+        self.units.setWordWrap(True)
+        layout.addWidget(self.units)
         self.basis = QTextBrowser()
         self.basis.setOpenExternalLinks(True)
         self.basis.setMinimumHeight(125)
         layout.addWidget(self.basis)
         actions = QHBoxLayout()
-        detected = QPushButton("使用已识别模型")
-        detected.clicked.connect(self.use_detected)
-        actions.addWidget(detected)
+        self.detected_button = QPushButton("使用已识别模型")
+        self.detected_button.clicked.connect(self.use_detected)
+        actions.addWidget(self.detected_button)
         self.save_button = QPushButton("应用参考模型")
         self.save_button.clicked.connect(self.save)
         self.save_button.setEnabled(not owner.test_mode or settings_path is not None)
@@ -121,12 +127,11 @@ class ReferenceSheet(QDialog):
         layout.addLayout(actions)
         story = QTextBrowser()
         story.setOpenExternalLinks(True)
-        story.setHtml(STORY)
         self.tabs.addTab(story, "绿洲的故事")
         self.story = story
-        close = QPushButton("收起")
-        close.clicked.connect(self.hide)
-        outer.addWidget(close, alignment=Qt.AlignmentFlag.AlignRight)
+        self.close_button = QPushButton("收起")
+        self.close_button.clicked.connect(self.hide)
+        outer.addWidget(self.close_button, alignment=Qt.AlignmentFlag.AlignRight)
         self.rates = list(all_rates())
         self.evidence = "手选参考模型；未读取实际调用的模型、缓存和档位"
         self.provider.currentIndexChanged.connect(self.populate)
@@ -141,20 +146,73 @@ class ReferenceSheet(QDialog):
             self.models.setCurrentIndex(max(0, self.models.findData(pricing.get("key"))))
             self.mode.setCurrentIndex(max(0, self.mode.findData(pricing.get("mode", "input"))))
             self.evidence = pricing.get("evidence", self.evidence)
+        if self.language is not None:
+            self.language.changed.connect(self.retranslate)
+        self.retranslate()
+
+    def tr_text(self, zh, en):
+        return en if is_english(self.language) else zh
+
+    def retranslate(self, *_):
+        model_key = self.models.currentData()
+        self.setWindowTitle(self.tr_text("TOMC · 模型与估价", "TOMC · Models & estimates"))
+        self.tabs.setTabText(0, self.tr_text("模型与估价", "Models && estimates"))
+        self.tabs.setTabText(1, self.tr_text("绿洲的故事", "The oasis story"))
+        self.host_label.setText(self.tr_text("宿主", "Host"))
+        self.host.setItemText(3, self.tr_text("其他 / API", "Other / API"))
+        self.provider.setItemText(0, self.tr_text("Claude 官方", "Anthropic / Claude"))
+        self.mode.setItemText(0, self.tr_text("按未缓存输入折算", "Use uncached input rate"))
+        self.mode.setItemText(1, self.tr_text("按缓存读取折算", "Use cache-read rate"))
+        self.table.setHorizontalHeaderLabels(self.tr_text(
+            ["参考模型 / 档位", "输入", "缓存读", "输出", "折算 USD"],
+            ["Reference model / tier", "Input", "Cache read", "Output", "Value (USD)"]))
+        self.units.setText(self.tr_text("单价：USD / 百万 tokens · 折算使用当前统计范围；负值表示增加",
+            "Rates: USD per million tokens. Values use the current range; negative values indicate an increase."))
+        self.detected_button.setText(self.tr_text("使用已识别模型", "Use detected model"))
+        self.close_button.setText(self.tr_text("收起", "Close"))
+        self.story.setHtml(story_html(self.language))
+        self.host.setAccessibleName(self.tr_text("参考模型宿主", "Reference model host"))
+        self.provider.setAccessibleName(self.tr_text("参考价格供应商", "Reference price provider"))
+        self.models.setAccessibleName(self.tr_text("参考模型与档位", "Reference model and tier"))
+        self.mode.setAccessibleName(self.tr_text("参考输入计价口径", "Reference input pricing basis"))
+        self.table.setAccessibleName(self.tr_text("参考费率对照表", "Reference rate comparison"))
+        self.basis.setAccessibleName(self.tr_text("价格依据与估算限制", "Pricing evidence and estimate limitations"))
+        self.story.setAccessibleName(self.tr_text("绿洲故事与研究依据", "Oasis story and research reference"))
+        self.models.setToolTip(self.tr_text("只选择参考价格，不切换宿主实际模型。",
+            "Selects a reference price; it does not change the host's actual model."))
+        self.detected_button.setToolTip(self.tr_text("读取已有识别记录，不调用模型或联网检测。",
+            "Reads an existing detection record; no model call or network lookup."))
+        self.populate()
+        self.models.blockSignals(True)
+        self.models.setCurrentIndex(max(0, self.models.findData(model_key)))
+        self.models.blockSignals(False)
+        self.update_save_label()
         self.update_preview()
+
+    def update_save_label(self):
+        if not self.save_button.isEnabled():
+            text = self.tr_text("演示不保存设置", "Demo: settings are not saved")
+        elif self.applied:
+            text = self.tr_text("已应用 · 宿主额度下次启动切换", "Applied · Allowance host changes on restart")
+        else:
+            text = self.tr_text("应用参考模型", "Apply reference model")
+        self.save_button.setText(text)
 
     def delta(self):
         groups = (self.owner.summary or {}).get("by_counter", [])
         return groups[0]["reduced_tokens"] if len(groups) == 1 else None
 
     def manual_change(self):
+        self.notice = None
+        self.applied = False
         self.evidence = "手选参考模型；未读取实际调用的模型、缓存和档位"
+        self.update_save_label()
         self.update_preview()
 
     def populate(self):
         self.models.blockSignals(True)
         self.models.clear()
-        self.models.addItem("未确认 / Auto（不估算金额）", None)
+        self.models.addItem(self.tr_text("未确认 / Auto（不估算金额）", "Unconfirmed / Auto (no monetary estimate)"), None)
         self.rows = [r for r in self.rates if r["provider"] == self.provider.currentData()]
         self.table.blockSignals(True)
         self.table.setRowCount(len(self.rows))
@@ -176,11 +234,14 @@ class ReferenceSheet(QDialog):
 
     def update_preview(self):
         pricing = self.selected()
-        self.preview.setText("当前范围参考价值  " + dollars(input_value(self.delta(), pricing)))
-        text = escape(explanation(pricing)).replace("\n", "<br>")
+        self.preview.setText(self.tr_text("当前范围参考价值  ", "Reference value for this range  ") + dollars(input_value(self.delta(), pricing)))
+        text = escape(explanation(pricing, self.language)).replace("\n", "<br>")
+        if self.notice:
+            text = escape(self.tr_text(*self.notice)) + "<br><br>" + text
         if pricing and pricing.get("source"):
             url = escape(pricing["source"], quote=True)
-            text = text.replace(url, f'<a href="{url}">查看官方定价依据 ↗</a>')
+            link = self.tr_text("查看官方定价依据 ↗", "View official pricing source ↗")
+            text = text.replace(url, f'<a href="{url}">{link}</a>')
         self.basis.setHtml(text)
         for index, row in enumerate(getattr(self, "rows", [])):
             rate = row.get(self.mode.currentData())
@@ -202,11 +263,15 @@ class ReferenceSheet(QDialog):
                           r["variant"] in ("standard", "standard-short", "listed")), None)
             self.models.setCurrentIndex(self.models.findData(match["key"]) if match else 0)
             self.evidence = evidence
-            self.update_preview()
+            self.notice = None
             if not match:
-                self.basis.setPlainText(self.evidence + "\n" + explanation(None))
+                self.notice = ("识别记录未匹配到参考费率，请手选参考模型。",
+                               "The detection record has no matching reference rate. Select a model manually.")
+            self.update_preview()
         except (OSError, ValueError, KeyError, TypeError):
-            self.basis.setPlainText("尚无安装时的模型识别记录，请手选参考模型。")
+            self.notice = ("尚无安装时的模型识别记录，请手选参考模型。",
+                           "No saved model-detection record is available. Select a reference model manually.")
+            self.update_preview()
 
     def save(self):
         row = self.selected()
@@ -219,7 +284,8 @@ class ReferenceSheet(QDialog):
         self.path.write_text(json.dumps(settings, ensure_ascii=False, indent=2), "utf-8")
         self.owner.last_signature = None
         self.owner.refresh()
-        self.save_button.setText("已应用 · 宿主额度下次启动切换")
+        self.applied = True
+        self.update_save_label()
 
     def open_tab(self, index=0):
         self.owner.details.hide()

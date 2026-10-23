@@ -101,14 +101,17 @@ def test_explicit_context_length_takes_priority_for_ordinary_preparations_too():
     assert state["level"] == 3 and state["input_tokens"] == 100_000
 
 
-def test_numeric_animation_queue_is_ordered_bounded_and_read_only(tmp_path):
+def test_numeric_animation_queue_is_ordered_paged_and_read_only(tmp_path):
     store = UsageStore(tmp_path / "events.sqlite3")
     assert store.recent_events() == [] and not store.path.exists()
     for i in range(70):
         store.record(report(100+i, 10))
+    # A burst is never silently truncated: every event can play once, in order.
     events = store.recent_events()
-    assert len(events) == 64
-    assert events[0]["seq"] == 7 and events[-1]["seq"] == 70
+    assert [event["seq"] for event in events] == list(range(1, 71))
+    page = store.recent_events(0, limit=64)
+    assert len(page) == 64 and page[-1]["seq"] == 64
+    assert [event["seq"] for event in store.recent_events(page[-1]["seq"])] == list(range(65, 71))
     assert store.recent_events(69)[0]["reduced_tokens"] == 159
     assert store.recent_events(70) == []
     assert store.summary()["preparations"] == 70

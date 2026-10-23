@@ -10,6 +10,7 @@ from __future__ import annotations
 import argparse
 import gzip
 import json
+import socket
 import sqlite3
 import threading
 import uuid
@@ -27,6 +28,10 @@ from .usage import UsageStore
 MAX_BODY = 64 * 1024 * 1024
 HOP = {"connection", "keep-alive", "proxy-authenticate", "proxy-authorization",
        "te", "trailer", "transfer-encoding", "upgrade", "host", "content-length"}
+
+
+class ClientDisconnected(Exception):
+    """The host closed its side, for example a cancelled turn; not an upstream failure."""
 
 
 class ResponseMetrics:
@@ -166,12 +171,14 @@ class Gateway:
 
     def prepare(self, host, suffix, headers, raw):
         request_id = str(uuid.uuid4())
-        session_id, plan = None, None
+        session_id, plan, detail = None, None, None
         body = raw
         changed = False
         reason = "unsupported_endpoint"
         endpoint = suffix.split("?", 1)[0].rstrip("/")
-        target = (host == "codex" and endpoint.endswith("/responses")) or (
+        # Older Codex builds compact through a standalone endpoint; it is recorded, never rewritten.
+        compact_endpoint = host == "codex" and endpoint.endswith("/responses/compact")
+        target = (host == "codex" and endpoint.endswith("/responses")) or compact_endpoint or (
             host == "claude" and endpoint.endswith("/messages"))
         if not target:
             return None, session_id, plan, body, changed
@@ -183,12 +190,19 @@ class Gateway:
         except Exception:
             payload = None
             reason = "unsupported_request_encoding_or_json"
+        native = None
         if payload is not None:
             if host == "codex":
-                from .responses_request import extract_session_id
+                from .responses_request import classify_request, extract_session_id
             else:
-                from .anthropic_request import extract_session_id
+                from .anthropic_request import classify_request, extract_session_id
             session_id = extract_session_id(payload, headers)
+            try:
+                native, detail = classify_request(payload, headers)
+            except Exception:
+                native, detail = None, None  # Classification only labels; it never blocks.
+            if compact_endpoint:
+                native, detail = "host_compaction_request", {**(detail or {}), "endpoint": "responses_compact"}
         self._event("start", request_id, host, session_id)
         try:
             enabled = False
@@ -201,10 +215,16 @@ class Gateway:
                 pass
             elif session_id is None:
                 reason = "identity_unavailable"
+            elif host == "claude" and native == "host_compaction_request":
+                reason = native
             elif host == "claude" and headers.get("x-claude-code-request-class") != "main":
                 reason = "non_main_request"
             elif host == "codex" and not enabled:
                 reason = "session_disabled" if self.sessions.settings()["enabled"] else "global_disabled"
+            elif host == "codex" and native is not None:
+                # The host owns this context: its compaction turn, opaque compaction
+                # state, server-side history or an auxiliary request.
+                reason = native
             else:
                 options = {**self.config.get("compression", {}),
                            **self.routes[host].get("compression", {})}
@@ -214,20 +234,7 @@ class Gateway:
                 with lock:
                     if host == "codex":
                         from .responses_request import adapt_request
-                        encoded = headers.get("x-codex-turn-metadata")
-                        native = False
-                        if encoded:
-                            try:
-                                turn = json.loads(encoded)
-                                native = not isinstance(turn, dict) or (
-                                    turn.get("request_kind") not in (None, "turn", "regular", "main")
-                                    or turn.get("compaction") is not None)
-                            except (ValueError, TypeError):
-                                native = True
-                        if native:
-                            reason = "native_or_unknown_request"
-                        else:
-                            plan = adapt_request(payload, **options)
+                        plan = adapt_request(payload, **options)
                     else:
                         plan = self._claude.adapt(payload, headers, enabled=enabled, **options)
                 if plan is not None:
@@ -245,7 +252,7 @@ class Gateway:
                     reason=reason, before_tokens=plan.before_tokens if plan else None,
                     after_tokens=plan.after_tokens if plan else None,
                     context_input_tokens=plan.prepared.compilation.stats.input_tokens
-                    if plan and plan.prepared is not None else None)
+                    if plan and plan.prepared is not None else None, detail=detail)
         return request_id, session_id, plan, body, changed
 
     def complete(self, request_id, host, session_id, plan, metrics):
@@ -299,8 +306,25 @@ class Handler(BaseHTTPRequestHandler):
             self.send_header("Connection", "close")
             self.end_headers()
             self.wfile.write(data)
+            self.linger_close()
         except OSError:
             pass  # A disconnected client cannot receive an error response.
+
+    def linger_close(self):
+        """Half-close, then briefly discard at most 64 KiB of unread input.
+
+        Closing with unread input resets the connection on Windows, so the client
+        could see an abort instead of this response. The discarded bytes are never
+        parsed, so malformed or oversized framing is not trusted.
+        """
+        self.connection.shutdown(socket.SHUT_WR)
+        self.connection.settimeout(0.5)
+        remaining = 64 * 1024
+        while remaining > 0:
+            chunk = self.connection.recv(min(remaining, 8192))
+            if not chunk:
+                break
+            remaining -= len(chunk)
 
     def do_GET(self):
         if self.path == "/health":
@@ -357,14 +381,17 @@ class Handler(BaseHTTPRequestHandler):
             with gateway.client.stream(self.command, url, headers=outgoing, content=body) as response:
                 if request_id:
                     gateway._event("sent", request_id)
-                self.send_response(response.status_code)
                 drop = HOP | {"content-encoding"} | {
                     x.strip() for x in response.headers.get("connection", "").lower().split(",")}
-                for key, value in response.headers.multi_items():
-                    if key.lower() not in drop:
-                        self.send_header(key, value)
-                self.send_header("Transfer-Encoding", "chunked")
-                self.end_headers()
+                try:
+                    self.send_response(response.status_code)
+                    for key, value in response.headers.multi_items():
+                        if key.lower() not in drop:
+                            self.send_header(key, value)
+                    self.send_header("Transfer-Encoding", "chunked")
+                    self.end_headers()
+                except OSError as exc:
+                    raise ClientDisconnected from exc
                 started = True
                 metrics = ResponseMetrics("text/event-stream" in response.headers.get("content-type", "").lower())
                 if response.status_code >= 400:
@@ -373,24 +400,34 @@ class Handler(BaseHTTPRequestHandler):
                     if not chunk:
                         continue
                     metrics.feed(chunk)
-                    self.wfile.write(f"{len(chunk):X}\r\n".encode() + chunk + b"\r\n")
-                    self.wfile.flush()
-                self.wfile.write(b"0\r\n\r\n")
-                self.wfile.flush()
+                    self.send_to_client(f"{len(chunk):X}\r\n".encode() + chunk + b"\r\n")
+                self.send_to_client(b"0\r\n\r\n")
                 metrics.end()
                 if request_id:
                     if metrics.failed:
                         gateway._event("finish", request_id, state="failed", reason="upstream_failed")
                     gateway.complete(request_id, host, session_id, plan, metrics)
+        except ClientDisconnected:
+            # The host stopped reading (cancelled turn or closed app); nothing to send back.
+            if request_id:
+                gateway._event("finish", request_id, state="failed", reason="client_disconnected")
+            self.close_connection = True
         except (httpx.HTTPError, OSError):
             if request_id:
-                gateway._event("finish", request_id, state="failed", reason="transport_failed")
+                gateway._event("finish", request_id, state="failed", reason="upstream_transport_failed")
             if not started:
                 try:
                     self.error(502, "upstream_unavailable")
                 except OSError:
                     pass
             self.close_connection = True
+
+    def send_to_client(self, data):
+        try:
+            self.wfile.write(data)
+            self.wfile.flush()
+        except OSError as exc:
+            raise ClientDisconnected from exc
 
     def read_body(self):
         transfer = self.headers.get("Transfer-Encoding", "").lower().strip()

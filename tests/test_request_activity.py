@@ -220,3 +220,41 @@ def test_prepared_stream_never_backfills_old_activity(tmp_path):
 def test_prepared_stream_rejects_invalid_cursor_options(tmp_path, options):
     with pytest.raises(ValueError):
         RequestActivity(tmp_path / "missing.sqlite3").prepared_events(**options)
+
+
+def test_protocol_detail_keeps_structural_codes_and_drops_content(tmp_path):
+    activity = RequestActivity(tmp_path / "requests.sqlite3")
+    activity.start("r", "codex", "s")
+    record = activity.finish("r", state="passthrough", reason="native_compaction_state", detail={
+        "compaction_items": 2, "window": 4, "request_kind": "turn", "agent": "root",
+        "compaction_trigger_item": False, "prompt": "PRIVATE prompt text",
+        "compaction_trigger": "two words", "window_id": "thread:4", "history_initialization": "x" * 41})
+    assert record["protocol_detail"] == {"agent": "root", "compaction_items": 2,
+                                         "compaction_trigger_item": False, "request_kind": "turn", "window": 4}
+    assert activity.last()["protocol_detail"] == record["protocol_detail"]
+    database = activity.path.read_bytes()
+    assert b"PRIVATE" not in database and b"thread:4" not in database and b"two words" not in database
+    # A later stage keeps the recorded detail; a non-dict detail is simply absent.
+    activity.sent("r")
+    assert activity.finish("r", state="failed", reason="client_disconnected",
+                           detail="not a dict")["protocol_detail"] == record["protocol_detail"]
+
+
+def test_protocol_detail_column_is_added_on_first_write_only(tmp_path):
+    path = tmp_path / "legacy.sqlite3"
+    with sqlite3.connect(path) as db:
+        db.execute("CREATE TABLE tomc_request_activity (request_id TEXT PRIMARY KEY, host TEXT NOT NULL, "
+                   "session_id TEXT, state TEXT NOT NULL, reason TEXT, started_utc TEXT NOT NULL, "
+                   "updated_utc TEXT NOT NULL, sent INTEGER NOT NULL DEFAULT 0, before_tokens INTEGER, "
+                   "after_tokens INTEGER, provider_input_tokens INTEGER, provider_cached_tokens INTEGER, "
+                   "context_input_tokens INTEGER)")
+        db.execute("INSERT INTO tomc_request_activity VALUES "
+                   "('old','codex','s','passthrough','native_compaction','2026-01-01','2026-01-01',1,"
+                   "NULL,NULL,10,9,NULL)")
+    original = path.read_bytes()
+    activity = RequestActivity(path)
+    assert activity.last()["protocol_detail"] is None and path.read_bytes() == original
+    activity.start("new", "codex", "s")
+    activity.finish("new", state="passthrough", reason="host_compaction_request",
+                    detail={"request_kind": "compaction", "compaction_trigger": "auto"})
+    assert activity.last()["protocol_detail"] == {"compaction_trigger": "auto", "request_kind": "compaction"}

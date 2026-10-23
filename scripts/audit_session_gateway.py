@@ -25,8 +25,14 @@ SCOPE = (
     "Only explicitly selected IDs are queried. observed means a gateway request record exists, "
     "not merely configuration or session registration. Prepared events record compilation, "
     "not dispatch, model success, visible animation, foreground focus or billed savings. "
-    "Missing legacy event tables mean preparation evidence is unavailable, not zero compilations."
+    "Missing legacy event tables mean preparation evidence is unavailable, not zero compilations. "
+    "Animation receipts show what one pet UI process did with each prepared event "
+    "(queued/started/completed/skipped/interrupted), not that the user saw it."
 )
+DETAIL_KEYS = {"request_kind", "request_class", "compaction_trigger", "compaction_phase",
+               "compaction_reason", "window", "history_initialization", "compaction_items",
+               "compaction_trigger_item", "agent", "endpoint"}
+RECEIPT_EVENTS = {"queued", "started", "completed", "skipped", "interrupted"}
 
 
 def _identifier(value):
@@ -72,6 +78,7 @@ def _empty(host, session_id, *, unknown=False):
         "request_count": None if unknown else 0,
         "sent_request_count": None if unknown else 0,
         "provider_usage_request_count": None if unknown else 0,
+        "reason_counts": None if unknown else {},
         "last_request": None,
         "prepared_event_stream_available": None if unknown else False,
         "prepared_event_count": None, "prepared_events": [],
@@ -93,20 +100,68 @@ def _timestamp(value):
         return None
 
 
+def _reason(value):
+    return value if isinstance(value, str) and re.fullmatch(r"[A-Za-z0-9_.:-]{1,120}", value) else None
+
+
+def _detail(value):
+    """Structural host facts only; anything outside the allowlist is dropped."""
+    try:
+        data = json.loads(value) if isinstance(value, str) else None
+    except ValueError:
+        return None
+    if not isinstance(data, dict):
+        return None
+    clean = {key: item for key, item in sorted(data.items()) if key in DETAIL_KEYS and (
+        type(item) is bool or (type(item) is int and item >= 0) or (
+            isinstance(item, str) and re.fullmatch(r"[A-Za-z0-9_.:-]{1,40}", item)))}
+    return clean or None
+
+
 def _request(row):
     if row is None:
         return None
     record = {"request_id": _identifier(row["request_id"]),
               "state": row["state"] if row["state"] in STATES else "unknown",
-              "reason": row["reason"] if isinstance(row["reason"], str) and
-              re.fullmatch(r"[A-Za-z0-9_.:-]{1,120}", row["reason"]) else None,
+              "reason": _reason(row["reason"]),
               "sent": bool(row["sent"])}
     for name in ("started_utc", "updated_utc"):
         record[name] = _timestamp(row[name])
     for name in ("before_tokens", "after_tokens", "context_input_tokens",
                  "provider_input_tokens", "provider_cached_tokens"):
         record[name] = _number(row[name])
+    record["protocol_detail"] = _detail(row["protocol_detail"])
     return record
+
+
+def receipts(path, request_ids):
+    """Animation receipts for the given request IDs, oldest first; missing file means none."""
+    wanted, found = set(request_ids), {}
+    for part in (path.with_name(path.name + ".1"), path):
+        try:
+            lines = part.read_text(encoding="utf-8").splitlines()
+        except OSError:
+            continue
+        for text in lines:
+            try:
+                row = json.loads(text)
+            except ValueError:
+                continue
+            if not isinstance(row, dict) or row.get("request_id") not in wanted \
+                    or row.get("event") not in RECEIPT_EVENTS:
+                continue
+            entry = {"event": row["event"], "utc": _timestamp(row.get("utc")),
+                     "ui": _identifier(row.get("ui"))}
+            if type(row.get("stage")) is int and 1 <= row["stage"] <= 4:
+                entry["stage"] = row["stage"]
+            if _number(row.get("context_input_tokens")) is not None:
+                entry["context_input_tokens"] = row["context_input_tokens"]
+            if isinstance(row.get("reason"), str) and re.fullmatch(r"[a-z0-9_]{1,40}", row["reason"]):
+                entry["reason"] = row["reason"]
+            if row.get("demo") is True:
+                entry["demo"] = True
+            found.setdefault(row["request_id"], []).append(entry)
+    return found
 
 
 def _session(db, tables, identity, event_limit):
@@ -134,12 +189,17 @@ def _session(db, tables, identity, event_limit):
                   sent_request_count=count[1], provider_usage_request_count=count[2])
     columns = {row[1] for row in db.execute("PRAGMA table_info(tomc_request_activity)")}
     context = "context_input_tokens" if "context_input_tokens" in columns else "NULL AS context_input_tokens"
+    detail = "protocol_detail" if "protocol_detail" in columns else "NULL AS protocol_detail"
     row = db.execute(
         "SELECT request_id,state,reason,sent,started_utc,updated_utc,before_tokens,after_tokens,"
-        "provider_input_tokens,provider_cached_tokens," + context + " "
+        "provider_input_tokens,provider_cached_tokens," + context + "," + detail + " "
         "FROM tomc_request_activity WHERE host=? AND session_id=? "
         "ORDER BY started_utc DESC,request_id DESC LIMIT 1", identity).fetchone()
     result["last_request"] = _request(row)
+    result["reason_counts"] = {
+        (_reason(reason) or "unknown"): count for reason, count in db.execute(
+            "SELECT reason,COUNT(*) FROM tomc_request_activity WHERE host=? AND session_id=? "
+            "GROUP BY reason ORDER BY COUNT(*) DESC,reason", identity)}
     if "tomc_context_prepared_events" in tables:
         result["prepared_event_stream_available"] = True
         join = (" FROM tomc_context_prepared_events p JOIN tomc_request_activity a "
@@ -156,12 +216,12 @@ def _session(db, tables, identity, event_limit):
     return result
 
 
-def audit(store, identities, event_limit=20):
+def audit(store, identities, event_limit=20, receipts_path=None):
     """One consistent read transaction; no schema creation or content queries."""
     if not isinstance(event_limit, int) or isinstance(event_limit, bool) or not 1 <= event_limit <= 500:
         raise ValueError("invalid_event_limit")
     identities = selections([{"host": host, "session_id": session_id} for host, session_id in identities])
-    report = {"schema_version": 1, "read_only": True,
+    report = {"schema_version": 2, "read_only": True,
               "checked_utc": datetime.now(timezone.utc).isoformat(), "scope": SCOPE,
               "store_status": "missing", "error_code": None, "prepared_event_limit": event_limit,
               "sessions": [_empty(*identity) for identity in identities]}
@@ -180,6 +240,13 @@ def audit(store, identities, event_limit=20):
         # Error messages can contain paths or malformed input; emit a fixed code.
         report.update(store_status="unavailable", error_code="store_unreadable",
                       sessions=[_empty(*identity, unknown=True) for identity in identities])
+        return report
+    path = Path(receipts_path) if receipts_path else store.with_name("animation_receipts.jsonl")
+    ids = [event["request_id"] for session in report["sessions"] for event in session["prepared_events"]]
+    found = receipts(path, ids) if ids else {}
+    for session in report["sessions"]:
+        for event in session["prepared_events"]:
+            event["animation_receipts"] = found.get(event["request_id"], [])
     return report
 
 
@@ -190,10 +257,11 @@ def main(argv=None):
     parser.add_argument("--session-id", action="append", default=[])
     parser.add_argument("--sessions-json", type=Path)
     parser.add_argument("--event-limit", type=int, default=20)
+    parser.add_argument("--receipts", type=Path, help="Animation receipt log (default: next to --store)")
     args = parser.parse_args(argv)
     try:
         identities = selections(args.session_id, args.sessions_json, args.host)
-        report = audit(args.store, identities, args.event_limit)
+        report = audit(args.store, identities, args.event_limit, args.receipts)
     except (OSError, ValueError, TypeError):
         print(json.dumps({"read_only": True, "error_code": "invalid_selection_or_limit"}))
         return 2
