@@ -1,9 +1,14 @@
 <div align="center">
-  <p>
-    <a href="https://github.com/ZipengWu365/TOMC" title="Give TOMC a star using the Star button at the top of this page"><img src="assets/star-us-monospace.svg" alt="Star us on GitHub" width="26%" align="middle"></a>
-    <img src="assets/tomc_logo_20261002.png" alt="TOMC Memory" width="40%" align="middle">
-    <a href="https://github.com/ZipengWu365/TOMC/stargazers"><img src="https://img.shields.io/github/stars/ZipengWu365/TOMC?style=for-the-badge&amp;label=Stars&amp;color=f5bb24&amp;labelColor=24292f" alt="GitHub stars" width="26%" align="middle"></a>
-  </p>
+  <table width="100%" role="presentation">
+    <tr>
+      <td width="30%" align="center" valign="middle"><a href="https://github.com/ZipengWu365/TOMC/stargazers"><img src="assets/star-us-monospace.svg" alt="Star us on GitHub" width="85%"></a></td>
+      <td width="40%" align="center" valign="middle"><img src="assets/tomc_logo_20261002.png" alt="TOMC Memory" width="100%"></td>
+      <td width="30%" align="center" valign="middle"><a href="https://github.com/ZipengWu365/TOMC/stargazers"><img src="assets/traffic/stars.svg" alt="GitHub Stars" width="42%"></a> <a href="docs/traffic_metrics.md"><img src="assets/traffic/clones-total.svg" alt="Cumulative recorded clones" width="56%"></a></td>
+    </tr>
+  </table>
+<!-- traffic-status:start -->
+  <p>Cumulative clones · recorded since 2026-10-02 · updated 2026-10-23 UTC. <a href="docs/traffic_metrics.md">Method and updates</a></p>
+<!-- traffic-status:end -->
   <p><strong>Found TOMC useful? Click ⭐ Star at the top right to support the project.</strong></p>
   <h1>TOMC Memory</h1>
   <h3>Context compression and task memory for Codex / Claude Code / Cursor / TRAE / WorkBuddy</h3>
@@ -42,13 +47,17 @@ Processing is on by default globally and for newly registered sessions. User-lev
 
 The context library can provide a self-contained continuation prompt or a portable text package for another Agent or computer. You may add the exported package to Git yourself; TOMC does not automatically commit or push. [Current plugin guide](docs/assistant_plugin.md#current-local-preview-015).
 
-### 30-second demo
+### Video overview
 
-[![TOMC: context compression and compilation, with saved task notes](launch/media/v12/gifs/TOMC_Agent_Complete_EN.gif)](launch/media/v12/videos/TOMC_Agent_Complete_EN.mp4)
+[![TOMC overview: smaller inputs, switching assistants, carrying notes to another computer, and BEAM results](launch/media/v13/gifs/TOMC_Overview_EN.gif)](launch/media/v13/videos/TOMC_Overview_EN.mp4)
 
-[Landscape video](launch/media/v12/videos/TOMC_Agent_Complete_EN.mp4) · [Chinese video](launch/media/v12/videos/TOMC_Agent_Complete_ZH.mp4) · [Media and test scope](launch/media/v12/README.md)
+[Full video (1:37, with sound)](launch/media/v13/videos/TOMC_Overview_EN.mp4) · [Chinese video](launch/media/v13/videos/TOMC_Overview_ZH.mp4) · [Media and test scope](launch/media/v13/README.md)
 
-The ending labels **models tested with TOMC** and explains their use: API models receive prepared context; Codex and Claude Code call TOMC tools. The list includes DeepSeek 4.1 Flash, DeepSeek 4 PRO, Rednote Red preview, Claude Opus 5.5 and ChatGPT Codex 6.1 Sol. The five-model list combines recorded tests and the author's reported tests; the demo's token and cost measurements retain their separate protocols. It does not imply a uniform five-model benchmark or provider endorsement.
+API integrations call TOMC before the next request and send the prepared context. Codex and Claude Code use tools to save or recall task notes. The numbers in the video come from specific tests with their own protocols and imply no provider endorsement.
+
+The [measured results](#measured-savings) give the Codex and Claude Code protocols and their source records.
+
+[First-run guide](#first-run-tomc) · [Python API](#use-before-your-api-call) · [Full results and limitations](#measured-savings).
 
 TOMC is a research preview. Feedback, issues, pull requests and research collaboration are welcome. Device choice and assistant choice are independent; cross-device notebook transfer uses manual Git.
 
@@ -58,9 +67,62 @@ Choose the setup for your client. TOMC prepares context locally on CPU; your ass
 
 **The host manages the active chat.** When Codex, Claude Code or another host owns conversation compaction, TOMC does not proactively recompact that chat. Unknown host state also defaults to host ownership. Use TOMC for separately supplied external history or explicitly saved notes. This is a tool-use policy, not an automatic compaction detector. [Context ownership](docs/context_ownership.md). Plugin packages 0.1.1 include this policy; the compiler core remains 0.1.0.
 
+<a id="first-run-tomc"></a>
+
+#### First run
+
+**Claude Code: save one note, then recall it in a new chat.** Install [UV](https://docs.astral.sh/uv/getting-started/installation/) first. In Claude Code, run:
+
+```text
+/plugin marketplace add ZipengWu365/TOMC
+/plugin install tomc-memory@tomc
+```
+
+Start a new session or reload VS Code and check `/mcp` for `plugin:tomc-memory:tomc`. Ask the assistant explicitly to run the tool:
+
+```text
+Use TOMC's remember_memory to save a note named api-refactor:
+keep public API routes unchanged; pagination tests have not been written.
+Show the tool result.
+```
+
+In a **new chat using the same local notebook database**, ask:
+
+```text
+Use TOMC's recall_memory on api-refactor.
+Report the saved constraints and unfinished work. Show the tool result.
+```
+
+Save and recall are explicit tool calls. The plugin does not record the whole chat automatically. [Detailed Claude Code setup](docs/assistant_plugin.md#claude-code) · [Shared-notebook checks](docs/usage_tips.md#reuse-notebooks).
+
+**Codex CLI: install the plugin and verify tool availability.** [Download the 0.1.2 Codex ZIP](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-codex-0.1.2.zip), extract it into a directory you will keep, and run there with UV and a compatible Codex CLI:
+
+```bash
+uv run --no-project --python 3.12 install.py --check
+uv run --no-project --python 3.12 install.py
+```
+
+The first command checks prerequisites without changing Codex configuration. Start a **new Codex session** after installing and explicitly ask it to save/recall a named note. [Full Codex instructions](docs/assistant_plugin.md#codex) · [Platform validation](docs/platform_checks.md).
+
+**Python API: inspect an offline context example before calling a model.** With Python 3.10+:
+
+```bash
+git clone https://github.com/ZipengWu365/TOMC.git && printf '\n%s\n%s\n' \
+  'If TOMC helps with your work, consider a Star on GitHub (optional):' 'https://github.com/ZipengWu365/TOMC'
+cd TOMC
+python -m pip install -e .
+python examples/api_context.py
+```
+
+The Bash / Git Bash command above prints an optional Star invitation after a successful clone. Plain `git clone` does not show it; cloning alone does not install TOMC.
+
+This example prepares and counts context locally; it makes **no model call**. To integrate TOMC, send `prepared.messages` **in place of** the original history, preserving your application's instructions and protocol. [API example](#use-before-your-api-call) · [Reference](docs/api_reference.md).
+
+#### Other client integrations
+
 | Client | Start here | Prerequisites |
 |---|---|---|
-| Codex CLI | [Download the plugin ZIP](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-codex-0.1.1.zip) | Current Codex CLI with plugin commands, plus [`uv`](https://docs.astral.sh/uv/getting-started/installation/) on PATH or supplied with `--uv` |
+| Codex CLI | [Download the plugin ZIP](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-codex-0.1.2.zip) | Current Codex CLI with plugin commands, plus [`uv`](https://docs.astral.sh/uv/getting-started/installation/) on PATH or supplied with `--uv` |
 | Codex IDE extension | [Configure the local MCP server](docs/assistant_setup.md) | Local TOMC environment with `.[mcp]` installed |
 | Cursor | Generate an installation link, or [add the MCP configuration](docs/cursor_trae.md) | Local TOMC runtime; client tool calls remain unverified |
 | TRAE (International / CN) | [Add TOMC as a local MCP server](docs/cursor_trae.md#trae) | Local TOMC runtime; client tool calls remain unverified |
@@ -157,7 +219,7 @@ In the VS Code extension trial with Claude Opus 5.5, with budget 8,192, recallin
 
 **Tested on Windows, macOS and Linux, and in Claude Code.** Installation and tool checks passed on all three systems; real model calls passed in Codex on [Windows with preview.4](docs/validation.md#windows-codex-preview4) and macOS and in Claude Code with Claude Opus 5.5. GUI installation in Claude Desktop, Cursor and the Codex app is still unverified. [Platform checks and dates](docs/platform_checks.md)
 
-[Usage tips (English)](docs/usage_tips.md) · [Chinese usage tips](docs/usage_tips_zh.md) · [Windows installation feedback](docs/windows_installation_feedback.md) · [Full installation guide](docs/assistant_plugin.md) · [Validation record](docs/validation.md) · [Claude checksum](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-0.1.1.mcpb.sha256) · [Codex checksum](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-codex-0.1.1.zip.sha256).
+[Usage tips (English)](docs/usage_tips.md) · [Chinese usage tips](docs/usage_tips_zh.md) · [Windows installation feedback](docs/windows_installation_feedback.md) · [Full installation guide](docs/assistant_plugin.md) · [Validation record](docs/validation.md) · [Claude checksum](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-0.1.1.mcpb.sha256) · [Codex checksum](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-codex-0.1.2.zip.sha256).
 
 <a id="switch-assistants"></a>
 
@@ -187,7 +249,7 @@ The notebook keeps the original notes and appended updates; recall prepares that
 
 ### Automatic API request loop
 
-Use [AutomaticChatSession](docs/context_ownership.md) before your existing synchronous Chat Completions call: default refresh every two logical model requests, cached model limits, one-shot window-boundary backoff and brief native-compaction cooldown. Only the outgoing old-history view changes; original history, instructions, recent messages and tool protocol stay with the caller. The default lexical packing path now avoids repeated prefix scans. [34-model capacity snapshot](docs/model_context_limits_20261012.md). This does not make an installed MCP plugin intercept built-in client requests, and no native-client/model acceptance is asserted.
+Use [AutomaticChatSession](docs/context_ownership.md) before your existing synchronous Chat Completions call: a cache-friendly stable prefix by default (the compiled memory stays identical until the request no longer fits), cached model limits, one-shot window-boundary backoff and brief native-compaction cooldown. Only the outgoing old-history view changes; original history, instructions, recent messages and tool protocol stay with the caller. The default lexical packing path now avoids repeated prefix scans. [34-model capacity snapshot](docs/model_context_limits_20261012.md). This does not make an installed MCP plugin intercept built-in client requests, and no native-client/model acceptance is asserted.
 
 ### Use before your API call
 
@@ -211,6 +273,11 @@ Here `history`, `task`, `client` and `model` are your application's existing inp
 
 **45/45 answers at each budget.** On nine synthetic team-chat histories (three seeds at about 10K, 20K and 40K history tokens), Windows Codex 0.160.0 answered five latest-project-state questions per history. Its original model, `ultra` effort and installed plugins were retained. TOMC prepared context through the installed MCP tool before each new answering chat.
 
+[![Windows Codex: all four budgets score 45/45. Mean request input and paired reductions.](assets/results/codex_savings_en.svg)](docs/codex_retention_20261005.md)
+
+<details>
+<summary>Exact values (copyable text)</summary>
+
 | Context sent | Mean request input tokens | Mean paired input reduction | Correct answers |
 |---|---:|---:|---:|
 | Full history | 42,191 | Reference | 45/45 |
@@ -218,17 +285,26 @@ Here `history`, `task`, `client` and `model` are your application's existing inp
 | TOMC · 60% history budget | 33,344 | 19.5% | 45/45 |
 | TOMC · default 80% history budget | 38,035 | 9.2% | 45/45 |
 
+</details>
+
 Input is Codex's reported total, including cached input, host instructions and tool definitions. Reduction is the mean of nine paired history-level ratios, not the ratio of the table's means. These figures cover one answering turn per history and condition; asking the model to prepare or recall within a chat adds turns. All prepared contexts used `tomc_raw` source selection, without compiled operation records. This tests synthetic latest-state retrieval, rather than general coding quality. [English report](docs/codex_retention_20261005.md) · [Chinese report](docs/codex_retention_20261005_zh.md) · [Recorded data](docs/validation_data/windows_codex_retention_20261005.json) · [Budget tips](docs/usage_tips.md#choose-budget). Full-history requests used the same profile with TOMC installed and all existing plugins enabled. The table covers a single answering turn per condition in the test harness; a full agent workflow may involve additional turns.
 
 ##### Claude Code · Claude Opus 5.5
 
-**Same answers, smaller requests.** On synthetic team-chat histories of about 10K, 20K and 40K tokens, with dozens to hundreds of state updates and look-alike distractors, Claude Opus 5.5 answered five questions about the latest project state. When TOMC kept 40% of the history, every answer matched the full history and the request cost fell by more than half:
+On synthetic team-chat histories of about 10K, 20K and 40K tokens, with dozens to hundreds of state updates and look-alike distractors, Claude Opus 5.5 answered five questions about the latest project state. When TOMC kept 40% of the history, all five answers matched the full-history condition. The answering-request costs were:
+
+[![Claude Code: costs at 10K, 20K and 40K histories; all shown conditions score 5/5.](assets/results/claude_savings_en.svg)](docs/validation.md#claude-code-windows-validation)
+
+<details>
+<summary>Exact values (copyable text)</summary>
 
 | History | Full history | TOMC keeps 40% | TOMC keeps 60% |
 |---|---|---|---|
 | ~10K tokens | US$0.169 · 5/5 | US$0.075 · 5/5 (−56%) | US$0.103 · 5/5 (−39%) |
 | ~20K tokens | US$0.334 · 5/5 | US$0.141 · 5/5 (−58%) | US$0.195 · 5/5 (−42%) |
 | ~40K tokens | US$0.628 · 5/5 | US$0.255 · 5/5 (−59%) | US$0.369 · 5/5 (−41%) |
+
+</details>
 
 **Claude Code default-budget check.** Without `budget`, TOMC keeps about 80% of a history's estimated tokens (at least 1,024, so short histories stay intact). Across three different histories at each length, Claude Opus 5.5 answered all 45 questions correctly with about 20% less input; keeping 50%, 60% and 70% also answered all 45 and saved about 49%, 39% and 30%. Smaller budgets started returning outdated values: keeping 10–20% answered three or four of the five questions. Pass a smaller `budget` only after checking it against the full history on a sample of your own tasks. These are synthetic histories with one model and a separate request workflow from the Codex test. [Validation record](docs/validation.md#claude-code-windows-validation) · [Budget tips](docs/usage_tips.md)
 
@@ -281,7 +357,8 @@ The demo shows how TOMC prepares context for a task. It does not create notebook
 The Gradio interface requires Python 3.10–3.13. Clone the repository:
 
 ```bash
-git clone https://github.com/ZipengWu365/TOMC.git
+git clone https://github.com/ZipengWu365/TOMC.git && printf '\n%s\n%s\n' \
+  'If TOMC helps with your work, consider a Star on GitHub (optional):' 'https://github.com/ZipengWu365/TOMC'
 cd TOMC
 ```
 

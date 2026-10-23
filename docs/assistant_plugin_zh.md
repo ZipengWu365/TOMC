@@ -18,6 +18,8 @@ TOMC 按任务准备上下文，让你用结果替换较长的历史。传入历
 
 下方的 0.1.1 下载链接和带日期的客户端测试保留历史范围，不代表 0.1.5 已通过相同宿主验收。新功能需使用当前源码构建的版本。
 
+
+第一次成功调用工具、确认 TOMC 对你有帮助后，欢迎到 [TOMC 主仓库](https://github.com/ZipengWu365/TOMC) 点击 Star 支持项目，完全自愿。Codex 安装器 0.1.2 在每次安装成功后显示一次邀请；加上 `--no-support-message` 可以隐藏。安装成功不代表首次 MCP 启动已经验证。
 ## 选择安装方式
 
 | 客户端 | 安装方式 | 当前范围 |
@@ -29,7 +31,7 @@ TOMC 按任务准备上下文，让你用结果替换较长的历史。传入历
 | 腾讯 WorkBuddy | [添加本地 MCP 服务](workbuddy_zh.md) | 手动配置预览；客户端工具调用尚未验证 |
 | Codex | 运行 ZIP 内的安装助手 | preview.4 已通过 Windows 个人配置中的原生安装与默认模型调用；此前 macOS 试用使用 preview.2 |
 
-从[MIT 许可插件预览包](https://github.com/ZipengWu365/TOMC/tree/main/plugins/downloads)下载：[Claude `.mcpb`](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-0.1.1.mcpb)（[校验文件](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-0.1.1.mcpb.sha256)）、[Codex ZIP](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-codex-0.1.1.zip)（[校验文件](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-codex-0.1.1.zip.sha256)）。插件打包版本 0.1.1 新增宿主管理当前会话的调用规则；编译核心仍为 0.1.0。旧 0.1.0 包及已有宿主/模型验证记录保留历史范围。
+从[MIT 许可插件预览包](https://github.com/ZipengWu365/TOMC/tree/main/plugins/downloads)下载：[Claude `.mcpb`](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-0.1.1.mcpb)（[校验文件](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-0.1.1.mcpb.sha256)）、[Codex ZIP](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-codex-0.1.2.zip)（[校验文件](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-codex-0.1.2.zip.sha256)）。插件打包版本 0.1.1 新增宿主管理当前会话的调用规则；编译核心仍为 0.1.0。旧 0.1.0 包及已有宿主/模型验证记录保留历史范围。
 
 尚未发布到 PyPI 或公开插件市场。新版本需要手动重新安装。[Claude 官方安装与私下分发说明](https://support.claude.com/en/articles/10949351-getting-started-with-local-mcp-servers-on-claude-desktop)
 
@@ -38,12 +40,15 @@ TOMC 按任务准备上下文，让你用结果替换较长的历史。传入历
 Cursor、Codex IDE 或独立 MCP 接入需要本地 Python 环境。克隆仓库后，推荐用 [`uv`](https://docs.astral.sh/uv/getting-started/installation/) 创建带 pip 的 Python 3.12 环境：
 
 ```bash
-git clone https://github.com/ZipengWu365/TOMC.git
+git clone https://github.com/ZipengWu365/TOMC.git && printf '\n%s\n%s\n' \
+  '如果 TOMC 对你有帮助，欢迎 Star 支持（自愿）：' 'https://github.com/ZipengWu365/TOMC'
 cd TOMC
 uv venv --python 3.12 --seed .venv
 source .venv/bin/activate
 python -m pip install -e '.[mcp]'
 ```
+
+上面的 Bash / Git Bash 命令会在克隆成功后显示一次自愿 Star 邀请。直接使用普通 `git clone` 不会显示；克隆完成不代表已经安装。
 
 UV 首次使用可能需要联网下载 Python 和依赖。Codex 原生插件 ZIP 的用户直接运行下文的 `install.py`，无需另建这份手动环境。Windows PowerShell 步骤继续见[接入指南](assistant_setup.md)。
 

@@ -9,8 +9,11 @@ This guide provides manual local MCP configuration for Tencent WorkBuddy. **Work
 Install [UV](https://docs.astral.sh/uv/getting-started/installation/) and make `uv` available on PATH, then clone the public repository:
 
 ```bash
-git clone https://github.com/ZipengWu365/TOMC.git
+git clone https://github.com/ZipengWu365/TOMC.git && printf '\n%s\n%s\n' \
+  'If TOMC helps with your work, consider a Star on GitHub (optional):' 'https://github.com/ZipengWu365/TOMC'
 ```
+
+The Bash / Git Bash command above prints an optional Star invitation after a successful clone. Plain `git clone` does not show it; cloning alone does not install TOMC.
 
 The repository's `plugins/claude-code` directory contains the shared TOMC source, `pyproject.toml`, `uv.lock` and `src/server.py`. WorkBuddy can launch that runtime as a local stdio server; installing Claude Code is unnecessary. First startup can download compatible Python and locked dependencies through UV. TOMC itself needs no extra model API key or GPU.
 

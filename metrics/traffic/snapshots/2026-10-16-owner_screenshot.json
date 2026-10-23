@@ -1,0 +1,13 @@
+{
+  "schema": "tomc-clone-snapshot-v1",
+  "repository": "ZipengWu365/TOMC",
+  "source": "owner_screenshot",
+  "observed_at": "2026-10-16",
+  "window": "14_days_shown_in_owner_screenshot",
+  "window_start": "2026-10-02",
+  "window_end": "2026-10-15",
+  "count": 648,
+  "uniques": 194,
+  "daily": null,
+  "note": "Transcribed from owner screenshot shared 2026-10-16; not an API collection. Daily chart values were not inferred."
+}

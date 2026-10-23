@@ -1,19 +1,8 @@
 {
-  "artifact": "tomc-memory-codex-0.1.1.zip",
-  "bytes": 106909,
-  "sha256": "02398441bece2e858224b6eae9f90f10e7544719af006cc263eccc4507c5029a",
+  "artifact": "tomc-memory-codex-0.1.2.zip",
+  "bytes": 107160,
+  "sha256": "34f9d4eadd4c1a7febf77ad9b177b782831d281e8f548ec3e6781a4b67743fba",
   "files": 46,
   "runtime": "Codex native plugin; UV is required on PATH or supplied with --uv",
-  "status": "rebuilt unpublished 0.1.1 candidate; source equality verified; no new client/model acceptance",
-  "built_at_utc": "2026-10-12T12:16:13.256317+00:00",
-  "scopes": {
-    "caller_controlled_api": "Opt-in AutomaticChatSession for synchronous OpenAI-compatible Chat Completions; existing client/provider remains unchanged. Default periodic request optimization, explicit original caller history, cheap boundary checks and optional trusted native events; no extra model request.",
-    "mcp": "Five explicit tools prepare supplied external history and optionally save/recall/list/delete named notebook memory. MCP does not intercept host model requests or remove the host conversation history.",
-    "native_client_acceptance": "No new installed-client GUI, model-driven tool selection, native-event transport or public-directory acceptance is claimed by this rebuild."
-  },
-  "automatic_native_detector": false,
-  "native_client_request_hook_installed": false,
-  "caller_controlled_request_helper": true,
-  "offline_source_test_evidence": "Root reports 165 tests passed on integrated current source before packaging; this rebuild adds archive/source equality checks, not client acceptance.",
-  "runtime_source_files": 36
+  "status": "private candidate; no public directory or model-driven acceptance"
 }

@@ -7,7 +7,8 @@
 ## 简单规则
 
 - 模型规格缓存在本地，仅模型 ID 改变时重新对应，不反复查提供商，也不额外调用模型判断。
-- 默认每两次请求刷新旧历史记忆，可设为每次。间隔中的新增消息保持原样；任务或原始前缀变化时重新准备。
+- 尽量让提供商的提示词缓存命中。默认（`refresh_policy="stable"`）冻结整理好的旧历史记忆：之后的请求即使任务变了也沿用完全相同的文本，新消息原样接在后面，相邻请求的开头保持一致。只有请求快装不下、原历史被改动或显式预算变化时才重新整理；设置 `stable_growth_tokens` 后，新增历史超过该值也会重整。每次重整是一次完整的缓存未命中。
+- `refresh_policy="cadence"` 保留旧行为（`refresh_every=2` 或 `1`）。普通聊天里任务取最新一条用户消息，每轮都不同，所以几乎每次都重新整理，会打断前缀缓存：[实测与模拟](prompt_cache_20261017_zh.md)中比“完整历史 + 缓存”贵好几倍。只建议在没有提示词缓存的提供商上使用。
 - 上下文长度提示首次跨过有效窗口的 50% 或 90% 时，各退让一次。1M 模型大约对应 500K、900K。这是 TOMC 的近似避让点，不是宣称宿主的真实触发阈值。优先使用调用方传入或已有 usage；初次字符串长度估算较粗，不能当作精确分词。
 - 收到可信的原生压缩进行中事件时跳过；刚完成后冷却一或两次 API 请求，默认两次，然后恢复。普通、符合处理条件的原生摘要以后可以再次优化，不永久排除。
 
@@ -18,7 +19,7 @@
 ```python
 from tomc import AutomaticChatSession
 
-session = AutomaticChatSession(refresh_every=2, native_cooldown_requests=2)
+session = AutomaticChatSession(native_cooldown_requests=2)  # 默认稳定前缀，对缓存友好
 
 # 每个会话复用一个 session，传应用保留的原始 messages。
 response = session.create(

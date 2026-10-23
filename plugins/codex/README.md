@@ -1,6 +1,6 @@
 # TOMC for Codex
 
-Prepare task-specific context for the assistant you already use. TOMC selects source text and computes supported task records on CPU, without another model service. This private preview contains a native plugin, a context-preparation skill and a locked MCP runtime.
+Prepare task-specific context for the assistant you already use. TOMC selects source text and computes supported task records on CPU, without another model service. This research preview contains a native plugin, a context-preparation skill and a locked MCP runtime.
 
 TOMC is free to use, including commercially, under the MIT License in `plugins/tomc-memory/LICENSE`. Modification and redistribution are welcome; retain the copyright and license notice. Third-party dependencies retain their own licenses.
 
@@ -27,6 +27,8 @@ macOS can have Python 3.9 and no UV by default. TOMC needs Python 3.10 or later;
 To write the local launch configuration without registering anything in Codex, use `uv run --no-project --python 3.12 install.py --configure-only`, then follow the printed commands or use `/plugins` after registering the marketplace. Keep the extracted directory in place; rerun the installer after moving it. Share the original ZIP, since a configured copy contains paths specific to your computer. The installer adds TOMC through Codex commands and does not replace your configuration file.
 
 For a separate set of notebooks, add `--store /path/to/notebooks.sqlite3` to the installer command. This explicitly configures the database path for Codex's MCP process.
+
+After a successful installation, the helper prints one optional invitation to [Star TOMC on GitHub](https://github.com/ZipengWu365/TOMC). Use `--no-support-message` to hide it. Preflight and configure-only runs do not show it. First startup and tool availability still need to be checked in a new Codex session.
 
 ## Host-managed conversations
 

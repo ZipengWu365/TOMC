@@ -7,7 +7,8 @@ Use **logical model API requests**, not user dialogue turns, as the clock. An ag
 ## Simple request policy
 
 - Cache the documented model profile locally; look it up again only when the request's model ID changes. No repeated provider lookup or extra model judgment is made.
-- By default, refresh the old-history memory every two requests. Set `refresh_every=1` for each request. Keep raw new messages between refreshes, and rebuild when the task or source prefix changes.
+- Keep provider prompt caches warm. By default (`refresh_policy="stable"`) the compiled old-history memory is frozen: later requests reuse the identical text even when the task changes, and new messages stay raw after it, so consecutive requests share the same prefix. It is rebuilt only when the request would no longer fit, the source history is edited, or the explicit budget changes; set `stable_growth_tokens` to also rebuild after that much new history. Each rebuild is one full cache miss.
+- `refresh_policy="cadence"` keeps the earlier behaviour (`refresh_every=2` or `1`). It rebuilds the memory almost every request in ordinary chats, because the task is the latest user message, and therefore defeats prefix caching: in [our measurement](prompt_cache_20261017.md) it cost several times more than sending the full history with caching. Use it only for providers without prompt caching.
 - Back off once when a context-size hint crosses 50% or 90% of the effective window. For a 1M window these are approximately 500K and 900K. These are TOMC heuristics, not claims about a host's native trigger. Prefer caller-supplied or already available provider usage; the initial string-length fallback is coarse, especially for non-English or multimodal data.
 - When a trusted integration reports native compaction in progress, pass through. After a completed event, skip one or two logical requests (default two), then resume. An ordinary eligible native summary may subsequently be optimized; it has no permanent special exclusion.
 
@@ -18,7 +19,7 @@ Model context capacity is not the same as the host's compaction threshold. Accou
 ```python
 from tomc import AutomaticChatSession
 
-session = AutomaticChatSession(refresh_every=2, native_cooldown_requests=2)
+session = AutomaticChatSession(native_cooldown_requests=2)  # stable, cache-friendly prefix
 
 # Reuse one session per conversation; pass the caller's original messages.
 response = session.create(

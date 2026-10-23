@@ -74,12 +74,27 @@ class RequestContextManager:
     cooldown; callers should emit each completion once.
 
     An explicit session key enables cache, cadence and cooldown persistence.
-    Without one, every request is independently prepared. ``refresh_every=2``
-    may reuse a matching original prefix on the intervening logical request,
-    retaining new raw messages. Changed task/source, a changed explicit budget,
-    or a budget overflow forces refresh. Compilation always uses original
-    source messages, never the previous TOMC memory. No native checkpoint is
-    permanently excluded. Separate sessions are required for unrelated chats.
+    Without one, every request is independently prepared.
+
+    ``refresh_policy="cadence"`` (the manager default) keeps the earlier
+    behaviour: ``refresh_every=2`` may reuse a matching original prefix on the
+    intervening logical request, retaining new raw messages; changed
+    task/source, a changed explicit budget, or a budget overflow forces refresh.
+
+    ``refresh_policy="stable"`` keeps provider prompt caches warm. The compiled
+    memory text is frozen and reused across tasks while the original history is
+    append-only; later messages stay raw after it, so consecutive requests share
+    an identical prefix. It is rebuilt only when the request would exceed
+    ``request_budget``, the explicit budget changes, the source prefix changes,
+    or, if ``stable_growth_tokens`` is set, the raw tail added since the last
+    compilation exceeds it. A rebuild is one full cache miss, so by default it
+    happens only when the request no longer fits. Reusing memory compiled for an
+    earlier task can omit details that a later task needs; check important
+    answers.
+
+    Compilation always uses original source messages, never the previous TOMC
+    memory. No native checkpoint is permanently excluded. Separate sessions are
+    required for unrelated chats.
 
     The latest user message and all system/developer messages remain unchanged.
     The last ``recent_messages`` messages are protected, with tool-call groups
@@ -96,7 +111,15 @@ class RequestContextManager:
         recent_messages: int = 6,
         request_budget: int | None = None,
         native_cooldown_requests: int = 2,
+        refresh_policy: Literal["cadence", "stable"] = "cadence",
+        stable_growth_tokens: int | None = None,
     ) -> None:
+        if refresh_policy not in ("cadence", "stable"):
+            raise ValueError("refresh_policy must be 'cadence' or 'stable'")
+        self.refresh_policy = refresh_policy
+        self.stable_growth_tokens = self._optional_budget(
+            stable_growth_tokens, "stable_growth_tokens"
+        )
         self.memory_budget = self._optional_budget(memory_budget, "memory_budget")
         self.request_budget = self._optional_budget(request_budget, "request_budget")
         if (
@@ -413,7 +436,21 @@ class RequestContextManager:
             return self._plain(original, "history_fits_memory_budget", before, session=session)
         cached = session.compiled if session else None
         use_cache = False
-        if cached and self.refresh_every == 2:
+        if cached and self.refresh_policy == "stable":
+            # Keep the compiled prefix byte-identical so provider prompt caches hit;
+            # the task may change between requests, the source must only grow.
+            if (
+                prefix[: len(cached.original)] == cached.original
+                and cached.budget_policy == budget_policy
+            ):
+                delta = self._compilation_input(prefix[len(cached.original) :])
+                delta_tokens = self._counter.count(normalize(delta)[0]) if delta else 0
+                # By default only the request limit forces a rebuild: with prompt
+                # caching a rebuild costs a cache write of the whole memory, which a
+                # modest token reduction at cache-read prices rarely pays back.
+                growth = self.stable_growth_tokens
+                use_cache = growth is None or delta_tokens <= growth
+        elif cached and self.refresh_every == 2:
             prefix_matches = prefix[: len(cached.original)] == cached.original
             if (
                 prefix_matches
