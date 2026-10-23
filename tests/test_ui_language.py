@@ -81,8 +81,17 @@ def test_invalid_language_rejected_without_writing(tmp_path):
     assert not language.path.exists()
 
 
-def test_cjk_font_fallback_disables_subpixel_color_fringes():
+def test_cjk_font_fallback_disables_subpixel_color_fringes(monkeypatch):
+    monkeypatch.setattr(ui_language.sys, "platform", "win32")
     font = ui_font()
     assert font.families()[0] == "Microsoft YaHei UI"
     assert "Segoe UI" in font.families()
     assert font.styleStrategy() & QFont.StyleStrategy.NoSubpixelAntialias
+
+
+def test_mac_uses_system_typeface(monkeypatch):
+    monkeypatch.setattr(ui_language.sys, "platform", "darwin")
+    monkeypatch.setattr(ui_language.QFontDatabase, "systemFont", lambda _: QFont("System fixture"))
+    font = ui_font()
+    assert font.family() == "System fixture"
+    assert font.pointSize() >= 12

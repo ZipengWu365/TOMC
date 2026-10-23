@@ -26,6 +26,7 @@ PET_MODULES = (
     "session_store.py",
     "integration_status.py",
     "ui_language.py",
+    "macos_ui.py",
     "pricing_qt.py",
     "oasis_qt.py",
     "cost_estimate.py",

@@ -30,6 +30,7 @@ from PySide6.QtWidgets import (
 )
 
 from .cost_estimate import load_pricing
+from .macos_ui import install_macos_style, is_macos, text_style, tokens
 from .oasis_qt import OasisCelebration
 from .pet_art import ACTIVE_WIDTH, IDLE_WIDTH, PetArt
 from .pet_growth import growth_state, request_stage
@@ -72,6 +73,8 @@ def label(text="", size=12, color="#443B35", bold=False):
     item = QLabel(text)
     item.setFont(ui_font())
     item.setStyleSheet(f"color: {color}; font-size: {size}px; font-weight: {600 if bold else 400};")
+    if is_macos():
+        text_style(item, size, color, bold)
     return item
 
 
@@ -112,7 +115,8 @@ class DismissButton(QPushButton):
         super().paintEvent(event)
         painter = QPainter(self)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
-        painter.setPen(QPen(QColor("#796D60"), 1.4, Qt.PenStyle.SolidLine, Qt.PenCapStyle.RoundCap))
+        color = tokens(self)["secondary"] if is_macos() else "#796D60"
+        painter.setPen(QPen(QColor(color), 1.4, Qt.PenStyle.SolidLine, Qt.PenCapStyle.RoundCap))
         painter.drawLine(10, 10, 18, 18)
         painter.drawLine(18, 10, 10, 18)
 
@@ -143,6 +147,11 @@ class RecordRow(QWidget):
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(2)
+        if is_macos():
+            self.setObjectName("card")
+            self.setAttribute(Qt.WidgetAttribute.WA_StyledBackground)
+            layout.setContentsMargins(10, 9, 10, 9)
+            layout.setSpacing(6)
         top = QHBoxLayout()
         top.setSpacing(8)
         self.title = ElidedLabel(
@@ -229,9 +238,12 @@ class Details(QWidget):
         self.failed = False
         self.records = []
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
-        self.setStyleSheet(STYLE + DASHBOARD_STYLE)
+        if not is_macos():
+            self.setStyleSheet(STYLE + DASHBOARD_STYLE)
         layout = QVBoxLayout(self)
         layout.setContentsMargins(14, 10, 14, 10)
+        if is_macos():
+            layout.setContentsMargins(18, 14, 18, 14)
         layout.setSpacing(0)
         heading = QHBoxLayout()
         heading.setSpacing(5)
@@ -280,7 +292,7 @@ class Details(QWidget):
         for key in ("today", "7d", "all"):
             button = QPushButton()
             button.setObjectName("period")
-            button.setFixedHeight(22)
+            button.setFixedHeight(30 if is_macos() else 22)
             button.setCheckable(True)
             button.clicked.connect(lambda checked=False, p=key: owner.set_period(p))
             self.buttons[key] = button
@@ -327,6 +339,8 @@ class Details(QWidget):
         body.addLayout(chart_heading)
         body.addSpacing(3)
         self.chart = SavingsChart(self.language, self)
+        if is_macos():
+            self.chart.setFixedHeight(52)
         body.addWidget(self.chart)
         body.addSpacing(5)
         self.stats = ElidedLabel()
@@ -354,6 +368,8 @@ class Details(QWidget):
         body.addLayout(self.record_list)
         self.records_empty = label(size=10, color="#706659")
         self.records_empty.setWordWrap(True)
+        if is_macos():
+            self.records_empty.setContentsMargins(0, 8, 0, 8)
         body.addWidget(self.records_empty)
         self.records_message = label(size=10, color="#3F6B53")
         self.records_message.setTextFormat(Qt.TextFormat.PlainText)
@@ -390,12 +406,16 @@ class Details(QWidget):
         self.request_status.setText(
             self.language.tr("自动请求：尚未观察到", "Automatic requests: none observed")
         )
+        install_macos_style(self, variant="popover")
         self.retranslate()
         self.language.changed.connect(self.retranslate)
 
     def retranslate(self, _code=None):
         tr = self.language.tr
-        self.setFixedWidth(300 if self.language.code == "zh" else 324)
+        if is_macos():
+            self.setFixedWidth(400 if self.language.code == "zh" else 420)
+        else:
+            self.setFixedWidth(300 if self.language.code == "zh" else 324)
         self.setAccessibleName(tr("TOMC 省 token 看板", "TOMC token savings dashboard"))
         for code, button in self.language_buttons.items():
             button.setChecked(code == self.language.code)
@@ -554,6 +574,9 @@ class Details(QWidget):
         )
         self.money.setText(money_text(report["money"]))
         self.money.setStyleSheet("font-size: 22px; font-weight: 600; color: #443B35;")
+        if is_macos():
+            text_style(self.total, 22, "#866239" if saved < 0 else "#345743", True)
+            text_style(self.money, 22, bold=True)
         self.money.setToolTip(
             tr(
                 "按每次请求所用模型的列表价折算",
@@ -640,10 +663,10 @@ class Details(QWidget):
         title = ElidedLabel(name, 11, "#443B35")
         tokens = label(compact_tokens(model["tokens_saved"]), 11, "#52705D")
         tokens.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
-        tokens.setFixedWidth(54)
+        tokens.setFixedWidth(66 if is_macos() else 54)
         money = label(money_text(model["money"]), 11, "#443B35")
         money.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
-        money.setFixedWidth(58)
+        money.setFixedWidth(72 if is_macos() else 58)
         rates = model.get("rates") or []
         if model["money"] is None:
             tip = tr(
@@ -843,6 +866,8 @@ class Details(QWidget):
             button.setChecked(key == self.owner.period)
         self.total.setText(tr("暂不可读", "Unavailable"))
         self.total.setStyleSheet("font-size: 18px; font-weight: 600; color: #866239;")
+        if is_macos():
+            text_style(self.total, 18, "#866239", True)
         self.money.setText("—")
         self.basis.setText(tr("统计读取失败，正在自动重试", "Could not read statistics · Retrying"))
         self.stats.setText("")
@@ -851,8 +876,9 @@ class Details(QWidget):
     def paintEvent(self, event):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
-        painter.setPen(QColor("#E8E2D8"))
-        painter.setBrush(QColor("#FFFCF7"))
+        colors = tokens(self) if is_macos() else None
+        painter.setPen(QColor(colors["border"] if colors else "#E8E2D8"))
+        painter.setBrush(QColor(colors["background"] if colors else "#FFFCF7"))
         painter.drawRoundedRect(self.rect().adjusted(1, 1, -1, -1), 14, 14)
 
 
@@ -876,7 +902,8 @@ class Companion(QWidget):
         self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.setAccessibleName("TOMC；点击查看统计与上下文入口，拖动移动，右键打开菜单")
         self.setToolTip("点击看统计与上下文入口 · 拖动移动 · 右键菜单")
-        self.setStyleSheet(STYLE)
+        if not is_macos():
+            self.setStyleSheet(STYLE)
         self.setFixedSize(250, 116)
         self.store = UsageStore(path)
         self.request_activity = RequestActivity(path)
@@ -970,9 +997,16 @@ class Companion(QWidget):
         )
         self.close_button.clicked.connect(self.close)
         self.pet_menu = QMenu(self)
-        self.pet_menu.setStyleSheet(
-            "QMenu { background: #FFFCF7; color: #443B35; border: 1px solid #E8E2D8; padding: 5px; } QMenu::item { padding: 8px 20px; } QMenu::item:selected { background: #E4ECE5; color: #345743; }"
-        )
+        if is_macos():
+            self.card.setObjectName("card")
+            self.card.setStyleSheet("")
+            text_style(self.latest, 10, "#74685D")
+            self.close_button.setStyleSheet("padding: 0; border-radius: 6px;")
+            install_macos_style(self, variant="pet")
+        else:
+            self.pet_menu.setStyleSheet(
+                "QMenu { background: #FFFCF7; color: #443B35; border: 1px solid #E8E2D8; padding: 5px; } QMenu::item { padding: 8px 20px; } QMenu::item:selected { background: #E4ECE5; color: #345743; }"
+            )
         self.statistics_action = self.pet_menu.addAction("查看统计", self.toggle_details)
         self.library_action = self.pet_menu.addAction("上下文与接续", self.open_context_library)
         self.language_menu = self.pet_menu.addMenu("中文 / English")
@@ -1383,6 +1417,8 @@ class Companion(QWidget):
         self.idle_stage = growth
         self.oasis_action.setVisible(growth["level"] == 4 or self.test_mode)
         self.number.setStyleSheet("font-size: 20px; font-weight: 600; color: #443B35;")
+        if is_macos():
+            self.number.setStyleSheet("font-size: 20px; font-weight: 600;")
         self.number.setText("—")
         self.caption.setText(tr("上下文压缩", "Context compression"))
         last = summary.get("last_preparation")
@@ -1527,6 +1563,8 @@ class Companion(QWidget):
     def report_text(self, report):
         tr = self.language.tr
         self.number.setStyleSheet("font-size: 18px; font-weight: 600; color: #443B35;")
+        if is_macos():
+            self.number.setStyleSheet("font-size: 18px; font-weight: 600;")
         context = report.get("context_input_tokens")
         if type(context) is not int or context < 0:
             # A whole-request (envelope) count is not the compressed context length.
@@ -1568,6 +1606,8 @@ class Companion(QWidget):
         self.caption.setText(tr("本次准备", "Latest preparation"))
         self.number.setText(tr("无可用输出", "No usable output"))
         self.number.setStyleSheet("font-size: 16px; font-weight: 600; color: #443B35;")
+        if is_macos():
+            self.number.setStyleSheet("font-size: 16px; font-weight: 600;")
         self.latest.setText(tr("本次未压缩", "Not compressed"))
 
     def estimate_note(self):
@@ -1597,6 +1637,9 @@ class Companion(QWidget):
         pet_height = round(pet_width * 156 / 140)
         height = max(110, pet_height) if visible else pet_height
         pet_x, pet_y = (185 if visible else 0), (height - pet_height) // 2
+        if is_macos() and visible:
+            height = max(118, pet_height)
+            pet_x, pet_y = 235, (height - pet_height) // 2
         self.setFixedSize(pet_x + pet_width, height)
         self.art.setGeometry(pet_x, pet_y, pet_width, pet_height)
         self.card.setGeometry(8, 8, 170, 94)
@@ -1604,6 +1647,12 @@ class Companion(QWidget):
         self.number.setGeometry(13, 26, 144, 30)
         self.progress.setGeometry(23, 65, 140, 3)
         self.latest.setGeometry(12, 81, 166, 20)
+        if is_macos():
+            self.card.setGeometry(8, 8, 220, 104)
+            self.caption.setGeometry(13, 9, 194, 20)
+            self.number.setGeometry(13, 30, 194, 32)
+            self.progress.setGeometry(23, 78, 190, 3)
+            self.latest.setGeometry(12, 88, 212, 20)
         self.close_button.setGeometry(pet_x + pet_width - 20, 0, 20, 20)
         self.close_button.setVisible(self.underMouse())
         for part in (self.card, self.caption, self.number, self.progress, self.latest):

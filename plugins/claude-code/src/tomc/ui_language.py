@@ -4,11 +4,12 @@ from __future__ import annotations
 
 import json
 import os
+import sys
 import tempfile
 from pathlib import Path
 
 from PySide6.QtCore import QLocale, QObject, Signal
-from PySide6.QtGui import QFont
+from PySide6.QtGui import QFont, QFontDatabase
 
 
 def system_language() -> str:
@@ -17,6 +18,10 @@ def system_language() -> str:
 
 def ui_font(point_size: int = 9) -> QFont:
     """Prefer a font with CJK coverage; keep Latin and cross-platform fallbacks."""
+    if sys.platform == "darwin":
+        font = QFontDatabase.systemFont(QFontDatabase.SystemFont.GeneralFont)
+        font.setPointSize(max(12, point_size))
+        return font
     font = QFont()
     font.setFamilies(
         [

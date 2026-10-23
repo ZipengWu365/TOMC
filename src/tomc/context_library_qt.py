@@ -19,14 +19,12 @@ from PySide6.QtWidgets import (
     QHBoxLayout,
     QInputDialog,
     QLabel,
-    QLayout,
     QLineEdit,
     QListWidget,
     QListWidgetItem,
     QMessageBox,
     QPlainTextEdit,
     QPushButton,
-    QScrollArea,
     QSizePolicy,
     QSplitter,
     QStackedWidget,
@@ -381,23 +379,34 @@ class SessionNotice(QWidget):
         self.language = getattr(parent, "language", None) or UiLanguage(sessions.path, self)
         self.target = None
         self.target_enabled = True
+        self._macos = sys.platform == "darwin"
         self._shown_session = None
         self._error = None
         self.setObjectName("notice")
         self.setAttribute(Qt.WidgetAttribute.WA_ShowWithoutActivating)
         self.setAttribute(Qt.WidgetAttribute.WA_StyledBackground)
-        self.setStyleSheet(
-            STYLE + "QWidget#notice { border: 1px solid #E3DED3; border-radius: 12px; }"
-        )
+        if not self._macos:
+            self.setStyleSheet(
+                STYLE + "QWidget#notice { border: 1px solid #E3DED3; border-radius: 12px; }"
+            )
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(14, 12, 14, 12)
+        if self._macos:
+            layout.setContentsMargins(16, 14, 16, 14)
+            layout.setSpacing(10)
+        else:
+            layout.setContentsMargins(14, 12, 14, 12)
         self.heading = text_label()
-        self.heading.setStyleSheet("font-weight: 600; font-size: 13px; color: #345743;")
+        if self._macos:
+            self.heading.setObjectName("section")
+        else:
+            self.heading.setStyleSheet("font-weight: 600; font-size: 13px; color: #345743;")
         self.detail = text_label(muted=True)
         layout.addWidget(self.heading)
         layout.addWidget(self.detail)
         actions = QHBoxLayout()
         self.keep_button = QPushButton()
+        if self._macos:
+            self.keep_button.setObjectName("primary")
         self.keep_button.clicked.connect(self.hide)
         self.toggle_button = QPushButton()
         self.toggle_button.clicked.connect(self.toggle_session)
@@ -408,6 +417,10 @@ class SessionNotice(QWidget):
         self.timer.setSingleShot(True)
         self.timer.timeout.connect(self.hide)
         self.language.changed.connect(self.retranslate)
+        if self._macos:
+            from .macos_ui import install_macos_style
+
+            install_macos_style(self)
         self.retranslate()
 
     def t(self, zh, en, **values):
@@ -415,7 +428,10 @@ class SessionNotice(QWidget):
 
     def retranslate(self, *_):
         self.setWindowTitle(self.t("TOMC 会话状态", "TOMC session status"))
-        self.setFixedWidth(390 if self.language.code == "en" else 330)
+        if self._macos:
+            self.setFixedWidth(430 if self.language.code == "en" else 370)
+        else:
+            self.setFixedWidth(390 if self.language.code == "en" else 330)
         self.heading.setText(
             self.t(
                 "本会话 TOMC 默认开启，要关闭吗？", "TOMC is enabled for this session. Turn it off?"
@@ -552,10 +568,20 @@ def plain(text="", *, name=None, wrap=False):
     return item
 
 
+class MacElidedLabel(ElidedLabel):
+    """A single line that follows the window's system font and semantic palette."""
+
+    def __init__(self, text="", role="muted"):
+        super().__init__(text)
+        self.setStyleSheet("")
+        self.setObjectName(role)
+        self.setProperty("tomcTone", "muted" if role == "muted" else "text")
+
+
 class ConversationCard(QWidget):
     """One conversation in the list: its name, where it ran, and what it saved."""
 
-    def __init__(self, title, meta, when, stats):
+    def __init__(self, title, meta, when, stats, *, macos=False):
         super().__init__()
         self.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
         layout = QVBoxLayout(self)
@@ -563,36 +589,53 @@ class ConversationCard(QWidget):
         layout.setSpacing(2)
         top = QHBoxLayout()
         top.setSpacing(8)
-        self.title = ElidedLabel(title, 13, "#2F2A26", bold=True)
+        self.title = (
+            MacElidedLabel(title, "section")
+            if macos
+            else ElidedLabel(title, 13, "#2F2A26", bold=True)
+        )
         self.when = plain(when)
-        self.when.setStyleSheet("color: #9A8F82; font-size: 11px;")
+        if macos:
+            self.when.setObjectName("muted")
+        else:
+            self.when.setStyleSheet("color: #9A8F82; font-size: 11px;")
         top.addWidget(self.title, 1)
-        top.addWidget(self.when)
+        if macos:
+            self.when.setParent(self)
+            self.when.hide()
+            meta = f"{meta} · {when}"
+        else:
+            top.addWidget(self.when)
         layout.addLayout(top)
-        self.meta = ElidedLabel(meta, 11, "#8A7F72")
+        self.meta = MacElidedLabel(meta) if macos else ElidedLabel(meta, 11, "#8A7F72")
         layout.addWidget(self.meta)
-        self.stats = ElidedLabel(stats, 11, "#3F6B53")
+        self.stats = MacElidedLabel(stats) if macos else ElidedLabel(stats, 11, "#3F6B53")
         layout.addWidget(self.stats)
 
 
 class VersionCard(QWidget):
     """One saved context of a conversation, newest first."""
 
-    def __init__(self, title, meta, tokens):
+    def __init__(self, title, meta, tokens, *, macos=False):
         super().__init__()
         self.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(10, 6, 10, 6)
-        layout.setSpacing(1)
+        layout.setContentsMargins(10, 1 if macos else 6, 10, 1 if macos else 6)
+        layout.setSpacing(0 if macos else 1)
         top = QHBoxLayout()
         top.setSpacing(8)
-        self.title = ElidedLabel(title, 12, "#2F2A26")
+        self.title = (
+            MacElidedLabel(title, "section") if macos else ElidedLabel(title, 12, "#2F2A26")
+        )
         self.tokens = plain(tokens)
-        self.tokens.setStyleSheet("color: #3F6B53; font-size: 11px;")
+        if macos:
+            self.tokens.setObjectName("muted")
+        else:
+            self.tokens.setStyleSheet("color: #3F6B53; font-size: 11px;")
         top.addWidget(self.title, 1)
         top.addWidget(self.tokens)
         layout.addLayout(top)
-        self.meta = ElidedLabel(meta, 11, "#8A7F72")
+        self.meta = MacElidedLabel(meta) if macos else ElidedLabel(meta, 11, "#8A7F72")
         layout.addWidget(self.meta)
 
 
@@ -613,6 +656,7 @@ class ContextLibraryDialog(QDialog):
         activity=None,
     ):
         super().__init__(parent)
+        self._macos = sys.platform == "darwin"
         self.language = getattr(parent, "language", None) or UiLanguage(path, self)
         if library is None:
             from .context_library import ContextLibrary
@@ -638,12 +682,14 @@ class ContextLibraryDialog(QDialog):
             "Contexts stay on this device. Copy and export use only the selected version.",
             {},
         )
-        self.setStyleSheet(LIBRARY_STYLE)
-        self.resize(1100, 860)
+        if not self._macos:
+            self.setStyleSheet(LIBRARY_STYLE)
+        self.resize(1100, 800 if self._macos else 860)
         self.setMinimumSize(900, 680)
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(24, 18, 24, 14)
-        layout.setSpacing(12)
+        margins = (20, 16, 20, 12) if self._macos else (24, 18, 24, 14)
+        layout.setContentsMargins(*margins)
+        layout.setSpacing(10 if self._macos else 12)
         heading = QHBoxLayout()
         titles = QVBoxLayout()
         titles.setSpacing(2)
@@ -662,6 +708,8 @@ class ContextLibraryDialog(QDialog):
         layout.addLayout(heading)
         layout.addWidget(self.make_dashboard())
         self.tabs = QTabWidget()
+        if self._macos:
+            self.tabs.tabBar().setExpanding(False)
         self.tabs.addTab(self.make_context_tab(), "")
         self.tabs.addTab(self.make_settings_tab(), "")
         layout.addWidget(self.tabs, 1)
@@ -670,6 +718,10 @@ class ContextLibraryDialog(QDialog):
         layout.addWidget(self.message)
         self.language.changed.connect(self.retranslate)
         self.retranslate()
+        if self._macos:
+            from .macos_ui import install_macos_style
+
+            install_macos_style(self)
 
     def t(self, zh, en, **values):
         return self.language.tr(zh, en, **values)
@@ -680,7 +732,288 @@ class ContextLibraryDialog(QDialog):
 
     # Construction -----------------------------------------------------------
 
+    def make_macos_dashboard(self):
+        summary = QFrame()
+        summary.setObjectName("toolbar")
+        layout = QVBoxLayout(summary)
+        layout.setContentsMargins(12, 8, 12, 8)
+        layout.setSpacing(8)
+        metrics = QHBoxLayout()
+        metrics.setSpacing(24)
+        self.kpis = {}
+        for key in ("tokens", "money", "compressions", "conversations"):
+            column = QVBoxLayout()
+            column.setSpacing(2)
+            caption, value = plain(name="muted"), plain(name="metric")
+            column.addWidget(caption)
+            column.addWidget(value)
+            metrics.addLayout(column)
+            self.kpis[key] = (value, caption)
+        metrics.addStretch()
+        self.statistics_toggle = QPushButton()
+        self.statistics_toggle.setCheckable(True)
+        metrics.addWidget(self.statistics_toggle)
+        layout.addLayout(metrics)
+        self.statistics_detail = QWidget()
+        details = QVBoxLayout(self.statistics_detail)
+        details.setContentsMargins(0, 2, 0, 0)
+        details.setSpacing(6)
+        controls = QHBoxLayout()
+        self.period_buttons = {}
+        for key in ("today", "7d", "all"):
+            button = QPushButton()
+            button.setCheckable(True)
+            button.clicked.connect(lambda checked=False, value=key: self.set_period(value))
+            controls.addWidget(button)
+            self.period_buttons[key] = button
+        controls.addStretch()
+        self.basis = plain(name="muted")
+        controls.addWidget(self.basis)
+        self.price_button = QPushButton()
+        opener = getattr(self.parent(), "open_reference", None)
+        self.price_button.setVisible(opener is not None)
+        if opener is not None:
+            self.price_button.clicked.connect(lambda: opener())
+        controls.addWidget(self.price_button)
+        details.addLayout(controls)
+        chart_row = QHBoxLayout()
+        self.chart_title = plain(name="muted")
+        chart_row.addWidget(self.chart_title)
+        self.chart = SavingsChart(self.language, self)
+        self.chart.setFixedHeight(32)
+        chart_row.addWidget(self.chart, 1)
+        details.addLayout(chart_row)
+        self.model_chips = QHBoxLayout()
+        self.model_chips.setSpacing(8)
+        details.addLayout(self.model_chips)
+        layout.addWidget(self.statistics_detail)
+        self.statistics_detail.hide()
+        self.statistics_toggle.toggled.connect(self.statistics_detail.setVisible)
+        return summary
+
+    def make_macos_context_tab(self):
+        page = QWidget()
+        layout = QVBoxLayout(page)
+        layout.setContentsMargins(0, 6, 0, 0)
+        layout.setSpacing(10)
+        filters = QHBoxLayout()
+        self.search = QLineEdit()
+        self.search.setClearButtonEnabled(True)
+        self.search.textChanged.connect(self.filter_records)
+        self.host_filter = QComboBox()
+        for data in ("", "codex", "claude", "unlinked"):
+            self.host_filter.addItem("", data)
+        self.host_filter.currentIndexChanged.connect(self.filter_records)
+        self.import_button = QPushButton()
+        self.import_button.clicked.connect(self.import_bundle)
+        filters.addWidget(self.search, 1)
+        filters.addWidget(self.host_filter)
+        filters.addWidget(self.import_button)
+        layout.addLayout(filters)
+        self.workspace_split = QSplitter(Qt.Orientation.Horizontal)
+        self.workspace_split.setChildrenCollapsible(False)
+        sidebar = QFrame()
+        sidebar.setObjectName("sidebar")
+        sidebar.setMinimumWidth(220)
+        side_layout = QVBoxLayout(sidebar)
+        side_layout.setContentsMargins(0, 0, 0, 0)
+        side_layout.setSpacing(6)
+        self.conversation_list = QListWidget()
+        self.conversation_list.setObjectName("conversations")
+        self.conversation_list.setVerticalScrollMode(QListWidget.ScrollMode.ScrollPerPixel)
+        self.conversation_list.currentRowChanged.connect(self.select_conversation)
+        side_layout.addWidget(self.conversation_list, 1)
+        self.count_label = plain(name="muted")
+        side_layout.addWidget(self.count_label)
+        self.workspace_split.addWidget(sidebar)
+        self.preview_stack = QStackedWidget()
+        self.empty = plain(name="muted", wrap=True)
+        self.empty.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.preview_stack.addWidget(self.empty)
+        detail = QWidget()
+        detail_layout = QVBoxLayout(detail)
+        detail_layout.setContentsMargins(12, 0, 0, 0)
+        detail_layout.setSpacing(7)
+        heading = QHBoxLayout()
+        self.conversation_title = MacElidedLabel(role="conversationTitle")
+        heading.addWidget(self.conversation_title, 1)
+        self.conversation_enabled = QCheckBox()
+        self.conversation_enabled.toggled.connect(self.change_conversation)
+        heading.addWidget(self.conversation_enabled)
+        detail_layout.addLayout(heading)
+        self.conversation_meta = MacElidedLabel()
+        chips = QHBoxLayout()
+        chips.setSpacing(12)
+        chips.addWidget(self.conversation_meta, 1)
+        self.conversation_chips = [plain(name="muted") for _ in range(3)]
+        for chip in self.conversation_chips:
+            chips.addWidget(chip)
+        detail_layout.addLayout(chips)
+        self.context_actions = QFrame()
+        self.context_actions.setObjectName("toolbar")
+        actions = QHBoxLayout(self.context_actions)
+        actions.setContentsMargins(0, 2, 0, 2)
+        actions.setSpacing(8)
+        self.copy_button = QPushButton()
+        self.copy_button.setObjectName("primary")
+        self.copy_button.clicked.connect(self.copy_handoff)
+        self.export_button = QPushButton()
+        self.export_button.clicked.connect(self.export_context)
+        self.rename_button = QPushButton()
+        self.rename_button.clicked.connect(self.rename_context)
+        self.delete_button = QPushButton()
+        self.delete_button.setObjectName("destructive")
+        self.delete_button.clicked.connect(self.delete_context)
+        self.record_buttons = (
+            self.copy_button,
+            self.export_button,
+            self.rename_button,
+            self.delete_button,
+        )
+        for button in self.record_buttons:
+            button.setEnabled(False)
+            actions.addWidget(button)
+        actions.addStretch()
+        detail_layout.addWidget(self.context_actions)
+        self.context_split = QSplitter(Qt.Orientation.Vertical)
+        self.context_split.setChildrenCollapsible(False)
+        versions = QWidget()
+        version_layout = QVBoxLayout(versions)
+        version_layout.setContentsMargins(0, 0, 0, 0)
+        version_layout.setSpacing(5)
+        self.versions_title = plain(name="section")
+        version_layout.addWidget(self.versions_title)
+        self.version_list = QListWidget()
+        self.version_list.setObjectName("versions")
+        self.version_list.setMinimumHeight(54)
+        self.version_list.setVerticalScrollMode(QListWidget.ScrollMode.ScrollPerPixel)
+        self.version_list.currentItemChanged.connect(self.select_context)
+        version_layout.addWidget(self.version_list, 1)
+        self.context_split.addWidget(versions)
+        content = QWidget()
+        content_layout = QVBoxLayout(content)
+        content_layout.setContentsMargins(0, 4, 0, 0)
+        content_layout.setSpacing(5)
+        record_heading = QHBoxLayout()
+        self.record_title = MacElidedLabel(role="section")
+        record_heading.addWidget(self.record_title, 1)
+        self.record_info_toggle = QPushButton()
+        self.record_info_toggle.setCheckable(True)
+        record_heading.addWidget(self.record_info_toggle)
+        content_layout.addLayout(record_heading)
+        self.record_meta = MacElidedLabel()
+        self.record_info = QWidget()
+        info_layout = QVBoxLayout(self.record_info)
+        info_layout.setContentsMargins(0, 0, 0, 0)
+        info_layout.setSpacing(3)
+        self.record_tokens = plain(name="muted", wrap=True)
+        self.request_status = plain(name="muted", wrap=True)
+        self.record_cost = plain(name="muted", wrap=True)
+        for label in (self.record_meta, self.record_tokens, self.request_status, self.record_cost):
+            info_layout.addWidget(label)
+        content_layout.addWidget(self.record_info)
+        self.record_info.hide()
+        self.record_info_toggle.toggled.connect(self.record_info.setVisible)
+        self.content_tabs = QTabWidget()
+        self.content_tabs.tabBar().setExpanding(False)
+        self.content_tabs.setMinimumHeight(120)
+        self.memory, self.task = QPlainTextEdit(), QPlainTextEdit()
+        self.memory.setReadOnly(True)
+        self.task.setReadOnly(True)
+        self.content_tabs.addTab(self.memory, "")
+        self.content_tabs.addTab(self.task, "")
+        content_layout.addWidget(self.content_tabs, 1)
+        self.context_split.addWidget(content)
+        self.context_split.setStretchFactor(0, 0)
+        self.context_split.setStretchFactor(1, 1)
+        self.context_split.setSizes([150, 350])
+        self._context_split_adjusted = False
+        self.context_split.splitterMoved.connect(self.remember_context_split)
+        detail_layout.addWidget(self.context_split, 1)
+        self.preview_stack.addWidget(detail)
+        self.workspace_split.addWidget(self.preview_stack)
+        self.workspace_split.setStretchFactor(0, 0)
+        self.workspace_split.setStretchFactor(1, 1)
+        self.workspace_split.setSizes([260, 740])
+        layout.addWidget(self.workspace_split, 1)
+        return page
+
+    def remember_context_split(self, *_):
+        self._context_split_adjusted = True
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        if self._macos and hasattr(self, "context_split") and not self._context_split_adjusted:
+            # Start with two version rows on a short window, three on a taller one.
+            # A user's splitter adjustment takes precedence over these defaults.
+            versions = 112 if self.height() < 760 else 162
+            self.context_split.setSizes(
+                [versions, max(180, self.context_split.height() - versions)]
+            )
+
+    def make_macos_settings_tab(self):
+        page = QWidget()
+        layout = QVBoxLayout(page)
+        layout.setContentsMargins(0, 8, 0, 0)
+        layout.setSpacing(12)
+
+        def group():
+            frame = QFrame()
+            frame.setObjectName("card")
+            rows = QVBoxLayout(frame)
+            rows.setContentsMargins(14, 12, 14, 12)
+            rows.setSpacing(8)
+            return frame, rows
+
+        switches, controls_layout = group()
+        self.switches_title = plain(name="section")
+        controls_layout.addWidget(self.switches_title)
+        controls = QHBoxLayout()
+        controls.setSpacing(32)
+        self.enabled, self.save_contexts = QCheckBox(), QCheckBox()
+        self.enabled.toggled.connect(lambda value: self.change_setting("enabled", value))
+        self.save_contexts.toggled.connect(
+            lambda value: self.change_setting("save_contexts", value)
+        )
+        controls.addWidget(self.enabled)
+        controls.addWidget(self.save_contexts)
+        controls.addStretch()
+        self.default_note = plain(name="muted")
+        controls.addWidget(self.default_note)
+        controls_layout.addLayout(controls)
+        layout.addWidget(switches)
+        connections, connection_layout = group()
+        self.connection_title = plain(name="section")
+        connection_layout.addWidget(self.connection_title)
+        self.mode = plain(name="muted", wrap=True)
+        connection_layout.addWidget(self.mode)
+        status = QHBoxLayout()
+        self.integration_labels = {}
+        for host in ("codex", "claude_code"):
+            label = plain(name="muted", wrap=True)
+            status.addWidget(label, 1)
+            self.integration_labels[host] = label
+        connection_layout.addLayout(status)
+        self.activity_status = plain(name="muted", wrap=True)
+        connection_layout.addWidget(self.activity_status)
+        layout.addWidget(connections)
+        sessions, session_layout = group()
+        self.sessions_title = plain(name="section")
+        self.session_note = plain(name="muted", wrap=True)
+        session_layout.addWidget(self.sessions_title)
+        session_layout.addWidget(self.session_note)
+        self.session_list = QListWidget()
+        self.session_list.setWordWrap(True)
+        self.session_list.itemChanged.connect(self.change_session)
+        session_layout.addWidget(self.session_list, 1)
+        self.session_hint = plain(name="muted", wrap=True)
+        session_layout.addWidget(self.session_hint)
+        layout.addWidget(sessions, 1)
+        return page
+
     def make_dashboard(self):
+        if self._macos:
+            return self.make_macos_dashboard()
         card = QFrame()
         card.setObjectName("card")
         layout = QVBoxLayout(card)
@@ -747,6 +1080,8 @@ class ContextLibraryDialog(QDialog):
         return card
 
     def make_context_tab(self):
+        if self._macos:
+            return self.make_macos_context_tab()
         page = QWidget()
         layout = QVBoxLayout(page)
         layout.setContentsMargins(0, 8, 0, 0)
@@ -862,23 +1197,7 @@ class ContextLibraryDialog(QDialog):
         self.content_tabs.addTab(self.memory, "")
         self.content_tabs.addTab(self.task, "")
         detail_layout.addWidget(self.content_tabs, 1)
-        if sys.platform == "darwin":
-            # Keep short macOS windows from squeezing the summary and its buttons.
-            # Only the selected context pane scrolls; navigation stays in place.
-            detail_layout.setSizeConstraint(QLayout.SizeConstraint.SetMinimumSize)
-            detail_scroll = QScrollArea()
-            detail_scroll.setObjectName("contextDetailScroll")
-            detail_scroll.setWidgetResizable(True)
-            detail_scroll.setFrameShape(QFrame.Shape.NoFrame)
-            detail.setObjectName("contextDetailBody")
-            detail_scroll.setStyleSheet(
-                "QScrollArea#contextDetailScroll, QWidget#contextDetailBody "
-                "{ background: #FBF8F2; border: none; }"
-            )
-            detail_scroll.setWidget(detail)
-            self.preview_stack.addWidget(detail_scroll)
-        else:
-            self.preview_stack.addWidget(detail)
+        self.preview_stack.addWidget(detail)
         split.addWidget(self.preview_stack)
         split.setStretchFactor(1, 1)
         split.setSizes([330, 700])
@@ -886,6 +1205,8 @@ class ContextLibraryDialog(QDialog):
         return page
 
     def make_settings_tab(self):
+        if self._macos:
+            return self.make_macos_settings_tab()
         page = QWidget()
         layout = QVBoxLayout(page)
         layout.setContentsMargins(0, 10, 0, 0)
@@ -942,6 +1263,9 @@ class ContextLibraryDialog(QDialog):
             )
         )
         self.refresh_button.setText(t("刷新", "Refresh"))
+        if self._macos:
+            self.statistics_toggle.setText(t("统计详情", "Statistics"))
+            self.record_info_toggle.setText(t("用量详情", "Usage details"))
         for key, zh, en in (
             ("today", "今天", "Today"),
             ("7d", "近七天", "7 days"),
@@ -984,7 +1308,9 @@ class ContextLibraryDialog(QDialog):
         )
         self.versions_title.setText(t("上下文版本", "Context versions"))
         self.conversation_enabled.setText(
-            t("本对话启用 TOMC", "TOMC enabled for this conversation")
+            t("启用 TOMC", "Enable TOMC")
+            if self._macos
+            else t("本对话启用 TOMC", "TOMC enabled for this conversation")
         )
         self.conversation_enabled.setToolTip(
             t(
@@ -1424,6 +1750,7 @@ class ContextLibraryDialog(QDialog):
                 self.describe_conversation(conversation),
                 local_time(records[0].get("created_utc")),
                 stats,
+                macos=self._macos,
             )
             item = QListWidgetItem()
             item.setSizeHint(card.sizeHint())
@@ -1524,6 +1851,7 @@ class ContextLibraryDialog(QDialog):
                 record.get("title") or self.t("未命名上下文", "Untitled context"),
                 meta,
                 f"{compact_tokens(record['input_estimated_tokens'])} → {compact_tokens(record['output_estimated_tokens'])}",
+                macos=self._macos,
             )
             item = QListWidgetItem()
             item.setData(Qt.ItemDataRole.UserRole, record["id"])
@@ -1535,8 +1863,9 @@ class ContextLibraryDialog(QDialog):
                 selected = item
         self.version_list.blockSignals(False)
         # Fit up to four versions; longer histories scroll.
-        rows = sum(self.version_list.sizeHintForRow(i) for i in range(min(4, len(records))))
-        self.version_list.setFixedHeight(rows + 2 * self.version_list.frameWidth() + 10)
+        if not self._macos:
+            rows = sum(self.version_list.sizeHintForRow(i) for i in range(min(4, len(records))))
+            self.version_list.setFixedHeight(rows + 2 * self.version_list.frameWidth() + 10)
         self.version_list.setCurrentItem(selected or self.version_list.item(0))
 
     # Selected context -------------------------------------------------------

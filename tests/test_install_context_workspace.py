@@ -2,6 +2,7 @@
 
 import importlib.util
 import json
+import subprocess
 import sys
 from pathlib import Path
 
@@ -121,6 +122,39 @@ def test_missing_existing_tomc_entry_is_skipped_without_duplicate_server(tmp_pat
     assert any("no existing top-level" in note for note in plan.notes)
     installer.install(plan)
     assert (home / ".claude.json").read_bytes() == original
+
+
+def test_legacy_pet_update_can_import_new_mac_module_on_windows(tmp_path):
+    pytest.importorskip("PySide6")
+    home, runtime = _fixture(tmp_path, claude=False)
+    pet = home / ".codex/tomc/pet-current/src/tomc"
+    (pet / "__init__.py").write_text("", encoding="utf-8")
+    package = runtime / "src/tomc"
+    mac_source = _SCRIPT.parents[1] / "src/tomc/macos_ui.py"
+    (package / "macos_ui.py").write_bytes(mac_source.read_bytes())
+    (package / "usage_widget_qt.py").write_text(
+        "from .macos_ui import install_macos_style, is_macos\n"
+        "assert not is_macos()\ninstall_macos_style(object())\n",
+        encoding="utf-8",
+    )
+    assert not (pet / "macos_ui.py").exists()
+    installer.install(installer.plan_update(home, runtime))
+    assert (pet / "macos_ui.py").read_bytes() == mac_source.read_bytes()
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-I",
+            "-c",
+            "import sys; import PySide6.QtCore, PySide6.QtGui, PySide6.QtWidgets; "
+            "sys.path.insert(0, sys.argv[1]); sys.platform = 'win32'; "
+            "import tomc.usage_widget_qt",
+            str(pet.parent),
+        ],
+        capture_output=True,
+        text=True,
+        timeout=30,
+    )
+    assert result.returncode == 0, result.stderr
 
 
 def test_missing_hosts_are_skipped_without_installing_a_new_cat(tmp_path):
