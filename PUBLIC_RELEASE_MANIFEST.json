@@ -2896,8 +2896,8 @@
     },
     {
       "path": "tests/test_context_library_qt.py",
-      "bytes": 29913,
-      "sha256": "ed7af859ff356433c40997e1d4ac6996eb3cde95104506aeabd5a21283947fec"
+      "bytes": 30047,
+      "sha256": "02c5e3d712eb4d51812788e643cbced9e9e10dce3ea5e20ab7fe6f72f76b8af8"
     },
     {
       "path": "tests/test_conversation_names.py",
@@ -3090,7 +3090,7 @@
       "sha256": "be8dbb0aa75e27d1625255b99019c1b078833d1afc864951da7d6de1c4b70807"
     }
   ],
-  "total_bytes": 147066595,
+  "total_bytes": 147066729,
   "self_excluded": [
     "PUBLIC_RELEASE_MANIFEST.json",
     "SHA256SUMS"

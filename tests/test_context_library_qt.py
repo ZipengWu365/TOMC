@@ -1,6 +1,7 @@
 """Offscreen UI contracts against isolated databases, never the installed companion."""
 
 import os
+import sys
 from types import SimpleNamespace
 
 import pytest
@@ -542,7 +543,9 @@ def test_open_confirmation_dialog_retranslates_buttons_without_changing_selectio
 
     def confirm(box):
         dialog.language.set_language("en")
-        assert box.windowTitle() == "Delete local context"
+        # macOS alerts have no title bar, so Qt ignores their window title there.
+        if sys.platform != "darwin":
+            assert box.windowTitle() == "Delete local context"
         assert box.button(QMessageBox.StandardButton.Yes).text() == "Delete"
         assert box.button(QMessageBox.StandardButton.Cancel).text() == "Cancel"
         return QMessageBox.StandardButton.Cancel
