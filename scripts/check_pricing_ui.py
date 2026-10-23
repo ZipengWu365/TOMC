@@ -14,6 +14,7 @@ from PySide6.QtWidgets import QApplication  # noqa: E402
 import tomc.usage_widget_qt as ui  # noqa: E402
 from tomc.cost_estimate import load_pricing  # noqa: E402
 from tomc.pricing_qt import ReferenceSheet  # noqa: E402
+from tomc.ui_language import UiLanguage  # noqa: E402
 from tomc.usage import UsageStore  # noqa: E402
 
 out = Path(sys.argv[1]).resolve()
@@ -35,12 +36,14 @@ store.record(
         "reduced_tokens": 100_000,
     }
 )
+# Checks compare Chinese text; the preference file lives in the isolated output folder.
+UiLanguage(store.path).set_language("zh")
 pet = ui.Companion(store.path, test_mode=True, connect_quota=False)
 pet.show()
 pet.toggle_details()
 app.processEvents()
-assert pet.details.total.text() == "$0.4000"
-assert pet.details.width() == 240
+assert pet.details.money.text() == "$0.40"
+assert pet.details.width() == 300
 pet.details.grab().save(str(out / "compact.png"))
 sheet = ReferenceSheet(pet, config)
 pet.reference_sheet = sheet
@@ -51,19 +54,19 @@ sheet.host.setCurrentIndex(sheet.host.findData("cursor"))
 sheet.provider.setCurrentIndex(sheet.provider.findData("cursor"))
 sheet.models.setCurrentIndex(sheet.models.findData("cursor:composer-2-5:listed"))
 sheet.save()
-assert pet.details.total.text() == "$0.0500"
+assert pet.details.money.text() == "$0.05"
 sheet.mode.setCurrentIndex(sheet.mode.findData("cached"))
 sheet.save()
-assert pet.details.total.text() == "$0.0200"
+assert pet.details.money.text() == "$0.02"
 sheet.models.setCurrentIndex(0)
 sheet.save()
-assert pet.details.total.text() == "—"
-assert "未确认" in pet.details.price_note.text()
+assert pet.details.money.text() == "—"
+assert "选择参考模型" in pet.details.basis.text()
 sheet.provider.setCurrentIndex(sheet.provider.findData("openai"))
 sheet.models.setCurrentIndex(sheet.models.findData("openai:gpt-6-astra:standard-short"))
 sheet.mode.setCurrentIndex(0)
 sheet.save()
-assert pet.details.total.text() == "$1.00"
+assert pet.details.money.text() == "$1.00"
 sheet.open_tab(1)
 app.processEvents()
 assert "没有测量" in sheet.story.toPlainText()
@@ -75,7 +78,7 @@ pet.close()
             "switch_model": True,
             "cached_rate": True,
             "unknown_model_unpriced": True,
-            "compact_panel_width": 240,
+            "compact_panel_width": 300,
             "production_statistics_written": False,
             "desktop_control": False,
         },

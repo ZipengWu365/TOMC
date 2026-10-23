@@ -18,7 +18,17 @@ def compact_tokens(value):
         return f"{sign}{value:,}"
     if value < 1_000_000:
         return f"{sign}{value / 1000:.1f}K".replace(".0K", "K")
-    return f"{sign}{value / 1_000_000:.2f}M"
+    for limit, unit in ((1e9, "M"), (1e12, "B")):
+        if value < limit:
+            return f"{sign}{value / (limit / 1000):.2f}{unit}"
+    return f"{sign}{value / 1e12:.2f}T"
+
+
+def total_tokens(value):
+    """Headline count: every digit below ten million, compact above."""
+    if abs(value) >= 10_000_000:
+        return compact_tokens(value)
+    return ("−" if value < 0 else "") + f"{abs(value):,}"
 
 
 def money_text(value):

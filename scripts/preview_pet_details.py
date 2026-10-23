@@ -18,6 +18,7 @@ from PySide6.QtGui import QContextMenuEvent  # noqa: E402
 from PySide6.QtTest import QTest  # noqa: E402
 from PySide6.QtWidgets import QApplication  # noqa: E402
 
+from tomc.ui_language import UiLanguage  # noqa: E402
 from tomc.usage import UsageStore  # noqa: E402
 from tomc.usage_widget_qt import Companion, load_preview_fonts  # noqa: E402
 
@@ -56,6 +57,9 @@ def main():
     if not args.store:
         record(store, 24000, 1900)
         record(store, 1800, 126)
+    if args.check:
+        # Checks compare Chinese text; the preference file lives in the isolated output folder.
+        UiLanguage(db).set_language("zh")
     app = QApplication([])
     load_preview_fonts()
     pet = Companion(db, test_mode=not args.store, connect_quota=args.quota)
@@ -95,13 +99,8 @@ def main():
             for period in ("today", "7d", "all"):
                 QTest.mouseClick(pet.details.buttons[period], Qt.MouseButton.LeftButton)
                 assert pet.period == period and pet.details.buttons[period].isChecked()
-                assert pet.details.total.text() == "92.1%"
+                assert pet.details.total.text() == "23,774"
                 assert pet.art.phase is None
-            QTest.mouseClick(pet.details.info_button, Qt.MouseButton.LeftButton)
-            assert pet.details.scope.isVisible()
-            snapshot("profile-explained")
-            QTest.mouseClick(pet.details.info_button, Qt.MouseButton.LeftButton)
-            assert not pet.details.scope.isVisible()
             for name, data in (
                 ("empty", []),
                 ("negative", [(100, 300, "demo-estimate")]),
@@ -114,14 +113,11 @@ def main():
                 pet.store, pet.last_signature, pet.initialized = scenario, None, False
                 pet.refresh()
                 snapshot(name)
-                assert pet.details.width() == 240
+                assert pet.details.width() == 300
                 assert pet.art.phase is None
-                if name == "negative":
-                    assert pet.details.caption.text() == "上下文增加"
-                    assert pet.details.total.text() == "200.0%"
-                if name == "mixed":
-                    assert pet.details.total.text() == "分口径"
-                    assert "another-counter" in pet.details.rows.text()
+                expected = {"empty": "0", "negative": "−200", "mixed": "2,424", "large": "8.80T"}
+                # Counters are summed into one headline; increases show as negative savings.
+                assert pet.details.total.text() == expected[name], (name, pet.details.total.text())
             broken = output / "broken.sqlite3"
             broken.write_text("invalid database", encoding="utf-8")
             pet.store, pet.last_signature = UsageStore(broken), None
@@ -130,7 +126,7 @@ def main():
             assert pet.error == "read_failed" and pet.details.total.text() == "暂不可读"
             pet.store, pet.last_signature, pet.initialized = store, None, False
             pet.refresh()
-            assert pet.details.total.text() == "92.1%"
+            assert pet.details.total.text() == "23,774"
             pet.details.set_quota(
                 {
                     "status": "ready",
@@ -152,10 +148,9 @@ def main():
             result["checks"] = [
                 "periods",
                 "no_smile_on_click",
-                "scope_toggle",
                 "empty",
                 "negative",
-                "mixed_counters",
+                "mixed_counters_summed",
                 "long_numbers",
                 "read_error_recovery",
                 "escape_dismiss",

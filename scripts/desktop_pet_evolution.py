@@ -56,7 +56,7 @@ class EvolutionDemo(QWidget):
         self.pet = Companion(self.stores[0].path, test_mode=True)
         self.pet.details.quota_title.setText("账户额度")
         self.pet.details.quota_value.setText("演示不读取")
-        self.pet.details.quota_detail.setText("本演示使用独立模拟数据，不计入真实统计。")
+        self.pet.details.quota_value.setToolTip("本演示使用独立模拟数据，不计入真实统计。")
         self.pet.setWindowTitle("TOMC · 省 token 小猫 · 演示")
         self.pet.art.collected.connect(self.finished)
         self.current, self.completed, self.automatic = 0, [], False

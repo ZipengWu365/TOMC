@@ -37,7 +37,15 @@ from .conversations import group_conversations
 from .cost_estimate import explanation, input_value, load_pricing
 from .request_activity import RequestActivity
 from .savings import request_savings, savings_report
-from .savings_qt import ElidedLabel, SavingsChart, compact_tokens, discard, local_time, money_text
+from .savings_qt import (
+    ElidedLabel,
+    SavingsChart,
+    compact_tokens,
+    discard,
+    local_time,
+    money_text,
+    total_tokens,
+)
 from .ui_language import UiLanguage
 
 
@@ -1071,7 +1079,7 @@ class ContextLibraryDialog(QDialog):
             self.chart.set_days([], None)
         else:
             saved = report["tokens_saved"]
-            tokens.setText(f"{saved:,}" if abs(saved) < 10_000_000 else compact_tokens(saved))
+            tokens.setText(total_tokens(saved))
             money.setText(money_text(report["money"]))
             self.kpis["compressions"][0].setText(f"{report['preparations']:,}")
             self.basis.setText(

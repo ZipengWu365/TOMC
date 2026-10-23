@@ -86,7 +86,7 @@ def main():
         dialog = ContextLibraryDialog(path, integrations=status, pricing=pricing)
         dialog.mode.setText("界面预览 · 演示数据 · 尚未观察到代理请求")
         dialog.show()
-        dialog.context_list.setCurrentRow(2)
+        dialog.conversation_list.setCurrentRow(min(2, dialog.conversation_list.count() - 1))
         app.processEvents()
         dialog.grab().save(str(output / "contexts.png"))
         dialog.tabs.setCurrentIndex(1)

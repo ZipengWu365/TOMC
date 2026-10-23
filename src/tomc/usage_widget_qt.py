@@ -44,6 +44,7 @@ from .savings_qt import (
     local_time,
     money_text,
     rule,
+    total_tokens,
 )
 from .ui_language import UiLanguage, ui_font
 from .usage import UsageStore
@@ -547,7 +548,7 @@ class Details(QWidget):
         for key, button in self.buttons.items():
             button.setChecked(key == report["period"])
         saved = report["tokens_saved"]
-        self.total.setText(f"{saved:,}" if abs(saved) < 10_000_000 else compact_tokens(saved))
+        self.total.setText(total_tokens(saved))
         self.total.setStyleSheet(
             f"font-size: 22px; font-weight: 600; color: {'#866239' if saved < 0 else '#345743'};"
         )

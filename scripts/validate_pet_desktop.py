@@ -219,8 +219,7 @@ def main(argv=None):
             last_language = language
             save()
         if pet.details.isVisible():
-            state = "expanded" if pet.details.scope_area.isVisible() else "compact"
-            name = f"panel-{language}-{state}.png"
+            name = f"panel-{language}.png"
             if name not in report["panels"]:
                 if capture(name, pet.details):
                     report["panels"].append(name)

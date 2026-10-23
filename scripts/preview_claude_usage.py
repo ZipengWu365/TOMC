@@ -30,9 +30,7 @@ def main():
         connect_quota=False,
         state_file=output / "widget_state.json",
     )
-    pet.details.quota_title.setText("Claude 额度")
-    pet.details.quota_value.setText("未接入")
-    pet.details.quota_detail.setText("当前显示 TOMC 上下文统计；尚未接入 Claude 账户额度。")
+    pet.set_host("claude")
     pet.details.resize_to_content()
     events = []
 
