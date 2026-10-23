@@ -156,8 +156,8 @@
     },
     {
       "path": "assets/beam_readers.svg",
-      "bytes": 65715,
-      "sha256": "9d71c34925b2dc20bf6546d2c31e0529f3cd65b4db4d0a979d20947ca44c1fed"
+      "bytes": 63433,
+      "sha256": "f7b3b2a674d732173f8b8c195451969cb1ad07965bee3a16da2c0d204c0449d8"
     },
     {
       "path": "assets/beam_table/RENDERED_FROM.sha256",
@@ -3015,7 +3015,7 @@
       "sha256": "be8dbb0aa75e27d1625255b99019c1b078833d1afc864951da7d6de1c4b70807"
     }
   ],
-  "total_bytes": 146846252,
+  "total_bytes": 146843970,
   "self_excluded": [
     "PUBLIC_RELEASE_MANIFEST.json",
     "SHA256SUMS"
