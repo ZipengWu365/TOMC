@@ -4,9 +4,19 @@
 
 TOMC 按任务准备上下文，让你用结果替换较长的历史。传入历史、下一步任务和记忆预算后，它选择原文，对支持的状态、关系或计数操作计算记录，输出文本，交给原来的助手。准备过程在 CPU 上运行，无需训练；插件本身不需要额外的大模型 API key、GPU 或模型服务。
 
-安装后调用 `prepare_context`，检查结果，再用于新聊天或应用请求。短历史可以保持原样；记录与提示开销有时会增加输入。编译器本身不保存历史，记忆本是可选功能。直接接入请求可参考 [Python API](api_reference.md#prepare-context-before-your-api-call)。
+安装后调用 `prepare_context`，检查结果，再用于新聊天或应用请求。短历史可以保持原样；记录与提示开销有时会增加输入。编译器本身无状态，但 0.1.5 的 MCP 运行时默认保存成功准备的上下文和任务，可关闭正文记录；命名记忆本仍是可选功能。直接接入请求可参考 [Python API](api_reference.md#prepare-context-before-your-api-call)。
 
-当前聊天默认由宿主负责压缩；原生压缩处于启用或未知状态时，不主动让 TOMC 再压同一聊天。外部历史处理和显式记忆本工作流继续可用。这是插件的助手调用规则，不是已安装的自动检测器或请求 hook。[上下文归属](context_ownership_zh.md)。
+当前聊天默认由宿主负责压缩；原生压缩处于启用或未知状态时，不主动让 TOMC 再压同一聊天。外部历史处理和显式记忆本工作流继续可用。可选的生命周期 hook 负责登记会话元数据和执行 TOMC 开关，不自动替换模型请求。[上下文归属](context_ownership_zh.md)。
+
+## 当前本地预览：0.1.5
+
+当前源码构建 0.1.5 安装包，共有十个 MCP 工具。新增四个只读工具：`get_status`、`list_contexts`、`get_context`、`make_handoff`。成功准备或召回后，默认保存准备结果正文、任务和元数据；在 TOMC 面板关闭上下文记录后，不再保存后续正文，已有快照需单独删除。短输入可能在结果中完整保留。旧版本仅保存数字的统计无法还原过去的聊天正文。
+
+全局处理与新登记会话默认开启。用户级配置让工具跨项目可用；逐会话暂停和目录登记还需要安装并加载对应 hook，Codex 另需在 `/hooks` 审阅并信任。配置更新后可能需要新会话或受支持的重载。活动卡片依据会话与提交输入事件更新，不代表每次点击聊天标签都能被检测。hook 不替换原生客户端的模型请求，配置已启用也不等于已连接或已经省下输入。[验证与边界](host_integration_validation_20261022.md)。
+
+管理窗口可复制自包含接续提示词，或导出供其他 Agent、其他电脑读取的文本包；接收方无需安装 TOMC。导出包可以由用户纳入 Git，但 TOMC 不自动 commit 或 push。`make_handoff` 只返回所选快照的提示词，不替用户发送消息或写入剪贴板。
+
+下方的 0.1.1 下载链接和带日期的客户端测试保留历史范围，不代表 0.1.5 已通过相同宿主验收。新功能需使用当前源码构建的版本。
 
 ## 选择安装方式
 
@@ -49,13 +59,13 @@ python -m pip install -e '.[mcp]'
 
 ## Claude Desktop
 
-本地构建的安装候选包位于 `outputs/plugins/tomc-memory-0.1.1.mcpb`。它带有 TOMC 源码，采用官方 MCPB UV runtime，由支持该运行方式的客户端管理 Python 和依赖，创建独立环境。首次安装需要联网下载，并非离线安装包；用户不必先手动安装 Python。[官方 UV 安装包示例](https://github.com/modelcontextprotocol/mcpb/tree/main/examples/hello-world-uv)
+本地构建的安装候选包位于 `outputs/plugins/tomc-memory-0.1.5.mcpb`。它带有 TOMC 源码，采用官方 MCPB UV runtime，由支持该运行方式的客户端管理 Python 和依赖，创建独立环境。首次安装需要联网下载，并非离线安装包；用户不必先手动安装 Python。[官方 UV 安装包示例](https://github.com/modelcontextprotocol/mcpb/tree/main/examples/hello-world-uv)
 
 维护者可以在仓库中构建和检查：
 
 ```bash
 python scripts/build_plugin.py
-python scripts/plugin_smoke.py outputs/plugins/tomc-memory-0.1.1.mcpb
+python scripts/plugin_smoke.py outputs/plugins/tomc-memory-0.1.5.mcpb
 ```
 
 第二条命令需要 `uv` 和 MCP 测试客户端（`.[mcp]`）。它在仓库外解压安装包并启动锁定的运行环境，不会安装到助手中，也不会更改助手配置。分享时提供 `.mcpb` 文件及其 `.sha256` 校验文件；不要把自己电脑生成的 Cursor 路径链接当成可移植安装包。
@@ -63,7 +73,7 @@ python scripts/plugin_smoke.py outputs/plugins/tomc-memory-0.1.1.mcpb
 1. 更新 Claude Desktop，取得 `.mcpb` 文件。
 2. 进入 **Settings → Extensions → Advanced settings → Install Extension…**。
 3. 选择文件，查看说明并按提示确认安装。
-4. 开启对话，检查下列五个 TOMC 工具是否可用。
+4. 开启对话，检查 TOMC 工具是否可用；0.1.5 共十个，包括四个新的只读上下文与状态工具。
 
 这是[官方支持的自定义安装路径](https://support.claude.com/en/articles/10949351-getting-started-with-local-mcp-servers-on-claude-desktop)。完成打包和 MCP 协议检查，并不等于已通过所有桌面环境验收；macOS、Windows 上的实际 Claude Desktop 安装仍需验证。
 
@@ -148,7 +158,7 @@ Cursor 官方支持安装链接，但这个链接只添加 MCP 配置，不负�
 
 ## Codex
 
-安装候选包位于 `outputs/plugins/tomc-memory-codex-0.1.1.zip`。它包含 `.agents/plugins/marketplace.json` 本地市场目录、`install.py` 安装助手，以及 `plugins/tomc-memory/` 插件：其中有官方支持的 `.codex-plugin/plugin.json` 兼容 manifest、与 Claude 包相同的锁定 TOMC 运行环境和记忆 skill。兼容 manifest 声明随包提供的工具和 skill，安装助手则为当前安装生成启动路径。可以私下分享原始 ZIP，这并不意味着 TOMC 已上线公开插件目录。[OpenAI 官方插件打包与本地市场说明](https://developers.openai.com/plugins/build/plugins)
+安装候选包位于 `outputs/plugins/tomc-memory-codex-0.1.5.zip`。它包含 `.agents/plugins/marketplace.json` 本地市场目录、`install.py` 安装助手，以及 `plugins/tomc-memory/` 插件：其中有官方支持的 `.codex-plugin/plugin.json` 兼容 manifest、与 Claude 包相同的锁定 TOMC 运行环境和记忆 skill。兼容 manifest 声明随包提供的工具和 skill，安装助手则为当前安装生成启动路径。可以私下分享原始 ZIP，这并不意味着 TOMC 已上线公开插件目录。[OpenAI 官方插件打包与本地市场说明](https://developers.openai.com/plugins/build/plugins)
 
 维护者可以在仓库中运行 `python scripts/build_codex_plugin.py` 构建候选包，再分享 ZIP 及其 `.sha256` 校验文件。
 
@@ -192,7 +202,7 @@ PATH 中的 CLI 可能与桌面应用内置引擎不同。安装助手默认选�
 uv run --no-project install.py --codex 'C:\path\to\codex.exe'
 ```
 
-目标 host 应同时支持插件命令和你的模型账户。安装成功提示说明完成了注册，不代表模型请求一定成功。新开会话后，先检查五个 TOMC 工具，再运行[准备例子](#prepare-context)。明确要求调用 `prepare_context`，并查看实际工具结果。[Windows 反馈](windows_installation_feedback_zh.md)分别记录安装、运行和真实模型试用。
+目标 host 应同时支持插件命令和你的模型账户。安装成功提示说明完成了注册，不代表模型请求一定成功。新开会话后，先检查 TOMC 工具（0.1.5 共十个），再运行[准备例子](#prepare-context)。明确要求调用 `prepare_context`，并查看实际工具结果。[Windows 反馈](windows_installation_feedback_zh.md)分别记录安装、运行和真实模型试用。
 
 若只希望生成本地启动配置、打印后续安装命令，而不注册市场或安装插件，可以执行：
 
@@ -258,7 +268,7 @@ Wednesday notes: the team checked the release checklist, added a rollback task, 
 
 这个例子使用显式赋值和复制。TOMC 准备 `framework = FastAPI`、`backup_framework = Flask` 两条记录，并保留来源链接。是否调用工具由客户端控制，回答由原来的模型生成。
 
-`prepare_context` 不保存这段历史。已能放进预算的历史保持完整；较长的普通文本可以使用检索，不一定产生结构化记录。`budget` 按词法计数器限制记忆文本，任务和工具消息框架还会增加输入。
+MCP 的 `prepare_context` 默认保存成功准备的结果和任务，可关闭上下文记录。它不另外复制全部原始历史，但已能放进预算的历史可能完整保留在快照中；较长的普通文本可以使用检索，不一定产生结构化记录。`budget` 按词法计数器限制记忆文本，任务和工具消息框架还会增加输入。
 
 上面的 64-token 预算是明确指定的小例子。使用当前默认值时，省略 `budget`：TOMC 按历史 lexical 估算长度的约 80% 选择预算，最低为 1,024；本来就放得下的历史原样保留。这不是固定节省比例。
 
@@ -272,16 +282,21 @@ Wednesday notes: the team checked the release checklist, added a rollback task, 
 
 | 工具 | 用途 |
 |---|---|
-| `prepare_context` | 临时处理传入的历史，不保存 |
+| `prepare_context` | 按任务处理历史；开启上下文记录时保存结果和任务 |
 | `remember_memory` | 将传入的笔记追加到指定记忆本 |
 | `recall_memory` | 为当前任务取回指定记忆本 |
 | `list_memories` | 查看记忆本名称，不返回内容 |
 | `forget_memory` | 按要求删除指定记忆本 |
+| `get_usage_stats` | 查看累计、今日或最近七天（UTC）的本地上下文估算减少量 |
+| `get_status` | 只读查看设置、配置证据和最近准备状态 |
+| `list_contexts` | 列出已保存的上下文快照，不返回正文 |
+| `get_context` | 读取选定快照，作为可能不完整的历史证据 |
+| `make_handoff` | 返回自包含接续提示词，不发送消息 |
 
 <details markdown="1">
 <summary>可选：跨聊天保存与取回历史</summary>
 
-记忆本保存传入的原始文本；`recall_memory` 在取回时按任务准备上下文。`prepare_context` 直接处理提供的历史，不保存它。
+记忆本保存传入的原始文本；`recall_memory` 在取回时按任务准备上下文。`prepare_context` 不需要记忆本。0.1.5 在开启上下文记录时，会将这两条准备路径的成功结果和任务保存为独立快照。
 
 ## 用两次对话试一下
 
@@ -304,3 +319,7 @@ Wednesday notes: the team checked the release checklist, added a rollback task, 
 插件只看到传给工具的内容，不会自动读取全部聊天、拦截 API 请求或替换客户端的上下文窗口。这个日常使用接口采用 Demo 的任务路由和本地记忆本，并非论文 BEAM 实验的精确配置；论文分数不能直接当作此插件流程的效果保证。
 
 </details>
+
+## 上下文减少统计（0.1.2）
+
+准备和召回会返回本次上下文估算减少量，供助手显示。`get_usage_stats` 可查询累计、今天和最近七天（UTC）。数字统计本身不含原文或任务；0.1.5 默认另外保存准备结果正文与任务，可关闭上下文记录。不上传遥测，这些数字也不是实际 API 或账单节省；旧的纯数字历史无法还原正文。已有安装需更新运行时并开启新会话或按宿主支持方式重载。[统计口径与使用方法](token_statistics_zh.md)。

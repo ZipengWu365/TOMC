@@ -1,6 +1,6 @@
 {
   "name": "tomc-memory",
-  "version": "0.1.1",
+  "version": "0.1.5",
   "description": "Prepare task-specific context from supplied history on CPU, with optional local notebooks, for your existing assistant.",
   "author": {
     "name": "Zipeng Wu"

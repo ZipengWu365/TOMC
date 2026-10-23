@@ -25,7 +25,10 @@ def build_bundle(destination: Path, root: Path = ROOT) -> dict:
     }
     core = root / "src" / "tomc"
     for path in core.rglob("*"):
-        if path.suffix == ".py" or (path.suffix == ".json" and path.parent == core / "data"):
+        if (path.suffix == ".py"
+                or (path.suffix == ".json" and path.parent == core / "data")
+                or (path.parent == core / "data" and path.name in
+                    {f"tomc-expression-{i}.png" for i in range(1, 5)})):
             files["src/tomc/" + path.relative_to(core).as_posix()] = path
     entries = {}
     for name, source in sorted(files.items()):

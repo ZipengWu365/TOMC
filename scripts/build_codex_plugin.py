@@ -29,6 +29,8 @@ def build_codex_bundle(destination: Path, root: Path = ROOT) -> dict:
         ".agents/plugins/marketplace.json": template / "marketplace.json",
         "README.md": template / "README.md",
         "install.py": template / "install.py",
+        "scripts/install_session_hooks.py": root / "scripts/install_session_hooks.py",
+        "scripts/install_context_workspace.py": root / "scripts/install_context_workspace.py",
         prefix + ".codex-plugin/plugin.json": template / ".codex-plugin/plugin.json",
         prefix + "mcp.json": template / "mcp.json",
         prefix + "skills/tomc-memory/SKILL.md": template / "skills/tomc-memory/SKILL.md",
