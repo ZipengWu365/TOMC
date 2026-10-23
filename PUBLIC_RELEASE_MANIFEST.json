@@ -41,8 +41,8 @@
     },
     {
       "path": ".gitignore",
-      "bytes": 202,
-      "sha256": "62193e55a6d1327486b0d0a6532ed2161b00f9b1a0b57a4e1bd171bac6cabf15"
+      "bytes": 201,
+      "sha256": "7ea837578375c87eb45a2f8d6f7e9dda28b479236d230789e4e89f99830be330"
     },
     {
       "path": "CITATION.cff",
@@ -156,8 +156,8 @@
     },
     {
       "path": "assets/beam_readers.svg",
-      "bytes": 63433,
-      "sha256": "f7b3b2a674d732173f8b8c195451969cb1ad07965bee3a16da2c0d204c0449d8"
+      "bytes": 65715,
+      "sha256": "9d71c34925b2dc20bf6546d2c31e0529f3cd65b4db4d0a979d20947ca44c1fed"
     },
     {
       "path": "assets/beam_table/RENDERED_FROM.sha256",
@@ -926,8 +926,8 @@
     },
     {
       "path": "docs/pet_design.md",
-      "bytes": 9177,
-      "sha256": "a967644aad023f62848a8e5d5fc5f7d4ab0d284ab05f3c574eb06a15d0e9d849"
+      "bytes": 9142,
+      "sha256": "016c017a31e37d4b155b939870131e720e6739ee16add6195e6ae7509c7e3eec"
     },
     {
       "path": "docs/platform_checks.md",
@@ -976,8 +976,8 @@
     },
     {
       "path": "docs/token_statistics_zh.md",
-      "bytes": 12804,
-      "sha256": "1502a284e0085b54defd8cad088bbc3d68b43d8f484778d5a2e8be5bdd95999b"
+      "bytes": 12733,
+      "sha256": "f5239f271d981aeaa2efed2012299fc098e725dfea2759bcdb439378879cf78a"
     },
     {
       "path": "docs/tomc_dejected_expression_prompt.md",
@@ -1726,8 +1726,8 @@
     },
     {
       "path": "plugins/claude-code/src/tomc/data/pricing_snapshot.json",
-      "bytes": 97505,
-      "sha256": "c5a7612687798208d96a264eed0f5cbfd5dfff5dc7e92a2cd9bd8fb4e126007c"
+      "bytes": 94823,
+      "sha256": "b0fa151874d3e6420de9ba274ad4b7e7d1dfa6ae32a76fd4c8fe511b3c631880"
     },
     {
       "path": "plugins/claude-code/src/tomc/data/snapshot.json",
@@ -1956,8 +1956,8 @@
     },
     {
       "path": "plugins/claude/manifest.json",
-      "bytes": 3320,
-      "sha256": "de8a8f0a3a90f252162ad06571ce995637fb5180598a336b5334329eeeb65e6c"
+      "bytes": 3231,
+      "sha256": "ef967777ba70295e0b23a6957139fadd8f1b25e998f9e0f4c33398d5b20ea899"
     },
     {
       "path": "plugins/claude/pyproject.toml",
@@ -2001,8 +2001,8 @@
     },
     {
       "path": "plugins/codex/skills/tomc-memory/SKILL.md",
-      "bytes": 5580,
-      "sha256": "2c66b74ff38d91771dd12e7e864ff5ebaa71225208360b49949211c778386d19"
+      "bytes": 5549,
+      "sha256": "88217918ca296008b1ee82d3c42c3a14d768eb2accb3028acbd73040d5e3d1c7"
     },
     {
       "path": "plugins/downloads/README.md",
@@ -2541,8 +2541,8 @@
     },
     {
       "path": "src/tomc/data/pricing_snapshot.json",
-      "bytes": 97505,
-      "sha256": "c5a7612687798208d96a264eed0f5cbfd5dfff5dc7e92a2cd9bd8fb4e126007c"
+      "bytes": 94823,
+      "sha256": "b0fa151874d3e6420de9ba274ad4b7e7d1dfa6ae32a76fd4c8fe511b3c631880"
     },
     {
       "path": "src/tomc/data/snapshot.json",
@@ -2796,8 +2796,8 @@
     },
     {
       "path": "tests/fixtures/pricing/openai.txt",
-      "bytes": 2689,
-      "sha256": "4785f38b493f733edacade8ec3ff3368f10c9f5867558600ec867e2d1524510d"
+      "bytes": 2652,
+      "sha256": "7f8720085ad8a012b32a024c168c6a62244062b2cf2fbca11fff648cee88188b"
     },
     {
       "path": "tests/test_animation_receipts.py",
@@ -3015,7 +3015,7 @@
       "sha256": "be8dbb0aa75e27d1625255b99019c1b078833d1afc864951da7d6de1c4b70807"
     }
   ],
-  "total_bytes": 146849598,
+  "total_bytes": 146846252,
   "self_excluded": [
     "PUBLIC_RELEASE_MANIFEST.json",
     "SHA256SUMS"
