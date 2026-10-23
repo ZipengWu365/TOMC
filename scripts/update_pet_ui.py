@@ -28,6 +28,9 @@ MODULES = (
     "request_activity.py",
     "animation_receipts.py",
     "savings.py",
+    "savings_qt.py",
+    "conversation_names.py",
+    "conversations.py",
 )
 
 

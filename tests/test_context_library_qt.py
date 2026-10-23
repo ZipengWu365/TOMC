@@ -30,6 +30,13 @@ def app():
     instance.sendPostedEvents(None, QEvent.Type.DeferredDelete)
 
 
+@pytest.fixture(autouse=True)
+def isolated_hosts(tmp_path, monkeypatch):
+    """Conversation names come from empty fixture hosts, never the real Codex/Claude homes."""
+    monkeypatch.setenv("CODEX_HOME", str(tmp_path / "codex-home"))
+    monkeypatch.setenv("CLAUDE_CONFIG_DIR", str(tmp_path / "claude-home"))
+
+
 def save_fixture(library, task="Continue the test task", before=2000, after=300):
     prepared = SimpleNamespace(
         compilation=SimpleNamespace(
@@ -58,8 +65,8 @@ def dialog(app, tmp_path):
 
 def test_empty_browser_does_not_create_db_or_invent_records(dialog):
     assert not dialog.library.path.exists()
-    assert dialog.context_list.count() == 0
-    assert "暂无处理记录" in dialog.empty.text()
+    assert dialog.conversation_list.count() == 0
+    assert "还没有保存的上下文" in dialog.empty.text()
     assert "无法还原" in dialog.empty.text()
     assert not dialog.copy_button.isEnabled()
     assert dialog.enabled.isChecked() and dialog.save_contexts.isChecked()
@@ -68,19 +75,24 @@ def test_empty_browser_does_not_create_db_or_invent_records(dialog):
 
 
 def test_search_preview_and_untruncated_self_contained_copy(dialog, app):
-    first = save_fixture(dialog.library, "Alpha continuation")
-    save_fixture(dialog.library, "Beta continuation")
+    save_fixture(dialog.library, "Alpha continuation")
+    second = save_fixture(dialog.library, "Beta continuation")
     dialog.refresh()
+    # One chat, named by its first task because the host has no name for it.
+    assert dialog.conversation_list.count() == 1 and dialog.version_list.count() == 2
+    assert dialog.conversation_title.text() == "Alpha continuation"
     dialog.search.setText("ALPHA")
-    assert dialog.context_list.count() == 1
-    assert dialog.selected_record["id"] == first["id"]
-    assert dialog.memory.toPlainText() == first["memory"]
+    assert dialog.version_list.count() == 2  # A conversation-name match shows every version.
+    dialog.search.setText("BETA")
+    assert dialog.version_list.count() == 1
+    assert dialog.selected_record["id"] == second["id"]
+    assert dialog.memory.toPlainText() == second["memory"]
     dialog.copy_handoff()
     copied = app.clipboard().text()
     assert copied == dialog.library.handoff_prompt(
-        first["id"], inline=True, language=dialog.language.code
+        second["id"], inline=True, language=dialog.language.code
     )
-    assert first["memory"] in copied and "Alpha continuation" in copied
+    assert second["memory"] in copied and "Beta continuation" in copied
     assert "未截断" in dialog.message.text()
     dialog.search.setText("absent title")
     assert not dialog.copy_button.isEnabled()
@@ -92,7 +104,7 @@ def test_estimate_keeps_negative_change_separate_from_unmeasured_request(dialog)
     dialog.pricing = {"rate": 2, "label": "Fixture rate", "model": "fixture", "mode": "input"}
     dialog.refresh()
     assert "增加 200" in dialog.record_tokens.text()
-    assert "参考输入金额增加 $0.0004" in dialog.record_cost.text()
+    assert "参考输入金额增加 <$0.01" in dialog.record_cost.text()
     assert "请求用量：未关联" in dialog.request_status.text()
 
 
@@ -481,7 +493,7 @@ def test_selected_language_controls_handoff_but_never_translates_user_text(dialo
 
 def test_empty_error_and_disabled_messages_retranslate_immediately(dialog, monkeypatch):
     dialog.language.set_language("en")
-    assert "No prepared contexts yet" in dialog.empty.text()
+    assert "No saved contexts yet" in dialog.empty.text()
     assert "No session events received" in dialog.session_note.text()
     row = save_fixture(dialog.library)
     dialog.sessions.register("codex", "a", title="Test")
@@ -538,6 +550,180 @@ def test_open_confirmation_dialog_retranslates_buttons_without_changing_selectio
     monkeypatch.setattr(QMessageBox, "exec", confirm)
     dialog.delete_context()
     assert dialog.library.get(row["id"])["memory"] == row["memory"]
+
+
+def name_codex_thread(tmp_path, thread, name, cwd):
+    import sqlite3
+    from contextlib import closing
+
+    home = tmp_path / "codex-home"
+    home.mkdir(exist_ok=True)
+    with closing(sqlite3.connect(home / "state_5.sqlite")) as db, db:
+        db.execute(
+            "CREATE TABLE IF NOT EXISTS threads (id TEXT PRIMARY KEY, name TEXT, title TEXT, "
+            "cwd TEXT, agent_nickname TEXT, source TEXT)"
+        )
+        db.execute(
+            "INSERT INTO threads VALUES (?,?,?,?,NULL,'user')", (thread, name, "first message", cwd)
+        )
+
+
+def compiled_request(dialog, request_id, before, after, model="gpt-6-astra"):
+    from tomc.usage import UsageStore
+
+    dialog.activity.start(request_id, "codex", "session-a")
+    dialog.activity.finish(
+        request_id,
+        state="prepared",
+        before_tokens=before,
+        after_tokens=after,
+        context_input_tokens=1000,
+        model=model,
+    )
+    UsageStore(dialog.library.path).record(
+        {
+            "request_id": request_id,
+            "usable": True,
+            "input_tokens": before,
+            "memory_tokens": after,
+            "reduced_tokens": before - after,
+            "counter": "regex-request-json-v1 (estimate)",
+        }
+    )
+
+
+@pytest.fixture
+def fixed_prices(monkeypatch):
+    from tomc import pricing_catalog, savings
+
+    catalog = {
+        "schema": 1,
+        "providers": {
+            "openai": {
+                "verified_at": "2026-10-18T00:00:00+00:00",
+                "rates": [
+                    {
+                        "provider": "openai",
+                        "model": "gpt-6-astra",
+                        "label": "gpt-6-astra",
+                        "variant": "standard-short",
+                        "input": 10.0,
+                        "cached": 1.0,
+                        "output": 50.0,
+                    }
+                ],
+            }
+        },
+    }
+    monkeypatch.setattr(pricing_catalog, "read_catalog", lambda path=None: catalog)
+    monkeypatch.setattr(savings, "load_detected", lambda path=None: {})
+
+
+def test_conversations_use_host_names_and_keep_internal_ids_out_of_view(dialog, tmp_path):
+    from PySide6.QtWidgets import QLabel
+
+    name_codex_thread(tmp_path, "session-a", "Fix the cat stage", r"C:\work\TOMC-memory-branding")
+    first = save_fixture(dialog.library, "Check why the cat never advances")
+    second = save_fixture(dialog.library, "Verify the stage animation")
+    dialog.sessions.register("codex", "session-a", project=r"C:\work\TOMC-memory-branding")
+    dialog.refresh()
+    assert dialog.conversation_title.text() == "Fix the cat stage"
+    assert "TOMC-memory-branding" in dialog.conversation_meta.text()
+    assert dialog.conversation_list.item(0).toolTip() == "Fix the cat stage"
+    assert dialog.version_list.count() == 2
+    assert dialog.version_list.itemWidget(dialog.version_list.item(0)).title.text() == (
+        "Verify the stage animation"
+    )
+    visible = [label.text() for label in dialog.findChildren(QLabel)]
+    visible.append(dialog.task.toPlainText())
+    for identifier in (first["id"], second["id"], "session-a"):
+        assert not [text for text in visible if identifier in text]
+    assert second["id"] in dialog.version_list.item(0).toolTip()
+    assert "Fix the cat stage" in dialog.task.toPlainText()
+    session = dialog.session_list.item(0)
+    assert session.text().startswith("Fix the cat stage\n")
+
+
+def test_dashboard_numbers_models_and_conversation_switch(dialog, fixed_prices):
+    from tomc.context_library import ContextLibrary
+
+    compiled_request(dialog, "request-1", 100_000, 60_000)
+    compiled_request(dialog, "request-2", 30_000, 20_000)  # compressed, text not saved
+    prepared = SimpleNamespace(
+        compilation=SimpleNamespace(
+            compiled_memory="Fixture evidence.",
+            stats=SimpleNamespace(
+                token_budget=500, input_tokens=9000, output_tokens=7000, tokenizer="fixture"
+            ),
+        )
+    )
+    ContextLibrary(dialog.library.path).save(
+        prepared,
+        task="Saved task",
+        host="codex",
+        session_id="session-a",
+        preparation_id="request-1",
+    )
+    dialog.sessions.register("codex", "session-a")
+    dialog.refresh()
+    kpis = {key: value.text() for key, (value, _caption) in dialog.kpis.items()}
+    assert kpis == {
+        "tokens": "50,000",
+        "money": "$0.50",
+        "compressions": "2",
+        "conversations": "1",
+    }
+    chips = [
+        dialog.model_chips.itemAt(i).widget().text()
+        for i in range(dialog.model_chips.count())
+        if dialog.model_chips.itemAt(i).widget()
+    ]
+    assert chips == ["gpt-6-astra  50K · $0.50"]
+    # The conversation counts every compressed request of the chat, saved or not.
+    assert [chip.text() for chip in dialog.conversation_chips] == [
+        "1 份上下文",
+        "节省 50K tokens",
+        "$0.50",
+    ]
+    assert "整个请求节省 40,000 tokens" in dialog.request_status.text()
+    assert "上下文 9,000 → 7,000 tokens" in dialog.record_tokens.text()
+    dialog.period_buttons["today"].click()
+    assert dialog.period == "today" and dialog.kpis["tokens"][0].text() == "50,000"
+    # Shown only for registered sessions, reflecting the stored switch.
+    assert not dialog.conversation_enabled.isHidden() and dialog.conversation_enabled.isChecked()
+    dialog.conversation_enabled.setChecked(False)
+    assert not dialog.sessions.effective_enabled("codex", "session-a")
+    assert dialog.message.text().startswith("本会话 TOMC 已关闭")
+    assert not dialog.conversation_enabled.isChecked()
+
+
+def test_export_carries_the_conversation_name_to_the_other_computer(
+    dialog, app, tmp_path, monkeypatch
+):
+    import json
+
+    name_codex_thread(tmp_path, "session-a", "Fix the cat stage", "/work/TOMC")
+    row = save_fixture(dialog.library, "Check why the cat never advances")
+    dialog.refresh()
+    target = tmp_path / "usb"
+    target.mkdir()
+    monkeypatch.setattr(QFileDialog, "getExistingDirectory", lambda *a, **kw: str(target))
+    dialog.export_context()
+    (bundle,) = target.iterdir()
+    metadata = json.loads((bundle / "metadata.json").read_text(encoding="utf-8"))
+    assert metadata["conversation"] == {"title": "Fix the cat stage"}
+    other = ContextLibraryDialog(tmp_path / "other.sqlite3", integrations=STATUS, pricing=None)
+    try:
+        other.language.set_language("zh")
+        monkeypatch.setattr(QFileDialog, "getExistingDirectory", lambda *a, **kw: str(bundle))
+        other.import_bundle()
+        assert other.selected_record["id"] == row["id"]
+        assert other.conversation_title.text() == "Fix the cat stage"
+        assert other.conversation_meta.text().startswith("导入 · 来自 Codex")
+    finally:
+        other.close()
+        other.deleteLater()
+        app.sendPostedEvents(None, QEvent.Type.DeferredDelete)
 
 
 @pytest.mark.parametrize(

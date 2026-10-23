@@ -199,6 +199,28 @@ def test_import_deduplicates_without_usage_or_local_session_attribution(tmp_path
     assert SessionStore(target.path).list() == []
 
 
+def test_bundle_carries_the_original_conversation_name_as_an_optional_label(tmp_path):
+    original = ContextLibrary(tmp_path / "first" / "memory.sqlite3")
+    saved = original.save(_prepared(), host="codex", session_id="origin-thread")
+    named = original.export(saved["id"], tmp_path / "out", conversation="修复小猫不进阶")
+    assert _manifest(named)["conversation"] == {"title": "修复小猫不进阶"}
+    # A label that is not one short line is dropped, never blocking the export.
+    plain = original.export(saved["id"], tmp_path / "plain", conversation="two\nlines")
+    assert "conversation" not in _manifest(plain)
+    target = ContextLibrary(tmp_path / "second" / "memory.sqlite3")
+    assert target.conversation_titles() == {}
+    target.import_bundle(named)
+    assert target.conversation_titles() == {saved["id"]: "修复小猫不进阶"}
+    target.delete(saved["id"])
+    assert target.conversation_titles() == {}
+    # An unusable label in someone else's bundle is ignored; the context still imports.
+    data = _manifest(plain)
+    data["conversation"] = {"title": ["not", "text"]}
+    _write_manifest(plain, data)
+    assert target.import_bundle(plain)["imported"]
+    assert target.conversation_titles() == {}
+
+
 def test_import_same_id_with_valid_but_changed_content_is_a_conflict(tmp_path):
     library = ContextLibrary(tmp_path / "memory.sqlite3")
     saved = library.save(_prepared())

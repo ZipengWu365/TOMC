@@ -14,6 +14,7 @@ from PySide6.QtWidgets import (
     QComboBox,
     QDialog,
     QFileDialog,
+    QFrame,
     QHBoxLayout,
     QInputDialog,
     QLabel,
@@ -23,6 +24,7 @@ from PySide6.QtWidgets import (
     QMessageBox,
     QPlainTextEdit,
     QPushButton,
+    QSizePolicy,
     QSplitter,
     QStackedWidget,
     QTabWidget,
@@ -30,64 +32,19 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from .cost_estimate import dollars, explanation, input_value, load_pricing
+from .conversation_names import clean, folder, resolve
+from .conversations import group_conversations
+from .cost_estimate import explanation, input_value, load_pricing
 from .request_activity import RequestActivity
+from .savings import request_savings, savings_report
+from .savings_qt import ElidedLabel, SavingsChart, compact_tokens, discard, local_time, money_text
 from .ui_language import UiLanguage
-
-_STATIC_TEXT = {
-    "TOMC 会话状态": "TOMC session status",
-    "TOMC · 上下文与接续": "TOMC · Context and handoff",
-    "上下文与接续": "Context and handoff",
-    "刷新": "Refresh",
-    "TOMC · 请求接入状态待读取": "TOMC · Loading request integration status",
-    "自动请求：尚未观察到代理请求": "Automatic requests: no gateway request observed yet",
-    "TOMC 处理": "TOMC processing",
-    "保存上下文记录": "Save context records",
-    "全局暂停后，新准备请求停止；已有上下文仍可浏览和导出。": "Pausing stops new preparation. Existing contexts remain available to browse and export.",
-    "只控制之后的正文保存；不删除已有记录，不关闭 TOMC 处理。": "Controls future content storage. Existing records and TOMC processing are unaffected.",
-    "新会话默认开启，可单独关闭": "New sessions start enabled; each can be turned off",
-    "上下文保存在本机；复制与导出只处理你选中的版本。": "Contexts stay on this device. Copy and export use only the selected version.",
-    "搜索标题、来源或会话": "Search titles, sources or sessions",
-    "导入上下文包": "Import context bundle",
-    "已处理上下文列表": "Prepared context list",
-    "暂无处理记录\n\n成功准备并保存的上下文会出现在这里。\n旧版数字统计不含正文，无法还原历史上下文。": "No prepared contexts yet\n\nSaved contexts will appear here after preparation.\nOlder numeric statistics contain no text and cannot restore past contexts.",
-    "此快照的请求用量：未关联": "Request usage for this snapshot: not linked",
-    "选中上下文正文，只读": "Selected context content, read-only",
-    "原任务与记录信息，只读": "Original task and record details, read-only",
-    "重命名": "Rename",
-    "删除": "Delete",
-    "导出便携包": "Export bundle",
-    "复制接续提示词": "Copy handoff prompt",
-    "仅显示已收到宿主事件的会话；登记不代表已压缩。纯界面焦点切换无法可靠观测。": "Only sessions with host events appear here. Registration does not prove compression. UI focus changes cannot be observed reliably.",
-    "已登记会话及本会话开关": "Registered sessions and individual switches",
-    "存在关闭会话时，身份未关联的准备会暂停，需重新加载宿主接入。": "When a session is disabled, preparation without a session identity pauses until the host integration is reloaded.",
-    "保持开启": "Keep enabled",
-    "关闭本会话": "Disable session",
-}
 
 
 def _tr(language, zh, en, **values):
     if hasattr(language, "tr"):
         return language.tr(zh, en, **values)
     return (en if language == "en" else zh).format(**values)
-
-
-def _static_translations(owner):
-    """Capture only authored UI labels at construction, never saved user text."""
-    bindings = []
-    for widget in [owner, *owner.findChildren(QWidget)]:
-        for getter, setter in (
-            ("text", "setText"),
-            ("placeholderText", "setPlaceholderText"),
-            ("toolTip", "setToolTip"),
-            ("accessibleName", "setAccessibleName"),
-            ("windowTitle", "setWindowTitle"),
-        ):
-            if hasattr(widget, getter) and hasattr(widget, setter):
-                value = getattr(widget, getter)()
-                if isinstance(value, str) and value in _STATIC_TEXT:
-                    bindings.append((getattr(widget, setter), value, _STATIC_TEXT[value]))
-    return bindings
 
 
 STYLE = """
@@ -530,8 +487,106 @@ class SessionNotice(QWidget):
         super().hideEvent(event)
 
 
+LIBRARY_STYLE = (
+    STYLE
+    + """
+QDialog { background: #FBF8F2; }
+QFrame#card { background: #FFFFFF; border: 1px solid #ECE6DB; border-radius: 14px; }
+QLabel#title { font-size: 21px; font-weight: 600; color: #2F4A3B; }
+QLabel#subtitle { color: #8A7F72; font-size: 12px; }
+QLabel#kpiValue { font-size: 24px; font-weight: 600; color: #2F4A3B; }
+QLabel#kpiMoney { font-size: 24px; font-weight: 600; color: #3F3730; }
+QLabel#kpiLabel { color: #8A7F72; font-size: 11px; }
+QLabel#chip { background: #EEF2EA; color: #3F6B53; border-radius: 10px; padding: 3px 10px; font-size: 11px; }
+QLabel#paused { background: #F6EBDC; color: #866239; border-radius: 10px; padding: 3px 10px; font-size: 11px; }
+QLabel#modelChip { background: #F6F2EA; color: #4E453D; border-radius: 9px; padding: 4px 10px; font-size: 11px; }
+QLabel#section { font-size: 12px; font-weight: 600; color: #6E655B; }
+QLabel#status { background: #F3F6F0; border-radius: 8px; padding: 9px; }
+QWidget#periods { background: #F0ECE4; border-radius: 8px; }
+QPushButton#period { background: transparent; border: none; color: #706659; border-radius: 6px; padding: 4px 12px; font-size: 12px; }
+QPushButton#period:checked { background: #FFFFFF; color: #345743; font-weight: 600; }
+QPushButton#link { background: transparent; border: none; color: #3F6B53; padding: 4px 6px; }
+QPushButton#link:hover { background: #E4ECE5; }
+QListWidget#conversations { background: transparent; border: none; padding: 0; }
+QListWidget#conversations::item { border: none; border-radius: 10px; padding: 0; margin: 1px 0; }
+QListWidget#conversations::item:selected { background: #E6EFE7; color: #294735; }
+QListWidget#conversations::item:hover:!selected { background: #F3EFE7; }
+QListWidget#versions { background: #FFFFFF; border: 1px solid #ECE6DB; border-radius: 10px; padding: 4px; }
+QListWidget#versions::item { border: none; border-radius: 8px; padding: 0; }
+QListWidget#versions::item:selected { background: #E6EFE7; color: #294735; }
+QListWidget#versions::item:hover:!selected { background: #F6F3EC; }
+QTabWidget::pane { border: none; }
+QTabBar::tab { background: transparent; border: none; padding: 8px 14px; margin: 0 4px 6px 0; color: #796D60; }
+QTabBar::tab:selected { color: #345743; border-bottom: 2px solid #507461; }
+QTabBar::tab:hover:!selected { color: #4E453D; }
+"""
+)
+
+
+def clear_cards(view):
+    """Empty a list whose rows are widgets, detaching them now rather than next loop."""
+    for row in range(view.count()):
+        card = view.itemWidget(view.item(row))
+        if card is not None:
+            discard(card)
+    view.clear()
+
+
+def plain(text="", *, name=None, wrap=False):
+    item = QLabel(text)
+    item.setTextFormat(Qt.TextFormat.PlainText)
+    item.setWordWrap(wrap)
+    if name:
+        item.setObjectName(name)
+    return item
+
+
+class ConversationCard(QWidget):
+    """One conversation in the list: its name, where it ran, and what it saved."""
+
+    def __init__(self, title, meta, when, stats):
+        super().__init__()
+        self.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(12, 9, 12, 9)
+        layout.setSpacing(2)
+        top = QHBoxLayout()
+        top.setSpacing(8)
+        self.title = ElidedLabel(title, 13, "#2F2A26", bold=True)
+        self.when = plain(when)
+        self.when.setStyleSheet("color: #9A8F82; font-size: 11px;")
+        top.addWidget(self.title, 1)
+        top.addWidget(self.when)
+        layout.addLayout(top)
+        self.meta = ElidedLabel(meta, 11, "#8A7F72")
+        layout.addWidget(self.meta)
+        self.stats = ElidedLabel(stats, 11, "#3F6B53")
+        layout.addWidget(self.stats)
+
+
+class VersionCard(QWidget):
+    """One saved context of a conversation, newest first."""
+
+    def __init__(self, title, meta, tokens):
+        super().__init__()
+        self.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(10, 6, 10, 6)
+        layout.setSpacing(1)
+        top = QHBoxLayout()
+        top.setSpacing(8)
+        self.title = ElidedLabel(title, 12, "#2F2A26")
+        self.tokens = plain(tokens)
+        self.tokens.setStyleSheet("color: #3F6B53; font-size: 11px;")
+        top.addWidget(self.title, 1)
+        top.addWidget(self.tokens)
+        layout.addLayout(top)
+        self.meta = ElidedLabel(meta, 11, "#8A7F72")
+        layout.addWidget(self.meta)
+
+
 class ContextLibraryDialog(QDialog):
-    """Browse actual snapshots, portable handoffs, and registered session settings."""
+    """A savings dashboard over saved contexts grouped by their original conversations."""
 
     changed = Signal()
 
@@ -556,70 +611,52 @@ class ContextLibraryDialog(QDialog):
             from .session_store import SessionStore
 
             sessions = SessionStore(path)
+        self.path = Path(path)
         self.library, self.sessions = library, sessions
         self.activity = activity or RequestActivity(path)
         self.integrations = integrations
         self.pricing = load_pricing() if pricing == "load" else pricing
         self._load_pricing = pricing == "load"
-        self.records = []
-        self.selected_record = None
+        self.period = "all"
+        self.records, self.conversations, self.visible = [], [], []
+        self.names, self.report = {}, None
+        self.selected_record = self.selected_conversation = None
         self._refreshing = False
         self._message_spec = (
             "上下文保存在本机；复制与导出只处理你选中的版本。",
             "Contexts stay on this device. Copy and export use only the selected version.",
             {},
         )
-        self.setWindowTitle("TOMC · 上下文与接续")
-        self.setStyleSheet(STYLE)
-        self.resize(980, 730)
-        self.setMinimumSize(800, 620)
+        self.setStyleSheet(LIBRARY_STYLE)
+        self.resize(1100, 860)
+        self.setMinimumSize(900, 680)
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(22, 18, 22, 16)
+        layout.setContentsMargins(24, 18, 24, 14)
         layout.setSpacing(12)
         heading = QHBoxLayout()
-        title = text_label("上下文与接续")
-        title.setObjectName("title")
-        heading.addWidget(title)
+        titles = QVBoxLayout()
+        titles.setSpacing(2)
+        self.title_label = plain(name="title")
+        self.subtitle = plain(name="subtitle")
+        titles.addWidget(self.title_label)
+        titles.addWidget(self.subtitle)
+        heading.addLayout(titles)
         heading.addStretch()
-        self.refresh_button = QPushButton("刷新")
+        self.status_chip = plain(name="chip")
+        heading.addWidget(self.status_chip, 0, Qt.AlignmentFlag.AlignVCenter)
+        heading.addSpacing(8)
+        self.refresh_button = QPushButton()
         self.refresh_button.clicked.connect(self.refresh)
-        heading.addWidget(self.refresh_button)
+        heading.addWidget(self.refresh_button, 0, Qt.AlignmentFlag.AlignVCenter)
         layout.addLayout(heading)
-        self.mode = text_label("TOMC · 请求接入状态待读取", muted=True)
-        layout.addWidget(self.mode)
-        self.activity_status = text_label("自动请求：尚未观察到代理请求", muted=True)
-        layout.addWidget(self.activity_status)
-        status_row = QHBoxLayout()
-        self.integration_labels = {}
-        for host in ("codex", "claude_code"):
-            label = text_label()
-            label.setObjectName("status")
-            status_row.addWidget(label, 1)
-            self.integration_labels[host] = label
-        layout.addLayout(status_row)
-        controls = QHBoxLayout()
-        self.enabled = QCheckBox("TOMC 处理")
-        self.enabled.setToolTip("全局暂停后，新准备请求停止；已有上下文仍可浏览和导出。")
-        self.save_contexts = QCheckBox("保存上下文记录")
-        self.save_contexts.setToolTip("只控制之后的正文保存；不删除已有记录，不关闭 TOMC 处理。")
-        self.enabled.toggled.connect(lambda value: self.change_setting("enabled", value))
-        self.save_contexts.toggled.connect(
-            lambda value: self.change_setting("save_contexts", value)
-        )
-        controls.addWidget(self.enabled)
-        controls.addSpacing(20)
-        controls.addWidget(self.save_contexts)
-        controls.addStretch()
-        controls.addWidget(text_label("新会话默认开启，可单独关闭", muted=True))
-        layout.addLayout(controls)
+        layout.addWidget(self.make_dashboard())
         self.tabs = QTabWidget()
-        self.tabs.addTab(self.make_context_tab(), "已处理上下文")
-        self.tabs.addTab(self.make_session_tab(), "已登记会话")
+        self.tabs.addTab(self.make_context_tab(), "")
+        self.tabs.addTab(self.make_settings_tab(), "")
         layout.addWidget(self.tabs, 1)
-        self.message = text_label("上下文保存在本机；复制与导出只处理你选中的版本。", muted=True)
+        self.message = plain(name="muted", wrap=True)
         self.message.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
         layout.addWidget(self.message)
-        self._static_bindings = _static_translations(self)
         self.language.changed.connect(self.retranslate)
         self.retranslate()
 
@@ -630,130 +667,348 @@ class ContextLibraryDialog(QDialog):
         self._message_spec = (zh, en, values)
         self.message.setText(self.t(zh, en, **values))
 
-    def retranslate(self, *_):
-        for setter, zh, en in self._static_bindings:
-            setter(self.t(zh, en))
-        self.tabs.setTabText(0, self.t("已处理上下文", "Prepared contexts"))
-        self.tabs.setTabText(1, self.t("已登记会话", "Registered sessions"))
-        self.content_tabs.setTabText(0, self.t("上下文正文", "Context content"))
-        self.content_tabs.setTabText(1, self.t("任务与来源", "Task and source"))
-        self.host_filter.setItemText(0, self.t("全部宿主", "All hosts"))
-        self.host_filter.setItemText(3, self.t("未关联会话", "Unlinked sessions"))
-        self.refresh()
-        zh, en, values = self._message_spec
-        self.message.setText(self.t(zh, en, **values))
+    # Construction -----------------------------------------------------------
+
+    def make_dashboard(self):
+        card = QFrame()
+        card.setObjectName("card")
+        layout = QVBoxLayout(card)
+        layout.setContentsMargins(18, 12, 18, 12)
+        layout.setSpacing(8)
+        top = QHBoxLayout()
+        surface = QWidget()
+        surface.setObjectName("periods")
+        periods = QHBoxLayout(surface)
+        periods.setContentsMargins(3, 3, 3, 3)
+        periods.setSpacing(2)
+        self.period_buttons = {}
+        for key in ("today", "7d", "all"):
+            button = QPushButton()
+            button.setObjectName("period")
+            button.setCheckable(True)
+            button.clicked.connect(lambda checked=False, value=key: self.set_period(value))
+            self.period_buttons[key] = button
+            periods.addWidget(button)
+        top.addWidget(surface)
+        top.addStretch()
+        self.basis = plain(name="muted")
+        top.addWidget(self.basis)
+        self.price_button = QPushButton()
+        self.price_button.setObjectName("link")
+        opener = getattr(self.parent(), "open_reference", None)
+        self.price_button.setVisible(opener is not None)
+        if opener is not None:
+            self.price_button.clicked.connect(lambda: opener())
+        top.addWidget(self.price_button)
+        layout.addLayout(top)
+        metrics = QHBoxLayout()
+        metrics.setSpacing(28)
+        self.kpis = {}
+        for key, style in (
+            ("tokens", "kpiValue"),
+            ("money", "kpiMoney"),
+            ("compressions", "kpiValue"),
+            ("conversations", "kpiValue"),
+        ):
+            column = QVBoxLayout()
+            column.setSpacing(1)
+            value = plain(name=style)
+            caption = plain(name="kpiLabel")
+            column.addWidget(caption)
+            column.addWidget(value)
+            column.addStretch()
+            metrics.addLayout(column)
+            self.kpis[key] = (value, caption)
+        metrics.addStretch()
+        chart = QVBoxLayout()
+        chart.setSpacing(4)
+        self.chart_title = plain(name="kpiLabel")
+        chart.addWidget(self.chart_title)
+        self.chart = SavingsChart(self.language, self)
+        self.chart.setFixedHeight(46)
+        self.chart.setMinimumWidth(260)
+        chart.addWidget(self.chart)
+        metrics.addLayout(chart, 1)
+        layout.addLayout(metrics)
+        self.model_chips = QHBoxLayout()
+        self.model_chips.setSpacing(8)
+        layout.addLayout(self.model_chips)
+        return card
 
     def make_context_tab(self):
         page = QWidget()
         layout = QVBoxLayout(page)
-        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setContentsMargins(0, 8, 0, 0)
+        layout.setSpacing(10)
         filters = QHBoxLayout()
         self.search = QLineEdit()
-        self.search.setPlaceholderText("搜索标题、来源或会话")
         self.search.setClearButtonEnabled(True)
         self.search.textChanged.connect(self.filter_records)
         self.host_filter = QComboBox()
-        self.host_filter.addItem("全部宿主", "")
-        self.host_filter.addItem("Codex", "codex")
-        self.host_filter.addItem("Claude Code", "claude")
-        self.host_filter.addItem("未关联会话", "unlinked")
+        for data in ("", "codex", "claude", "unlinked"):
+            self.host_filter.addItem("", data)
         self.host_filter.currentIndexChanged.connect(self.filter_records)
-        self.import_button = QPushButton("导入上下文包")
+        self.import_button = QPushButton()
         self.import_button.clicked.connect(self.import_bundle)
         filters.addWidget(self.search, 1)
         filters.addWidget(self.host_filter)
         filters.addWidget(self.import_button)
         layout.addLayout(filters)
         split = QSplitter(Qt.Orientation.Horizontal)
-        self.context_list = QListWidget()
-        self.context_list.setWordWrap(True)
-        self.context_list.setAccessibleName("已处理上下文列表")
-        self.context_list.currentItemChanged.connect(self.select_context)
-        split.addWidget(self.context_list)
+        left = QWidget()
+        left_layout = QVBoxLayout(left)
+        left_layout.setContentsMargins(0, 0, 0, 0)
+        left_layout.setSpacing(6)
+        self.conversation_list = QListWidget()
+        self.conversation_list.setObjectName("conversations")
+        self.conversation_list.setVerticalScrollMode(QListWidget.ScrollMode.ScrollPerPixel)
+        self.conversation_list.currentRowChanged.connect(self.select_conversation)
+        left_layout.addWidget(self.conversation_list, 1)
+        self.count_label = plain(name="muted")
+        left_layout.addWidget(self.count_label)
+        split.addWidget(left)
         self.preview_stack = QStackedWidget()
-        self.empty = text_label(
-            "暂无处理记录\n\n成功准备并保存的上下文会出现在这里。\n旧版数字统计不含正文，无法还原历史上下文。",
-            muted=True,
-        )
+        self.empty = plain(name="muted", wrap=True)
         self.empty.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.preview_stack.addWidget(self.empty)
         detail = QWidget()
         detail_layout = QVBoxLayout(detail)
-        detail_layout.setContentsMargins(14, 0, 0, 0)
-        self.record_title = text_label()
-        self.record_title.setStyleSheet("font-weight: 600; font-size: 15px;")
-        self.record_meta = text_label(muted=True)
-        self.record_tokens = text_label()
-        self.record_tokens.setStyleSheet("font-size: 14px; color: #345743;")
-        self.record_cost = text_label(muted=True)
-        self.request_status = text_label("此快照的请求用量：未关联", muted=True)
-        for widget in (
-            self.record_title,
-            self.record_meta,
-            self.record_tokens,
-            self.record_cost,
-            self.request_status,
-        ):
-            detail_layout.addWidget(widget)
-        self.content_tabs = QTabWidget()
-        self.memory = QPlainTextEdit()
-        self.memory.setReadOnly(True)
-        self.memory.setAccessibleName("选中上下文正文，只读")
-        self.task = QPlainTextEdit()
-        self.task.setReadOnly(True)
-        self.task.setAccessibleName("原任务与记录信息，只读")
-        self.content_tabs.addTab(self.memory, "上下文正文")
-        self.content_tabs.addTab(self.task, "任务与来源")
-        detail_layout.addWidget(self.content_tabs, 1)
-        self.preview_stack.addWidget(detail)
-        split.addWidget(self.preview_stack)
-        split.setSizes([285, 625])
-        layout.addWidget(split, 1)
+        detail_layout.setContentsMargins(18, 0, 0, 0)
+        detail_layout.setSpacing(6)
+        self.conversation_title = ElidedLabel("", 18, "#2F2A26", bold=True)
+        self.conversation_title.setFixedHeight(28)
+        detail_layout.addWidget(self.conversation_title)
+        self.conversation_meta = ElidedLabel("", 12, "#8A7F72")
+        detail_layout.addWidget(self.conversation_meta)
+        chips = QHBoxLayout()
+        chips.setSpacing(8)
+        self.conversation_chips = [plain(name="chip") for _ in range(3)]
+        for chip in self.conversation_chips:
+            chips.addWidget(chip)
+        chips.addStretch()
+        self.conversation_enabled = QCheckBox()
+        self.conversation_enabled.toggled.connect(self.change_conversation)
+        chips.addWidget(self.conversation_enabled)
+        detail_layout.addLayout(chips)
+        detail_layout.addSpacing(6)
+        self.versions_title = plain(name="section")
+        detail_layout.addWidget(self.versions_title)
+        self.version_list = QListWidget()
+        self.version_list.setObjectName("versions")
+        self.version_list.setVerticalScrollMode(QListWidget.ScrollMode.ScrollPerPixel)
+        self.version_list.currentItemChanged.connect(self.select_context)
+        detail_layout.addWidget(self.version_list)
+        detail_layout.addSpacing(4)
+        selected = QFrame()
+        selected.setObjectName("card")
+        card = QVBoxLayout(selected)
+        card.setContentsMargins(14, 10, 14, 12)
+        card.setSpacing(4)
+        self.record_title = ElidedLabel("", 14, "#2F2A26", bold=True)
+        self.record_title.setFixedHeight(22)
+        card.addWidget(self.record_title)
+        self.record_meta = ElidedLabel("", 11, "#8A7F72")
+        card.addWidget(self.record_meta)
+        self.record_tokens = plain()
+        self.record_tokens.setStyleSheet("font-size: 13px; color: #345743;")
+        card.addWidget(self.record_tokens)
+        self.request_status = plain(name="muted", wrap=True)
+        card.addWidget(self.request_status)
+        self.record_cost = plain(name="muted", wrap=True)
+        card.addWidget(self.record_cost)
+        card.addSpacing(4)
         actions = QHBoxLayout()
-        self.count_label = text_label(muted=True)
-        actions.addWidget(self.count_label, 1)
-        self.rename_button = QPushButton("重命名")
-        self.rename_button.clicked.connect(self.rename_context)
-        self.delete_button = QPushButton("删除")
-        self.delete_button.clicked.connect(self.delete_context)
-        self.export_button = QPushButton("导出便携包")
-        self.export_button.clicked.connect(self.export_context)
-        self.copy_button = QPushButton("复制接续提示词")
+        actions.setSpacing(8)
+        self.copy_button = QPushButton()
         self.copy_button.setObjectName("primary")
         self.copy_button.clicked.connect(self.copy_handoff)
+        self.export_button = QPushButton()
+        self.export_button.clicked.connect(self.export_context)
+        self.rename_button = QPushButton()
+        self.rename_button.clicked.connect(self.rename_context)
+        self.delete_button = QPushButton()
+        self.delete_button.clicked.connect(self.delete_context)
         self.record_buttons = (
+            self.copy_button,
+            self.export_button,
             self.rename_button,
             self.delete_button,
-            self.export_button,
-            self.copy_button,
         )
         for button in self.record_buttons:
             button.setEnabled(False)
             actions.addWidget(button)
-        layout.addLayout(actions)
+        actions.addStretch()
+        card.addLayout(actions)
+        # Never squeeze the summary and buttons; the content view below absorbs space.
+        selected.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed)
+        detail_layout.addWidget(selected)
+        self.content_tabs = QTabWidget()
+        self.content_tabs.setMinimumHeight(110)
+        self.memory = QPlainTextEdit()
+        self.memory.setReadOnly(True)
+        self.task = QPlainTextEdit()
+        self.task.setReadOnly(True)
+        self.content_tabs.addTab(self.memory, "")
+        self.content_tabs.addTab(self.task, "")
+        detail_layout.addWidget(self.content_tabs, 1)
+        self.preview_stack.addWidget(detail)
+        split.addWidget(self.preview_stack)
+        split.setStretchFactor(1, 1)
+        split.setSizes([330, 700])
+        layout.addWidget(split, 1)
         return page
 
-    def make_session_tab(self):
+    def make_settings_tab(self):
         page = QWidget()
         layout = QVBoxLayout(page)
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.addWidget(
-            text_label(
-                "仅显示已收到宿主事件的会话；登记不代表已压缩。纯界面焦点切换无法可靠观测。",
-                muted=True,
-            )
+        layout.setContentsMargins(0, 10, 0, 0)
+        layout.setSpacing(10)
+        self.switches_title = plain(name="section")
+        layout.addWidget(self.switches_title)
+        controls = QHBoxLayout()
+        self.enabled = QCheckBox()
+        self.save_contexts = QCheckBox()
+        self.enabled.toggled.connect(lambda value: self.change_setting("enabled", value))
+        self.save_contexts.toggled.connect(
+            lambda value: self.change_setting("save_contexts", value)
         )
+        controls.addWidget(self.enabled)
+        controls.addSpacing(20)
+        controls.addWidget(self.save_contexts)
+        controls.addStretch()
+        self.default_note = plain(name="muted")
+        controls.addWidget(self.default_note)
+        layout.addLayout(controls)
+        self.connection_title = plain(name="section")
+        layout.addWidget(self.connection_title)
+        self.mode = plain(name="muted", wrap=True)
+        layout.addWidget(self.mode)
+        status_row = QHBoxLayout()
+        self.integration_labels = {}
+        for host in ("codex", "claude_code"):
+            label = plain(name="status", wrap=True)
+            status_row.addWidget(label, 1)
+            self.integration_labels[host] = label
+        layout.addLayout(status_row)
+        self.activity_status = plain(name="muted", wrap=True)
+        layout.addWidget(self.activity_status)
+        self.sessions_title = plain(name="section")
+        layout.addWidget(self.sessions_title)
+        self.session_note = plain(name="muted", wrap=True)
+        layout.addWidget(self.session_note)
         self.session_list = QListWidget()
         self.session_list.setWordWrap(True)
-        self.session_list.setAccessibleName("已登记会话及本会话开关")
         self.session_list.itemChanged.connect(self.change_session)
         layout.addWidget(self.session_list, 1)
-        self.session_note = text_label(muted=True)
-        layout.addWidget(self.session_note)
-        layout.addWidget(
-            text_label("存在关闭会话时，身份未关联的准备会暂停，需重新加载宿主接入。", muted=True)
-        )
+        self.session_hint = plain(name="muted", wrap=True)
+        layout.addWidget(self.session_hint)
         return page
+
+    def retranslate(self, *_):
+        t = self.t
+        self.setWindowTitle(t("TOMC · 上下文与接续", "TOMC · Contexts and handoff"))
+        self.title_label.setText(t("上下文与接续", "Contexts and handoff"))
+        self.subtitle.setText(
+            t(
+                "TOMC 压缩过的上下文，按原来的对话整理",
+                "Contexts TOMC compressed, organized by their original conversations",
+            )
+        )
+        self.refresh_button.setText(t("刷新", "Refresh"))
+        for key, zh, en in (
+            ("today", "今天", "Today"),
+            ("7d", "近七天", "7 days"),
+            ("all", "累计", "All time"),
+        ):
+            self.period_buttons[key].setText(t(zh, en))
+        self.price_button.setText(t("模型与估价 ›", "Models && pricing ›"))
+        for key, zh, en in (
+            ("tokens", "节省 tokens", "Tokens saved"),
+            ("money", "省下的钱", "Money saved"),
+            ("compressions", "压缩次数", "Compressions"),
+            ("conversations", "对话", "Conversations"),
+        ):
+            self.kpis[key][1].setText(t(zh, en))
+        self.chart_title.setText(t("每日节省 · 近 14 天", "Saved per day · last 14 days"))
+        self.tabs.setTabText(0, t("对话", "Conversations"))
+        self.tabs.setTabText(1, t("设置与连接", "Settings and connections"))
+        self.search.setPlaceholderText(
+            t("搜索对话名称、任务或文件夹", "Search conversation names, tasks or folders")
+        )
+        for index, (zh, en) in enumerate(
+            (
+                ("全部宿主", "All hosts"),
+                ("Codex", "Codex"),
+                ("Claude Code", "Claude Code"),
+                ("未关联或导入", "Unlinked or imported"),
+            )
+        ):
+            self.host_filter.setItemText(index, t(zh, en))
+        self.import_button.setText(t("导入上下文包", "Import context bundle"))
+        self.import_button.setToolTip(
+            t(
+                "导入在另一台电脑上导出的上下文包",
+                "Import a context bundle exported on another computer",
+            )
+        )
+        self.conversation_list.setAccessibleName(t("对话列表", "Conversation list"))
+        self.version_list.setAccessibleName(
+            t("这个对话的上下文版本", "Context versions of this conversation")
+        )
+        self.versions_title.setText(t("上下文版本", "Context versions"))
+        self.conversation_enabled.setText(
+            t("本对话启用 TOMC", "TOMC enabled for this conversation")
+        )
+        self.conversation_enabled.setToolTip(
+            t(
+                "只影响这个对话之后的请求；其他对话不变。",
+                "Affects only later requests in this conversation; others are unchanged.",
+            )
+        )
+        self.copy_button.setText(t("复制接续提示词", "Copy handoff prompt"))
+        self.export_button.setText(t("导出便携包", "Export bundle"))
+        self.rename_button.setText(t("重命名", "Rename"))
+        self.delete_button.setText(t("删除", "Delete"))
+        self.content_tabs.setTabText(0, t("上下文正文", "Context content"))
+        self.content_tabs.setTabText(1, t("原任务", "Original task"))
+        self.memory.setAccessibleName(
+            t("选中上下文正文，只读", "Selected context content, read-only")
+        )
+        self.task.setAccessibleName(t("原任务与来源，只读", "Original task and source, read-only"))
+        self.switches_title.setText(t("TOMC 开关", "TOMC switches"))
+        self.enabled.setText(t("TOMC 处理", "TOMC processing"))
+        self.enabled.setToolTip(
+            t(
+                "全局暂停后，新准备请求停止；已有上下文仍可浏览和导出。",
+                "Pausing stops new preparation. Existing contexts remain available to browse and export.",
+            )
+        )
+        self.save_contexts.setText(t("保存上下文记录", "Save context records"))
+        self.save_contexts.setToolTip(
+            t(
+                "只控制之后的正文保存；不删除已有记录，不关闭 TOMC 处理。",
+                "Controls future content storage. Existing records and TOMC processing are unaffected.",
+            )
+        )
+        self.default_note.setText(
+            t("新会话默认开启，可单独关闭", "New sessions start enabled; each can be turned off")
+        )
+        self.connection_title.setText(t("连接状态", "Connections"))
+        self.sessions_title.setText(t("各对话开关", "Per-conversation switches"))
+        self.session_list.setAccessibleName(
+            t("已登记会话及本会话开关", "Registered sessions and individual switches")
+        )
+        self.session_hint.setText(
+            t(
+                "存在关闭会话时，身份未关联的准备会暂停，需重新加载宿主接入。",
+                "When a session is disabled, preparation without a session identity pauses until the host integration is reloaded.",
+            )
+        )
+        self.refresh()
+        zh, en, values = self._message_spec
+        self.message.setText(self.t(zh, en, **values))
+
+    # Data -------------------------------------------------------------------
 
     def refresh(self, checked=False, select_id=None):
         if self._load_pricing:
@@ -765,138 +1020,249 @@ class ContextLibraryDialog(QDialog):
             self.enabled.setChecked(settings.get("enabled", True))
             self.save_contexts.setChecked(settings.get("save_contexts", True))
             self.records = self.library.list(limit=10000)
-            self.refresh_sessions()
-            status = self.integrations if self.integrations is not None else integration_snapshot()
-            activity_summary = self.activity.summary()
-            observed_hosts = {
-                row["host"] for row in activity_summary["by_host"] if row["sent_requests"]
+            registered = {(row["host"], row["session_id"]): row for row in self.sessions.list()}
+            pairs = set(registered) | {
+                (row.get("host"), row["session_id"])
+                for row in self.records
+                if row.get("session_id")
             }
-            latest = self.activity.last()
-            if latest and latest["state"] == "preparing" and self.activity.active() is None:
-                latest = {**latest, "stale": True}
-            mode = status.get("mode", {})
-            configured = mode.get("id") == "automatic_request_gateway"
-            if configured:
-                mode_text = (
-                    self.t(
-                        "自动接入已配置，重开客户端后等待请求",
-                        "Automatic routing configured; reopen the client and send a request",
-                    )
-                    if not activity_summary["sent_requests"]
-                    else self.t(
-                        "自动接入已配置 · 已观察到本地代理转发",
-                        "Automatic routing configured · Local forwarding observed",
-                    )
-                )
-                service = {
-                    "online": (" · 转发服务可达", " · Gateway reachable"),
-                    "offline": (
-                        " · 转发服务不可达，请启动服务",
-                        " · Gateway unreachable; start the service",
-                    ),
-                }.get(
-                    mode.get("gateway_service"),
-                    (" · 转发服务待核验", " · Gateway status unverified"),
-                )
-                mode_text += self.t(*service)
-            else:
-                mode_text = (
-                    self.t(
-                        "按需工具可用 · 代理尚未观察到实际转发",
-                        "On-demand tools available · No gateway forwarding observed",
-                    )
-                    if not activity_summary["sent_requests"]
-                    else self.t(
-                        "已观察到本地代理转发 · 仅覆盖实际经过代理的请求",
-                        "Local forwarding observed · Only requests routed through the gateway are covered",
-                    )
-                )
-            self.mode.setText(mode_text)
-            self.mode.setToolTip(
-                self.t(
-                    "服务可达只证明代理正在运行，当前对话接入以实际请求事件为准。短历史和不支持的请求保留原文。",
-                    "A reachable service proves only that the gateway is running. Actual request events establish session routing. Short or unsupported requests remain unchanged.",
-                )
+            self.names = resolve(pairs)
+            self.conversations = group_conversations(
+                self.records,
+                names=self.names,
+                savings=request_savings(self.path, reference=self.pricing),
+                sessions=registered,
+                imported=self.library.conversation_titles(),
             )
-            detail = request_activity_text(latest, self.language)
-            if latest:
-                detail += f" · {host_label(latest['host'], self.language)} · {short_date(latest['started_utc'], self.language)} UTC"
-                before, after = latest.get("before_tokens"), latest.get("after_tokens")
-                if before is not None and after is not None:
-                    detail += self.t(
-                        "\n本次请求文本估算 {before:,} → {after:,} tokens",
-                        "\nRequest text estimate {before:,} → {after:,} tokens",
-                        before=before,
-                        after=after,
-                    )
-                if latest.get("provider_input_tokens") is not None:
-                    detail += self.t(
-                        " · 实测 provider 输入 {count:,} tokens",
-                        " · Measured provider input {count:,} tokens",
-                        count=latest["provider_input_tokens"],
-                    )
-                    if latest.get("provider_cached_tokens") is not None:
-                        detail += self.t(
-                            "（缓存 {count:,}）",
-                            " (cached {count:,})",
-                            count=latest["provider_cached_tokens"],
-                        )
-                else:
-                    detail += self.t(
-                        " · provider 用量尚未返回", " · Provider usage not yet returned"
-                    )
-            self.activity_status.setText(detail)
-            for host, label in self.integration_labels.items():
-                item = status.get(host, {})
-                runtime = (
-                    self.t("运行已验证", "Runtime verified")
-                    if item.get("runtime_verified")
-                    else self.t("连接待验证", "Connection unverified")
-                )
-                if ("claude" if host == "claude_code" else host) in observed_hosts:
-                    runtime = self.t("代理转发曾被观察", "Gateway forwarding observed")
-                state = item.get("state") or {
-                    "已配置": "enabled",
-                    "配置已启用": "enabled",
-                    "未配置": "not_configured",
-                    "已禁用": "disabled",
-                }.get(item.get("label"), "unknown")
-                labels = {
-                    "enabled": ("配置已启用", "Configuration enabled"),
-                    "not_configured": ("未配置", "Not configured"),
-                    "disabled": ("已禁用", "Disabled"),
-                    "unknown": ("未知", "Unknown"),
-                }
-                configured_label = self.t(*labels.get(state, labels["unknown"]))
-                if ("claude" if host == "claude_code" else host) in mode.get(
-                    "configured_hosts", []
-                ):
-                    configured_label = self.t("自动接入已配置", "Automatic routing configured")
-                label.setText(f"{host_label(host, self.language)} · {configured_label} · {runtime}")
-                label.setToolTip(
-                    self.t(
-                        "仅检查用户级配置，未检查项目或会话覆盖。配置可用不等于当前会话已经连接。",
-                        "Only user-level configuration is checked, not project or session overrides. Configuration alone does not prove that this session is connected.",
-                    )
-                )
+            self.refresh_sessions(registered)
+            self.refresh_status(settings)
+            self.report = savings_report(self.path, self.period, reference=self.pricing)
         except (OSError, sqlite3.Error, ValueError) as exc:
             self.show_message(
                 "目录暂不可读：{error}",
                 "The library cannot be read right now: {error}",
                 error=str(exc),
             )
-            self.records = []
+            self.records, self.conversations = [], []
         finally:
             self._refreshing = False
+        self.render_dashboard()
         self.filter_records(select_id=selected_id)
 
-    def refresh_sessions(self):
+    def set_period(self, period):
+        self.period = period
+        try:
+            self.report = savings_report(self.path, period, reference=self.pricing)
+        except (OSError, sqlite3.Error, ValueError):
+            self.report = None
+        self.render_dashboard()
+
+    def render_dashboard(self):
+        t = self.t
+        for key, button in self.period_buttons.items():
+            button.setChecked(key == self.period)
+        report = self.report
+        tokens, money = self.kpis["tokens"][0], self.kpis["money"][0]
+        if report is None:
+            tokens.setText("—")
+            money.setText("—")
+            self.kpis["compressions"][0].setText("—")
+            self.basis.setText(t("统计暂不可读", "Statistics unavailable"))
+            self.chart.set_days([], None)
+        else:
+            saved = report["tokens_saved"]
+            tokens.setText(f"{saved:,}" if abs(saved) < 10_000_000 else compact_tokens(saved))
+            money.setText(money_text(report["money"]))
+            self.kpis["compressions"][0].setText(f"{report['preparations']:,}")
+            self.basis.setText(
+                t("按各模型缓存读取价折算", "At each model's cached-read price")
+                if report["mode"] == "cached"
+                else t("按各模型输入价折算", "At each model's input price")
+            )
+            start = None
+            if report["period"] != "all":
+                days = 6 if report["period"] == "7d" else 0
+                start = report["daily"][-1 - days]["day"]
+            self.chart.set_days(report["daily"], start)
+        self.kpis["conversations"][0].setText(f"{len(self.conversations):,}")
+        while self.model_chips.count():
+            item = self.model_chips.takeAt(0)
+            if item.widget():
+                discard(item.widget())
+        for model in (report or {}).get("models", [])[:5]:
+            chip = plain(
+                f"{model['label'] or t('未定价', 'Unpriced')}  {compact_tokens(model['tokens_saved'])}"
+                + (f" · {money_text(model['money'])}" if model["money"] is not None else ""),
+                name="modelChip",
+            )
+            rates = " / ".join(f"${rate:g}" for rate in model.get("rates", []))
+            chip.setToolTip(
+                t(
+                    "节省 {count:,} tokens · {rates} / 百万 tokens",
+                    "{count:,} tokens saved · {rates} per million tokens",
+                    count=model["tokens_saved"],
+                    rates=rates or "—",
+                )
+            )
+            self.model_chips.addWidget(chip)
+            chip.show()
+        self.model_chips.addStretch()
+
+    def refresh_status(self, settings):
+        status = self.integrations if self.integrations is not None else integration_snapshot()
+        activity_summary = self.activity.summary()
+        observed_hosts = {
+            row["host"] for row in activity_summary["by_host"] if row["sent_requests"]
+        }
+        latest = self.activity.last()
+        if latest and latest["state"] == "preparing" and self.activity.active() is None:
+            latest = {**latest, "stale": True}
+        mode = status.get("mode", {})
+        configured = mode.get("id") == "automatic_request_gateway"
+        if configured:
+            mode_text = (
+                self.t(
+                    "自动接入已配置，重开客户端后等待请求",
+                    "Automatic routing configured; reopen the client and send a request",
+                )
+                if not activity_summary["sent_requests"]
+                else self.t(
+                    "自动接入已配置 · 已观察到本地代理转发",
+                    "Automatic routing configured · Local forwarding observed",
+                )
+            )
+            service = {
+                "online": (" · 转发服务可达", " · Gateway reachable"),
+                "offline": (
+                    " · 转发服务不可达，请启动服务",
+                    " · Gateway unreachable; start the service",
+                ),
+            }.get(
+                mode.get("gateway_service"),
+                (" · 转发服务待核验", " · Gateway status unverified"),
+            )
+            mode_text += self.t(*service)
+        else:
+            mode_text = (
+                self.t(
+                    "按需工具可用 · 代理尚未观察到实际转发",
+                    "On-demand tools available · No gateway forwarding observed",
+                )
+                if not activity_summary["sent_requests"]
+                else self.t(
+                    "已观察到本地代理转发 · 仅覆盖实际经过代理的请求",
+                    "Local forwarding observed · Only requests routed through the gateway are covered",
+                )
+            )
+        self.mode.setText(mode_text)
+        detail = request_activity_text(latest, self.language)
+        if latest:
+            detail += f" · {host_label(latest['host'], self.language)} · {local_time(latest['started_utc'])}"
+            if latest.get("provider_input_tokens") is not None:
+                detail += self.t(
+                    " · 实测 provider 输入 {count:,} tokens",
+                    " · Measured provider input {count:,} tokens",
+                    count=latest["provider_input_tokens"],
+                )
+                if latest.get("provider_cached_tokens") is not None:
+                    detail += self.t(
+                        "（缓存 {count:,}）",
+                        " (cached {count:,})",
+                        count=latest["provider_cached_tokens"],
+                    )
+        self.activity_status.setText(
+            self.t("最近请求：{detail}", "Latest request: {detail}", detail=detail)
+        )
+        for host, label in self.integration_labels.items():
+            item = status.get(host, {})
+            runtime = (
+                self.t("运行已验证", "Runtime verified")
+                if item.get("runtime_verified")
+                else self.t("连接待验证", "Connection unverified")
+            )
+            if ("claude" if host == "claude_code" else host) in observed_hosts:
+                runtime = self.t("代理转发曾被观察", "Gateway forwarding observed")
+            state = item.get("state") or {
+                "已配置": "enabled",
+                "配置已启用": "enabled",
+                "未配置": "not_configured",
+                "已禁用": "disabled",
+            }.get(item.get("label"), "unknown")
+            labels = {
+                "enabled": ("配置已启用", "Configuration enabled"),
+                "not_configured": ("未配置", "Not configured"),
+                "disabled": ("已禁用", "Disabled"),
+                "unknown": ("未知", "Unknown"),
+            }
+            configured_label = self.t(*labels.get(state, labels["unknown"]))
+            if ("claude" if host == "claude_code" else host) in mode.get("configured_hosts", []):
+                configured_label = self.t("自动接入已配置", "Automatic routing configured")
+            label.setText(f"{host_label(host, self.language)} · {configured_label} · {runtime}")
+        if not settings.get("enabled", True):
+            self.status_chip.setObjectName("paused")
+            self.status_chip.setText(self.t("● TOMC 已暂停", "● TOMC paused"))
+        else:
+            self.status_chip.setObjectName("chip")
+            hosts = [
+                host_label(host, self.language)
+                for host in ("codex", "claude")
+                if host in observed_hosts
+            ]
+            self.status_chip.setText(
+                self.t("● 运行中 · {hosts}", "● Running · {hosts}", hosts=" · ".join(hosts))
+                if hosts
+                else self.t("● 等待第一个请求", "● Waiting for the first request")
+            )
+        self.status_chip.setToolTip(f"{mode_text}\n{detail}")
+        # The style sheet selects on the object name; re-polish after changing it.
+        self.status_chip.style().unpolish(self.status_chip)
+        self.status_chip.style().polish(self.status_chip)
+
+    def contexts(self, count):
+        return self.t(
+            "{count} 份上下文",
+            "{count} context" if count == 1 else "{count} contexts",
+            count=count,
+        )
+
+    def session_name(self, host, session_id, project=None, stored=None):
+        """The host's name, else TOMC's stored or first-task name; plus folder and agent."""
+        name = self.names.get((host, session_id)) or {}
+        place = name.get("folder") or folder(project)
+        if name.get("agent"):
+            place = " · ".join(
+                part
+                for part in (place, self.t("子代理 {name}", "Subagent {name}", name=name["agent"]))
+                if part
+            )
+        title = (
+            name.get("title")
+            or clean(stored)
+            or next(
+                (
+                    conversation["first_title"]
+                    for conversation in self.conversations
+                    if conversation["key"] == ("session", host, session_id)
+                ),
+                None,
+            )
+        )
+        return title or self.t("未命名对话", "Untitled conversation"), place
+
+    def refresh_sessions(self, registered=None):
         self.session_list.blockSignals(True)
         try:
             self.session_list.clear()
-            records = self.sessions.list()
-            for row in records:
-                title = row.get("title") or row["session_id"]
+            rows = (
+                list((registered or {}).values())
+                if registered is not None
+                else self.sessions.list()
+            )
+            rows.sort(key=lambda row: row.get("last_seen") or "", reverse=True)
+            for row in rows:
+                title, place = self.session_name(
+                    row["host"], row["session_id"], row.get("project"), row.get("title")
+                )
                 state = (
                     self.t("开启", "Enabled")
                     if row.get("enabled", True)
@@ -904,14 +1270,21 @@ class ContextLibraryDialog(QDialog):
                 )
                 if row.get("enabled", True) and not row.get("effective_enabled", True):
                     state += self.t(" · 全局暂停", " · Paused globally")
-                line = self.t(
-                    "最近事件 {stamp} UTC",
-                    "Latest event {stamp} UTC",
-                    stamp=short_date(row.get("last_seen"), self.language),
+                details = " · ".join(
+                    part
+                    for part in (
+                        host_label(row["host"], self.language),
+                        place,
+                        state,
+                        self.t(
+                            "最近 {stamp}",
+                            "Last active {stamp}",
+                            stamp=local_time(row.get("last_seen")),
+                        ),
+                    )
+                    if part
                 )
-                item = QListWidgetItem(
-                    f"{title}\n{host_label(row['host'], self.language)} · {state} · {line}"
-                )
+                item = QListWidgetItem(f"{title}\n{details}")
                 item.setData(Qt.ItemDataRole.UserRole, (row["host"], row["session_id"]))
                 item.setFlags(item.flags() | Qt.ItemFlag.ItemIsUserCheckable)
                 item.setCheckState(
@@ -919,20 +1292,19 @@ class ContextLibraryDialog(QDialog):
                 )
                 item.setToolTip(
                     self.t(
-                        "会话 ID：{identity}\n项目：{project}\n复选框只控制此会话，不修改宿主权限。",
-                        "Session ID: {identity}\nProject: {project}\nThis checkbox controls only this session, not host permissions.",
+                        "勾选表示允许 TOMC 处理这个对话；不修改宿主权限。\n会话 ID：{identity}",
+                        "Checked lets TOMC process this conversation; host permissions are unchanged.\nSession ID: {identity}",
                         identity=row["session_id"],
-                        project=row.get("project") or self.t("未提供", "Not provided"),
                     )
                 )
                 self.session_list.addItem(item)
             self.session_note.setText(
                 self.t(
-                    "{count} 个已登记会话；勾选表示允许 TOMC 处理。全局暂停时，已开启会话也不会处理。",
-                    "Registered sessions: {count}. Checked sessions allow TOMC processing; a global pause also stops enabled sessions.",
-                    count=len(records),
+                    "{count} 个对话；勾选表示允许 TOMC 处理。全局暂停时，已开启的对话也不会处理。",
+                    "Conversations: {count}. Checked ones allow TOMC processing; a global pause also stops enabled ones.",
+                    count=len(rows),
                 )
-                if records
+                if rows
                 else self.t(
                     "尚未收到会话事件。配置 hooks 后，新建、恢复或活动事件可登记会话；旧聊天不会凭空补全。",
                     "No session events received yet. After hooks are configured, start, resume or activity events register sessions. Old chats are not reconstructed.",
@@ -941,61 +1313,206 @@ class ContextLibraryDialog(QDialog):
         finally:
             self.session_list.blockSignals(False)
 
+    # Conversations ----------------------------------------------------------
+
+    def display_title(self, conversation):
+        if conversation["title"]:
+            return conversation["title"]
+        if conversation["kind"] == "unlinked":
+            return self.t("未关联对话的上下文", "Contexts without a conversation")
+        return conversation["first_title"] or self.t("未命名对话", "Untitled conversation")
+
+    def describe_conversation(self, conversation):
+        parts = [host_label(conversation["host"], self.language)]
+        if conversation["kind"] == "imported":
+            parts = [
+                self.t(
+                    "导入 · 来自 {host}",
+                    "Imported · from {host}",
+                    host=host_label(conversation["host"], self.language),
+                )
+            ]
+        if conversation.get("folder"):
+            parts.append(conversation["folder"])
+        if conversation.get("agent"):
+            parts.append(self.t("子代理 {name}", "Subagent {name}", name=conversation["agent"]))
+        return " · ".join(parts)
+
     def filter_records(self, *args, select_id=None):
         query = self.search.text().casefold().strip()
         host = self.host_filter.currentData()
-        rows = []
-        for row in self.records:
-            actual_host = row.get("host") or ""
-            if host == "unlinked" and row.get("session_id"):
+        self.visible = []
+        for conversation in self.conversations:
+            kind, actual = conversation["kind"], conversation["host"] or ""
+            if host == "unlinked" and kind == "session":
                 continue
-            if host == "codex" and actual_host != "codex":
+            if host == "codex" and (kind != "session" or actual != "codex"):
                 continue
-            if host == "claude" and actual_host not in ("claude", "claude_code", "claude-code"):
+            if host == "claude" and (
+                kind != "session" or actual not in ("claude", "claude_code", "claude-code")
+            ):
                 continue
-            searchable = " ".join(
-                str(row.get(k) or "")
-                for k in ("title", "source", "notebook_name", "session_id", "host", "origin_host")
+            label = " ".join(
+                (
+                    self.display_title(conversation),
+                    conversation["first_title"] or "",
+                    conversation.get("folder") or "",
+                    conversation.get("agent") or "",
+                    host_label(conversation["host"], self.language) or "",
+                )
+            ).casefold()
+            records = conversation["records"]
+            if query and query not in label:
+                records = [
+                    row
+                    for row in records
+                    if query
+                    in " ".join(
+                        str(row.get(key) or "")
+                        for key in ("title", "source", "notebook_name", "origin_host")
+                    ).casefold()
+                ]
+            if records:
+                self.visible.append((conversation, records))
+        selected_key = (self.selected_conversation or {}).get("key")
+        target = 0
+        for index, (conversation, records) in enumerate(self.visible):
+            if select_id and any(row["id"] == select_id for row in records):
+                target = index
+                break
+            if conversation["key"] == selected_key:
+                target = index
+        self.conversation_list.blockSignals(True)
+        clear_cards(self.conversation_list)
+        for conversation, records in self.visible:
+            stats = self.contexts(len(records)) + self.t(
+                " · 节省 {tokens} tokens",
+                " · {tokens} tokens saved",
+                tokens=compact_tokens(conversation["tokens_saved"]),
             )
-            if query and query not in searchable.casefold():
-                continue
-            rows.append(row)
-        self.context_list.blockSignals(True)
-        self.context_list.clear()
-        selected = None
-        for row in rows:
-            source_host = row.get("host") or row.get("origin_host")
-            origin = host_label(source_host, self.language)
-            if row.get("origin_host") and not row.get("host"):
-                origin += self.t(" 来源 · 本机未关联", " origin · Not linked locally")
-            title = str(row.get("title") or self.t("未命名上下文", "Untitled context")).replace(
-                "\n", " "
+            if conversation["money"] is not None:
+                stats += f" · {money_text(conversation['money'])}"
+            card = ConversationCard(
+                self.display_title(conversation),
+                self.describe_conversation(conversation),
+                local_time(records[0].get("created_utc")),
+                stats,
             )
-            item = QListWidgetItem(
-                f"{title}\n{origin} · {short_date(row.get('created_utc'), self.language)} UTC"
+            item = QListWidgetItem()
+            item.setSizeHint(card.sizeHint())
+            item.setToolTip(self.display_title(conversation))
+            self.conversation_list.addItem(item)
+            self.conversation_list.setItemWidget(item, card)
+        self.conversation_list.blockSignals(False)
+        contexts = sum(len(records) for _, records in self.visible)
+        self.count_label.setText(
+            self.t(
+                "{conversations} 个对话 · ",
+                "1 conversation · "
+                if len(self.visible) == 1
+                else "{conversations} conversations · ",
+                conversations=len(self.visible),
             )
-            item.setData(Qt.ItemDataRole.UserRole, row["id"])
-            item.setToolTip(title)
-            self.context_list.addItem(item)
-            if row["id"] == select_id:
-                selected = item
-        self.context_list.blockSignals(False)
-        self.count_label.setText(self.t("{count} 条上下文", "Contexts: {count}", count=len(rows)))
-        if rows:
-            self.context_list.setCurrentItem(selected or self.context_list.item(0))
+            + self.contexts(contexts)
+        )
+        # Kept current even while hidden, so a language switch never leaves stale text.
+        self.empty.setText(
+            self.t(
+                "没有匹配的对话\n\n试试其他名称、任务或文件夹。",
+                "No matching conversations\n\nTry another name, task or folder.",
+            )
+            if self.records
+            else self.t(
+                "还没有保存的上下文\n\nTOMC 压缩对话后，会按对话整理在这里：\n可以复制接续提示词给另一个 Agent，或导出到另一台电脑。\n旧版数字统计不含正文，无法还原历史上下文。",
+                "No saved contexts yet\n\nAfter TOMC compresses a conversation, its contexts appear here.\nCopy a handoff prompt for another agent, or export one to another computer.\nOlder numeric statistics contain no text and cannot restore past contexts.",
+            )
+        )
+        if self.visible:
+            self.conversation_list.setCurrentRow(target)
+            self.select_conversation(target, select_id=select_id)
         else:
+            self.select_conversation(-1)
+
+    def select_conversation(self, row, select_id=None):
+        if not 0 <= row < len(self.visible):
+            self.selected_conversation = None
+            self.version_list.blockSignals(True)
+            clear_cards(self.version_list)
+            self.version_list.blockSignals(False)
             self.select_context(None)
-            self.empty.setText(
-                self.t(
-                    "没有匹配的记录\n\n试试其他标题、来源或宿主。",
-                    "No matching records\n\nTry another title, source or host.",
-                )
-                if self.records
-                else self.t(
-                    "暂无处理记录\n\n成功准备并保存的上下文会出现在这里。\n旧版数字统计不含正文，无法还原历史上下文。",
-                    "No prepared contexts yet\n\nSaved contexts will appear here after preparation.\nOlder numeric statistics contain no text and cannot restore past contexts.",
-                )
+            return
+        conversation, records = self.visible[row]
+        self.selected_conversation = conversation
+        self.conversation_title.setText(self.display_title(conversation))
+        self.conversation_title.setToolTip(self.display_title(conversation))
+        meta = self.describe_conversation(conversation)
+        self.conversation_meta.setText(
+            meta
+            + self.t(
+                " · 最近 {time}",
+                " · Last active {time}",
+                time=local_time(records[0]["created_utc"]),
             )
+        )
+        chips = [
+            self.contexts(len(conversation["records"])),
+            self.t(
+                "节省 {tokens} tokens",
+                "{tokens} tokens saved",
+                tokens=compact_tokens(conversation["tokens_saved"]),
+            ),
+            money_text(conversation["money"]) if conversation["money"] is not None else "",
+        ]
+        for chip, text in zip(self.conversation_chips, chips):
+            chip.setText(text)
+            chip.setVisible(bool(text))
+        self.conversation_chips[1].setToolTip(
+            self.t(
+                "这个对话所有被压缩的请求合计（含没有保存正文的请求）",
+                "All compressed requests in this conversation, including ones without saved text",
+            )
+            if conversation["requests"]
+            else self.t(
+                "按保存的上下文估算",
+                "Estimated from the saved contexts",
+            )
+        )
+        self.conversation_enabled.blockSignals(True)
+        self.conversation_enabled.setVisible(conversation["enabled"] is not None)
+        self.conversation_enabled.setChecked(bool(conversation["enabled"]))
+        self.conversation_enabled.blockSignals(False)
+        self.version_list.blockSignals(True)
+        clear_cards(self.version_list)
+        selected = None
+        for record in records:
+            request = record.get("request")
+            saved = request["tokens_saved"] if request else record["reduced_tokens"]
+            meta = local_time(record.get("created_utc"))
+            meta += self.t(
+                " · 节省 {tokens} tokens", " · {tokens} tokens saved", tokens=compact_tokens(saved)
+            )
+            if request and request["money"] is not None:
+                meta += f" · {money_text(request['money'])}"
+            card = VersionCard(
+                record.get("title") or self.t("未命名上下文", "Untitled context"),
+                meta,
+                f"{compact_tokens(record['input_estimated_tokens'])} → {compact_tokens(record['output_estimated_tokens'])}",
+            )
+            item = QListWidgetItem()
+            item.setData(Qt.ItemDataRole.UserRole, record["id"])
+            item.setSizeHint(card.sizeHint())
+            item.setToolTip(self.t("快照 {identity}", "Snapshot {identity}", identity=record["id"]))
+            self.version_list.addItem(item)
+            self.version_list.setItemWidget(item, card)
+            if record["id"] == select_id:
+                selected = item
+        self.version_list.blockSignals(False)
+        # Fit up to four versions; longer histories scroll.
+        rows = sum(self.version_list.sizeHintForRow(i) for i in range(min(4, len(records))))
+        self.version_list.setFixedHeight(rows + 2 * self.version_list.frameWidth() + 10)
+        self.version_list.setCurrentItem(selected or self.version_list.item(0))
+
+    # Selected context -------------------------------------------------------
 
     def select_context(self, current, previous=None):
         self.selected_record = None
@@ -1016,30 +1533,69 @@ class ContextLibraryDialog(QDialog):
             self.memory.clear()
             self.task.clear()
             return
+        conversation = self.selected_conversation or {}
+        request = next(
+            (
+                record.get("request")
+                for record in conversation.get("records", [])
+                if record["id"] == row["id"]
+            ),
+            None,
+        )
         self.record_title.setText(row.get("title") or self.t("未命名上下文", "Untitled context"))
+        self.record_title.setToolTip(row.get("title") or "")
+        sources = {
+            "automatic_request": ("自动请求", "Automatic request"),
+            "prepare": ("手动准备", "Manual preparation"),
+            "recall": ("笔记本调用", "Notebook recall"),
+        }
+        source = sources.get(row.get("source"))
         self.record_meta.setText(
-            f"{host_label(row.get('host'), self.language)} · {short_date(row.get('created_utc'), self.language)} UTC\n"
-            + self.t(
-                "来源：{source} · 计数口径：{counter}",
-                "Source: {source} · Counter: {counter}",
-                source=row.get("source") or self.t("未提供", "Not provided"),
-                counter=row.get("counter") or self.t("未知", "Unknown"),
+            " · ".join(
+                part
+                for part in (
+                    local_time(row.get("created_utc")),
+                    self.t(*source) if source else row.get("source"),
+                    self.t(
+                        "预算 {budget:,} tokens", "Budget {budget:,} tokens", budget=row["budget"]
+                    )
+                    if isinstance(row.get("budget"), int)
+                    else "",
+                )
+                if part
             )
         )
         before, after = row["input_estimated_tokens"], row["output_estimated_tokens"]
         delta = before - after
-        direction = self.t("节省", "saved") if delta >= 0 else self.t("增加", "added")
         self.record_tokens.setText(
             self.t(
-                "上下文  {before:,} → {after:,} tokens · {direction} {delta:,}",
-                "Context  {before:,} → {after:,} tokens · {direction} {delta:,}",
+                "上下文 {before:,} → {after:,} tokens · {direction} {delta:,}",
+                "Context {before:,} → {after:,} tokens · {direction} {delta:,}",
                 before=before,
                 after=after,
-                direction=direction,
+                direction=self.t("节省", "saved") if delta >= 0 else self.t("增加", "added"),
                 delta=abs(delta),
             )
         )
-        if self.pricing:
+        if request:
+            text = self.t(
+                "整个请求节省 {tokens:,} tokens",
+                "The whole request saved {tokens:,} tokens",
+                tokens=request["tokens_saved"],
+            )
+            if request["money"] is not None:
+                text += self.t(
+                    " · 约 {money}（{model}）",
+                    " · about {money} ({model})",
+                    money=money_text(request["money"]),
+                    model=request["model"],
+                )
+            self.request_status.setText(text)
+        else:
+            self.request_status.setText(
+                self.t("此快照的请求用量：未关联", "Request usage for this snapshot: not linked")
+            )
+        if self.pricing and not (request and request["money"] is not None):
             value = input_value(delta, self.pricing)
             model = (
                 (self.pricing.get("label") if self.language.code == "zh" else None)
@@ -1050,33 +1606,30 @@ class ContextLibraryDialog(QDialog):
                 self.t(
                     "参考输入金额{direction} {value} · {model}",
                     "Reference input value {direction} {value} · {model}",
-                    direction=direction,
-                    value=dollars(value),
+                    direction=self.t("节省", "saved") if delta >= 0 else self.t("增加", "added"),
+                    value=money_text(abs(value)) if value is not None else "—",
                     model=model,
                 )
             )
+            self.record_cost.setToolTip(explanation(self.pricing, self.language))
+            self.record_cost.show()
         else:
-            self.record_cost.setText(
-                self.t(
-                    "参考金额：费率待确认；可在小猫的「模型与估价」中选择。",
-                    "Reference value: rate unconfirmed. Choose one in the companion's Model and pricing settings.",
-                )
-            )
-        self.record_cost.setToolTip(explanation(self.pricing, self.language))
+            self.record_cost.clear()
+            self.record_cost.hide()
         self.memory.setPlainText(row.get("memory", ""))
+        title = self.display_title(conversation) if conversation else ""
         self.task.setPlainText(
             self.t(
-                "原任务\n{task}\n\n快照 ID：{identity}\n准备 ID：{preparation}\n预算：{budget} tokens\n本机会话：{session}\n来源宿主：{host}\n笔记本：{notebook}\n\n这是为原任务准备的上下文，可能有遗漏，不是完整聊天的无损副本。\n请求转发与实测用量见上方请求记录。",
-                "Original task\n{task}\n\nSnapshot ID: {identity}\nPreparation ID: {preparation}\nBudget: {budget} tokens\nLocal session: {session}\nSource host: {host}\nNotebook: {notebook}\n\nThis context was prepared for the original task and may omit details. It is not a lossless copy of the full conversation.\nRequest forwarding and measured usage appear above.",
+                "原任务\n{task}\n\n对话：{conversation}\n时间：{time}\n来源：{host}\n\n这是为原任务准备的上下文，可能有遗漏，不是完整聊天的无损副本。",
+                "Original task\n{task}\n\nConversation: {conversation}\nTime: {time}\nSource: {host}\n\nThis context was prepared for the original task and may omit details. It is not a lossless copy of the full conversation.",
                 task=row.get("task") or self.t("未记录", "Not recorded"),
-                identity=row["id"],
-                preparation=row.get("preparation_id") or self.t("未提供", "Not provided"),
-                budget=row.get("budget", self.t("未提供", "Not provided")),
-                session=row.get("session_id") or self.t("未关联", "Unlinked"),
+                conversation=title or self.t("未关联", "Not linked"),
+                time=local_time(row.get("created_utc")),
                 host=host_label(row.get("origin_host") or row.get("host"), self.language),
-                notebook=row.get("notebook_name") or self.t("未提供", "Not provided"),
             )
         )
+
+    # Actions ----------------------------------------------------------------
 
     def change_setting(self, name, value):
         if self._refreshing:
@@ -1094,11 +1647,7 @@ class ContextLibraryDialog(QDialog):
         self.refresh()
         self.changed.emit()
 
-    def change_session(self, item):
-        if self._refreshing:
-            return
-        host, session_id = item.data(Qt.ItemDataRole.UserRole)
-        enabled = item.checkState() == Qt.CheckState.Checked
+    def set_session(self, host, session_id, enabled):
         try:
             self.sessions.set_enabled(host, session_id, enabled)
             if enabled:
@@ -1115,8 +1664,21 @@ class ContextLibraryDialog(QDialog):
             self.show_message(
                 "设置未保存：{error}", "Settings were not saved: {error}", error=str(exc)
             )
-        self.refresh_sessions()
         self.changed.emit()
+
+    def change_session(self, item):
+        if self._refreshing:
+            return
+        host, session_id = item.data(Qt.ItemDataRole.UserRole)
+        self.set_session(host, session_id, item.checkState() == Qt.CheckState.Checked)
+        self.refresh()
+
+    def change_conversation(self, enabled):
+        conversation = self.selected_conversation
+        if self._refreshing or not conversation or conversation["kind"] != "session":
+            return
+        self.set_session(conversation["host"], conversation["session_id"], enabled)
+        self.refresh()
 
     def copy_handoff(self):
         if not self.selected_record:
@@ -1137,14 +1699,20 @@ class ContextLibraryDialog(QDialog):
     def export_context(self):
         if not self.selected_record:
             return
-        folder = QFileDialog.getExistingDirectory(
+        folder_name = QFileDialog.getExistingDirectory(
             self, self.t("选择便携包保存目录", "Choose a folder for the portable bundle")
         )
-        if not folder:
+        if not folder_name:
             return
+        conversation = self.selected_conversation
         try:
             destination = self.library.export(
-                self.selected_record["id"], Path(folder), language=self.language.code
+                self.selected_record["id"],
+                Path(folder_name),
+                language=self.language.code,
+                conversation=self.display_title(conversation)
+                if conversation and conversation["kind"] != "unlinked"
+                else None,
             )
             self.show_message(
                 "已导出：{path}。包含正文、接续说明与元数据；未上传。",

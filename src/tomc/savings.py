@@ -91,6 +91,74 @@ def load_detected(path=None):
         return {}
 
 
+def _pricer(catalog, reference, detected, mode):
+    """Price a request by its own model, its host's detected default, then the reference."""
+    rates = list(all_rates(catalog))
+    detected = load_detected() if detected is None else detected
+    fallback = None
+    rate = (reference or {}).get("rate")
+    if isinstance(rate, (int, float)) and not isinstance(rate, bool) and math.isfinite(rate):
+        fallback = {
+            "model": reference.get("model") or "reference",
+            "label": reference.get("label") or reference.get("model") or "reference",
+            "provider": reference.get("provider"),
+            "rate": rate,
+        }
+
+    def price(model, host, request_tokens):
+        if model:
+            priced = model_rate(model, request_tokens=request_tokens, mode=mode, rates=rates)
+            if priced:
+                return priced, "request"
+        if host in detected:
+            priced = model_rate(
+                detected[host], request_tokens=request_tokens, mode=mode, rates=rates
+            )
+            if priced:
+                return priced, "detected"
+        return (fallback, "reference") if fallback else (None, None)
+
+    return fallback, price
+
+
+def request_savings(path, *, catalog=None, reference=None, detected=None):
+    """Tokens and money each compiled request saved, keyed by request ID, with its session."""
+    path = Path(path)
+    if not path.exists():
+        return {}
+    with closing(
+        sqlite3.connect(path.resolve().as_uri() + "?mode=ro", uri=True, timeout=0.5)
+    ) as db:
+        tables = {
+            name for (name,) in db.execute("SELECT name FROM sqlite_master WHERE type='table'")
+        }
+        if not {"context_usage_events", "tomc_request_activity"} <= tables:
+            return {}
+        columns = {row[1] for row in db.execute("PRAGMA table_info(tomc_request_activity)")}
+        model = "a.model" if "model" in columns else "NULL"
+        rows = db.execute(
+            f"SELECT e.request_id,e.input_tokens,e.memory_tokens,a.host,a.session_id,{model} "
+            "FROM context_usage_events e JOIN tomc_request_activity a "
+            "ON a.request_id=e.request_id WHERE e.usable=1"
+        ).fetchall()
+    mode = (reference or {}).get("mode")
+    _, price = _pricer(
+        catalog, reference, detected, mode if mode in ("input", "cached") else "input"
+    )
+    result = {}
+    for request_id, before, after, host, session_id, requested in rows:
+        priced, _basis = price(requested, host, before)
+        saved = before - after
+        result[request_id] = {
+            "host": host,
+            "session_id": session_id,
+            "tokens_saved": saved,
+            "money": saved * priced["rate"] / 1_000_000 if priced else None,
+            "model": priced["label"] if priced else None,
+        }
+    return result
+
+
 def _empty(period, days, today):
     return {
         "period": period,
@@ -178,8 +246,7 @@ def savings_report(
             report["preparations"] += calls
             report["input_tokens"] += before
             report["output_tokens"] += after
-    rates = list(all_rates(catalog))
-    detected = load_detected() if detected is None else detected
+    reference_price, price = _pricer(catalog, reference, detected, mode)
     groups = {}
 
     def add(tokens, priced, basis, host):
@@ -207,30 +274,11 @@ def savings_report(
             group["money"] += tokens * priced["rate"] / 1_000_000
         return group
 
-    reference_price = None
-    if reference and isinstance(reference.get("rate"), (int, float)):
-        reference_price = {
-            "model": reference.get("model") or "reference",
-            "label": reference.get("label") or reference.get("model") or "reference",
-            "provider": reference.get("provider"),
-            "rate": reference["rate"],
-        }
     seen = {}
     for day, before, after, host, model in events:
         saved = before - after
         seen[day] = seen.get(day, 0) + saved
-        priced, basis = None, None
-        if model:
-            priced, basis = (
-                model_rate(model, request_tokens=before, mode=mode, rates=rates),
-                "request",
-            )
-        if priced is None and host in detected:
-            priced = model_rate(detected[host], request_tokens=before, mode=mode, rates=rates)
-            basis = "detected"
-        if priced is None and reference_price:
-            priced, basis = reference_price, "reference"
-        add(saved, priced, basis, host)["preparations"] += 1
+        add(saved, *price(model, host, before), host)["preparations"] += 1
     # Aggregates written before per-request events existed (or by an older writer).
     for day, (_calls, before, after) in in_period.items():
         missing = (before - after) - seen.get(day, 0)

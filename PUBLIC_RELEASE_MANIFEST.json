@@ -686,8 +686,8 @@
     },
     {
       "path": "docs/TOMC_ACCEPTANCE_20261023_ZH.md",
-      "bytes": 14439,
-      "sha256": "a5d5ced32e679f492ba25b783208bc148183f14deba5d2e3e6404bffb609957b"
+      "bytes": 16054,
+      "sha256": "c5730bdaf2d3efe47c1a19c1f3084c189aaa4fea9aa23d5ae289adef1771a912"
     },
     {
       "path": "docs/TOMC_CONTEXT_OWNERSHIP_20261023_ZH.md",
@@ -696,8 +696,8 @@
     },
     {
       "path": "docs/TOMC_DEPLOY_ROLLBACK_20261023_ZH.md",
-      "bytes": 9317,
-      "sha256": "8535c242920018b78a4a27badc853260c9fc1d65d6f29f295e46bef8b72c5156"
+      "bytes": 10157,
+      "sha256": "13eebe460567d8a22f1d9d1307e94eecb583fbff30c3e5a7613ca07561189ea4"
     },
     {
       "path": "docs/TOMC_DEVELOPER_HANDOFF_20261023_ZH.md",
@@ -1686,13 +1686,23 @@
     },
     {
       "path": "plugins/claude-code/src/tomc/context_library.py",
-      "bytes": 17464,
-      "sha256": "42e317bd56c33a688735ed484d077730ac1add992fe98eff361a28ddae719d82"
+      "bytes": 19343,
+      "sha256": "6dc91d301ad0ff594934d198424fcb91d4e122df6742555d06a7a06c75600aa1"
     },
     {
       "path": "plugins/claude-code/src/tomc/context_library_qt.py",
-      "bytes": 60253,
-      "sha256": "fc7133c5f98d51b029937f02ba954ce77a1fe78c8f51188342a3d8534fa1fd7c"
+      "bytes": 82685,
+      "sha256": "ae0d2c0bed88ee5d291bb7a4d058ebeaf65f7322bb15deeb1e74b04617cbc683"
+    },
+    {
+      "path": "plugins/claude-code/src/tomc/conversation_names.py",
+      "bytes": 8703,
+      "sha256": "ec4e64fc8147644917bed31ba7a13dd8a684c041665f5d0144662dbd2d5323a5"
+    },
+    {
+      "path": "plugins/claude-code/src/tomc/conversations.py",
+      "bytes": 3493,
+      "sha256": "6a8442ccb4d8412f7134e0110f6deaca0391cf830afb3f54264012592dcb5dac"
     },
     {
       "path": "plugins/claude-code/src/tomc/cost_estimate.py",
@@ -1871,8 +1881,13 @@
     },
     {
       "path": "plugins/claude-code/src/tomc/savings.py",
-      "bytes": 10469,
-      "sha256": "c066b344a25688fe62dc3659db5448a9ad79cb700f59a15fb83e88277c4be8e6"
+      "bytes": 12430,
+      "sha256": "d42bf1aad954899c65b2d813bead697812ca42866d471938af6257d1667931cc"
+    },
+    {
+      "path": "plugins/claude-code/src/tomc/savings_qt.py",
+      "bytes": 5113,
+      "sha256": "0b8f5807602e74b9fad335cbe81f8d14999e76b8536a41d0c9ffd80bb9fd05fa"
     },
     {
       "path": "plugins/claude-code/src/tomc/schemas.py",
@@ -1946,8 +1961,8 @@
     },
     {
       "path": "plugins/claude-code/src/tomc/usage_widget_qt.py",
-      "bytes": 79403,
-      "sha256": "344ffa8c7efc2fca159db67a1179824c3a7d9ca6c375dae190aee55cd77e7905"
+      "bytes": 74708,
+      "sha256": "ef9dfbc984f75a0ff3a77769e4fd38410a57608731017b8e5b4bb6d9cd04e2a8"
     },
     {
       "path": "plugins/claude-code/uv.lock",
@@ -2361,8 +2376,8 @@
     },
     {
       "path": "scripts/update_pet_ui.py",
-      "bytes": 2546,
-      "sha256": "5a5ce214fc990e5b740e16bb8e2f36bde40bcd8246946a41f5b4f73f006248af"
+      "bytes": 2620,
+      "sha256": "bc09bf79125347e23a0810ae8dde1e48ec58cbe14bb3af87a3d33acda141e8af"
     },
     {
       "path": "scripts/update_traffic.py",
@@ -2481,13 +2496,23 @@
     },
     {
       "path": "src/tomc/context_library.py",
-      "bytes": 17464,
-      "sha256": "42e317bd56c33a688735ed484d077730ac1add992fe98eff361a28ddae719d82"
+      "bytes": 19343,
+      "sha256": "6dc91d301ad0ff594934d198424fcb91d4e122df6742555d06a7a06c75600aa1"
     },
     {
       "path": "src/tomc/context_library_qt.py",
-      "bytes": 60253,
-      "sha256": "fc7133c5f98d51b029937f02ba954ce77a1fe78c8f51188342a3d8534fa1fd7c"
+      "bytes": 82685,
+      "sha256": "ae0d2c0bed88ee5d291bb7a4d058ebeaf65f7322bb15deeb1e74b04617cbc683"
+    },
+    {
+      "path": "src/tomc/conversation_names.py",
+      "bytes": 8703,
+      "sha256": "ec4e64fc8147644917bed31ba7a13dd8a684c041665f5d0144662dbd2d5323a5"
+    },
+    {
+      "path": "src/tomc/conversations.py",
+      "bytes": 3493,
+      "sha256": "6a8442ccb4d8412f7134e0110f6deaca0391cf830afb3f54264012592dcb5dac"
     },
     {
       "path": "src/tomc/cost_estimate.py",
@@ -2711,8 +2736,13 @@
     },
     {
       "path": "src/tomc/savings.py",
-      "bytes": 10469,
-      "sha256": "c066b344a25688fe62dc3659db5448a9ad79cb700f59a15fb83e88277c4be8e6"
+      "bytes": 12430,
+      "sha256": "d42bf1aad954899c65b2d813bead697812ca42866d471938af6257d1667931cc"
+    },
+    {
+      "path": "src/tomc/savings_qt.py",
+      "bytes": 5113,
+      "sha256": "0b8f5807602e74b9fad335cbe81f8d14999e76b8536a41d0c9ffd80bb9fd05fa"
     },
     {
       "path": "src/tomc/schemas.py",
@@ -2786,8 +2816,8 @@
     },
     {
       "path": "src/tomc/usage_widget_qt.py",
-      "bytes": 79403,
-      "sha256": "344ffa8c7efc2fca159db67a1179824c3a7d9ca6c375dae190aee55cd77e7905"
+      "bytes": 74708,
+      "sha256": "ef9dfbc984f75a0ff3a77769e4fd38410a57608731017b8e5b4bb6d9cd04e2a8"
     },
     {
       "path": "tests/fixtures/pricing/anthropic.txt",
@@ -2851,13 +2881,18 @@
     },
     {
       "path": "tests/test_context_library.py",
-      "bytes": 12952,
-      "sha256": "b2b9e6837be8f9b94dfc3d0b3a5ba775fd91f44f0e0c1f410ffb85035555e924"
+      "bytes": 14193,
+      "sha256": "ab22c7c4a7abae9223b9e7acbd89efddac7a43fb34f4395e9252550d4e97d880"
     },
     {
       "path": "tests/test_context_library_qt.py",
-      "bytes": 22337,
-      "sha256": "9b5e5acacba219dbe3afddf73a128e5c15a0f1fa47483d486ef2dc589bf1fd77"
+      "bytes": 29913,
+      "sha256": "ed7af859ff356433c40997e1d4ac6996eb3cde95104506aeabd5a21283947fec"
+    },
+    {
+      "path": "tests/test_conversation_names.py",
+      "bytes": 8537,
+      "sha256": "c730769d1ee8924d8200968ffd31d0dd0a57cee518a7fde5ce589a79813aac61"
     },
     {
       "path": "tests/test_cost_estimate.py",
@@ -3035,7 +3070,7 @@
       "sha256": "be8dbb0aa75e27d1625255b99019c1b078833d1afc864951da7d6de1c4b70807"
     }
   ],
-  "total_bytes": 146939609,
+  "total_bytes": 147037264,
   "self_excluded": [
     "PUBLIC_RELEASE_MANIFEST.json",
     "SHA256SUMS"

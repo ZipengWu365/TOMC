@@ -128,6 +128,11 @@ class ContextLibrary:
             "CREATE UNIQUE INDEX IF NOT EXISTS tomc_context_preparation "
             "ON tomc_context_snapshots(preparation_id) WHERE preparation_id IS NOT NULL"
         )
+        # The original conversation's name carried by an imported bundle.
+        db.execute(
+            "CREATE TABLE IF NOT EXISTS tomc_snapshot_conversations ("
+            "snapshot_id TEXT PRIMARY KEY, title TEXT NOT NULL)"
+        )
 
     @contextmanager
     def _read(self):
@@ -309,9 +314,25 @@ class ContextLibrary:
         except KeyError:
             return False
         with self._write() as db:
+            db.execute(
+                "DELETE FROM tomc_snapshot_conversations WHERE snapshot_id=?", (snapshot_id,)
+            )
             return bool(
                 db.execute("DELETE FROM tomc_context_snapshots WHERE id=?", (snapshot_id,)).rowcount
             )
+
+    def conversation_titles(self) -> dict:
+        """Snapshot ID → the original conversation name an imported bundle carried."""
+        with self._read() as db:
+            if (
+                db is None
+                or not db.execute(
+                    "SELECT 1 FROM sqlite_master WHERE type='table' "
+                    "AND name='tomc_snapshot_conversations'"
+                ).fetchone()
+            ):
+                return {}
+            return dict(db.execute("SELECT snapshot_id,title FROM tomc_snapshot_conversations"))
 
     def handoff_prompt(self, snapshot_id, inline=True, *, language="en") -> str:
         if not isinstance(inline, bool):
@@ -341,8 +362,12 @@ class ContextLibrary:
             "If required evidence or files are missing, identify what is needed.\n"
         )
 
-    def export(self, snapshot_id, directory, *, language="en") -> Path:
-        """Write a new self-contained text bundle; never replace an earlier export."""
+    def export(self, snapshot_id, directory, *, language="en", conversation=None) -> Path:
+        """Write a new self-contained text bundle; never replace an earlier export.
+
+        ``conversation`` is the original chat's display name. It travels as an
+        optional metadata key that older importers ignore.
+        """
         record = self.get(snapshot_id)
         handoff = self._handoff(record, inline=False, language=language)
         payload = {key: record[key] for key in _FIELDS}
@@ -361,6 +386,11 @@ class ContextLibrary:
             "memory_file": "CONTEXT.md",
             "memory_sha256": hashlib.sha256(memory.encode("utf-8")).hexdigest(),
         }
+        if conversation is not None:
+            try:
+                metadata["conversation"] = {"title": _title(conversation)}
+            except ValueError:
+                pass  # An optional label never blocks the export.
         for name, content in (
             ("CONTEXT.md", memory),
             ("START_HERE.md", handoff),
@@ -419,6 +449,12 @@ class ContextLibrary:
         if digest != metadata.get("content_hash"):
             raise ValueError("Snapshot checksum does not match the manifest.")
         title = _title(metadata.get("title"))
+        conversation = metadata.get("conversation")
+        conversation = conversation.get("title") if isinstance(conversation, dict) else None
+        try:
+            conversation = _title(conversation) if conversation is not None else None
+        except ValueError:
+            conversation = None  # An optional label never blocks the context itself.
         with self._write() as db:
             existing = self._row(db, payload["id"])
             if existing:
@@ -430,4 +466,9 @@ class ContextLibrary:
                 "INSERT INTO tomc_context_snapshots VALUES (?,?,?,?,NULL,NULL,NULL,?)",
                 (payload["id"], _canonical(payload), digest, title, payload["created_utc"]),
             )
+            if conversation:
+                db.execute(
+                    "INSERT OR REPLACE INTO tomc_snapshot_conversations VALUES (?,?)",
+                    (payload["id"], conversation),
+                )
             return {**self._record(self._row(db, payload["id"])), "imported": True}
