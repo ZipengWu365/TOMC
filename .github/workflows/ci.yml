@@ -34,4 +34,5 @@ jobs:
           python -m pip install uv
           python scripts/build_plugin.py
           python scripts/build_codex_plugin.py
-          python scripts/plugin_smoke.py outputs/plugins/tomc-memory-0.1.1.mcpb
+          version="$(python -c "import json; print(json.load(open('plugins/claude/manifest.json'))['version'])")"
+          python scripts/plugin_smoke.py "outputs/plugins/tomc-memory-${version}.mcpb"
