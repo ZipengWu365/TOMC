@@ -32,6 +32,13 @@ DETAIL_KEYS = {
     "endpoint",
 }
 _DETAIL_CODE = re.compile(r"[A-Za-z0-9_.:-]{1,40}\Z")
+# A request's declared model ID, e.g. gpt-6-astra or claude-opus-5-5[1m]; it prices savings.
+_MODEL = re.compile(r"[A-Za-z0-9][A-Za-z0-9._:/@\[\]+-]{0,127}\Z")
+
+
+def model_id(value):
+    """A short model identifier, or None for anything else (never stored)."""
+    return value if isinstance(value, str) and _MODEL.fullmatch(value) else None
 
 
 def protocol_detail(value):
@@ -107,6 +114,8 @@ class RequestActivity:
             db.execute("ALTER TABLE tomc_request_activity ADD COLUMN context_input_tokens INTEGER")
         if "protocol_detail" not in columns:
             db.execute("ALTER TABLE tomc_request_activity ADD COLUMN protocol_detail TEXT")
+        if "model" not in columns:
+            db.execute("ALTER TABLE tomc_request_activity ADD COLUMN model TEXT")
         db.execute(
             "CREATE INDEX IF NOT EXISTS tomc_request_activity_updated "
             "ON tomc_request_activity(updated_utc)"
@@ -159,6 +168,7 @@ class RequestActivity:
             return None
         result = dict(row)
         result.setdefault("context_input_tokens", None)
+        result.setdefault("model", None)
         try:
             result["protocol_detail"] = protocol_detail(
                 json.loads(result.get("protocol_detail") or "null")
@@ -215,6 +225,7 @@ class RequestActivity:
         provider_cached_tokens=None,
         context_input_tokens=None,
         detail=None,
+        model=None,
     ):
         if state not in STATES - {"preparing"}:
             raise ValueError("Use prepared, forwarded, passthrough or failed.")
@@ -248,8 +259,9 @@ class RequestActivity:
                 "provider_input_tokens=COALESCE(?,provider_input_tokens), "
                 "provider_cached_tokens=COALESCE(?,provider_cached_tokens), "
                 "context_input_tokens=COALESCE(?,context_input_tokens), "
-                "protocol_detail=COALESCE(?,protocol_detail) WHERE request_id=?",
-                (state, reason, _stamp(), state, *values, encoded, request_id),
+                "protocol_detail=COALESCE(?,protocol_detail),model=COALESCE(?,model) "
+                "WHERE request_id=?",
+                (state, reason, _stamp(), state, *values, encoded, model_id(model), request_id),
             )
             if state in {"prepared", "forwarded"} and context_input_tokens is not None:
                 # A durable ordered event, independent of later requests and

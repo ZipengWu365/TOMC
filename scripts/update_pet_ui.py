@@ -27,6 +27,7 @@ MODULES = (
     "usage.py",
     "request_activity.py",
     "animation_receipts.py",
+    "savings.py",
 )
 
 

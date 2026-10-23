@@ -302,6 +302,7 @@ class Gateway:
             if plan and plan.prepared is not None
             else None,
             detail=detail,
+            model=payload.get("model") if payload is not None else None,
         )
         return request_id, session_id, plan, body, changed
 

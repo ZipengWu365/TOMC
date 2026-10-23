@@ -686,8 +686,8 @@
     },
     {
       "path": "docs/TOMC_ACCEPTANCE_20261023_ZH.md",
-      "bytes": 12515,
-      "sha256": "33022a78e8a4d679c82103429762d5b347b2dad4a2d298b81dec5729686ff2ac"
+      "bytes": 14439,
+      "sha256": "a5d5ced32e679f492ba25b783208bc148183f14deba5d2e3e6404bffb609957b"
     },
     {
       "path": "docs/TOMC_CONTEXT_OWNERSHIP_20261023_ZH.md",
@@ -696,8 +696,8 @@
     },
     {
       "path": "docs/TOMC_DEPLOY_ROLLBACK_20261023_ZH.md",
-      "bytes": 8235,
-      "sha256": "f935560cd5728376cf803cf621edeccaca1f722368b885d8145514dd45b40696"
+      "bytes": 9317,
+      "sha256": "8535c242920018b78a4a27badc853260c9fc1d65d6f29f295e46bef8b72c5156"
     },
     {
       "path": "docs/TOMC_DEVELOPER_HANDOFF_20261023_ZH.md",
@@ -1846,8 +1846,8 @@
     },
     {
       "path": "plugins/claude-code/src/tomc/request_activity.py",
-      "bytes": 17519,
-      "sha256": "c33f9d69d4f6b7ff22127f531e6265d3859a399fd88fb300bb294c5ed0e8c5fd"
+      "bytes": 18099,
+      "sha256": "23e948b70b0d43585e9f12f6ebbc23f95e666a3eb255d9bc7619fa994689058f"
     },
     {
       "path": "plugins/claude-code/src/tomc/request_context.py",
@@ -1856,8 +1856,8 @@
     },
     {
       "path": "plugins/claude-code/src/tomc/request_gateway.py",
-      "bytes": 23010,
-      "sha256": "20250c3f51274b0cd78171f7e9ab18913e2c0d163811fbe013793af4ae575d40"
+      "bytes": 23083,
+      "sha256": "8d702a24481c743649ca9e6c8a7e2073102d3f8dce17de637f3145a7243c4c2c"
     },
     {
       "path": "plugins/claude-code/src/tomc/responses_request.py",
@@ -1868,6 +1868,11 @@
       "path": "plugins/claude-code/src/tomc/routing.py",
       "bytes": 1306,
       "sha256": "89e12915b49c8b4f1078f820eb6562004bddfdbb54380c0f65fd3173d819ed8b"
+    },
+    {
+      "path": "plugins/claude-code/src/tomc/savings.py",
+      "bytes": 10469,
+      "sha256": "c066b344a25688fe62dc3659db5448a9ad79cb700f59a15fb83e88277c4be8e6"
     },
     {
       "path": "plugins/claude-code/src/tomc/schemas.py",
@@ -1941,8 +1946,8 @@
     },
     {
       "path": "plugins/claude-code/src/tomc/usage_widget_qt.py",
-      "bytes": 65187,
-      "sha256": "900f210ea96d216013840e971429eba5ef1fb7c3ca3560f63dd13fddea708ddb"
+      "bytes": 79403,
+      "sha256": "344ffa8c7efc2fca159db67a1179824c3a7d9ca6c375dae190aee55cd77e7905"
     },
     {
       "path": "plugins/claude-code/uv.lock",
@@ -2356,8 +2361,8 @@
     },
     {
       "path": "scripts/update_pet_ui.py",
-      "bytes": 2528,
-      "sha256": "8c46c772a9bd3b50d41ce3cd074731a37b946c33b3c7f5eaf875dd65484021c0"
+      "bytes": 2546,
+      "sha256": "5a5ce214fc990e5b740e16bb8e2f36bde40bcd8246946a41f5b4f73f006248af"
     },
     {
       "path": "scripts/update_traffic.py",
@@ -2681,8 +2686,8 @@
     },
     {
       "path": "src/tomc/request_activity.py",
-      "bytes": 17519,
-      "sha256": "c33f9d69d4f6b7ff22127f531e6265d3859a399fd88fb300bb294c5ed0e8c5fd"
+      "bytes": 18099,
+      "sha256": "23e948b70b0d43585e9f12f6ebbc23f95e666a3eb255d9bc7619fa994689058f"
     },
     {
       "path": "src/tomc/request_context.py",
@@ -2691,8 +2696,8 @@
     },
     {
       "path": "src/tomc/request_gateway.py",
-      "bytes": 23010,
-      "sha256": "20250c3f51274b0cd78171f7e9ab18913e2c0d163811fbe013793af4ae575d40"
+      "bytes": 23083,
+      "sha256": "8d702a24481c743649ca9e6c8a7e2073102d3f8dce17de637f3145a7243c4c2c"
     },
     {
       "path": "src/tomc/responses_request.py",
@@ -2703,6 +2708,11 @@
       "path": "src/tomc/routing.py",
       "bytes": 1306,
       "sha256": "89e12915b49c8b4f1078f820eb6562004bddfdbb54380c0f65fd3173d819ed8b"
+    },
+    {
+      "path": "src/tomc/savings.py",
+      "bytes": 10469,
+      "sha256": "c066b344a25688fe62dc3659db5448a9ad79cb700f59a15fb83e88277c4be8e6"
     },
     {
       "path": "src/tomc/schemas.py",
@@ -2776,8 +2786,8 @@
     },
     {
       "path": "src/tomc/usage_widget_qt.py",
-      "bytes": 65187,
-      "sha256": "900f210ea96d216013840e971429eba5ef1fb7c3ca3560f63dd13fddea708ddb"
+      "bytes": 79403,
+      "sha256": "344ffa8c7efc2fca159db67a1179824c3a7d9ca6c375dae190aee55cd77e7905"
     },
     {
       "path": "tests/fixtures/pricing/anthropic.txt",
@@ -2846,8 +2856,8 @@
     },
     {
       "path": "tests/test_context_library_qt.py",
-      "bytes": 22346,
-      "sha256": "9b1d6ce4aed7a078265724650bf49cbbb2219b0bdba25bb50f4e592e5c2e3d20"
+      "bytes": 22337,
+      "sha256": "9b5e5acacba219dbe3afddf73a128e5c15a0f1fa47483d486ef2dc589bf1fd77"
     },
     {
       "path": "tests/test_cost_estimate.py",
@@ -2951,8 +2961,8 @@
     },
     {
       "path": "tests/test_request_activity.py",
-      "bytes": 14874,
-      "sha256": "50332cfba80d59e63f2065ad64e2c7332586b28b45d79a83a558d0480b97b4cd"
+      "bytes": 16880,
+      "sha256": "8b41098209e9dd0d7d4c55f7afe0b7c87552d5de9db0df510479e11d13228c25"
     },
     {
       "path": "tests/test_request_context.py",
@@ -2961,13 +2971,23 @@
     },
     {
       "path": "tests/test_request_gateway.py",
-      "bytes": 34065,
-      "sha256": "de0006ed21dc5a39aba25ba8628383af922d0e7a0e33be5b9db5886274d13e2b"
+      "bytes": 34641,
+      "sha256": "0878859e660e7def5377334f1953f7b1f4184039deb69c77aa8ad69e7843f7cd"
     },
     {
       "path": "tests/test_responses_request.py",
       "bytes": 21806,
       "sha256": "a63f5bf5cef4d96d44a366aeb70820e9e81ae03d954e8d30dc50825bd83826bd"
+    },
+    {
+      "path": "tests/test_savings.py",
+      "bytes": 10199,
+      "sha256": "8a34e7c6debb3a0178b56ef7560dbcc45d0ab236d3c3cda6b7d8cb28b5f692e2"
+    },
+    {
+      "path": "tests/test_savings_dashboard_qt.py",
+      "bytes": 12336,
+      "sha256": "1256ecb05ea3da9544d84dd273c5805453f7db92ee84e4c12e5ee16d8cabea2e"
     },
     {
       "path": "tests/test_session_hooks.py",
@@ -3001,8 +3021,8 @@
     },
     {
       "path": "tests/test_usage_widget_language.py",
-      "bytes": 25161,
-      "sha256": "b524acdcf7562bb3997d85a424755aa7b031e1d00d52b0384766c1a13ef0ed0d"
+      "bytes": 25032,
+      "sha256": "b9f8e9c6cde46075322f0d7a17877f814dee78e1f2b8bd52990572258506d49e"
     },
     {
       "path": "tests/test_validate_codex_gateway.py",
@@ -3015,7 +3035,7 @@
       "sha256": "be8dbb0aa75e27d1625255b99019c1b078833d1afc864951da7d6de1c4b70807"
     }
   ],
-  "total_bytes": 146860930,
+  "total_bytes": 146939609,
   "self_excluded": [
     "PUBLIC_RELEASE_MANIFEST.json",
     "SHA256SUMS"

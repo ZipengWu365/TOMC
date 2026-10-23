@@ -337,3 +337,48 @@ def test_protocol_detail_column_is_added_on_first_write_only(tmp_path):
         "compaction_trigger": "auto",
         "request_kind": "compaction",
     }
+
+
+@pytest.mark.parametrize(
+    "value,stored",
+    [
+        ("gpt-6-astra", "gpt-6-astra"),
+        ("claude-opus-5-5[1m]", "claude-opus-5-5[1m]"),
+        ("openai/gpt-5.5", "openai/gpt-5.5"),
+        ("two words", None),
+        ("x" * 200, None),
+        ({"name": "gpt"}, None),
+        (None, None),
+    ],
+)
+def test_model_id_is_kept_only_as_a_short_identifier(tmp_path, value, stored):
+    activity = RequestActivity(tmp_path / "activity.sqlite3")
+    activity.start("request", "codex", "s")
+    activity.finish("request", state="prepared", context_input_tokens=10, model=value)
+    assert activity.last()["model"] == stored
+    # A later finish without a model keeps the first one.
+    activity.finish("request", state="forwarded")
+    assert activity.last()["model"] == stored
+
+
+def test_model_column_is_added_to_a_legacy_table_on_first_write_only(tmp_path):
+    path = tmp_path / "legacy.sqlite3"
+    with sqlite3.connect(path) as db:
+        db.execute(
+            "CREATE TABLE tomc_request_activity (request_id TEXT PRIMARY KEY, host TEXT NOT NULL, "
+            "session_id TEXT, state TEXT NOT NULL, reason TEXT, started_utc TEXT NOT NULL, "
+            "updated_utc TEXT NOT NULL, sent INTEGER NOT NULL DEFAULT 0, before_tokens INTEGER, "
+            "after_tokens INTEGER, provider_input_tokens INTEGER, provider_cached_tokens INTEGER, "
+            "context_input_tokens INTEGER, protocol_detail TEXT)"
+        )
+        db.execute(
+            "INSERT INTO tomc_request_activity VALUES "
+            "('old','codex','s','forwarded','old_history_compiled_cache_may_change',"
+            "'2026-01-01','2026-01-01',1,100,80,NULL,NULL,50,NULL)"
+        )
+    original = path.read_bytes()
+    activity = RequestActivity(path)
+    assert activity.last()["model"] is None and path.read_bytes() == original
+    activity.start("new", "codex", "s")
+    activity.finish("new", state="prepared", context_input_tokens=10, model="gpt-6-astra")
+    assert activity.last()["model"] == "gpt-6-astra"

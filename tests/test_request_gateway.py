@@ -335,6 +335,18 @@ def test_encoded_request_is_decoded_only_when_rewritten(harness, encoding, encod
     assert harness.gateway.usage.summary()["preparations"] == 1
 
 
+def test_request_model_is_recorded_for_pricing_but_unsafe_values_are_not(harness):
+    raw = json.dumps(payload()).encode()
+    assert harness.exchange(raw)[0] == 200
+    assert harness.gateway.activity.last()["model"] == "fixture-model"
+    request = payload()
+    request["model"] = "not a model id\nwith text"
+    harness.gateway.sessions.set_enabled("codex", "fixture-session", False)
+    assert harness.exchange(json.dumps(request).encode())[0] == 200
+    last = harness.gateway.activity.last()
+    assert last["reason"] == "session_disabled" and last["model"] is None
+
+
 def test_chunked_request_body_is_reassembled_and_forwarded_once(harness):
     raw = json.dumps(payload()).encode()
     parts = [raw[start : start + 79] for start in range(0, len(raw), 79)]

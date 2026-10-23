@@ -270,9 +270,9 @@ def test_request_preparation_animates_once_and_generation_is_not_compression(
     )
     pet.refresh()
     assert len(calls) == 1 and pet.art.phase is None
-    assert "720" in pet.details.request_usage_detail.text()
-    assert "不是" not in pet.details.request_usage_detail.text()
-    assert "账单" not in pet.details.request_usage_detail.text()
+    assert "720" in pet.details.request_status.toolTip()
+    assert "不是" not in pet.details.request_status.toolTip()
+    assert "账单" not in pet.details.request_status.toolTip()
     assert pet.store.summary()["preparations"] == 1
     pet.request_activity.start("request-2", "codex", "b")
     pet.request_activity.finish("request-2", state="passthrough", reason="session_disabled")

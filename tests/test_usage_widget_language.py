@@ -187,28 +187,30 @@ def test_visible_language_switch_persists_without_touching_policy_or_replaying_a
     assert (sessions.settings(), sessions.get("codex", "fixture-session")) == policy
     assert widget.store.path.read_bytes() == before
     assert not played and not widget.pending_reports
-    assert widget.details.total.text() == "80.0%"
-    assert widget.details.caption.text() == "Context reduction"
+    assert widget.details.total.text() == "800"
+    assert widget.details.caption.text() == "Tokens saved"
+    assert widget.details.money_caption.text() == "Money saved"
     assert widget.details.language_buttons["en"].isChecked()
-    assert widget.details.library_button.text() == "Contexts && handoff"
+    assert widget.details.library_button.text() == "All records ›"
+    assert widget.details.price_button.text() == "Models && pricing ›"
     assert widget.library_action.text() == "Contexts && handoff"
     assert_english(widget)
     widget.details.language_buttons["zh"].click()
-    assert widget.details.caption.text() == "上下文减少"
-    assert widget.details.total.text() == "80.0%"
+    assert widget.details.caption.text() == "节省 tokens"
+    assert widget.details.total.text() == "800"
 
 
-def test_money_is_secondary_and_mixed_counters_have_a_small_clear_label(widget):
-    assert widget.details.total.text() == "80.0%"
-    assert "$" in widget.details.price_note.text()
-    assert widget.details.price_note.wordWrap()
+def test_dashboard_sums_counters_and_values_unattributed_savings_at_the_reference(widget):
+    assert widget.details.total.text() == "800"
+    # No request model or host is known, so the reference rate applies: 800 × $15 / 1M.
+    assert widget.details.money.text() == "$0.01"
     record(widget.store, counter="another-counter")
     widget.refresh()
-    assert widget.details.total.text() == "多种计数方式"
-    assert "font-size: 13px" in widget.details.total.styleSheet()
-    assert "—" in widget.details.price_note.text()
+    assert widget.details.total.text() == "1,600"
+    assert widget.details.money.text() == "$0.02"
+    assert widget.details.stats.text() == "2 次压缩 · 平均每次节省 800 tokens"
     widget.set_ui_language("en")
-    assert widget.details.total.text() == "Multiple counters"
+    assert widget.details.stats.text() == "2 compressions · 800 tokens saved each on average"
     assert_english(widget)
 
 
@@ -224,7 +226,8 @@ def test_live_quota_host_and_error_states_retranslate(widget, monkeypatch):
     )
     widget.set_ui_language("en")
     assert widget.details.quota_title.text() == "Codex 5 hours"
-    assert "This week" in widget.details.quota_detail.text()
+    assert widget.details.quota_value.text() == "72% left"
+    assert "This week" in widget.details.quota_value.toolTip()
     assert_english(widget)
     widget.set_host("claude")
     assert widget.details.quota_title.text() == "Claude allowance"
@@ -309,34 +312,21 @@ def test_unknown_busy_waits_for_real_context_length_then_animates_once(widget, m
     assert "not" not in widget.card.toolTip().lower()
 
 
-def test_expanded_many_counter_rows_scroll_without_clipping_on_small_screen(
-    widget, app, monkeypatch
-):
+def test_dashboard_scrolls_without_clipping_on_a_short_screen(widget, app, monkeypatch):
     widget.set_ui_language("en")
-    summary = deepcopy(widget.summary)
-    group = summary["by_counter"][0]
-    summary["by_counter"] = [{**group, "counter": f"fixture-counter-{i}"} for i in range(20)]
     monkeypatch.setattr(
         widget.details,
         "screen",
-        lambda: SimpleNamespace(availableGeometry=lambda: QRect(0, 0, 600, 550)),
+        lambda: SimpleNamespace(availableGeometry=lambda: QRect(0, 0, 600, 360)),
     )
-    widget.details.set_summary(
-        summary,
-        {"calls": 20},
-        usage_widget_qt.growth_state(summary, widget.language),
-        "Latest fixture",
-    )
-    widget.details.info_button.setChecked(True)
-    widget.details.show()
+    widget.show_details()
     app.processEvents()
     widget.details.resize_to_content()
     app.processEvents()
-    assert widget.details.height() <= 550 - 24
-    assert widget.details.scope_area.verticalScrollBar().maximum() > 0
-    assert widget.details.rows.height() >= widget.details.rows.heightForWidth(
-        widget.details.rows.width()
-    )
+    assert widget.details.height() <= 360 - 24
+    assert widget.details.scroll_area.verticalScrollBar().maximum() > 0
+    body = widget.details.body
+    assert body.height() >= usage_widget_qt.Details.layout_height(body.layout(), body.width())
     assert widget.details.language_buttons["en"].isVisible()
     assert widget.details.quit_button.isVisible()
 

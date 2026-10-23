@@ -8,12 +8,14 @@ import sqlite3
 import sys
 import tempfile
 from collections import deque
+from datetime import datetime
 from pathlib import Path
 
-from PySide6.QtCore import QLockFile, QPoint, Qt, QTimer
+from PySide6.QtCore import QLockFile, QPoint, QRectF, Qt, QTimer
 from PySide6.QtGui import QColor, QFontDatabase, QPainter, QPen
 from PySide6.QtWidgets import (
     QApplication,
+    QFileDialog,
     QFrame,
     QGraphicsOpacityEffect,
     QHBoxLayout,
@@ -23,21 +25,22 @@ from PySide6.QtWidgets import (
     QProgressBar,
     QPushButton,
     QScrollArea,
+    QSizePolicy,
     QStyle,
+    QToolTip,
     QVBoxLayout,
     QWidget,
 )
 
-from .cost_estimate import dollars, input_value, load_pricing
+from .cost_estimate import load_pricing
 from .oasis_qt import OasisCelebration
 from .pet_art import ACTIVE_WIDTH, IDLE_WIDTH, PetArt
 from .pet_growth import growth_state, request_stage
-from .quota import context_percent, percent_text
 from .quota_qt import QuotaReader
 from .request_activity import RequestActivity
+from .savings import savings_report
 from .ui_language import UiLanguage, ui_font
 from .usage import UsageStore
-from .usage_widget import display_values
 
 STYLE = """
 QWidget { color: #443B35; font-family: 'Microsoft YaHei UI', 'Noto Sans CJK SC', 'Segoe UI'; font-size: 12px; }
@@ -107,32 +110,261 @@ class DismissButton(QPushButton):
         painter.drawLine(18, 10, 10, 18)
 
 
+DASHBOARD_STYLE = """
+QWidget#periods { background: #EEEAE2; border-radius: 7px; }
+QPushButton#period { color: #706659; border-radius: 5px; padding: 1px; font-size: 11px; }
+QPushButton#period:checked { background: #FFFCF7; color: #354F42; font-weight: 600; }
+QPushButton#language { color: #706659; font-size: 10px; padding: 2px 6px; border-radius: 6px; }
+QPushButton#language:checked { background: #E4ECE5; color: #345743; font-weight: 600; }
+QPushButton#link { color: #3F6B53; font-size: 11px; padding: 2px 5px; border-radius: 5px; }
+QPushButton#link:hover { background: #E4ECE5; }
+QPushButton#chip { background: #F1EDE4; color: #4E5F52; font-size: 10px; padding: 2px 8px; border-radius: 6px; }
+QPushButton#chip:hover { background: #E4ECE5; color: #345743; }
+QPushButton#foot { font-size: 10px; color: #706659; padding: 3px 5px; }
+QFrame#rule { background: #EEE9DF; border: none; }
+QScrollArea { background: transparent; border: none; }
+"""
+
+
+def compact_tokens(value):
+    """12,345 → 12.3K and 1,234,567 → 1.23M; small counts keep every digit."""
+    sign, value = ("−" if value < 0 else ""), abs(value)
+    if value < 10_000:
+        return f"{sign}{value:,}"
+    if value < 1_000_000:
+        return f"{sign}{value / 1000:.1f}K".replace(".0K", "K")
+    return f"{sign}{value / 1_000_000:.2f}M"
+
+
+def money_text(value):
+    """Dollars with cents; amounts under a cent read as <$0.01."""
+    if value is None:
+        return "—"
+    sign, value = ("−" if value < 0 else ""), abs(value)
+    if 0 < value < 0.005:
+        return sign + "<$0.01"
+    return f"{sign}${value:,.2f}"
+
+
+def local_time(value):
+    try:
+        return datetime.fromisoformat(value).astimezone().strftime("%m-%d %H:%M")
+    except (TypeError, ValueError):
+        return str(value or "")[:16]
+
+
+def rule():
+    line = QFrame()
+    line.setObjectName("rule")
+    line.setFixedHeight(1)
+    return line
+
+
+def discard(widget):
+    """Detach a replaced row now; deleteLater alone leaves it a child until the next loop."""
+    widget.hide()
+    widget.setParent(None)
+    widget.deleteLater()
+
+
+class ElidedLabel(QLabel):
+    """One plain-text line that keeps its full text but paints an ellipsis when narrow."""
+
+    def __init__(self, text="", size=10, color="#706659", bold=False):
+        super().__init__(text)
+        self.setFont(ui_font())
+        self.setTextFormat(Qt.TextFormat.PlainText)
+        self.setStyleSheet(
+            f"color: {color}; font-size: {size}px; font-weight: {600 if bold else 400};"
+        )
+        self.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Fixed)
+        self.setMinimumWidth(1)
+        self.color = QColor(color)
+
+    def paintEvent(self, event):
+        painter = QPainter(self)
+        painter.setFont(self.font())
+        painter.setPen(self.color)
+        text = self.fontMetrics().elidedText(self.text(), Qt.TextElideMode.ElideRight, self.width())
+        painter.drawText(self.rect(), int(self.alignment() | Qt.AlignmentFlag.AlignVCenter), text)
+
+
+class SavingsChart(QWidget):
+    """Tokens saved per UTC day; days inside the selected period are drawn darker."""
+
+    def __init__(self, language, parent=None):
+        super().__init__(parent)
+        self.language = language
+        self.days, self.start = [], None
+        self.setFixedHeight(42)
+        self.setMouseTracking(True)
+
+    def set_days(self, days, start):
+        self.days, self.start = list(days), start
+        total = sum(max(0, day["tokens_saved"]) for day in self.days)
+        self.setAccessibleName(
+            self.language.tr(
+                "近 {count} 天每日节省 tokens，共 {total:,}",
+                "Tokens saved per day over the last {count} days: {total:,} in total",
+                count=len(self.days),
+                total=total,
+            )
+        )
+        self.update()
+
+    def geometry_for(self, index):
+        count = len(self.days)
+        gap = 3
+        width = (self.width() - gap * (count - 1)) / count
+        return index * (width + gap), width
+
+    def index_at(self, x):
+        for index in range(len(self.days)):
+            left, width = self.geometry_for(index)
+            if left <= x <= left + width + 3:
+                return index
+        return None
+
+    def paintEvent(self, event):
+        if not self.days:
+            return
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+        painter.setPen(Qt.PenStyle.NoPen)
+        floor = self.height() - 1
+        peak = max([day["tokens_saved"] for day in self.days] + [1])
+        for index, day in enumerate(self.days):
+            left, width = self.geometry_for(index)
+            value = max(0, day["tokens_saved"])
+            current = self.start is None or day["day"] >= self.start
+            if value:
+                height = max(3.0, (floor - 2) * value / peak)
+                painter.setBrush(QColor("#507461" if current else "#C9D6CB"))
+                painter.drawRoundedRect(QRectF(left, floor - height, width, height), 2, 2)
+            else:
+                painter.setBrush(QColor("#E5DFD4"))
+                painter.drawRect(QRectF(left, floor - 1, width, 1))
+
+    def mouseMoveEvent(self, event):
+        index = self.index_at(event.position().x()) if self.days else None
+        if index is None:
+            QToolTip.hideText()
+            return
+        day = self.days[index]
+        QToolTip.showText(
+            event.globalPosition().toPoint(),
+            self.language.tr(
+                "{day} · 节省 {count:,} tokens",
+                "{day} · {count:,} tokens saved",
+                day=day["day"][5:],
+                count=day["tokens_saved"],
+            ),
+            self,
+        )
+
+
+class RecordRow(QWidget):
+    """One saved context: open it, copy its handoff prompt or export a bundle."""
+
+    def __init__(self, dashboard, record):
+        super().__init__()
+        self.dashboard, self.record = dashboard, record
+        tr = dashboard.language.tr
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(2)
+        top = QHBoxLayout()
+        top.setSpacing(8)
+        self.title = ElidedLabel(
+            record.get("title") or tr("未命名上下文", "Untitled context"),
+            12,
+            "#443B35",
+            bold=True,
+        )
+        self.title.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.title.setToolTip(tr("在上下文库中打开", "Open in the context library"))
+        top.addWidget(self.title, 1)
+        before = record.get("input_estimated_tokens")
+        after = record.get("output_estimated_tokens")
+        self.tokens = label(
+            tr(
+                "{before} → {after}",
+                "{before} → {after}",
+                before=compact_tokens(before),
+                after=compact_tokens(after),
+            )
+            if isinstance(before, int) and isinstance(after, int)
+            else "",
+            10,
+            "#52705D",
+        )
+        self.tokens.setToolTip(
+            tr("这份上下文压缩前后的 tokens", "Context tokens before and after compression")
+        )
+        top.addWidget(self.tokens)
+        layout.addLayout(top)
+        bottom = QHBoxLayout()
+        bottom.setSpacing(6)
+        from .context_library_qt import host_label
+
+        self.meta = ElidedLabel(
+            f"{host_label(record.get('origin_host') or record.get('host'), dashboard.language)}"
+            f" · {local_time(record.get('created_utc'))}",
+        )
+        bottom.addWidget(self.meta, 1)
+        self.copy_button = QPushButton(tr("复制提示词", "Copy prompt"))
+        self.copy_button.setObjectName("chip")
+        self.copy_button.setToolTip(
+            tr(
+                "复制完整的接续提示词，粘贴给另一个 Agent 即可继续",
+                "Copy the complete handoff prompt; paste it into another agent to continue",
+            )
+        )
+        self.copy_button.clicked.connect(lambda: dashboard.copy_record(record))
+        self.export_button = QPushButton(tr("导出", "Export"))
+        self.export_button.setObjectName("chip")
+        self.export_button.setToolTip(
+            tr(
+                "导出便携包，在另一台电脑上导入后继续",
+                "Export a portable bundle to import on another computer",
+            )
+        )
+        self.export_button.clicked.connect(lambda: dashboard.export_record(record))
+        bottom.addWidget(self.copy_button)
+        bottom.addWidget(self.export_button)
+        layout.addLayout(bottom)
+
+    def mouseReleaseEvent(self, event):
+        if event.button() == Qt.MouseButton.LeftButton and self.title.geometry().contains(
+            event.position().toPoint()
+        ):
+            self.dashboard.open_record(self.record)
+
+
 class Details(QWidget):
-    """Small percentage-first popover, with raw counts behind Details."""
+    """Savings dashboard: tokens and money saved per model, then handoff and export."""
+
+    RECORD_LIMIT = 3
+    MODEL_LIMIT = 3
 
     def __init__(self, owner):
         super().__init__(owner, Qt.WindowType.Popup | Qt.WindowType.FramelessWindowHint)
+        from .context_library import ContextLibrary
+
         self.owner = owner
         self.language = owner.language
-        tr = self.language.tr
+        self.library = ContextLibrary(owner.store.path)
         self.quota_state = {"status": "unavailable", "windows": []}
+        self.report = self.message = None
+        self.failed = False
+        self.records = []
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
-        self.setFixedWidth(240)
-        self.setAccessibleName("TOMC 上下文节省与账户额度")
-        self.setStyleSheet(
-            STYLE
-            + """
-            QWidget#periods { background: #EEEAE2; border-radius: 7px; }
-            QPushButton#period { color: #706659; border-radius: 5px; padding: 1px; font-size: 11px; }
-            QPushButton#period:checked { background: #FFFCF7; color: #354F42; font-weight: 600; }
-            QPushButton#foot { font-size: 10px; color: #706659; padding: 3px 5px; }
-        """
-        )
+        self.setStyleSheet(STYLE + DASHBOARD_STYLE)
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(12, 8, 12, 7)
+        layout.setContentsMargins(14, 10, 14, 10)
         layout.setSpacing(0)
         heading = QHBoxLayout()
-        heading.setSpacing(6)
+        heading.setSpacing(5)
         self.portrait = PetArt(self)
         self.portrait.compact_idle = True
         self.portrait.setFixedSize(26, 29)
@@ -145,174 +377,160 @@ class Details(QWidget):
         self.demo_badge = label("演示", 10, "#866239")
         self.demo_badge.setVisible(owner.test_mode)
         heading.addWidget(self.demo_badge)
+        self.language_buttons = {}
+        for code, text in (("zh", "中文"), ("en", "English")):
+            button = QPushButton(text)
+            button.setObjectName("language")
+            button.setCheckable(True)
+            button.clicked.connect(lambda checked=False, value=code: owner.set_ui_language(value))
+            self.language_buttons[code] = button
+            heading.addWidget(button)
         self.close_button = DismissButton(self.language)
         self.close_button.clicked.connect(self.hide)
         heading.addWidget(self.close_button)
         layout.addLayout(heading)
-        language_row = QHBoxLayout()
-        language_row.setSpacing(4)
-        self.language_title = label(size=10, color="#706659")
-        language_row.addWidget(self.language_title)
-        language_row.addStretch()
-        self.language_buttons = {}
-        for code, text in (("zh", "中文"), ("en", "English")):
-            button = QPushButton(text)
-            button.setCheckable(True)
-            button.setFixedHeight(27)
-            button.clicked.connect(lambda checked=False, value=code: owner.set_ui_language(value))
-            self.language_buttons[code] = button
-            language_row.addWidget(button)
-        layout.addLayout(language_row)
-        layout.addSpacing(5)
-        self.mode_status = label(
-            tr("TOMC · 会话状态待读取", "TOMC · Session status pending"), 10, "#52705D"
-        )
-        self.mode_status.setWordWrap(True)
-        self.mode_status.setToolTip(
-            "仅处理实际经过 TOMC 的工具或代理请求。会话来自宿主事件，不代表桌面焦点。"
-        )
-        layout.addWidget(self.mode_status)
-        self.request_status = label(
-            tr("自动请求：尚未观察到", "Automatic requests: none observed"), 10, "#706659"
-        )
-        self.request_status.setWordWrap(True)
-        layout.addWidget(self.request_status)
-        layout.addSpacing(6)
+        self.progress = QProgressBar()
+        self.progress.setRange(0, 1000)
+        self.progress.setTextVisible(False)
+        self.progress.setFixedHeight(3)
+        layout.addSpacing(3)
+        layout.addWidget(self.progress)
+        layout.addSpacing(8)
+        self.body = QWidget()
+        self.body.setAutoFillBackground(False)
+        body = QVBoxLayout(self.body)
+        body.setContentsMargins(0, 0, 0, 0)
+        body.setSpacing(0)
         period_surface = QWidget()
         period_surface.setObjectName("periods")
         periods = QHBoxLayout(period_surface)
         periods.setContentsMargins(2, 2, 2, 2)
         periods.setSpacing(2)
         self.buttons = {}
-        for key, title in (("today", "今天"), ("7d", "近七天"), ("all", "累计")):
-            button = QPushButton(title)
+        for key in ("today", "7d", "all"):
+            button = QPushButton()
             button.setObjectName("period")
             button.setFixedHeight(22)
             button.setCheckable(True)
-            button.setAccessibleName(f"查看{title}上下文统计")
             button.clicked.connect(lambda checked=False, p=key: owner.set_period(p))
             self.buttons[key] = button
             periods.addWidget(button)
-        layout.addWidget(period_surface)
-        layout.addSpacing(6)
-        metric = QHBoxLayout()
-        self.caption = label("上下文减少", 11, "#52705D")
-        self.total = label(size=25, color="#345743", bold=True)
-        self.total.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
-        metric.addWidget(self.caption)
-        metric.addWidget(self.total, 1)
-        layout.addLayout(metric)
-        self.latest = label(size=11)
-        self.latest.setWordWrap(True)
-        self.latest.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
-        recent = QHBoxLayout()
-        self.recent_title = label("最近一次", 10, "#706659")
-        recent.addWidget(self.recent_title)
-        recent.addWidget(self.latest, 1)
-        layout.addLayout(recent)
-        layout.addSpacing(6)
-        quota_line = QHBoxLayout()
-        self.quota_title = label("Codex 额度", 10, "#706659")
-        self.quota_value = label("未连接", 11)
-        self.quota_value.setWordWrap(True)
-        self.quota_value.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
-        quota_line.addWidget(self.quota_title)
-        quota_line.addWidget(self.quota_value, 1)
-        layout.addLayout(quota_line)
-        self.progress = QProgressBar()
-        self.progress.setRange(0, 1000)
-        self.progress.setTextVisible(False)
-        self.progress.setFixedHeight(3)
-        layout.addSpacing(6)
-        self.price_note = label(
-            tr("参考模型未选择 · 点击估价", "No reference model · Select Pricing"),
-            10,
-            "#706659",
-        )
-        self.price_note.setWordWrap(True)
-        layout.addWidget(self.price_note)
-        self.library_button = QPushButton("上下文与接续")
-        self.library_button.setStyleSheet(
-            "QPushButton { background: #E4ECE5; color: #345743; font-weight: 600; margin-top: 5px; margin-bottom: 4px; }"
-        )
-        self.library_button.clicked.connect(owner.open_context_library)
-        layout.addWidget(self.library_button)
-        footer = QHBoxLayout()
-        self.info_button = QPushButton("详情")
-        self.info_button.setObjectName("foot")
-        self.info_button.setCheckable(True)
-        self.info_button.toggled.connect(self.toggle_scope)
-        footer.addWidget(self.info_button)
-        self.price_button = QPushButton("估价")
-        self.price_button.setObjectName("foot")
+        body.addWidget(period_surface)
+        body.addSpacing(10)
+        hero = QHBoxLayout()
+        hero.setSpacing(12)
+        column = QVBoxLayout()
+        column.setSpacing(0)
+        self.caption = label(size=10, color="#706659")
+        self.total = label(size=22, color="#345743", bold=True)
+        column.addWidget(self.caption)
+        column.addWidget(self.total)
+        hero.addLayout(column, 1)
+        column = QVBoxLayout()
+        column.setSpacing(0)
+        self.money_caption = label(size=10, color="#706659")
+        self.money = label(size=22, bold=True)
+        column.addWidget(self.money_caption)
+        column.addWidget(self.money)
+        hero.addLayout(column, 1)
+        body.addLayout(hero)
+        body.addSpacing(8)
+        self.model_rows = QVBoxLayout()
+        self.model_rows.setSpacing(3)
+        body.addLayout(self.model_rows)
+        pricing = QHBoxLayout()
+        pricing.setSpacing(4)
+        self.basis = ElidedLabel()
+        pricing.addWidget(self.basis, 1)
+        self.price_button = QPushButton()
+        self.price_button.setObjectName("link")
         self.price_button.clicked.connect(owner.open_reference)
-        footer.addWidget(self.price_button)
+        pricing.addWidget(self.price_button)
+        body.addLayout(pricing)
+        body.addSpacing(6)
+        chart_heading = QHBoxLayout()
+        self.chart_title = label(size=10, color="#706659")
+        self.chart_today = label(size=10, color="#706659")
+        chart_heading.addWidget(self.chart_title)
+        chart_heading.addStretch()
+        chart_heading.addWidget(self.chart_today)
+        body.addLayout(chart_heading)
+        body.addSpacing(3)
+        self.chart = SavingsChart(self.language, self)
+        body.addWidget(self.chart)
+        body.addSpacing(5)
+        self.stats = ElidedLabel()
+        body.addWidget(self.stats)
+        body.addSpacing(10)
+        body.addWidget(rule())
+        body.addSpacing(8)
+        records = QHBoxLayout()
+        records.setSpacing(2)
+        self.records_title = label(size=12, bold=True)
+        records.addWidget(self.records_title)
+        records.addStretch()
+        self.import_button = QPushButton()
+        self.import_button.setObjectName("link")
+        self.import_button.clicked.connect(self.import_bundle)
+        records.addWidget(self.import_button)
+        self.library_button = QPushButton()
+        self.library_button.setObjectName("link")
+        self.library_button.clicked.connect(owner.open_context_library)
+        records.addWidget(self.library_button)
+        body.addLayout(records)
+        body.addSpacing(6)
+        self.record_list = QVBoxLayout()
+        self.record_list.setSpacing(9)
+        body.addLayout(self.record_list)
+        self.records_empty = label(size=10, color="#706659")
+        self.records_empty.setWordWrap(True)
+        body.addWidget(self.records_empty)
+        self.records_message = label(size=10, color="#3F6B53")
+        self.records_message.setTextFormat(Qt.TextFormat.PlainText)
+        self.records_message.setWordWrap(True)
+        self.records_message.hide()
+        body.addSpacing(4)
+        body.addWidget(self.records_message)
+        body.addSpacing(10)
+        body.addWidget(rule())
+        body.addSpacing(6)
+        self.mode_status = ElidedLabel(color="#52705D")
+        body.addWidget(self.mode_status)
+        self.request_status = ElidedLabel()
+        body.addWidget(self.request_status)
+        footer = QHBoxLayout()
+        footer.setSpacing(4)
+        self.quota_title = label(size=10, color="#706659")
+        self.quota_value = label(size=10, color="#706659")
+        footer.addWidget(self.quota_title)
+        footer.addWidget(self.quota_value)
         footer.addStretch()
-        self.quit_button = QPushButton("退出 TOMC")
+        self.quit_button = QPushButton()
         self.quit_button.setObjectName("foot")
         self.quit_button.clicked.connect(owner.close)
         footer.addWidget(self.quit_button)
-        layout.addLayout(footer)
-        self.scope = QWidget()
-        detail_layout = QVBoxLayout(self.scope)
-        detail_layout.setContentsMargins(0, 5, 0, 0)
-        detail_layout.setSpacing(5)
-        self.rows = label(size=10)
-        self.rows.setWordWrap(True)
-        detail_layout.addWidget(self.rows)
-        self.hint = label(size=10, color="#52705D")
-        self.hint.setWordWrap(True)
-        detail_layout.addWidget(self.hint)
-        detail_layout.addWidget(self.progress)
-        self.explanation = label(size=10, color="#706659")
-        self.explanation.setWordWrap(True)
-        detail_layout.addWidget(self.explanation)
-        self.cost_detail = label("", 10, "#706659")
-        self.cost_detail.setWordWrap(True)
-        detail_layout.addWidget(self.cost_detail)
-        self.quota_detail = label("账户额度尚未读取。", 10, "#706659")
-        self.quota_detail.setWordWrap(True)
-        detail_layout.addWidget(self.quota_detail)
-        self.request_usage_detail = label(
-            tr(
-                "尚未观察到代理请求；配置可用不代表已接管请求。",
-                "No gateway request observed. Configuration alone does not prove request coverage.",
-            ),
-            10,
-            "#706659",
+        body.addLayout(footer)
+        self.scroll_area = QScrollArea()
+        self.scroll_area.setFrameShape(QFrame.Shape.NoFrame)
+        self.scroll_area.setWidgetResizable(True)
+        self.scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.scroll_area.setWidget(self.body)
+        self.scroll_area.viewport().setAutoFillBackground(False)
+        layout.addWidget(self.scroll_area)
+        self.request_status.setText(
+            self.language.tr("自动请求：尚未观察到", "Automatic requests: none observed")
         )
-        self.request_usage_detail.setWordWrap(True)
-        detail_layout.addWidget(self.request_usage_detail)
-        self.scope_area = QScrollArea()
-        self.scope_area.setFrameShape(QFrame.Shape.NoFrame)
-        self.scope_area.setWidgetResizable(True)
-        self.scope_area.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
-        self.scope_area.setStyleSheet("QScrollArea { background: transparent; border: none; }")
-        self.scope_area.setWidget(self.scope)
-        self.scope.setAutoFillBackground(False)
-        self.scope_area.viewport().setAutoFillBackground(False)
-        layout.addWidget(self.scope_area)
-        self.scope_area.hide()
         self.retranslate()
         self.language.changed.connect(self.retranslate)
 
     def retranslate(self, _code=None):
         tr = self.language.tr
-        self.setFixedWidth(280 if self.language.code == "zh" else 310)
-        self.setAccessibleName(
-            tr("TOMC 上下文统计与账户额度", "TOMC context statistics and account allowance")
-        )
-        self.language_title.setText(tr("界面语言", "Language"))
+        self.setFixedWidth(300 if self.language.code == "zh" else 324)
+        self.setAccessibleName(tr("TOMC 省 token 看板", "TOMC token savings dashboard"))
         for code, button in self.language_buttons.items():
             button.setChecked(code == self.language.code)
             button.setAccessibleName("中文" if code == "zh" else "English")
         self.demo_badge.setText(tr("演示", "Demo"))
-        self.mode_status.setToolTip(
-            tr(
-                "仅处理实际经过 TOMC 的工具或代理请求。会话来自宿主事件，不代表桌面焦点。",
-                "Only requests observed by TOMC are processed. Session events do not identify desktop focus.",
-            )
-        )
         for key, zh, en in (
             ("today", "今天", "Today"),
             ("7d", "近七天", "7 days"),
@@ -320,56 +538,75 @@ class Details(QWidget):
         ):
             self.buttons[key].setText(tr(zh, en))
             self.buttons[key].setAccessibleName(
-                tr("查看{period}上下文统计", "Show {period} context statistics", period=tr(zh, en))
+                tr("查看{period}节省", "Show savings for {period}", period=tr(zh, en))
             )
-        self.recent_title.setText(tr("最近一次", "Latest"))
-        self.library_button.setText(tr("上下文与接续", "Contexts && handoff"))
-        self.info_button.setText(
-            tr("收起详情", "Less detail") if self.info_button.isChecked() else tr("详情", "Details")
-        )
-        self.price_button.setText(tr("估价", "Pricing"))
-        self.quit_button.setText(tr("退出 TOMC", "Quit TOMC"))
-        self.explanation.setText(
+        self.caption.setText(tr("节省 tokens", "Tokens saved"))
+        self.money_caption.setText(tr("省下的钱", "Money saved"))
+        self.price_button.setText(tr("模型与估价 ›", "Models && pricing ›"))
+        self.price_button.setToolTip(
             tr(
-                "比较 TOMC 处理前后的上下文；累计比例按总量计算。\n额度是账户当前余额，受模型、推理、工具和缓存影响，不能从压缩比例换算。日期按 UTC。",
-                "Compares context before and after TOMC; the total percentage uses summed counts.\nAccount allowance also depends on the model, reasoning, tools and cache. Context reduction does not predict allowance savings. Dates use UTC.",
+                "选择参考模型，或改按缓存读取价折算",
+                "Choose the reference model, or value savings at the cached-read price",
             )
         )
+        self.chart_title.setText(tr("每日节省 · 近 14 天", "Saved per day · last 14 days"))
+        self.records_title.setText(tr("转移与导出", "Handoff & export"))
+        self.import_button.setText(tr("导入", "Import"))
+        self.import_button.setToolTip(
+            tr(
+                "导入另一台电脑导出的上下文包",
+                "Import a context bundle exported on another computer",
+            )
+        )
+        self.library_button.setText(tr("全部记录 ›", "All records ›"))
+        self.quit_button.setText(tr("退出 TOMC", "Quit TOMC"))
         self.set_quota(self.quota_state)
+        if self.failed:
+            self.show_error()
+        elif self.report is not None:
+            self.render_report(self.report)
+        self.render_records()
+        self.resize_to_content()
+
+    @staticmethod
+    def layout_height(layout, width):
+        # Without wrapped labels Qt reports no height-for-width; use the size hint.
+        if layout.hasHeightForWidth():
+            return layout.totalHeightForWidth(width)
+        return layout.totalSizeHint().height()
 
     def resize_to_content(self):
-        self.layout().invalidate()
-        if self.info_button.isChecked():
-            # Keep the controls above the scrollable detail body visible on
-            # small/high-DPI screens without compressing or dropping count rows.
-            self.scope_area.setFixedHeight(0)
-            self.layout().activate()
-            header = self.layout().totalHeightForWidth(self.width())
-            maximum = max(120, self.screen().availableGeometry().height() - header - 24)
-            margins = self.layout().contentsMargins()
-            width = self.width() - margins.left() - margins.right()
-            # Reserve scrollbar width before wrapping, avoiding a feedback loop
-            # where a newly visible scrollbar creates another clipped line.
-            width -= self.style().pixelMetric(QStyle.PixelMetric.PM_ScrollBarExtent)
-            desired = self.scope.layout().totalHeightForWidth(width)
-            self.scope.setMinimumHeight(desired)
-            self.scope_area.setFixedHeight(min(desired, maximum))
-        # QWidget.adjustSize caps a top-level window at two thirds of the
-        # screen, squeezing multiline labels. Honor their actual wrapped height.
+        # Style-sheet fonts apply on polish; measure only after that.
+        self.ensurePolished()
+        for child in self.body.findChildren(QWidget):
+            child.ensurePolished()
+        margins = self.layout().contentsMargins()
+        width = self.width() - margins.left() - margins.right()
+        self.scroll_area.setFixedHeight(0)
         self.layout().activate()
-        height = self.layout().totalHeightForWidth(self.width())
-        self.resize(self.width(), height if height > 0 else self.sizeHint().height())
+        header = self.layout_height(self.layout(), self.width())
+        maximum = max(160, self.screen().availableGeometry().height() - header - 24)
+        desired = self.layout_height(self.body.layout(), width)
+        if desired > maximum:
+            # Reserve the scrollbar before wrapping so a new scrollbar cannot clip a line.
+            width -= self.style().pixelMetric(QStyle.PixelMetric.PM_ScrollBarExtent)
+            desired = self.layout_height(self.body.layout(), width)
+        self.body.setMinimumHeight(desired)
+        self.scroll_area.setFixedHeight(min(desired, maximum))
+        self.layout().activate()
+        self.resize(self.width(), self.layout_height(self.layout(), self.width()))
         if self.isVisible():
             self.owner.position_details()
 
-    def toggle_scope(self, expanded):
-        self.scope_area.setVisible(expanded)
-        self.info_button.setText(
-            self.language.tr("收起详情", "Less detail")
-            if expanded
-            else self.language.tr("详情", "Details")
-        )
-        self.resize_to_content()
+    def showEvent(self, event):
+        super().showEvent(event)
+        self.refresh_report()
+        self.refresh_records()
+
+    def hideEvent(self, event):
+        super().hideEvent(event)
+        self.message = None
+        self.records_message.hide()
 
     def set_quota(self, state):
         tr = self.language.tr
@@ -382,29 +619,24 @@ class Details(QWidget):
             self.quota_value.setText(
                 tr("剩余 {value:g}%", "{value:g}% left", value=selected["remaining"])
             )
-            self.quota_detail.setText(
-                tr("账户额度 · 每分钟读取\n", "Account allowance · refreshed every minute\n")
-                + "\n".join(
-                    tr(
-                        "{bucket} {period}剩余 {value:g}%",
-                        "{bucket} {period}: {value:g}% left",
-                        bucket=w["bucket"],
-                        period=quota_period(w["period"], self.language),
-                        value=w["remaining"],
-                    )
-                    for w in windows
+            detail = "\n".join(
+                tr(
+                    "{bucket} {period}剩余 {value:g}%",
+                    "{bucket} {period}: {value:g}% left",
+                    bucket=w["bucket"],
+                    period=quota_period(w["period"], self.language),
+                    value=w["remaining"],
                 )
+                for w in windows
             )
         elif state.get("status") == "unsupported_host":
             host = state.get("host", "Host")
             self.quota_title.setText(tr("{host} 额度", "{host} allowance", host=host))
             self.quota_value.setText(tr("未接入", "Not connected"))
-            self.quota_detail.setText(
-                tr(
-                    "当前显示 TOMC 统计；尚未接入 {host} 账户额度。",
-                    "Showing TOMC statistics; {host} account allowance is not connected.",
-                    host=host,
-                )
+            detail = tr(
+                "尚未接入 {host} 账户额度。",
+                "{host} account allowance is not connected.",
+                host=host,
             )
         else:
             self.quota_title.setText(tr("Codex 额度", "Codex allowance"))
@@ -413,105 +645,282 @@ class Details(QWidget):
                 if state.get("status") == "loading"
                 else tr("暂不可读", "Unavailable")
             )
-            self.quota_detail.setText(
-                tr(
-                    "未取得当前额度，不显示为零。需要已登录的 Codex CLI。",
-                    "Allowance is unavailable, not zero. A signed-in Codex CLI is required.",
-                )
+            detail = tr(
+                "需要已登录的 Codex CLI 才能读取额度。",
+                "A signed-in Codex CLI is needed to read the allowance.",
             )
-        self.resize_to_content()
+        for item in (self.quota_title, self.quota_value):
+            item.setToolTip(detail)
 
-    def set_summary(self, summary, values, growth, latest):
-        tr = self.language.tr
+    def set_summary(self, summary, growth):
+        """Statistics changed: reread the savings; saved contexts reload while open."""
         self.set_stage(growth)
         for key, button in self.buttons.items():
             button.setChecked(key == self.owner.period)
-        groups = summary["by_counter"]
-        percent = (
-            context_percent(groups[0]["input_tokens"], groups[0]["memory_tokens"])
-            if len(groups) == 1
-            else None
-        )
-        negative = percent is not None and percent < 0
-        self.caption.setText(
-            tr("上下文增加", "Context increase")
-            if negative
-            else tr("上下文减少", "Context reduction")
-        )
-        mixed = len(groups) > 1
-        self.total.setText(
-            tr("多种计数方式", "Multiple counters") if mixed else percent_text(percent)
-        )
-        self.total.setStyleSheet(
-            f"font-size: {13 if mixed else 25}px; color: {'#866239' if negative else '#345743'}; font-weight: 600;"
-        )
-        last = summary.get("last_preparation")
-        if last and last["usable"]:
-            recent = context_percent(last["input_tokens"], last["memory_tokens"])
-            self.latest.setText(
-                tr("增加 {value}", "{value} more", value=percent_text(recent))
-                if recent is not None and recent < 0
-                else tr("减少 {value}", "{value} less", value=percent_text(recent))
+        self.refresh_report()
+        if self.isVisible():
+            self.refresh_records()
+
+    def refresh_report(self):
+        try:
+            report = savings_report(
+                self.owner.store.path, self.owner.period, reference=self.owner.pricing
             )
-        else:
-            self.latest.setText(
-                tr("无可用输出", "No usable output")
-                if last
-                else tr("等待首次记录", "No activity yet")
-            )
-        self.latest.setToolTip(latest)
-        pricing = self.owner.pricing
-        if pricing:
-            delta = groups[0]["reduced_tokens"] if len(groups) == 1 else None
-            name = pricing["label"].removeprefix("Claude ")
-            value = input_value(delta, pricing) if delta is not None else None
-            self.price_note.setText(
-                tr(
-                    "{model} · 参考输入差额 {value}",
-                    "{model} · Reference input difference {value}",
-                    model=name,
-                    value=dollars(value),
-                )
-            )
-        else:
-            self.price_note.setText(
-                tr("参考模型未选择 · 点击估价", "No reference model · Select Pricing")
-            )
-        cost_note = tr(
-            "节省的 tokens 按参考输入单价折算。费率与更新时间见「估价」。",
-            "Saved tokens at the reference input rate. See Pricing for rates and dates.",
-        )
-        self.price_note.setToolTip(cost_note)
-        self.cost_detail.setText(cost_note)
-        rows = [
-            tr(
-                "{count} 次准备 · 数量单位为 tokens",
-                "{count} preparations · Counts are tokens",
-                count=values["calls"],
-            )
-        ]
-        for group in groups:
-            percent = context_percent(group["input_tokens"], group["memory_tokens"])
-            change = (
-                tr("增加", "increase")
-                if percent is not None and percent < 0
-                else tr("减少", "reduction")
-            )
-            rows.append(
-                tr(
-                    "{counter}\n{before:,} → {after:,}\n净减少 {delta:,}（{change} {percent}）",
-                    "{counter}\n{before:,} → {after:,}\nNet reduction {delta:,} ({percent} {change})",
-                    counter=group["counter"],
-                    before=group["input_tokens"],
-                    after=group["memory_tokens"],
-                    delta=group["reduced_tokens"],
-                    change=change,
-                    percent=percent_text(percent),
-                )
-            )
-        rows.append(latest)
-        self.rows.setText("\n".join(rows))
+        except (OSError, sqlite3.Error, ValueError):
+            self.show_error()
+            return
+        self.render_report(report)
         self.resize_to_content()
+
+    def render_report(self, report):
+        tr = self.language.tr
+        self.report, self.failed = report, False
+        for key, button in self.buttons.items():
+            button.setChecked(key == report["period"])
+        saved = report["tokens_saved"]
+        self.total.setText(f"{saved:,}" if abs(saved) < 10_000_000 else compact_tokens(saved))
+        self.total.setStyleSheet(
+            f"font-size: 22px; font-weight: 600; color: {'#866239' if saved < 0 else '#345743'};"
+        )
+        self.money.setText(money_text(report["money"]))
+        self.money.setStyleSheet("font-size: 22px; font-weight: 600; color: #443B35;")
+        self.money.setToolTip(
+            tr(
+                "按每次请求所用模型的列表价折算",
+                "Valued at the list price of the model each request used",
+            )
+        )
+        while self.model_rows.count():
+            row = self.model_rows.takeAt(0).layout()
+            while row.count():
+                discard(row.takeAt(0).widget())
+            row.deleteLater()
+        models = report["models"]
+        shown = models[: self.MODEL_LIMIT]
+        if len(models) > self.MODEL_LIMIT:
+            rest = models[self.MODEL_LIMIT - 1 :]
+            shown = models[: self.MODEL_LIMIT - 1] + [
+                {
+                    "model": "others",
+                    "label": tr("其他 {count} 个", "{count} others", count=len(rest)),
+                    "hosts": [],
+                    "bases": [],
+                    "rates": [],
+                    "tokens_saved": sum(m["tokens_saved"] for m in rest),
+                    "money": sum(m["money"] or 0 for m in rest)
+                    if any(m["money"] is not None for m in rest)
+                    else None,
+                }
+            ]
+        for model in shown:
+            row = self.model_row(model, report["mode"])
+            self.model_rows.addLayout(row)
+            # A visible parent would show new children only on the next event
+            # loop pass; show them now so the height measured below includes them.
+            for index in range(row.count()):
+                row.itemAt(index).widget().show()
+        cached = report["mode"] == "cached"
+        if not models:
+            self.basis.setText(tr("暂无节省记录", "No savings yet"))
+        elif report["money"] is None:
+            self.basis.setText(
+                tr("选择参考模型后显示金额", "Choose a reference model to see money saved")
+            )
+        else:
+            self.basis.setText(
+                tr("按各模型缓存读取价", "At each model's cached-read price")
+                if cached
+                else tr("按各模型输入价", "At each model's input price")
+            )
+        start = None
+        if report["period"] != "all":
+            days = 6 if report["period"] == "7d" else 0
+            start = report["daily"][-1 - days]["day"] if len(report["daily"]) > days else None
+        self.chart.set_days(report["daily"], start)
+        today = report["daily"][-1]["tokens_saved"] if report["daily"] else 0
+        self.chart_today.setText(tr("今天 {count}", "Today {count}", count=compact_tokens(today)))
+        count = report["preparations"]
+        self.stats.setText(
+            tr(
+                "{count:,} 次压缩 · 平均每次节省 {average:,} tokens",
+                "{count:,} compressions · {average:,} tokens saved each on average",
+                count=count,
+                average=round(saved / count) if count else 0,
+            )
+            if count
+            else tr("这段时间还没有压缩", "No compressions in this period")
+        )
+        self.stats.setToolTip(
+            tr(
+                "压缩前 {before:,} → 压缩后 {after:,} tokens",
+                "{before:,} → {after:,} tokens before and after compression",
+                before=report["input_tokens"],
+                after=report["output_tokens"],
+            )
+        )
+
+    def model_row(self, model, mode):
+        tr = self.language.tr
+        from .context_library_qt import host_label
+
+        row = QHBoxLayout()
+        row.setSpacing(6)
+        hosts = " · ".join(host_label(host, self.language) for host in model.get("hosts", []))
+        name = model["label"] or tr("未定价", "Unpriced")
+        title = ElidedLabel(name, 11, "#443B35")
+        tokens = label(compact_tokens(model["tokens_saved"]), 11, "#52705D")
+        tokens.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
+        tokens.setFixedWidth(54)
+        money = label(money_text(model["money"]), 11, "#443B35")
+        money.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
+        money.setFixedWidth(58)
+        rates = model.get("rates") or []
+        if model["money"] is None:
+            tip = tr(
+                "未找到这个模型的价格；可在「模型与估价」选择参考模型。",
+                "No price was found for this model; choose a reference model in Models & pricing.",
+            )
+        else:
+            price = " / ".join(f"${rate:g}" for rate in rates)
+            unit = (
+                tr("百万缓存读取 tokens", "per million cached-read tokens")
+                if mode == "cached"
+                else tr("百万输入 tokens", "per million input tokens")
+            )
+            basis = model.get("bases", [])
+            source = (
+                tr("按请求记录的模型", "model recorded with each request")
+                if "request" in basis
+                else tr("按安装时识别的默认模型", "default model detected at installation")
+                if "detected" in basis
+                else tr("按选择的参考模型", "selected reference model")
+            )
+            tip = tr(
+                "{name}：{price} / {unit}（{source}）",
+                "{name}: {price} {unit} ({source})",
+                name=name,
+                price=price,
+                unit=unit,
+                source=source,
+            )
+            if len(rates) > 1:
+                tip += tr(
+                    "\n超长请求按长上下文价折算。",
+                    "\nVery long requests use the long-context price.",
+                )
+        tip += tr(
+            "\n节省 {count:,} tokens",
+            "\n{count:,} tokens saved",
+            count=model["tokens_saved"],
+        )
+        if hosts:
+            tip += tr("\n来自 {hosts}", "\nFrom {hosts}", hosts=hosts)
+        for item in (title, tokens, money):
+            item.setToolTip(tip)
+        row.addWidget(title, 1)
+        row.addWidget(tokens)
+        row.addWidget(money)
+        return row
+
+    def refresh_records(self):
+        try:
+            self.records = self.library.list(limit=self.RECORD_LIMIT)
+        except (OSError, sqlite3.Error, ValueError):
+            self.records = []
+        self.render_records()
+        self.resize_to_content()
+
+    def render_records(self):
+        tr = self.language.tr
+        while self.record_list.count():
+            discard(self.record_list.takeAt(0).widget())
+        for record in self.records:
+            row = RecordRow(self, record)
+            self.record_list.addWidget(row)
+            row.show()
+        self.records_empty.setVisible(not self.records)
+        self.records_empty.setText(
+            tr(
+                "TOMC 压缩后的上下文会出现在这里：复制提示词给另一个 Agent，或导出到另一台电脑。",
+                "Compressed contexts appear here. Copy a prompt for another agent, "
+                "or export one to another computer.",
+            )
+        )
+        if self.message:
+            zh, en, values = self.message
+            self.records_message.setText(tr(zh, en, **values))
+            self.records_message.show()
+        else:
+            self.records_message.hide()
+
+    def show_message(self, zh, en, **values):
+        self.message = (zh, en, values)
+        self.render_records()
+        self.resize_to_content()
+
+    def copy_record(self, record):
+        try:
+            prompt = self.library.handoff_prompt(
+                record["id"], inline=True, language=self.language.code
+            )
+            QApplication.clipboard().setText(prompt)
+            self.show_message(
+                "已复制接续提示词（{count:,} 字符），粘贴给另一个 Agent 即可继续。",
+                "Copied the handoff prompt ({count:,} characters). Paste it into another agent to continue.",
+                count=len(prompt),
+            )
+        except (OSError, sqlite3.Error, ValueError, KeyError) as exc:
+            self.show_message("复制失败：{error}", "Copy failed: {error}", error=str(exc))
+
+    def export_record(self, record):
+        self.hide()
+        folder = QFileDialog.getExistingDirectory(
+            self.owner, self.language.tr("选择导出位置", "Choose where to export")
+        )
+        if folder:
+            try:
+                destination = self.library.export(
+                    record["id"], Path(folder), language=self.language.code
+                )
+                self.message = (
+                    "已导出到 {path}。在另一台电脑上点“导入”即可继续。",
+                    "Exported to {path}. Choose Import on the other computer to continue.",
+                    {"path": str(destination)},
+                )
+            except (OSError, sqlite3.Error, ValueError, KeyError) as exc:
+                self.message = ("导出失败：{error}", "Export failed: {error}", {"error": str(exc)})
+        self.owner.show_details()
+
+    def import_bundle(self):
+        self.hide()
+        folder = QFileDialog.getExistingDirectory(
+            self.owner,
+            self.language.tr(
+                "选择上下文包（包含 metadata.json 的文件夹）",
+                "Choose a context bundle (a folder with metadata.json)",
+            ),
+        )
+        if folder:
+            try:
+                row = self.library.import_bundle(Path(folder))
+                zh, en = (
+                    (
+                        "已导入“{title}”，可以复制提示词继续。",
+                        "Imported “{title}”. Copy its prompt to continue.",
+                    )
+                    if row.get("imported")
+                    else (
+                        "这个上下文已经存在，没有重复导入。",
+                        "This context already exists; it was not imported twice.",
+                    )
+                )
+                self.message = (zh, en, {"title": row.get("title") or ""})
+            except (OSError, sqlite3.Error, ValueError, KeyError) as exc:
+                self.message = ("导入失败：{error}", "Import failed: {error}", {"error": str(exc)})
+        self.owner.show_details()
+
+    def open_record(self, record):
+        self.owner.open_context_library(select_id=record["id"])
 
     def set_stage(self, stage):
         self.portrait.set_state(stage)
@@ -520,39 +929,27 @@ class Details(QWidget):
             if stage.get("length_known")
             else self.language.tr("长度待定", "Length pending")
         )
+        self.stage.setToolTip(stage["hint"])
         self.progress.show()
         self.progress.setValue(round(stage["progress"] * 1000))
         self.progress.setToolTip(stage["hint"])
         self.progress.setAccessibleName(stage["hint"])
-        self.hint.setText(stage["hint"])
 
     def show_error(self):
         tr = self.language.tr
+        self.failed = True
         self.stage.clear()
+        self.stage.setToolTip("")
         self.progress.hide()
-        for key, button in self.buttons.items():
-            button.setChecked(key == self.owner.period)
-        self.caption.setText(tr("统计状态", "Statistics"))
-        self.total.setText(tr("暂不可读", "Unavailable"))
-        self.total.setStyleSheet("font-size: 18px; color: #866239;")
-        self.latest.setText(tr("自动重试中", "Retrying"))
-        self.latest.setToolTip("")
         self.progress.setToolTip("")
         self.progress.setAccessibleName(tr("本次长度暂不可读", "Current input length unavailable"))
-        self.rows.setText(
-            tr("统计读取失败，正在自动重试。", "Could not read statistics. Retrying automatically.")
-        )
-        self.hint.setText(
-            tr("本次长度暂不可读。", "Current input length is temporarily unavailable.")
-        )
-        self.price_note.setText(tr("参考估价暂不可用", "Reference estimate unavailable"))
-        self.price_note.setToolTip("")
-        self.cost_detail.setText(
-            tr(
-                "统计恢复后重新显示参考估价。",
-                "The reference estimate will return when statistics are available.",
-            )
-        )
+        for key, button in self.buttons.items():
+            button.setChecked(key == self.owner.period)
+        self.total.setText(tr("暂不可读", "Unavailable"))
+        self.total.setStyleSheet("font-size: 18px; font-weight: 600; color: #866239;")
+        self.money.setText("—")
+        self.basis.setText(tr("统计读取失败，正在自动重试", "Could not read statistics · Retrying"))
+        self.stats.setText("")
         self.resize_to_content()
 
     def paintEvent(self, event):
@@ -781,7 +1178,7 @@ class Companion(QWidget):
                 {"status": "unsupported_host", "host": host.title(), "windows": []}
             )
 
-    def open_context_library(self, checked=False):
+    def open_context_library(self, checked=False, select_id=None):
         from .context_library_qt import ContextLibraryDialog
 
         self.details.hide()
@@ -791,8 +1188,10 @@ class Companion(QWidget):
                 self.store.path, self, sessions=self.session_store
             )
             self.context_dialog.changed.connect(self.refresh_session_state)
+            if select_id:
+                self.context_dialog.refresh(select_id=select_id)
         else:
-            self.context_dialog.refresh()
+            self.context_dialog.refresh(select_id=select_id)
         self.context_dialog.show()
         self.context_dialog.raise_()
         self.context_dialog.activateWindow()
@@ -968,13 +1367,9 @@ class Companion(QWidget):
         signature = json.dumps([active, latest], sort_keys=True)
         if signature != self.activity_signature:
             self.activity_signature = signature
-            self.details.request_status.setText(
-                request_activity_text(active or latest, self.language)
-            )
-            detail = tr(
-                "仅显示本地代理实际观察的请求；不代表其他会话已通过代理。",
-                "Only requests observed by the local gateway are shown. This does not confirm coverage of other sessions.",
-            )
+            status = request_activity_text(active or latest, self.language)
+            self.details.request_status.setText(status)
+            detail = status
             if latest:
                 before, after = latest.get("before_tokens"), latest.get("after_tokens")
                 if before is not None and after is not None:
@@ -1001,8 +1396,8 @@ class Companion(QWidget):
                     detail += tr(
                         "\n模型实测用量尚未返回。", "\nProvider usage has not been returned yet."
                     )
-            self.details.request_usage_detail.setText(detail)
-            self.details.resize_to_content()
+            # The footer shows one line; hovering it shows the request's numbers.
+            self.details.request_status.setToolTip(detail)
         previous = self.preparing_request
         self.preparing_request = active
         if active:
@@ -1080,7 +1475,6 @@ class Companion(QWidget):
 
     def render_summary(self, summary, events=()):
         tr = self.language.tr
-        values = display_values(summary, self.language)
         growth = growth_state(summary, self.language)
         if self.latest_prepared_report is not None and self.latest_prepared_at > (
             summary.get("last_preparation") or {}
@@ -1137,7 +1531,7 @@ class Companion(QWidget):
                 hint=hint,
             )
         )
-        self.details.set_summary(summary, values, growth, long_latest)
+        self.details.set_summary(summary, growth)
         at = last["recorded_at"] if last else None
         if events:
             for event in events:
@@ -1368,6 +1762,9 @@ class Companion(QWidget):
         if self.details.isVisible():
             self.details.hide()
             return
+        self.show_details()
+
+    def show_details(self):
         self.details.resize_to_content()
         self.position_details()
         self.details.show()

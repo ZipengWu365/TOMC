@@ -15,11 +15,14 @@
 | 18:20:22 | 网关 | responses_request（宿主注入的 AGENTS.md / 环境信息不再当历史编译；支持 Codex 0.163 的新字段）、usage（摘要直接写节省量） | `…\backups\host-context-stage-20261023T182022Z\patch-receipt.json` |
 | 18:20:48 | 小猫 | 全部 13 个界面模块（只有 usage_widget_qt、context_library_qt、usage 有实际改动：弹窗直接写节省与压缩量；其余与已部署版本语法树一致，仅格式不同） | `…\archive\session-update-20261023T182048683981Z-b842c5c9\receipt.json` |
 
-18:20:22 部署前，已安装的 responses_request、usage 与当时的提交（8492321）语法树一致。MCP 运行时里的 usage.py 是更早的构建，与 8492321 不同，更新工具按规则没有替换它，所以 `prepare_context` 的聊天摘要仍是旧措辞，下次重建插件时更新。
+| 20:11:11 | 网关 | request_gateway、request_activity（每个请求记录所用模型 ID，用于按模型折算金额） | `…\backups\request-model-20261023T201111Z\patch-receipt.json` |
+| 20:11:25 | 小猫 | usage_widget_qt（新的省 token 看板）、request_activity；新增 savings | `…\archive\session-update-20261023T201125807471Z-cd331116\receipt.json` |
+
+18:20:22 部署前，已安装的 responses_request、usage 与当时的提交（8492321）语法树一致；20:11 部署前，已安装的网关与小猫模块与 b22bb11 语法树一致。网关第一次写入时给 `tomc_request_activity` 增加一列 `model`（TEXT，可为空），见 §4。MCP 运行时里的 usage.py 是更早的构建，与 8492321 不同，更新工具按规则没有替换它，所以 `prepare_context` 的聊天摘要仍是旧措辞，下次重建插件时更新。
 
 MCP 运行时的回滚方式与小猫相同：用 §3 的循环，把回执目录换成 `session-update-20261023T130531078201Z-d987834e`。已在运行的 MCP 服务进程不受文件替换影响，要等宿主重启后才会加载新代码。
 
-四次网关部署开始时进行中的请求都为 0。每次都只重启受监督的 `--serve` 子进程，健康检查通过并出现新的监听进程（PID 48860 → 69248 → 25364 → 40276 → 75240）。小猫在 08:43:32、13:03:06、18:21:09 由 Explorer 重启。部署后哈希核对：`outputs/context_ownership_20261023/runtime-vs-source-sha256.json`。
+五次网关部署开始时进行中的请求都为 0。每次都只重启受监督的 `--serve` 子进程，健康检查通过并出现新的监听进程（PID 48860 → 69248 → 25364 → 40276 → 75240 → 35300）。小猫在 08:43:32、13:03:06、18:21:09、20:11:34 由 Explorer 重启。部署后哈希核对：`outputs/context_ownership_20261023/runtime-vs-source-sha256.json`。
 
 源码补丁（相对交接快照，不含被忽略的 outputs）：`outputs/context_ownership_20261023/tomc_context_ownership_20261023.patch`。交接快照引用：`refs/snapshots/handoff-20261023T074454Z`。
 
@@ -56,7 +59,8 @@ cd scripts; ..\.venv-usage\Scripts\python.exe -B update_pet_ui.py; ..\.venv-usag
 
 ```powershell
 $rt = "$env:USERPROFILE\.codex\tomc\gateway-016-20261022T210600Z"
-# 只撤销宿主注入消息与新字段的修复时，执行第一行即可：
+# 只撤销模型记录时执行第一行；只撤销宿主注入消息与新字段的修复时再执行第二行：
+.venv-usage\Scripts\python.exe -B scripts/patch_gateway_runtime.py --runtime $rt --rollback "$rt\backups\request-model-20261023T201111Z"
 .venv-usage\Scripts\python.exe -B scripts/patch_gateway_runtime.py --runtime $rt --rollback "$rt\backups\host-context-stage-20261023T182022Z"
 .venv-usage\Scripts\python.exe -B scripts/patch_gateway_runtime.py --runtime $rt --rollback "$rt\backups\no-char-cap-20261023T124517Z"
 .venv-usage\Scripts\python.exe -B scripts/patch_gateway_runtime.py --runtime $rt --rollback "$rt\backups\compact-endpoint-20261023T084244Z"
@@ -67,7 +71,7 @@ $rt = "$env:USERPROFILE\.codex\tomc\gateway-016-20261022T210600Z"
 
 ```powershell
 $t = "$env:USERPROFILE\.codex\tomc"
-foreach ($r in "session-update-20261023T182048683981Z-b842c5c9", "session-update-20261023T084304400536Z-35c8da60", "session-update-20261023T083758451024Z-37e00b07") {
+foreach ($r in "session-update-20261023T201125807471Z-cd331116", "session-update-20261023T182048683981Z-b842c5c9", "session-update-20261023T084304400536Z-35c8da60", "session-update-20261023T083758451024Z-37e00b07") {
   $receipt = Get-Content "$t\archive\$r\receipt.json" -Raw | ConvertFrom-Json
   foreach ($c in $receipt.changes) {
     $target = Join-Path $env:USERPROFILE $c.target
@@ -82,6 +86,7 @@ foreach ($r in "session-update-20261023T182048683981Z-b842c5c9", "session-update
 
 - 新网关第一次写入时会给 `tomc_request_activity` 增加一列 `protocol_detail`（TEXT，可为空）。旧代码一律按列名读写（已有测试覆盖），回滚代码不需要删除这一列。
 - 这一列只保存白名单内的结构键：请求类型、压缩 trigger / phase / reason、压缩代次、不透明项数、子代理标记、端点。值只能是短代码、布尔或计数，不保存正文、线程或回合 ID、子代理名。
+- 20:11 起网关第一次写入时再增加一列 `model`（TEXT，可为空），只保存请求声明的模型 ID（如 `gpt-6-astra`），格式不符的值不保存。旧代码按列名读写，回滚不需要删列；看板在没有这一列的旧库上照常工作。
 - 动画收据位于 `%USERPROFILE%\.tomc\animation_receipts.jsonl`，超过 512 KiB 时轮换出一份 `.1`。只含 request_id、阶段、长度、时间与 UI 实例号。目前没有关闭开关；删除文件不影响小猫运行，下一次事件时会重新创建。
 
 ## 5. 重启小猫的正确方式
