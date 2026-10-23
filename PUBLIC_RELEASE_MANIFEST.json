@@ -31,8 +31,8 @@
     },
     {
       "path": ".github/workflows/ci.yml",
-      "bytes": 2046,
-      "sha256": "df43df3b33adcd78034a517a4483125877dbf8ca3ed811c363014442297f0b93"
+      "bytes": 2211,
+      "sha256": "df1ae44ee9336902a705edd278d95546e877ccbabd94070e4aaf800f16cc1ebb"
     },
     {
       "path": ".github/workflows/traffic.yml",
@@ -3110,7 +3110,7 @@
       "sha256": "be8dbb0aa75e27d1625255b99019c1b078833d1afc864951da7d6de1c4b70807"
     }
   ],
-  "total_bytes": 147165573,
+  "total_bytes": 147165738,
   "self_excluded": [
     "PUBLIC_RELEASE_MANIFEST.json",
     "SHA256SUMS"
