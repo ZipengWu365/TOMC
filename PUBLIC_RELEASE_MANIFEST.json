@@ -901,8 +901,8 @@
     },
     {
       "path": "docs/macos_usage.md",
-      "bytes": 10884,
-      "sha256": "03844c903c5042bd93f38994e5a00df1c3ff64f4f7f289f1380b392ca1397913"
+      "bytes": 13793,
+      "sha256": "5804a38fa0c2a35f3ed1cd9bfa96606a7e0ec5bc11a75b5a9bf095989fc8e12d"
     },
     {
       "path": "docs/method.md",
@@ -1941,8 +1941,8 @@
     },
     {
       "path": "plugins/claude-code/src/tomc/usage_widget_qt.py",
-      "bytes": 64727,
-      "sha256": "d5b25f1c3cf049e9c1b5275846a225e1425f914abd6a956706e30f68b5faa49a"
+      "bytes": 65133,
+      "sha256": "0c813dc3c40eb6864e13b43a83208c169685b5634a1c9a643fa39638b8d44501"
     },
     {
       "path": "plugins/claude-code/uv.lock",
@@ -2206,8 +2206,8 @@
     },
     {
       "path": "scripts/desktop_pet_stages.py",
-      "bytes": 8751,
-      "sha256": "f8bde01389b21a13bfabade81beb719705ee22bb784fbebb8aec2e8f5fd31d9e"
+      "bytes": 8802,
+      "sha256": "8bec8afa126daab1deb829a6a4cb71b80687a859d46b05e233d474869755b427"
     },
     {
       "path": "scripts/export_frozen_aggregates.py",
@@ -2230,6 +2230,11 @@
       "sha256": "9e15fd0a64f7e0eae8b1cd088d892511b90d57ac90514257a6e119831074c410"
     },
     {
+      "path": "scripts/install_macos_pet.py",
+      "bytes": 12009,
+      "sha256": "c0857c548e516147705ee8131216be92d814563b660454ba2219548c7e8ca9a6"
+    },
+    {
       "path": "scripts/install_pet_startup.ps1",
       "bytes": 2752,
       "sha256": "6a0d7636ad60716c1b821c65526d208fd1f379184708feeb61d9a4d0541bd852"
@@ -2248,6 +2253,11 @@
       "path": "scripts/launch_assets.py",
       "bytes": 7614,
       "sha256": "1a0b53df9c8078b18490e41e0f7d3f7e8ee5a0bdbe72333c481e2dbfa8786540"
+    },
+    {
+      "path": "scripts/macos_pet_launcher.c",
+      "bytes": 1709,
+      "sha256": "3880e0bac7b1464f1e105a65233ae3204719ad4d4d9e040c072551bbb06a706d"
     },
     {
       "path": "scripts/make_beam_table.py",
@@ -2776,8 +2786,8 @@
     },
     {
       "path": "src/tomc/usage_widget_qt.py",
-      "bytes": 64727,
-      "sha256": "d5b25f1c3cf049e9c1b5275846a225e1425f914abd6a956706e30f68b5faa49a"
+      "bytes": 65133,
+      "sha256": "0c813dc3c40eb6864e13b43a83208c169685b5634a1c9a643fa39638b8d44501"
     },
     {
       "path": "tests/fixtures/pricing/anthropic.txt",
@@ -2875,6 +2885,11 @@
       "sha256": "e1e1a562ac2e5153dedd460c62766ab4faf919606c7f05383a53752b878fa472"
     },
     {
+      "path": "tests/test_install_macos_pet.py",
+      "bytes": 8146,
+      "sha256": "89e170b52dc3f4e9216e7817088caec07b265d83a4ae5fd186fa46b19741ce40"
+    },
+    {
       "path": "tests/test_install_request_gateway.py",
       "bytes": 9059,
       "sha256": "795aa1b134f1277eee3895b225a8c7ce55a5b0f592ce02cbab93cf71c61ecfaf"
@@ -2898,6 +2913,11 @@
       "path": "tests/test_long_history.py",
       "bytes": 4438,
       "sha256": "7ffa95e0e505b217da359bdfb3739cbf846fd50671269d886caa1b612f5c43a7"
+    },
+    {
+      "path": "tests/test_macos_pet_window.py",
+      "bytes": 2549,
+      "sha256": "b2044a9b2dfa51678b11ad7a46e8d50f6783d3b04cc9a5271250ca66f3476737"
     },
     {
       "path": "tests/test_mcp.py",
@@ -3015,7 +3035,7 @@
       "sha256": "be8dbb0aa75e27d1625255b99019c1b078833d1afc864951da7d6de1c4b70807"
     }
   ],
-  "total_bytes": 146844406,
+  "total_bytes": 146872591,
   "self_excluded": [
     "PUBLIC_RELEASE_MANIFEST.json",
     "SHA256SUMS"
