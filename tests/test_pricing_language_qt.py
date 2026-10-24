@@ -164,7 +164,7 @@ def test_mac_theme_and_language_changes_keep_model_selection_and_saved_settings(
         assert "$0.0010" in sheet.preview.text()
         assert not target.exists()
     sheet.save()
-    result = json.loads(target.read_text())
+    result = json.loads(target.read_text(encoding="utf-8"))
     assert result["model"] == RATE["model"] and result["input_mode"] == "cached"
     assert refreshed == [True] and sheet.applied
     assert "已应用" in sheet.action_status.text()
@@ -255,7 +255,7 @@ def test_mac_reference_focused_buttons_keep_explicit_keyboard_activation(
         assert sheet.models.currentData() == "anthropic:detected:standard"
         assert not sheet.path.exists()
     elif action == "save_button":
-        assert json.loads(sheet.path.read_text())["model"] == RATE["model"]
+        assert json.loads(sheet.path.read_text(encoding="utf-8"))["model"] == RATE["model"]
         assert sheet.applied
     else:
         assert not sheet.isVisible() and not sheet.path.exists()

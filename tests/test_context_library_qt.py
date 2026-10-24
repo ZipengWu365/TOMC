@@ -789,6 +789,9 @@ def test_macos_session_notice_fits_its_text_and_actions(
         app.sendPostedEvents(None, QEvent.Type.DeferredDelete)
 
 
+@pytest.mark.skipif(
+    sys.platform != "darwin", reason="measures the macOS layout with native macOS font metrics"
+)
 @pytest.mark.parametrize("language", ["zh", "en"])
 @pytest.mark.parametrize("size", [(900, 680), (1100, 800)])
 @pytest.mark.parametrize("appearance", ["light", "dark"])

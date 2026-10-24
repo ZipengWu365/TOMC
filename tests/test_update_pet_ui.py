@@ -16,7 +16,17 @@ updater = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(updater)
 
 
-@pytest.mark.parametrize("platform", ["win32", "darwin"])
+@pytest.mark.parametrize(
+    "platform",
+    [
+        "win32",
+        # Faking macOS on another system imports macOS-only modules such as _scproxy.
+        pytest.param(
+            "darwin",
+            marks=pytest.mark.skipif(sys.platform != "darwin", reason="needs a real macOS"),
+        ),
+    ],
+)
 def test_ui_update_installs_analysis_dependencies_and_preserves_host_settings(tmp_path, platform):
     pytest.importorskip("PySide6")
     home = tmp_path / "home"
