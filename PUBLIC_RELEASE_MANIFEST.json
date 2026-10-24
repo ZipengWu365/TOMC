@@ -686,8 +686,8 @@
     },
     {
       "path": "docs/TOMC_ACCEPTANCE_20261023_ZH.md",
-      "bytes": 18795,
-      "sha256": "ab55fa9a5e94949898e585d3c0f4c7ba42db5dcf7cd05817c4723e1d13a77b4f"
+      "bytes": 19797,
+      "sha256": "a5cd737ec5f472c2f435ae21459ec9314950bd0f5152902d3d454e2f142abd24"
     },
     {
       "path": "docs/TOMC_CONTEXT_OWNERSHIP_20261023_ZH.md",
@@ -696,8 +696,8 @@
     },
     {
       "path": "docs/TOMC_DEPLOY_ROLLBACK_20261023_ZH.md",
-      "bytes": 11323,
-      "sha256": "433e93508197f71ec5ecc697191057af931e2aa79dfa7bb2b0f2b48d2dbdc903"
+      "bytes": 11975,
+      "sha256": "ea656ac8c422ded5a8d993ced138e9124a16e82276872e82f068c0e916e00523"
     },
     {
       "path": "docs/TOMC_DEVELOPER_HANDOFF_20261023_ZH.md",
@@ -1101,8 +1101,8 @@
     },
     {
       "path": "feedback/README.md",
-      "bytes": 2639,
-      "sha256": "98312aed6c220fd3adc4cfa1cfba296f593879fe0fce0c7a22add37d303a0c6e"
+      "bytes": 2655,
+      "sha256": "667b8318df9af4b4248dd9cf9e9f3b0fe7afa1bd07fd72799ab53d622addb20b"
     },
     {
       "path": "launch/20261011/PUBLIC_COPY.md",
@@ -1671,8 +1671,8 @@
     },
     {
       "path": "plugins/claude-code/src/tomc/analysis_qt.py",
-      "bytes": 33174,
-      "sha256": "676b70a8fae1ef3efbb8ea922be1b495fb621b3b98b8dfefe5c3ae3dc076fbad"
+      "bytes": 34876,
+      "sha256": "6075e9ded3328bccacad9cd362a81c82a87a423e5a6ef79e044ab72228a5717b"
     },
     {
       "path": "plugins/claude-code/src/tomc/animation_receipts.py",
@@ -1711,8 +1711,8 @@
     },
     {
       "path": "plugins/claude-code/src/tomc/context_library_qt.py",
-      "bytes": 84080,
-      "sha256": "e5421689e993ae994fd66117b74ab8ac8d04c7ccbbcbe7c08a4408f643abd892"
+      "bytes": 84202,
+      "sha256": "0054a9b7fb1b7063208aa8a566c7fd408007094e8f5a96252a90d5cf71440708"
     },
     {
       "path": "plugins/claude-code/src/tomc/conversation_names.py",
@@ -1981,8 +1981,8 @@
     },
     {
       "path": "plugins/claude-code/src/tomc/usage_widget_qt.py",
-      "bytes": 75979,
-      "sha256": "34d712255340d398e16b9c8493ed63914157b79e8deb816286664522442b3c3c"
+      "bytes": 76209,
+      "sha256": "e1fec642f999810ce5fe5c4e1b360a9ecc38aa489263db923ec7f7204f4710f7"
     },
     {
       "path": "plugins/claude-code/uv.lock",
@@ -2506,8 +2506,8 @@
     },
     {
       "path": "src/tomc/analysis_qt.py",
-      "bytes": 33174,
-      "sha256": "676b70a8fae1ef3efbb8ea922be1b495fb621b3b98b8dfefe5c3ae3dc076fbad"
+      "bytes": 34876,
+      "sha256": "6075e9ded3328bccacad9cd362a81c82a87a423e5a6ef79e044ab72228a5717b"
     },
     {
       "path": "src/tomc/animation_receipts.py",
@@ -2546,8 +2546,8 @@
     },
     {
       "path": "src/tomc/context_library_qt.py",
-      "bytes": 84080,
-      "sha256": "e5421689e993ae994fd66117b74ab8ac8d04c7ccbbcbe7c08a4408f643abd892"
+      "bytes": 84202,
+      "sha256": "0054a9b7fb1b7063208aa8a566c7fd408007094e8f5a96252a90d5cf71440708"
     },
     {
       "path": "src/tomc/conversation_names.py",
@@ -2861,8 +2861,8 @@
     },
     {
       "path": "src/tomc/usage_widget_qt.py",
-      "bytes": 75979,
-      "sha256": "34d712255340d398e16b9c8493ed63914157b79e8deb816286664522442b3c3c"
+      "bytes": 76209,
+      "sha256": "e1fec642f999810ce5fe5c4e1b360a9ecc38aa489263db923ec7f7204f4710f7"
     },
     {
       "path": "tests/fixtures/pricing/anthropic.txt",
@@ -2891,8 +2891,8 @@
     },
     {
       "path": "tests/test_analysis_qt.py",
-      "bytes": 7550,
-      "sha256": "bcc634e91b2ea17c394d174377461b5513012d3fcb8b8dd3adc5a9f3ce5030db"
+      "bytes": 8035,
+      "sha256": "38471cae3c12918d7d3c8611f3e37b2823b1a66d76aa122c582672edfa285f13"
     },
     {
       "path": "tests/test_animation_receipts.py",
@@ -3091,8 +3091,8 @@
     },
     {
       "path": "tests/test_savings_dashboard_qt.py",
-      "bytes": 13215,
-      "sha256": "74a6d494235b4f456d18d637ce0fc6bd320769f856147224d369644283a7cf91"
+      "bytes": 13941,
+      "sha256": "dc7e9ad4385c812a422890431ff0f796b014c49c228591bcca50547610134867"
     },
     {
       "path": "tests/test_session_hooks.py",
@@ -3140,7 +3140,7 @@
       "sha256": "be8dbb0aa75e27d1625255b99019c1b078833d1afc864951da7d6de1c4b70807"
     }
   ],
-  "total_bytes": 147204143,
+  "total_bytes": 147211132,
   "self_excluded": [
     "PUBLIC_RELEASE_MANIFEST.json",
     "SHA256SUMS"

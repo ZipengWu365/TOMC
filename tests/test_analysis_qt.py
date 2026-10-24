@@ -103,6 +103,10 @@ def test_analysis_tab_ranks_conversations_and_follows_the_period(dialog, app):
     page = dialog.analysis_page
     assert dialog.tabs.currentWidget() is page
     assert page.summary.text() == "累计 · 2 个请求中压缩了 100%"
+    # The privacy promise sits next to the button, not only at the bottom of the page.
+    assert page.feedback_button.text() == "匿名提交反馈 ›"
+    assert "反馈是匿名的" in page.anonymity.text()
+    assert "不含对话名称、对话内容、文件夹或任何 ID" in page.anonymity.text()
     assert page.table.rowCount() == 2
     assert [page.table.item(row, 0).text() for row in range(2)] == list(NAMES.values())
     assert [page.table.item(row, 1).text() for row in range(2)] == ["编程开发", "写作与文案"]
@@ -132,6 +136,8 @@ def test_feedback_dialog_lets_the_user_fix_kinds_then_opens_github(dialog, app, 
     dialog.show_analysis()
     feedback = analysis_qt.FeedbackDialog(dialog.analysis_page.report, dialog)
     try:
+        assert "已匿名：只提交工作类型和数字" in feedback.anonymity.text()
+        assert "不会提交：对话名称、对话内容" in feedback.anonymity.text()
         assert [feedback.table.item(row, 2).text() for row in range(2)] == [
             "coding #1",
             "writing #1",

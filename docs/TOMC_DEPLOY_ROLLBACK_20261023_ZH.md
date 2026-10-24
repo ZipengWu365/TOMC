@@ -20,12 +20,14 @@
 | 21:56:32 | 小猫 | context_library_qt（“上下文与接续”改为看板 + 按对话整理）、context_library（便携包带原对话名）、usage_widget_qt、savings；新增 savings_qt、conversation_names、conversations | `…\archive\session-update-20261023T215632685302Z-2638f1ad\receipt.json` |
 | 22:34:57 | 小猫 | usage_widget_qt、context_library_qt、savings_qt（内测版 e0df4c2：合并 macOS 窗口处理与界面小修） | `…\archive\session-update-20261023T223457865599Z-ce025ad5\receipt.json` |
 | 23:19:59 | 小猫 | usage_widget_qt（看板加“分析报告 ›”入口，滚动区不再是系统灰底）、context_library_qt（新增“分析报告”标签页）、savings（每个请求带日期与请求大小）；新增 categories、analysis、analysis_qt | `…\archive\session-update-20261023T231959701297Z-9e6beadf\receipt.json` |
+| 10-24 00:01:42 | 小猫 | context_library_qt、analysis_qt（按钮改为“匿名提交反馈 ›”，紧挨按钮写明只提交工作类型和数字；提交窗口顶部列出会提交 / 不会提交） | `…\archive\session-update-20261024T000142606182Z-5e2e840d\receipt.json` |
+| 10-24 00:04:34 | 小猫 | usage_widget_qt（Esc 只关闭看板，不再退出小猫） | `…\archive\session-update-20261024T000434354569Z-7d012038\receipt.json` |
 
 18:20:22 部署前，已安装的 responses_request、usage 与当时的提交（8492321）语法树一致；20:11 部署前，已安装的网关与小猫模块与 b22bb11 语法树一致。网关第一次写入时给 `tomc_request_activity` 增加一列 `model`（TEXT，可为空），见 §4。MCP 运行时里的 usage.py 是更早的构建，与 8492321 不同，更新工具按规则没有替换它，所以 `prepare_context` 的聊天摘要仍是旧措辞，下次重建插件时更新。
 
 MCP 运行时的回滚方式与小猫相同：用 §3 的循环，把回执目录换成 `session-update-20261023T130531078201Z-d987834e`。已在运行的 MCP 服务进程不受文件替换影响，要等宿主重启后才会加载新代码。
 
-五次网关部署开始时进行中的请求都为 0。每次都只重启受监督的 `--serve` 子进程，健康检查通过并出现新的监听进程（PID 48860 → 69248 → 25364 → 40276 → 75240 → 35300）。小猫在 08:43:32、13:03:06、18:21:09、20:11:34、21:56:34、22:34 部署后、23:20:13 由 Explorer 重启（21:56 与 23:20 时小猫已不在运行，Windows 日志里没有它的崩溃记录）。部署后哈希核对：`outputs/context_ownership_20261023/runtime-vs-source-sha256.json`。
+五次网关部署开始时进行中的请求都为 0。每次都只重启受监督的 `--serve` 子进程，健康检查通过并出现新的监听进程（PID 48860 → 69248 → 25364 → 40276 → 75240 → 35300）。小猫在 08:43:32、13:03:06、18:21:09、20:11:34、21:56:34、22:34 部署后、23:20:13、10-24 00:04:43 由 Explorer 重启（21:56、23:20 与 00:04 时小猫已不在运行，Windows 日志里没有它的崩溃记录；原因见验收表“小猫自己消失”一行，00:04 起已修复）。部署后哈希核对：`outputs/context_ownership_20261023/runtime-vs-source-sha256.json`。
 
 源码补丁（相对交接快照，不含被忽略的 outputs）：`outputs/context_ownership_20261023/tomc_context_ownership_20261023.patch`。交接快照引用：`refs/snapshots/handoff-20261023T074454Z`。
 
@@ -74,7 +76,7 @@ $rt = "$env:USERPROFILE\.codex\tomc\gateway-016-20261022T210600Z"
 
 ```powershell
 $t = "$env:USERPROFILE\.codex\tomc"
-foreach ($r in "session-update-20261023T231959701297Z-9e6beadf", "session-update-20261023T223457865599Z-ce025ad5", "session-update-20261023T215632685302Z-2638f1ad", "session-update-20261023T201125807471Z-cd331116", "session-update-20261023T182048683981Z-b842c5c9", "session-update-20261023T084304400536Z-35c8da60", "session-update-20261023T083758451024Z-37e00b07") {
+foreach ($r in "session-update-20261024T000434354569Z-7d012038", "session-update-20261024T000142606182Z-5e2e840d", "session-update-20261023T231959701297Z-9e6beadf", "session-update-20261023T223457865599Z-ce025ad5", "session-update-20261023T215632685302Z-2638f1ad", "session-update-20261023T201125807471Z-cd331116", "session-update-20261023T182048683981Z-b842c5c9", "session-update-20261023T084304400536Z-35c8da60", "session-update-20261023T083758451024Z-37e00b07") {
   $receipt = Get-Content "$t\archive\$r\receipt.json" -Raw | ConvertFrom-Json
   foreach ($c in $receipt.changes) {
     $target = Join-Path $env:USERPROFILE $c.target

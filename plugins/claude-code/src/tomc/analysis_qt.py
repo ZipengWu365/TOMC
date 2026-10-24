@@ -66,6 +66,15 @@ def plain(text="", *, name=None, wrap=False):
     return item
 
 
+def notice():
+    """The highlighted privacy promise, shown wherever feedback can be sent."""
+    item = QLabel()
+    item.setObjectName("privacy")
+    item.setTextFormat(Qt.TextFormat.RichText)
+    item.setWordWrap(True)
+    return item
+
+
 def card(title_label):
     frame = QFrame()
     frame.setObjectName("card")
@@ -300,6 +309,9 @@ class AnalysisPage(QWidget):
         self.feedback_button.clicked.connect(self.open_feedback)
         header.addWidget(self.feedback_button)
         layout.addLayout(header)
+        # Next to the button, so nobody has to wonder what leaves the computer.
+        self.anonymity = notice()
+        layout.addWidget(self.anonymity)
         grid = QGridLayout()
         grid.setHorizontalSpacing(12)
         grid.setVerticalSpacing(12)
@@ -384,11 +396,20 @@ class AnalysisPage(QWidget):
     def retranslate(self, *_):
         t = self.t
         self.copy_button.setText(t("复制匿名报告", "Copy anonymous report"))
-        self.feedback_button.setText(t("提交反馈 ›", "Send feedback ›"))
+        self.feedback_button.setText(t("匿名提交反馈 ›", "Send anonymous feedback ›"))
         self.feedback_button.setToolTip(
             t(
-                "先预览匿名报告，确认后在 GitHub 上提交",
-                "Preview the anonymous report, then submit it on GitHub",
+                "先看完整的匿名报告，确认后才在 GitHub 上提交",
+                "See the complete anonymous report first; it is submitted on GitHub only after you confirm",
+            )
+        )
+        self.anonymity.setText(
+            t(
+                "<b>反馈是匿名的</b>：只提交工作类型（如编程、写作、论文）和数字，"
+                "不含对话名称、对话内容、文件夹或任何 ID。提交前会先给你看完整内容。",
+                "<b>Feedback is anonymous</b>: only kinds of work (such as coding, writing or papers) "
+                "and numbers are sent, never conversation names, content, folders or IDs. "
+                "You see the complete report before anything is sent.",
             )
         )
         for key, zh, en in (
@@ -413,8 +434,8 @@ class AnalysisPage(QWidget):
         )
         self.privacy.setText(
             t(
-                "分析只在本机计算。提交反馈时，对话会换成工作类型和编号，不含对话名称、文件夹、任务、正文或任何 ID。",
-                "This analysis runs on this computer. Feedback replaces each conversation with a kind of work and a number, without names, folders, tasks, content or IDs.",
+                "这份分析只在本机计算，不会自动上传任何内容。",
+                "This analysis is computed on this computer; nothing is uploaded automatically.",
             )
         )
         if self.report is not None:
@@ -614,6 +635,8 @@ class FeedbackDialog(QDialog):
         layout.setSpacing(10)
         self.heading = plain(name="title")
         layout.addWidget(self.heading)
+        self.anonymity = notice()
+        layout.addWidget(self.anonymity)
         self.explanation = plain(name="muted", wrap=True)
         layout.addWidget(self.explanation)
         self.table = QTableWidget(0, 3)
@@ -725,13 +748,26 @@ class FeedbackDialog(QDialog):
         t = self.t
         self.setWindowTitle(t("TOMC · 提交反馈", "TOMC · Send feedback"))
         self.heading.setText(t("提交匿名分析报告", "Send an anonymous analysis report"))
+        self.anonymity.setText(
+            t(
+                "<b>已匿名：只提交工作类型和数字</b><br>"
+                "会提交：每个对话的工作类型和编号（如 coding #1，即第 1 个编程开发对话）、"
+                "压缩次数、节省的 tokens 等统计，以及你写的建议。<br>"
+                "不会提交：对话名称、对话内容、文件夹、任务、会话或请求 ID。"
+                "下表左列的对话名只在你的电脑上显示，方便你核对分类。",
+                "<b>Anonymous: only kinds of work and numbers are sent</b><br>"
+                "Sent: each conversation's kind of work and number (coding #1 is the first coding "
+                "conversation), compressions, tokens saved and other counts, and any suggestion you write.<br>"
+                "Never sent: conversation names, content, folders, tasks, session or request IDs. "
+                "The names in the first column are shown on this computer only, to help you check the kinds.",
+            )
+        )
         self.explanation.setText(
             t(
-                "下面是将要提交的完整内容：对话已换成工作类型和编号，只保留数字，不含对话名称、文件夹、任务、正文或 ID。"
-                "分类不准可以在表格里改。提交时会在浏览器打开 GitHub，把报告作为新文件提出，GitHub 会替你建立 Pull Request；你在网页上确认后才会发出。"
-                "报告和 Pull Request 都是公开的，会显示你的 GitHub 账号。",
-                "This is everything that will be submitted. Conversations become a kind of work and a number, with counts only: no names, folders, tasks, content or IDs. "
-                "Fix any category in the table. Submitting opens GitHub in your browser with the report as a new file, and GitHub opens a pull request for you; nothing is sent until you confirm there. "
+                "分类不准可以在表格里改。点“在 GitHub 提交”会在浏览器打开 GitHub，把报告作为新文件提出，"
+                "GitHub 替你建立 Pull Request；你在网页上确认后才会发出。报告和 Pull Request 是公开的，会显示你的 GitHub 账号。",
+                "Fix any kind in the table. “Submit on GitHub” opens GitHub in your browser with the report as a new file, "
+                "and GitHub opens a pull request for you; nothing is sent until you confirm there. "
                 "The report and the pull request are public and show your GitHub account.",
             )
         )
