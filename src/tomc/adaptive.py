@@ -4,8 +4,9 @@ The budget stays the ceiling. Selection shrinks only when every content word of 
 task occurs in the history and the strongest matching lines form a small, clearly
 separated group. Otherwise the ordinary budget-filling retrieval runs unchanged, so
 an uncertain case keeps exactly what it kept before. Kept lines bring their
-headings and the neighbours of wrapped sentences, and a small floor of further
-high-scoring lines is added as a margin.
+headings, the neighbours of wrapped sentences and the few lines that share their
+rare names or values (the next step of a two-step question), and a small floor of
+further high-scoring lines is added as a margin.
 """
 
 from __future__ import annotations
@@ -44,6 +45,7 @@ MAX_CORE_LINES = 80
 MAX_CORE_SHARE = 0.4  # the core may use at most this share of the budget
 FLOOR = 768  # never shrink below this size or FLOOR_SHARE of the budget, whichever is larger
 FLOOR_SHARE = 0.25
+LINKED_LINES = 8  # a kept line's name or value found in at most this many lines links to them
 
 
 def stem(word: str) -> str:
@@ -79,8 +81,9 @@ def content_terms(task: str) -> set[str]:
     }
 
 
-def _scores(units: list[Source], terms: set[str]) -> list[tuple[float, Source, set[str]]]:
-    docs = [Counter(words(u.text)) for u in units]
+def _scores(
+    units: list[Source], docs: list[Counter], terms: set[str]
+) -> list[tuple[float, Source, set[str]]]:
     df = Counter(t for d in docs for t in d)
     average = sum(sum(d.values()) for d in docs) / len(docs) or 1
     rows = []
@@ -117,6 +120,29 @@ def _claims(core: set[str], units: list[Source]) -> int:
         if unit.source_id in core:
             groups[(_VALUES.sub("#", unit.text.strip()), title.get(unit.message_index, ""))] += 1
     return max(groups.values(), default=0)
+
+
+def _linked(core: set[str], units: list[Source], docs: list[Counter], terms: set[str]) -> set[str]:
+    """Lines sharing a rare name or value with the core: the next step of a two-step question.
+
+    "The ledger service is owned by Saffron." brings "Saffron reports to Oberon.", which
+    shares no word with "Who manages the owner of the ledger service?".
+    """
+    names = set()
+    for unit in units:
+        if unit.source_id in core:
+            for value in _VALUES.findall(unit.text):
+                names.update(
+                    stem(w)
+                    for w in _WORD.findall(value.lower())
+                    if w not in _IGNORED and w not in _SOFT and len(w) > 1
+                )
+    names -= terms
+    lines = {name: [] for name in names}
+    for unit, doc in zip(units, docs):
+        for name in names.intersection(doc):
+            lines[name].append(unit.source_id)
+    return {i for ids in lines.values() if len(ids) <= LINKED_LINES for i in ids} - core
 
 
 def _wrapped(text: str) -> bool:
@@ -158,7 +184,8 @@ def adaptive_selection(
     terms = content_terms(task)
     if not terms:
         return None, "The task names no content words to match."
-    vocabulary = {w for u in units for w in words(u.text)}
+    docs = [Counter(words(u.text)) for u in units]
+    vocabulary = set().union(*docs)
     absent = sorted(terms - vocabulary)
     if absent:
         return (
@@ -166,7 +193,7 @@ def adaptive_selection(
             f"Task words absent from the history ({', '.join(absent[:5])}); the answer may be worded differently.",
         )
     soft = {stem(w) for w in _WORD.findall(task.lower()) if w in _SOFT} & vocabulary
-    scored = _scores(units, terms | soft)
+    scored = _scores(units, docs, terms | soft)
     best = max(score for score, _, _ in scored)
     if best <= 0:
         return None, "No line matches the task."
@@ -188,8 +215,14 @@ def adaptive_selection(
         )
     kept = _with_context(core, units)
     by_id = {u.source_id: u for u in units}
-    size = counter.count("\n".join(row for _, row in raw_rows([by_id[k] for k in kept])))
-    if size > MAX_CORE_SHARE * budget:
+
+    def measure(ids):
+        return counter.count("\n".join(row for _, row in raw_rows([by_id[k] for k in ids])))
+
+    size = measure(kept)
+    linked = _with_context(_linked(core, units, docs, terms | soft), units) - kept
+    extra = measure(linked) if linked else 0
+    if size + extra > MAX_CORE_SHARE * budget:
         return None, "The matching evidence is too large to shrink safely."
     floor = min(budget, max(FLOOR, int(FLOOR_SHARE * budget)))
     for score, unit, _ in sorted(scored, key=lambda x: (-x[0], x[1].order)):
@@ -199,7 +232,12 @@ def adaptive_selection(
             continue
         kept.add(unit.source_id)
         size += counter.count(f"[RAW {unit.source_id}] {unit.text}")
-    return kept, f"Kept {len(core)} strongly matching lines with their context."
+    if size + extra > budget:
+        return None, "The matching evidence and its linked lines do not fit the budget."
+    reason = f"Kept {len(core)} strongly matching lines with their context"
+    if linked:
+        reason += f" and {len(linked)} lines sharing their names or values"
+    return kept | linked, reason + "."
 
 
 class AdaptiveRetrievalStrategy:

@@ -90,7 +90,7 @@ class MemoryStore:
             ).fetchall()
         if not rows:
             raise ValueError("Notebook not found. List notebooks or save some memory first.")
-        return prepare_context(self._messages(rows), task, budget)
+        return prepare_context(self._messages(rows), task, budget, adaptive=False)
 
     def list(self) -> list[dict]:
         """Return notebook names and counts, without returning their contents."""

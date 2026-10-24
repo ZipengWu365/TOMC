@@ -461,7 +461,8 @@ def adapt_request(
     if _COUNTER.count(_dump(history)) < min_history_tokens:
         return unchanged("history_below_threshold")
     try:
-        prepared = prepare_context(history, task.strip(), memory_budget)
+        # Conversation compression keeps the full-budget selection; adaptive is for notes.
+        prepared = prepare_context(history, task.strip(), memory_budget, adaptive=False)
     except (ValueError, TypeError):
         return unchanged("history_not_supported_by_compiler")
     memory = prepared.compilation.compiled_memory

@@ -777,3 +777,18 @@ def test_structured_unknown_system_effort_is_preserved_without_hash_type_errors(
     assert first.payload["messages"][:3] == payload["messages"][:3]
     payload["messages"] += _tool_loop()[:2]
     assert _stateful(adapter, payload).reason == "replayed_prefix"
+
+
+def test_conversation_compression_keeps_the_full_budget_selection(monkeypatch):
+    import tomc.anthropic_request as module
+
+    calls = []
+    prepare = module.prepare_context
+
+    def recording(*args, **kwargs):
+        calls.append(kwargs.get("adaptive"))
+        return prepare(*args, **kwargs)
+
+    monkeypatch.setattr(module, "prepare_context", recording)
+    assert adapt_request(_request(), memory_budget=500, min_history_tokens=20).transformed
+    assert calls and set(calls) == {False}

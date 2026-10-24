@@ -347,7 +347,7 @@ def test_empty_memory_and_nonreduction_return_original(monkeypatch):
     payload = request()
     prepared = prepare_context("Evidence.", "Task", 100)
     prepared.compilation.compiled_memory = ""
-    monkeypatch.setattr(responses_request, "prepare_context", lambda *args: prepared)
+    monkeypatch.setattr(responses_request, "prepare_context", lambda *args, **kwargs: prepared)
     result = adapt(payload)
     assert result.reason == "no_complete_memory_fits" and result.payload is payload
     prepared.compilation.compiled_memory = "very long replacement " * 20000
@@ -574,3 +574,18 @@ def test_conflicting_kinds_favour_the_host_owned_label():
     payload["client_metadata"]["x-codex-turn-metadata"] = codex_turn("turn")
     header = codex_turn("memory")
     assert classify_request(payload, {"x-codex-turn-metadata": header})[0] == "auxiliary_request"
+
+
+def test_conversation_compression_keeps_the_full_budget_selection(monkeypatch):
+    import tomc.responses_request as module
+
+    calls = []
+    prepare = module.prepare_context
+
+    def recording(*args, **kwargs):
+        calls.append(kwargs.get("adaptive"))
+        return prepare(*args, **kwargs)
+
+    monkeypatch.setattr(module, "prepare_context", recording)
+    assert adapt(request()).transformed
+    assert calls and set(calls) == {False}

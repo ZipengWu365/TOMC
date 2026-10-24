@@ -248,5 +248,43 @@ def note_cases():
     return cases
 
 
+def two_hop_cases(seed=13):
+    """Documents whose answer needs a second line sharing no word with the question.
+
+    "The ledger service is owned by Saffron." leads to "Saffron reports to Oberon.";
+    lexical matching finds only the first line.
+    """
+    rng = random.Random(seed)
+    people = ["Saffron", "Oberon", "Juniper", "Marlow", "Tamsin", "Linden", "Calloway", "Ellery"]
+    cases = []
+    for size in (300, 1200, 3500):
+        for variant in range(3):
+            lines = _filler(rng, size)
+            systems, names = rng.sample(ENTITIES, 3), rng.sample(people, 6)
+            facts = []
+            for k, system in enumerate(systems):
+                facts.append(
+                    [
+                        f"The {system} service is owned by {names[k]}.",
+                        f"{names[k]} reports to {names[k + 3]}.",
+                    ]
+                )
+            for line in [
+                *sum(facts, []),
+                "Every service owner has one manager, who approves releases.",
+            ]:
+                lines.insert(rng.randrange(len(lines)), line)
+            cases.append(
+                Case(
+                    f"twohop{size}-{variant}",
+                    "two-hop",
+                    "\n".join(lines),
+                    f"Who manages the owner of the {systems[variant]} service?" + INSTRUCTIONS,
+                    [facts[variant]],
+                )
+            )
+    return cases
+
+
 def all_cases():
-    return note_cases() + conversation_cases() + trap_cases()
+    return note_cases() + conversation_cases() + trap_cases() + two_hop_cases()
