@@ -21,6 +21,7 @@ theme:
 nav:
   - Overview: index.md
   - Install TOMC Memory: assistant_plugin.md
+  - Desktop companion (beta): desktop_companion.md
   - macOS setup and tips: macos_usage.md
   - Manual MCP setup: assistant_setup.md
   - Cursor and TRAE setup: cursor_trae.md

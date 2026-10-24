@@ -47,6 +47,8 @@ Processing is on by default globally and for newly registered sessions. User-lev
 
 The context library can provide a self-contained continuation prompt or a portable text package for another Agent or computer. You may add the exported package to Git yourself; TOMC does not automatically commit or push. [Current plugin guide](docs/assistant_plugin.md#current-local-preview-015).
 
+**Desktop companion (beta).** A small desktop cat shows the tokens TOMC saved, their value at each model's listed input price and the conversations they came from, with an analysis report and the context library. On Windows it can also process Codex and Claude Code requests automatically through a local gateway. [Install the desktop companion](docs/desktop_companion.md) (Windows and macOS).
+
 ### Video overview
 
 [![TOMC overview: smaller inputs, switching assistants, carrying notes to another computer, and BEAM results](launch/media/v13/gifs/TOMC_Overview_EN.gif)](launch/media/v13/videos/TOMC_Overview_EN.mp4)

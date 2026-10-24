@@ -43,6 +43,8 @@
 
 当前是 **v0.1.0 预览版**。插件可从[MIT 许可助手插件预览包](https://github.com/ZipengWu365/TOMC/tree/main/plugins/downloads)下载。尚无 PyPI 发布版或公开插件市场条目。
 
+**桌面小猫（测试版）。** 桌面上的小猫显示 TOMC 节省的 token、按各模型输入价值多少钱、来自哪些对话，并提供分析报告和上下文库。Windows 上还可以通过本机网关自动处理 Codex 和 Claude Code 的请求。[安装桌面小猫](docs/desktop_companion.md#chinese-quickstart)（Windows 和 macOS）。
+
 ### 视频介绍
 
 [![TOMC 介绍：省输入、换助手、换电脑，以及 BEAM 测评结果](launch/media/v13/gifs/TOMC_Overview_ZH.gif)](launch/media/v13/videos/TOMC_Overview_ZH.mp4)
