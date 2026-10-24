@@ -10,7 +10,7 @@ Build it from the TOMC checkout:
 python scripts/build_plugin.py
 ```
 
-The output is `outputs/plugins/tomc-memory-0.1.5.mcpb`. In a current Claude Desktop with MCPB UV support, open **Settings → Extensions → Advanced settings → Install Extension…**, select the file, and follow its installation prompts. The first launch needs network access to download Python and pinned dependencies. No extra model API key, GPU or manual JSON editing is needed.
+The output is `outputs/plugins/tomc-memory-0.2.0.mcpb`. In a current Claude Desktop with MCPB UV support, open **Settings → Extensions → Advanced settings → Install Extension…**, select the file, and follow its installation prompts. The first launch needs network access to download Python and pinned dependencies. No extra model API key, GPU or manual JSON editing is needed.
 
 ## Host-managed conversations
 
@@ -22,7 +22,7 @@ Ask your assistant to call `prepare_context` with supplied history, the next tas
 
 Counts and the budget cover memory text under a lexical estimate, excluding task text, tool envelopes and provider framing. An API application can send prepared context instead of the original history in its next request. Calling the tool in a chat does not delete existing host history or automatically intercept API requests. Short inputs can stay the same size, and records can add overhead; savings depend on what you actually send.
 
-## Saved context and controls (0.1.5)
+## Saved context and controls (0.2.0)
 
 The runtime exposes ten tools. Four new read-only tools provide status and continuation: `get_status`, `list_contexts`, `get_context` and `make_handoff`. Successful preparation and recall save the prepared context and task locally by default. Turn off context recording in the TOMC panel to stop future body storage; existing snapshots remain until deleted. A short input may be preserved in full. Old numeric-only statistics cannot reconstruct earlier chats.
 

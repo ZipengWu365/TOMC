@@ -6,7 +6,7 @@ TOMC is free to use, including commercially, under the MIT License in `plugins/t
 
 ## Install
 
-Install a current Codex CLI with plugin support and [UV](https://docs.astral.sh/uv/getting-started/installation/). Extract the current locally built `tomc-memory-codex-0.1.5.zip` to a permanent directory, open a terminal in that directory, then run:
+Install a current Codex CLI with plugin support and [UV](https://docs.astral.sh/uv/getting-started/installation/). Extract the current locally built `tomc-memory-codex-0.2.0.zip` to a permanent directory, open a terminal in that directory, then run:
 
 ```bash
 uv run --no-project --python 3.12 install.py --check
@@ -38,11 +38,11 @@ Leave active-chat compaction with the host. When native compaction is enabled or
 
 Ask Codex to call TOMC's `prepare_context` with your supplied history, next task and memory budget, then answer using the returned memory. No notebook is needed. For a state example, use `framework = Flask`, `backup_framework copies framework` and `framework = FastAPI`; ask for the current values. TOMC supports these explicit assignments and snapshot copies. Histories that fit the budget stay intact; longer input can use task records and source retrieval.
 
-The 0.1.5 runtime includes ten tools: the six preparation, notebook and statistics tools, plus four read-only tools: `get_status`, `list_contexts`, `get_context` and `make_handoff`. The skill explains when to prepare context and how to use its sources. Counts and the budget cover memory text under a lexical estimate, excluding task text, tool envelopes and provider framing.
+The 0.2.0 runtime includes ten tools: the six preparation, notebook and statistics tools, plus four read-only tools: `get_status`, `list_contexts`, `get_context` and `make_handoff`. The skill explains when to prepare context and how to use its sources. Counts and the budget cover memory text under a lexical estimate, excluding task text, tool envelopes and provider framing.
 
 In an API integration, your application sends the prepared context instead of the original history in its next request. In Codex, a tool call does not delete the host's existing chat history or automatically intercept API requests. Short inputs can stay the same size, and record metadata can add overhead; savings depend on what you actually send.
 
-## Saved context and session controls (0.1.5)
+## Saved context and session controls (0.2.0)
 
 Successful preparation and recall save the prepared context and task locally by default, separately from optional notebooks and numeric statistics. Turn off context recording in the TOMC panel to stop future body storage; existing snapshots remain until deleted. Short input can be preserved in full inside a snapshot. Old statistics that recorded numbers only cannot reconstruct past chat bodies.
 

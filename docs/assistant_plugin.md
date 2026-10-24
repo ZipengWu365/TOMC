@@ -2,19 +2,19 @@
 
 TOMC prepares task-specific context that you can send in place of a long history. Supply the history, the next task and a memory budget. It selects source text, computes supported state, relation or count records, and returns text for your existing assistant. Preparation runs on CPU without training. The plugin itself needs no extra model API key, GPU or model service.
 
-After installation, call `prepare_context`, inspect the result and hand it to a new chat or an application request. Short histories can stay unchanged; records and prompt overhead can sometimes increase input. The compiler is stateless, but the 0.1.5 MCP runtime saves successful prepared-context results and tasks locally by default; context recording can be disabled. Named notebooks remain optional. For direct request integration, see the [Python API](api_reference.md#prepare-context-before-your-api-call).
+After installation, call `prepare_context`, inspect the result and hand it to a new chat or an application request. Short histories can stay unchanged; records and prompt overhead can sometimes increase input. The compiler is stateless, but the 0.2.0 MCP runtime saves successful prepared-context results and tasks locally by default; context recording can be disabled. Named notebooks remain optional. For direct request integration, see the [Python API](api_reference.md#prepare-context-before-your-api-call).
 
 The host owns active-chat compaction. Do not proactively use TOMC to recompact that same conversation when native compaction is active or unknown. External-history preparation and explicit notebook workflows remain available. This is the plugin's assistant policy; optional lifecycle hooks register session metadata and enforce TOMC controls, not automatic model-request replacement. [Context ownership](context_ownership.md).
 
-## Current local preview: 0.1.5
+## Current version: 0.2.0
 
-The current source builds 0.1.5 packages with ten MCP tools. Four new read-only tools are `get_status`, `list_contexts`, `get_context` and `make_handoff`. Successful preparation and recall save the prepared body, task and metadata by default. Turn off context recording in the TOMC panel to stop future body storage; existing snapshots remain until deleted. A short input can be preserved in full. Earlier statistics containing numbers only cannot reconstruct historical chat content.
+The 0.2.0 packages have ten MCP tools. Four new read-only tools are `get_status`, `list_contexts`, `get_context` and `make_handoff`. Successful preparation and recall save the prepared body, task and metadata by default. Turn off context recording in the TOMC panel to stop future body storage; existing snapshots remain until deleted. A short input can be preserved in full. Earlier statistics containing numbers only cannot reconstruct historical chat content.
 
 Processing defaults to on globally and for newly registered sessions. User-level setup makes tools available across projects. Session-specific pause and registration require installed, loaded hooks; Codex also requires review and trust in `/hooks`. New or changed configuration may require a new session or supported reload. The activity card follows session/prompt events, not every UI tab switch. The hooks do not replace the native client's model requests, and configuration alone does not prove a live connection or input savings. [Validation and limits](host_integration_validation_20261022.md).
 
 The management window can copy a self-contained continuation prompt or export a portable text package for another Agent or computer. The recipient can read the package without TOMC. You may place it in Git, but TOMC does not automatically commit or push. `make_handoff` only returns the selected snapshot's prompt; it does not send a message or write the clipboard.
 
-The 0.1.1 download links and dated host tests below remain historical artifacts; they do not establish 0.1.5 acceptance in those clients. Build the current source for the new features.
+The dated host tests below were run with earlier packages; they do not establish 0.2.0 acceptance in those clients.
 
 If TOMC proves useful after your first successful tool call, you can [Star the main TOMC repository](https://github.com/ZipengWu365/TOMC) to support the project. This is optional. Codex installer 0.1.2 prints this invitation once per successful install; `--no-support-message` hides it. It does not verify the first MCP startup.
 
@@ -29,19 +29,19 @@ If TOMC proves useful after your first successful tool call, you can [Star the m
 | Tencent WorkBuddy | [Add a local MCP server](workbuddy.md) | Manual configuration preview; client tool calls remain unverified |
 | Codex | Run the ZIP's installation helper | Preview.4 native installation and default-model calls passed in the Windows personal profile; the earlier macOS trial used preview.2 |
 
-Download the packages from the [MIT-licensed assistant preview](https://github.com/ZipengWu365/TOMC/tree/main/plugins/downloads): [Claude `.mcpb`](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-0.1.1.mcpb) ([checksum](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-0.1.1.mcpb.sha256)) or [Codex ZIP](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-codex-0.1.2.zip) ([checksum](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-codex-0.1.2.zip.sha256)). Plugin packaging 0.1.1 adds the host-managed conversation policy. Earlier 0.1.0 packages and dated host/model validation retain their historical scope; the compiler core remains 0.1.0.
+Download the 0.2.0 packages from the [release page](https://github.com/ZipengWu365/TOMC/releases/tag/v0.2.0-preview.1): [Claude `.mcpb`](https://github.com/ZipengWu365/TOMC/releases/download/v0.2.0-preview.1/tomc-memory-0.2.0.mcpb) ([checksum](https://github.com/ZipengWu365/TOMC/releases/download/v0.2.0-preview.1/tomc-memory-0.2.0.mcpb.sha256)) or [Codex ZIP](https://github.com/ZipengWu365/TOMC/releases/download/v0.2.0-preview.1/tomc-memory-codex-0.2.0.zip) ([checksum](https://github.com/ZipengWu365/TOMC/releases/download/v0.2.0-preview.1/tomc-memory-codex-0.2.0.zip.sha256)). Earlier packages stay in the same folder; dated host and model validation keeps its historical scope.
 
 There is no published PyPI package or public marketplace listing. Updates must be installed manually. [Claude's installation and private distribution guide](https://support.claude.com/en/articles/10949351-getting-started-with-local-mcp-servers-on-claude-desktop)
 
 ## Claude Desktop
 
-The locally built candidate is `outputs/plugins/tomc-memory-0.1.5.mcpb`. It contains TOMC's source and uses the official MCPB UV runtime: a supported host downloads Python and installs dependencies in an isolated environment. The first installation needs network access; it is not an offline bundle. [Official UV bundle example](https://github.com/modelcontextprotocol/mcpb/tree/main/examples/hello-world-uv)
+The 0.2.0 download is built from this source as `outputs/plugins/tomc-memory-0.2.0.mcpb`. It contains TOMC's source and uses the official MCPB UV runtime: a supported host downloads Python and installs dependencies in an isolated environment. The first installation needs network access; it is not an offline bundle. [Official UV bundle example](https://github.com/modelcontextprotocol/mcpb/tree/main/examples/hello-world-uv)
 
 Maintainers can build and check the package from the checkout:
 
 ```bash
 python scripts/build_plugin.py
-python scripts/plugin_smoke.py outputs/plugins/tomc-memory-0.1.5.mcpb
+python scripts/plugin_smoke.py outputs/plugins/tomc-memory-0.2.0.mcpb
 ```
 
 The second command needs `uv` and the MCP test client (`.[mcp]`). It extracts the archive outside the checkout and launches its locked runtime; it does not install into or alter your assistant. Share the `.mcpb` file and its `.sha256` checksum file with collaborators. A Cursor link containing your own local paths is not a portable installation package.
@@ -49,7 +49,7 @@ The second command needs `uv` and the MCP test client (`.[mcp]`). It extracts th
 1. Update Claude Desktop and obtain the `.mcpb` file.
 2. Open **Settings → Extensions → Advanced settings → Install Extension…**.
 3. Select the file, review its information and follow the installation prompts.
-4. Start a chat and check the TOMC tools: the 0.1.5 runtime exposes ten, including the four read-only context and status tools.
+4. Start a chat and check the TOMC tools: the 0.2.0 runtime exposes ten, including the four read-only context and status tools.
 
 These are the [official custom-extension installation steps](https://support.claude.com/en/articles/10949351-getting-started-with-local-mcp-servers-on-claude-desktop). Bundle construction and MCP protocol checks do not establish that the desktop installation works on every platform. Claude Desktop GUI installation remains to be tested on macOS and Windows.
 
@@ -70,7 +70,7 @@ Start a new session, or reload the VS Code window, and run `/mcp`: the server ap
 
 Claude Code does not install `.mcpb` files, but it can launch the same locked runtime as a local stdio MCP server.
 
-1. Download `tomc-memory-0.1.1.mcpb`, check its SHA-256 and extract it (it is a ZIP archive) to a directory you will keep.
+1. Download `tomc-memory-0.2.0.mcpb`, check its SHA-256 and extract it (it is a ZIP archive) to a directory you will keep.
 2. Install [UV](https://docs.astral.sh/uv/getting-started/installation/) and make `uv` available on PATH before running the commands below. Replace the example path with your actual extracted directory; keep paths quoted when they contain spaces.
 3. Install the locked dependencies with `uv sync --locked --directory "/absolute/path/to/extracted"`.
 4. Register the server for all your projects:
@@ -134,7 +134,7 @@ Follow the [WorkBuddy guide](workbuddy.md) to add the locked local runtime throu
 
 ## Codex
 
-The installation candidate is `outputs/plugins/tomc-memory-codex-0.1.5.zip`. It includes a local marketplace at `.agents/plugins/marketplace.json`, an `install.py` helper and a `plugins/tomc-memory/` package containing the supported `.codex-plugin/plugin.json` compatibility manifest, the same locked TOMC runtime and a memory skill. The compatibility manifest declares the bundled tools and skill; the helper prepares their launch paths for your installation. You can share the original ZIP privately; this does not list TOMC in the public plugin directory. [Official plugin packaging and local marketplaces](https://developers.openai.com/plugins/build/plugins)
+The 0.2.0 download is built as `outputs/plugins/tomc-memory-codex-0.2.0.zip`. It includes a local marketplace at `.agents/plugins/marketplace.json`, an `install.py` helper and a `plugins/tomc-memory/` package containing the supported `.codex-plugin/plugin.json` compatibility manifest, the same locked TOMC runtime and a memory skill. The compatibility manifest declares the bundled tools and skill; the helper prepares their launch paths for your installation. You can share the original ZIP privately; this does not list TOMC in the public plugin directory. [Official plugin packaging and local marketplaces](https://developers.openai.com/plugins/build/plugins)
 
 Maintainers can build the candidate from the checkout with `python scripts/build_codex_plugin.py`; share the resulting ZIP and its `.sha256` checksum file.
 
@@ -178,7 +178,7 @@ The CLI on PATH can differ from the engine bundled with a desktop application. T
 uv run --no-project install.py --codex 'C:\path\to\codex.exe'
 ```
 
-Use a host that supports both plugin commands and your model account. A successful installer message establishes registration, not a successful model request. In a new session, first check the TOMC tools (ten in 0.1.5), then try the [preparation example](#prepare-context). Ask for `prepare_context` explicitly and check the tool result. The [Windows feedback](windows_installation_feedback.md) records installation, runtime and real model results separately.
+Use a host that supports both plugin commands and your model account. A successful installer message establishes registration, not a successful model request. In a new session, first check the TOMC tools (ten in 0.2.0), then try the [preparation example](#prepare-context). Ask for `prepare_context` explicitly and check the tool result. The [Windows feedback](windows_installation_feedback.md) records installation, runtime and real model results separately.
 
 To prepare the local launch configuration and print the follow-up installation commands without registering a marketplace or installing a plugin, use:
 
@@ -267,7 +267,7 @@ In an application, send `prepared.messages` instead of the original history. In 
 <details markdown="1">
 <summary>Optional: keep history across chats</summary>
 
-The notebook stores supplied text in its original form. `recall_memory` prepares it for the requested task. `prepare_context` needs no notebook. In 0.1.5, both preparation routes save successful prepared results and tasks as separate context snapshots when context recording is on.
+The notebook stores supplied text in its original form. `recall_memory` prepares it for the requested task. `prepare_context` needs no notebook. In 0.2.0, both preparation routes save successful prepared results and tasks as separate context snapshots when context recording is on.
 
 ## Try two chats
 

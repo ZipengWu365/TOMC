@@ -1,3 +1,14 @@
+# TOMC 0.2.0 — 2026-10-24
+
+The 0.2.0 packages include the desktop cat images, so at about 7.6 MB they are published as [release assets](https://github.com/ZipengWu365/TOMC/releases/tag/v0.2.0-preview.1) rather than in this folder. They add the context library tools, the savings dashboard data and the analysis report; the desktop companion itself is installed from a checkout ([guide](../../docs/desktop_companion.md)).
+
+| Current package | Size | SHA-256 |
+|---|---|---|
+| Claude MCP runtime 0.2.0 | [MCPB](https://github.com/ZipengWu365/TOMC/releases/download/v0.2.0-preview.1/tomc-memory-0.2.0.mcpb) | 7.6 MB | `b813f064ec02f3be408d551f8d3244926920d1b6f648908d0efa3402f401be09` |
+| Codex native plugin 0.2.0 | [ZIP](https://github.com/ZipengWu365/TOMC/releases/download/v0.2.0-preview.1/tomc-memory-codex-0.2.0.zip) | 7.6 MB | `4666c15cdfc321aec2f5e358272ff0e761fbc5a570dd085977abd85068586aac` |
+
+Packages below are earlier versions, kept unchanged.
+
 # Codex installation support prompt — 2026-10-16
 
 Codex packaging **0.1.2** adds an optional GitHub Star invitation after successful installation. It is shown once per successful installer run; `--no-support-message` hides it. Preflight, configure-only and failed installation paths do not show it. MCP tool output is unchanged. No new native-client or model acceptance is claimed. The 0.1.1 downloads remain available at their original paths.

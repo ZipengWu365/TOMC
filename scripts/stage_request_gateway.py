@@ -3,9 +3,18 @@
 import argparse
 import hashlib
 import json
+import re
 import shutil
 from datetime import datetime, timezone
 from pathlib import Path
+
+
+def source_version(package):
+    init = package / "__init__.py"
+    found = init.is_file() and re.search(
+        r'__version__ = "([^"]+)"', init.read_text(encoding="utf-8")
+    )
+    return found.group(1) if found else "unknown"
 
 
 def stage(source, destination):
@@ -48,7 +57,7 @@ def stage(source, destination):
             {"path": relative.as_posix(), "sha256": hashlib.sha256(target.read_bytes()).hexdigest()}
         )
     receipt = {
-        "version": "0.1.6-gateway",
+        "version": f"{source_version(package)}-gateway",
         "created_utc": datetime.now(timezone.utc).isoformat(),
         "files": copied,
         "clients_activated": False,

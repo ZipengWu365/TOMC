@@ -91,13 +91,13 @@
     },
     {
       "path": "README.md",
-      "bytes": 51209,
-      "sha256": "832a43d1fb1b4d6d15bde46fc99f068c90687fa1aa277e9c31411c4d9f30bd98"
+      "bytes": 51169,
+      "sha256": "68f33f4d4e0d052392fb3d3a99842dc7bc5f866d48b4ce4c4bc6ed2323d258a0"
     },
     {
       "path": "README_zh.md",
-      "bytes": 46410,
-      "sha256": "6d8e528090a03f16d93e7d7127c65d744a623a9b1e9a032c2242f620836ce63d"
+      "bytes": 46491,
+      "sha256": "9461126329b16630602d9155ed83c5902f9155f40510f655a505d234dc09339e"
     },
     {
       "path": "SECURITY.md",
@@ -726,13 +726,13 @@
     },
     {
       "path": "docs/assistant_plugin.md",
-      "bytes": 29498,
-      "sha256": "cf473fda4a03dff5b909c73b900a84cae7c234077fa10c0614237e746c0d560e"
+      "bytes": 29314,
+      "sha256": "f95c468f6384ff4587ca31e5f79aec38500baf3f86f2b24a67183ab239208c04"
     },
     {
       "path": "docs/assistant_plugin_zh.md",
-      "bytes": 29245,
-      "sha256": "c07e6ae55da5c3bb78ff52946e53c9aa2c8dd86456354772d4191bdcc34c1a3d"
+      "bytes": 29078,
+      "sha256": "b67c27bf158d827b843304ab2a684c32f92b4f69951454152633121cef29689b"
     },
     {
       "path": "docs/assistant_setup.md",
@@ -1512,7 +1512,7 @@
     {
       "path": "plugins/claude-code/.claude-plugin/plugin.json",
       "bytes": 451,
-      "sha256": "b3ad87fdb76596c63e02634af37d4915e4c8b47caa3052dcadec4b670dbf697d"
+      "sha256": "0de0c2b4ca90b77c204b7ce655bb43e81f1b4c071541a3517e5af279d06f0141"
     },
     {
       "path": "plugins/claude-code/.mcp.json",
@@ -1542,7 +1542,7 @@
     {
       "path": "plugins/claude-code/src/tomc/__init__.py",
       "bytes": 791,
-      "sha256": "3302b2c015102fcc6392f1dd6bd86ba0985a6a9ae6536ad50423a190c51efebd"
+      "sha256": "574ada8a59283baff06bcd290b682d2a688da7a04d7a7654789ef915a3443607"
     },
     {
       "path": "plugins/claude-code/src/tomc/__main__.py",
@@ -1922,12 +1922,12 @@
     {
       "path": "plugins/claude/README.md",
       "bytes": 5976,
-      "sha256": "db45dfced943579b21677f92504b6d81fa3489f3598a1a979b34f83285e4fe79"
+      "sha256": "77fe772196c677c8bbe013f4fd3e7fd6024e208321f469e0920e3e539796d1aa"
     },
     {
       "path": "plugins/claude/manifest.json",
       "bytes": 3231,
-      "sha256": "ef967777ba70295e0b23a6957139fadd8f1b25e998f9e0f4c33398d5b20ea899"
+      "sha256": "f448c76ae45f170ad2f313422858cddea766b7277cdf0cb57deff9dfa3e812af"
     },
     {
       "path": "plugins/claude/pyproject.toml",
@@ -1947,12 +1947,12 @@
     {
       "path": "plugins/codex/.codex-plugin/plugin.json",
       "bytes": 610,
-      "sha256": "e6b589dec81b0aa28742fc8ee4f8bce9cc16928f9713aef4006e32359c0c1301"
+      "sha256": "4a9cea0b89db9e42b4b228f61dcd1d1d81f369c0d9ff492708534f5053aa33f7"
     },
     {
       "path": "plugins/codex/README.md",
       "bytes": 9568,
-      "sha256": "844ef5462596b7e9320c56135d8a7af1e2a3e67741a027b78cbe8b3b7205f105"
+      "sha256": "1e6ac68c2c811c10e966e43fc384ef9db4991cfd561a4a5330fecff5f9198c56"
     },
     {
       "path": "plugins/codex/install.py",
@@ -1976,8 +1976,8 @@
     },
     {
       "path": "plugins/downloads/README.md",
-      "bytes": 3967,
-      "sha256": "348f198028e7ed0c166f69f7e2d2ba96036eaa2233d6d236bd09fe171a0bb372"
+      "bytes": 4924,
+      "sha256": "e5f641538592dcb7d423c104e06c79e59b7374cb0ef49976cf97f0304f7dc908"
     },
     {
       "path": "plugins/downloads/build_receipt.json",
@@ -2062,7 +2062,7 @@
     {
       "path": "pyproject.toml",
       "bytes": 1290,
-      "sha256": "25f3c2c2c35a1f3ab5609819becc5e4fe9cecce9d63f9cad16c12c5efc7f601b"
+      "sha256": "5fe2dbd70c48042ae16019fbe0d9083eb22bf98779478f82e83a1ee7186cfe2e"
     },
     {
       "path": "requirements-core.lock",
@@ -2191,8 +2191,8 @@
     },
     {
       "path": "scripts/install_context_workspace.py",
-      "bytes": 13166,
-      "sha256": "40fe161c303f4c868d75d03813a04d9eb545f9f7f53dad8b67f24ff4526b936a"
+      "bytes": 13429,
+      "sha256": "429869179ce1bd45f3e12eb3f39674a6fc95f238b4408e046d801cd1325324ef"
     },
     {
       "path": "scripts/install_current_pet.py",
@@ -2326,8 +2326,8 @@
     },
     {
       "path": "scripts/stage_request_gateway.py",
-      "bytes": 2457,
-      "sha256": "b44b492ca30e99c809115ecf4c7ae17550c02b710e147fdec16c5e208961f4b2"
+      "bytes": 2721,
+      "sha256": "daa5f852e4362e2297158d4516f195acf45f2f5bb15b0eb9cf16f7113f7ddb55"
     },
     {
       "path": "scripts/sync_paper.py",
@@ -2387,7 +2387,7 @@
     {
       "path": "src/tomc/__init__.py",
       "bytes": 791,
-      "sha256": "3302b2c015102fcc6392f1dd6bd86ba0985a6a9ae6536ad50423a190c51efebd"
+      "sha256": "574ada8a59283baff06bcd290b682d2a688da7a04d7a7654789ef915a3443607"
     },
     {
       "path": "src/tomc/__main__.py",
@@ -3105,7 +3105,7 @@
       "sha256": "be8dbb0aa75e27d1625255b99019c1b078833d1afc864951da7d6de1c4b70807"
     }
   ],
-  "total_bytes": 147243477,
+  "total_bytes": 147244651,
   "self_excluded": [
     "PUBLIC_RELEASE_MANIFEST.json",
     "SHA256SUMS"

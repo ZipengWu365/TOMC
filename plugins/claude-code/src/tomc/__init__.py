@@ -7,7 +7,7 @@ from .model_profiles import ModelProfile, get_model_profile
 from .request_context import RequestContextManager, RequestContextPlan
 from .schemas import CompilationResult, CompilationStats, LedgerRecord, Message, Source
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 __all__ = [
     "AutomaticChatSession",
     "RequestContextManager",

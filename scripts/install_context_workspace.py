@@ -12,12 +12,19 @@ import argparse
 import hashlib
 import json
 import os
+import re
 import stat
 import tempfile
 import uuid
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
+
+# Staged gateway runtimes keep the same scripts/ and src/tomc/ layout as the checkout.
+VERSION = re.search(
+    r'__version__ = "([^"]+)"',
+    (Path(__file__).resolve().parents[1] / "src/tomc/__init__.py").read_text(encoding="utf-8"),
+).group(1)
 
 PET_MODULES = (
     "usage_widget_qt.py",
@@ -235,7 +242,7 @@ def install(plan: UpdatePlan) -> dict:
         )
     receipt = {
         "format": "tomc-context-workspace-update",
-        "version": "0.1.5",
+        "version": VERSION,
         "created_utc": datetime.now(timezone.utc).isoformat(),
         "runtime": str(plan.runtime),
         "status": "pending",
@@ -299,7 +306,7 @@ def main(argv=None):
     args = parser.parse_args(argv)
     try:
         plan = plan_update(args.home, args.runtime)
-        print("TOMC 0.1.5 workspace update: " + ("install" if args.install else "dry-run"))
+        print(f"TOMC {VERSION} workspace update: " + ("install" if args.install else "dry-run"))
         for change in plan.changes:
             print(f"  {'Update' if change.before is not None else 'Add'}: {change.relative}")
         for note in plan.notes:
