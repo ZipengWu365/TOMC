@@ -1866,8 +1866,8 @@
     },
     {
       "path": "plugins/claude-code/src/tomc/pricing_qt.py",
-      "bytes": 23737,
-      "sha256": "fb3396c5fd159c2fa7eaccdbb856243e1f11b06f3d1bacfd2edc4fc0a68da054"
+      "bytes": 24644,
+      "sha256": "7d47ece74bd93814e7f1cf02ee30177cf3b87ed87b116b86da4962b88b74b09e"
     },
     {
       "path": "plugins/claude-code/src/tomc/quota.py",
@@ -2751,8 +2751,8 @@
     },
     {
       "path": "src/tomc/pricing_qt.py",
-      "bytes": 23737,
-      "sha256": "fb3396c5fd159c2fa7eaccdbb856243e1f11b06f3d1bacfd2edc4fc0a68da054"
+      "bytes": 24644,
+      "sha256": "7d47ece74bd93814e7f1cf02ee30177cf3b87ed87b116b86da4962b88b74b09e"
     },
     {
       "path": "src/tomc/quota.py",
@@ -3071,8 +3071,8 @@
     },
     {
       "path": "tests/test_pricing_language_qt.py",
-      "bytes": 8244,
-      "sha256": "aa48ae95dc2bd20f5825ac366078ad5c9ae6a743eb2564382f771db3371aa2f9"
+      "bytes": 11653,
+      "sha256": "3eaf99e24102367ed200c67e37c866d0a9343d07ba32d1d9746f2261cbf09336"
     },
     {
       "path": "tests/test_quota.py",
@@ -3170,7 +3170,7 @@
       "sha256": "be8dbb0aa75e27d1625255b99019c1b078833d1afc864951da7d6de1c4b70807"
     }
   ],
-  "total_bytes": 147345371,
+  "total_bytes": 147350594,
   "self_excluded": [
     "PUBLIC_RELEASE_MANIFEST.json",
     "SHA256SUMS"

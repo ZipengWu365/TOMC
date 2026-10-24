@@ -12,6 +12,7 @@ pytest.importorskip("PySide6")
 
 from PySide6.QtCore import QEvent, QPoint, QRect, Qt  # noqa: E402
 from PySide6.QtGui import QColor, QPixmap  # noqa: E402
+from PySide6.QtTest import QTest  # noqa: E402
 from PySide6.QtWidgets import QApplication, QWidget  # noqa: E402
 
 from tomc import macos_ui, pricing_qt  # noqa: E402
@@ -178,8 +179,97 @@ def test_non_mac_reference_keeps_original_layout_and_feedback(owner, monkeypatch
     assert sheet.table.horizontalHeader().stretchLastSection()
     assert "Microsoft YaHei UI" in sheet.styleSheet()
     assert not hasattr(sheet, "action_status")
+    assert all(
+        button.autoDefault()
+        for button in (sheet.detected_button, sheet.save_button, sheet.close_button)
+    )
     owner.language.set_language("en")
     assert sheet.save_button.text() == "Demo: settings are not saved"
+
+
+@pytest.fixture
+def keyboard_sheet(owner, app, tmp_path, monkeypatch):
+    monkeypatch.setattr(pricing_qt, "is_macos", lambda: True)
+    monkeypatch.setattr(macos_ui, "is_macos", lambda: True)
+    detected = {**RATE, "key": "anthropic:detected:standard", "model": "detected"}
+    monkeypatch.setattr(pricing_qt, "all_rates", lambda: [RATE, detected])
+    (tmp_path / "detected_models.json").write_text(
+        json.dumps(
+            {
+                "hosts": {
+                    "claude": {
+                        "provider": "anthropic",
+                        "model": "detected",
+                        "evidence": "Synthetic detection",
+                    }
+                },
+                "checked_at": "2026-10-24",
+            }
+        ),
+        encoding="utf-8",
+    )
+    sheet = pricing_qt.ReferenceSheet(owner, settings_path=tmp_path / "reference.json")
+    sheet.show()
+    app.processEvents()
+    yield sheet
+    sheet.close()
+    sheet.deleteLater()
+    app.sendPostedEvents(None, QEvent.Type.DeferredDelete)
+
+
+@pytest.mark.parametrize("control", ["host", "provider", "models", "mode", "table"])
+@pytest.mark.parametrize("key", [Qt.Key.Key_Return, Qt.Key.Key_Enter])
+def test_mac_reference_enter_in_fields_does_not_run_an_unrelated_action(
+    keyboard_sheet, app, control, key
+):
+    sheet = keyboard_sheet
+    clicked = []
+    for name in ("detected_button", "save_button", "close_button"):
+        getattr(sheet, name).clicked.connect(lambda checked=False, name=name: clicked.append(name))
+    field = getattr(sheet, control)
+    field.setFocus()
+    app.processEvents()
+    assert field.hasFocus()
+    QTest.keyClick(field, key)
+    app.processEvents()
+    assert clicked == []
+    assert sheet.models.currentData() == RATE["key"]
+    assert not sheet.path.exists() and not sheet.applied and sheet.isVisible()
+
+
+@pytest.mark.parametrize("action", ["detected_button", "save_button", "close_button"])
+@pytest.mark.parametrize("key", [Qt.Key.Key_Return, Qt.Key.Key_Enter, Qt.Key.Key_Space])
+def test_mac_reference_focused_buttons_keep_explicit_keyboard_activation(
+    keyboard_sheet, app, action, key
+):
+    sheet = keyboard_sheet
+    button = getattr(sheet, action)
+    clicked = []
+    button.clicked.connect(lambda: clicked.append(True))
+    button.setFocus()
+    app.processEvents()
+    assert button.hasFocus()
+    QTest.keyClick(button, key)
+    assert clicked == [True]
+    if action == "detected_button":
+        assert sheet.models.currentData() == "anthropic:detected:standard"
+        assert not sheet.path.exists()
+    elif action == "save_button":
+        assert json.loads(sheet.path.read_text())["model"] == RATE["model"]
+        assert sheet.applied
+    else:
+        assert not sheet.isVisible() and not sheet.path.exists()
+
+
+def test_mac_reference_return_still_selects_from_an_open_model_popup(keyboard_sheet, app):
+    sheet = keyboard_sheet
+    sheet.models.setFocus()
+    sheet.models.showPopup()
+    app.processEvents()
+    QTest.keyClick(sheet.models, Qt.Key.Key_Down)
+    QTest.keyClick(sheet.models, Qt.Key.Key_Return)
+    assert sheet.models.currentData() == "anthropic:detected:standard"
+    assert not sheet.path.exists() and not sheet.applied and sheet.isVisible()
 
 
 def test_oasis_language_preserves_animation_state_and_translates_accessibility(owner, app):

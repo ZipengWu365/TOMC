@@ -233,6 +233,11 @@ class ReferenceSheet(QDialog):
         self.close_button = QPushButton("收起")
         self.close_button.clicked.connect(self.hide)
         outer.addWidget(self.close_button, alignment=Qt.AlignmentFlag.AlignRight)
+        if self._mac:
+            # Return in a combo/table must not invoke the first dialog button.
+            for button in (self.detected_button, self.save_button, self.close_button):
+                button.setAutoDefault(False)
+                button.installEventFilter(self)
         self.rates = list(all_rates())
         self.evidence = "手选参考模型；未读取实际调用的模型、缓存和档位"
         self.provider.currentIndexChanged.connect(self.populate)
@@ -289,6 +294,22 @@ class ReferenceSheet(QDialog):
         super().changeEvent(event)
         if event.type() in (QEvent.Type.PaletteChange, QEvent.Type.ApplicationPaletteChange):
             self._refresh_macos_documents()
+
+    def eventFilter(self, watched, event):
+        if (
+            self._mac
+            and event.type() == QEvent.Type.KeyPress
+            and event.key() in (Qt.Key.Key_Return, Qt.Key.Key_Enter)
+            and watched.hasFocus()
+            and watched.isEnabled()
+        ):
+            # These filters belong only to the three action buttons. Keep explicit
+            # keyboard activation without making them implicit dialog-wide defaults.
+            if not event.isAutoRepeat():
+                watched.click()
+            event.accept()
+            return True
+        return super().eventFilter(watched, event)
 
     def retranslate(self, *_):
         model_key = self.models.currentData()
