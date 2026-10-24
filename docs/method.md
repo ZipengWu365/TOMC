@@ -59,3 +59,5 @@ The current API uses the paper's snapshot-copy semantics. `compile_memory` defau
 For fixed input and configuration, built-in compilation is deterministic apart from measured latency. State replay and count accumulation are linear; BM25 scales with document length and query terms. Relation joins can grow with branching.
 
 The interactive input limit is 200,000 characters. The demo does not establish million-token interactive latency, and optional reader calls or learned compressors have their own runtime behavior.
+
+Repeated API requests currently recompile the supplied original history. The notebook store preserves submitted text and replays it on recall; neither path implements incremental compilation or result caching. A previous task's budgeted output can omit evidence needed by a later task, so it must not replace the retained source history. The [multi-turn API example](api_reference.md#prepare-every-turn-from-original-history) demonstrates this separation without changing the compiler kernels. Its offline checks validate request construction and state handling, not reader quality or billed savings.

@@ -676,8 +676,8 @@
     },
     {
       "path": "docs/api_reference.md",
-      "bytes": 9042,
-      "sha256": "701d7d296d12b93ccde46899c57dd885fcddcdd9f590915629ac43fdbf063b88"
+      "bytes": 12008,
+      "sha256": "a2082a0f7800289f0f2aebd58bc86f0c1432b702c64a1fa055357a85aba1f318"
     },
     {
       "path": "docs/architecture.md",
@@ -826,8 +826,8 @@
     },
     {
       "path": "docs/method.md",
-      "bytes": 4577,
-      "sha256": "dd4a42652ebfcf7f14173839216d2a4d458405d435a06772ecdd5a2628657915"
+      "bytes": 5179,
+      "sha256": "974e05eebe28c47f2d0764bb8a46671695919a117e6b79d1037451283ddf4c52"
     },
     {
       "path": "docs/model_context_limits_20261012.md",
@@ -998,6 +998,11 @@
       "path": "examples/api_context.py",
       "bytes": 2473,
       "sha256": "625579ba11abb0a809ffa254ed0e42c619d3f790ba888d30603df229c6eda837"
+    },
+    {
+      "path": "examples/api_multiturn.py",
+      "bytes": 3925,
+      "sha256": "d665a4095e6f51068217804812693267600a2c4b8e7ca9bce7d81f5e3a2f34a9"
     },
     {
       "path": "examples/easy_handoff.py",
@@ -1581,8 +1586,8 @@
     },
     {
       "path": "plugins/claude-code/src/tomc/adapters/reader.py",
-      "bytes": 5415,
-      "sha256": "8a8dfb08a66ba1460baaac83c2e84f5e415005e6bdbe9ef313e6f30856d2d423"
+      "bytes": 6170,
+      "sha256": "93157149885cd631214ce67f6fba8d621ed2b0a5d78698689e9f8fe5aa96fc75"
     },
     {
       "path": "plugins/claude-code/src/tomc/analysis.py",
@@ -2426,8 +2431,8 @@
     },
     {
       "path": "src/tomc/adapters/reader.py",
-      "bytes": 5415,
-      "sha256": "8a8dfb08a66ba1460baaac83c2e84f5e415005e6bdbe9ef313e6f30856d2d423"
+      "bytes": 6170,
+      "sha256": "93157149885cd631214ce67f6fba8d621ed2b0a5d78698689e9f8fe5aa96fc75"
     },
     {
       "path": "src/tomc/analysis.py",
@@ -2941,8 +2946,8 @@
     },
     {
       "path": "tests/test_integrations.py",
-      "bytes": 4182,
-      "sha256": "bb64b9694c3b513cbad2c6f805258a3f4427efc5ea57b21cff766165da7d51a5"
+      "bytes": 9543,
+      "sha256": "57d27fd00934344148666ad9ad8fa96711007d83024a77a2514174ba7a0ad0ab"
     },
     {
       "path": "tests/test_ledger_fast_pack.py",
@@ -3100,7 +3105,7 @@
       "sha256": "be8dbb0aa75e27d1625255b99019c1b078833d1afc864951da7d6de1c4b70807"
     }
   ],
-  "total_bytes": 147229113,
+  "total_bytes": 147243477,
   "self_excluded": [
     "PUBLIC_RELEASE_MANIFEST.json",
     "SHA256SUMS"
