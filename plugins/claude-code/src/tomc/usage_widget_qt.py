@@ -855,6 +855,10 @@ class Companion(QWidget):
             | Qt.WindowType.Tool,
         )
         self.language = UiLanguage(path, self)
+        # The cat is a tool window, so Qt saw the context/analysis window as the last real
+        # window and quit everything when it closed. Only the × on the cat or "Quit TOMC" ends
+        # the companion; closing any other window just closes that window.
+        QApplication.instance().setQuitOnLastWindowClosed(False)
         self.setFont(ui_font())
         self.test_mode, self.state_file = test_mode, state_file
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)

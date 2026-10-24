@@ -12,7 +12,7 @@ import pytest
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 pytest.importorskip("PySide6")
 
-from PySide6.QtCore import QEvent, Qt  # noqa: E402
+from PySide6.QtCore import QEvent, QEventLoop, Qt, QTimer  # noqa: E402
 from PySide6.QtTest import QTest  # noqa: E402
 from PySide6.QtWidgets import QApplication, QLabel, QPushButton  # noqa: E402
 
@@ -321,6 +321,7 @@ def test_analysis_link_opens_the_library_on_its_analysis_tab(app, tmp_path, monk
     compiled(path, "a", "codex", "gpt-6-astra", 100_000, 60_000)
     pet = make_pet(app, path, monkeypatch)
     try:
+        pet.show()
         pet.show_details()
         app.processEvents()
         assert pet.details.analysis_button.text() == "分析报告 ›"
@@ -330,8 +331,33 @@ def test_analysis_link_opens_the_library_on_its_analysis_tab(app, tmp_path, monk
         assert not pet.details.isVisible()
         assert library.tabs.currentWidget() is library.analysis_page
         assert library.analysis_page.report["totals"]["tokens_saved"] == 40_000
+        # Closing the analysis window closes only that window, never the companion.
+        assert not app.quitOnLastWindowClosed()
         library.close()
+        app.processEvents()
+        assert not library.isVisible() and pet.isVisible()
     finally:
+        close(app, pet)
+
+
+def test_closing_the_last_ordinary_window_does_not_quit_the_companion(app, tmp_path, monkeypatch):
+    monkeypatch.setenv("CODEX_HOME", str(tmp_path / "codex-home"))
+    monkeypatch.setenv("CLAUDE_CONFIG_DIR", str(tmp_path / "claude-home"))
+    app.setQuitOnLastWindowClosed(True)  # Qt's default, before a companion exists
+    pet = make_pet(app, tmp_path / "memory.sqlite3", monkeypatch)
+    quitting = []
+    app.aboutToQuit.connect(quitting.append)
+    try:
+        pet.show()
+        pet.open_context_library()
+        app.processEvents()
+        loop = QEventLoop()
+        QTimer.singleShot(0, pet.context_dialog.close)  # what the window's own × does
+        QTimer.singleShot(300, loop.quit)
+        loop.exec()
+        assert pet.isVisible() and not pet.context_dialog.isVisible() and quitting == []
+    finally:
+        app.aboutToQuit.disconnect(quitting.append)
         close(app, pet)
 
 

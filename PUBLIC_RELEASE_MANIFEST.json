@@ -686,8 +686,8 @@
     },
     {
       "path": "docs/TOMC_ACCEPTANCE_20261023_ZH.md",
-      "bytes": 19797,
-      "sha256": "a5cd737ec5f472c2f435ae21459ec9314950bd0f5152902d3d454e2f142abd24"
+      "bytes": 20171,
+      "sha256": "7f31785760455729692576927bcbdbc32fc966cf62a7084cbe8be0387b65d40b"
     },
     {
       "path": "docs/TOMC_CONTEXT_OWNERSHIP_20261023_ZH.md",
@@ -696,8 +696,8 @@
     },
     {
       "path": "docs/TOMC_DEPLOY_ROLLBACK_20261023_ZH.md",
-      "bytes": 11975,
-      "sha256": "ea656ac8c422ded5a8d993ced138e9124a16e82276872e82f068c0e916e00523"
+      "bytes": 12269,
+      "sha256": "3de340162ccb23ad3c196d7fc4885388dba62b4b4202e3be728528bf4d8daa98"
     },
     {
       "path": "docs/TOMC_DEVELOPER_HANDOFF_20261023_ZH.md",
@@ -1981,8 +1981,8 @@
     },
     {
       "path": "plugins/claude-code/src/tomc/usage_widget_qt.py",
-      "bytes": 76209,
-      "sha256": "e1fec642f999810ce5fe5c4e1b360a9ecc38aa489263db923ec7f7204f4710f7"
+      "bytes": 76536,
+      "sha256": "4e18389804f9fc24d21d07cda4fd488b3d73e8ea86eb64e168e679499ef76c8c"
     },
     {
       "path": "plugins/claude-code/uv.lock",
@@ -2861,8 +2861,8 @@
     },
     {
       "path": "src/tomc/usage_widget_qt.py",
-      "bytes": 76209,
-      "sha256": "e1fec642f999810ce5fe5c4e1b360a9ecc38aa489263db923ec7f7204f4710f7"
+      "bytes": 76536,
+      "sha256": "4e18389804f9fc24d21d07cda4fd488b3d73e8ea86eb64e168e679499ef76c8c"
     },
     {
       "path": "tests/fixtures/pricing/anthropic.txt",
@@ -3091,8 +3091,8 @@
     },
     {
       "path": "tests/test_savings_dashboard_qt.py",
-      "bytes": 13941,
-      "sha256": "dc7e9ad4385c812a422890431ff0f796b014c49c228591bcca50547610134867"
+      "bytes": 15101,
+      "sha256": "e52a27a78abf26ab8bc0c815166fe8be421edc38177810ad036072445296ef9c"
     },
     {
       "path": "tests/test_session_hooks.py",
@@ -3140,7 +3140,7 @@
       "sha256": "be8dbb0aa75e27d1625255b99019c1b078833d1afc864951da7d6de1c4b70807"
     }
   ],
-  "total_bytes": 147211132,
+  "total_bytes": 147213614,
   "self_excluded": [
     "PUBLIC_RELEASE_MANIFEST.json",
     "SHA256SUMS"
