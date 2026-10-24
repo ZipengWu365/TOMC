@@ -1769,7 +1769,10 @@ class Companion(QWidget):
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key.Key_Escape:
-            self.close()
+            # Esc dismisses the panel. It used to quit the whole companion whenever the cat
+            # had focus; quitting is now only the explicit "Quit TOMC" button or menu item.
+            self.details.hide()
+            self.session_notice.hide()
         elif event.key() in (Qt.Key.Key_Return, Qt.Key.Key_Space):
             self.toggle_details()
 

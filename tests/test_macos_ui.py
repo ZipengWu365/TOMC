@@ -8,7 +8,7 @@ os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 pytest.importorskip("PySide6")
 
 from PySide6.QtGui import QColor, QPalette  # noqa: E402
-from PySide6.QtWidgets import QApplication, QLineEdit, QVBoxLayout, QWidget  # noqa: E402
+from PySide6.QtWidgets import QApplication, QDialog, QLabel, QLineEdit, QVBoxLayout, QWidget  # noqa: E402
 
 from tomc import macos_ui  # noqa: E402
 
@@ -70,3 +70,37 @@ def test_parent_appearance_updates_child_window_style_and_paint_tokens(window, m
     app.processEvents()
     assert macos_ui.tokens(child)["text"] in child.styleSheet()
     assert child.palette().color(QPalette.ColorRole.Text) == QColor("#202124")
+
+
+@pytest.mark.parametrize("appearance", ["light", "dark"])
+def test_child_dialog_surface_survives_native_palette_change(window, monkeypatch, appearance):
+    app, parent = window
+    monkeypatch.setattr(macos_ui, "is_macos", lambda: True)
+    parent.setProperty("tomcAppearance", appearance)
+    macos_ui.install_macos_style(parent)
+    child = QDialog(parent)
+    title = QLabel("Readable dialog heading")
+    QVBoxLayout(child).addWidget(title)
+    macos_ui.install_macos_style(child)
+    parent.show()
+    child.show()
+    app.processEvents()
+
+    # Cocoa applies its native Window colour as a child dialog is shown. Its surface
+    # must still match the semantic text and the appearance inherited from its parent.
+    native = QPalette(child.palette())
+    native.setColor(
+        QPalette.ColorRole.Window, QColor("#1F1F1F" if appearance == "light" else "#EFEFEF")
+    )
+    child.setPalette(native)
+    app.processEvents()
+    colors = macos_ui.tokens(child)
+    assert child.grab().toImage().pixelColor(0, 0) == QColor(colors["background"])
+    assert title.palette().color(QPalette.ColorRole.WindowText) == QColor(colors["text"])
+
+    parent.setProperty("tomcAppearance", "dark" if appearance == "light" else "light")
+    app.processEvents()
+    colors = macos_ui.tokens(child)
+    assert child.grab().toImage().pixelColor(0, 0) == QColor(colors["background"])
+    assert title.palette().color(QPalette.ColorRole.WindowText) == QColor(colors["text"])
+    child.close()

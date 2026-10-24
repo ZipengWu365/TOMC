@@ -84,10 +84,12 @@ def text_style(widget, size=13, color="#443B35", bold=False):
 def _stylesheet(c):
     return f"""
     QWidget {{ color: {c["text"]}; font-size: 13px; }}
+    QWidget[tomcWindowSurface="true"] {{ background: {c["background"]}; }}
     QLabel {{ background: transparent; }}
     QLabel[tomcTone="muted"], QLabel#muted, QLabel#subtitle {{ color: {c["muted"]}; }}
     QLabel[tomcTone="secondary"] {{ color: {c["secondary"]}; }}
     QLabel[tomcTone="accent"] {{ color: {c["accent"]}; }}
+    QLabel#privacy {{ background: {c["selection"]}; color: {c["selection_text"]}; border: 1px solid {c["border"]}; border-radius: 8px; padding: 10px 12px; }}
     QLabel#title {{ font-size: 22px; font-weight: 600; }}
     QLabel#conversationTitle {{ font-size: 16px; font-weight: 600; }}
     QLabel#metric {{ font-size: 18px; font-weight: 600; }}
@@ -147,6 +149,11 @@ class _Appearance(QObject):
     def __init__(self, widget, variant):
         super().__init__(widget)
         self.widget, self.variant = widget, variant
+        if variant == "window":
+            # Cocoa can replace a dialog's Window palette when creating its native window.
+            # Paint the surface through the same stylesheet that supplies its text colours.
+            widget.setProperty("tomcWindowSurface", True)
+            widget.setAttribute(Qt.WidgetAttribute.WA_StyledBackground, True)
         widget.installEventFilter(self)
         QApplication.instance().styleHints().colorSchemeChanged.connect(self.apply)
         self.apply()

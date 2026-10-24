@@ -8,7 +8,7 @@ import pytest
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 pytest.importorskip("PySide6")
 
-from PySide6.QtCore import QEvent, QPoint, QRect  # noqa: E402
+from PySide6.QtCore import QEvent, QPoint, QRect, QTimer  # noqa: E402
 from PySide6.QtGui import QColor, QPalette  # noqa: E402
 from PySide6.QtWidgets import QApplication, QCheckBox, QDialog, QVBoxLayout  # noqa: E402
 
@@ -146,13 +146,14 @@ def test_mac_existing_charts_and_legends_repaint_after_appearance_changes(host):
 
 
 @pytest.mark.parametrize("language", ["zh", "en"])
+@pytest.mark.parametrize("appearance", ["light", "dark"])
 def test_mac_feedback_small_window_scrolls_and_keeps_confirmation_and_actions_visible(
-    host, language
+    host, language, appearance
 ):
     app, parent = host
     parent.language.set_language(language)
     feedback = analysis_qt.FeedbackDialog(synthetic_report(), parent)
-    feedback.setProperty("tomcAppearance", "dark")
+    feedback.setProperty("tomcAppearance", appearance)
     feedback.resize(720, 560)
     feedback.show()
     app.processEvents()
@@ -161,6 +162,20 @@ def test_mac_feedback_small_window_scrolls_and_keeps_confirmation_and_actions_vi
     assert feedback.grab().toImage().pixelColor(0, 0) == background
     assert feedback.content_scroll.verticalScrollBar().maximum() > 0
     assert feedback.table.horizontalScrollBar().maximum() == 0
+    # The privacy promise must be readable on arrival, without hiding the fixed actions.
+    banner_area = QRect(
+        feedback.anonymity.mapTo(feedback.content_scroll.viewport(), QPoint(0, 0)),
+        feedback.anonymity.size(),
+    )
+    assert feedback.content_scroll.viewport().rect().contains(banner_area)
+    assert feedback.anonymity.height() >= feedback.anonymity.heightForWidth(
+        feedback.anonymity.width()
+    )
+    assert feedback.anonymity.geometry().bottom() < feedback.explanation.geometry().top()
+    assert feedback.anonymity.palette().color(QPalette.ColorRole.WindowText) == QColor(
+        macos_ui.tokens(feedback)["selection_text"]
+    )
+    heading_position = feedback.heading.pos()
     assert feedback.confirm.height() >= feedback.confirm.heightForWidth(feedback.confirm.width())
     for control in (
         feedback.confirm,
@@ -178,6 +193,7 @@ def test_mac_feedback_small_window_scrolls_and_keeps_confirmation_and_actions_vi
     scroll = feedback.content_scroll.verticalScrollBar()
     scroll.setValue(scroll.maximum())
     app.processEvents()
+    assert feedback.heading.pos() == heading_position
     assert (
         feedback.preview.mapTo(
             feedback.content_scroll.viewport(), feedback.preview.rect().bottomLeft()
@@ -212,6 +228,42 @@ def test_mac_feedback_stays_local_until_confirmed_and_explains_url_transfer(host
     assert len(opened) == 1
     assert "sent to GitHub in the link" in feedback.status.text()
     assert "nothing is submitted" not in parent.messages[-1][0][1]
+
+
+@pytest.mark.parametrize("appearance", ["light", "dark"])
+def test_feedback_opened_from_analysis_inherits_parent_appearance_in_modal_loop(
+    host, monkeypatch, appearance
+):
+    app, parent = host
+    page = analysis_qt.AnalysisPage(parent)
+    QVBoxLayout(parent).addWidget(page)
+    page.report = synthetic_report()
+    page.render()
+    parent.setProperty("tomcAppearance", appearance)
+    parent.show()
+    app.processEvents()
+    observed = []
+    original_exec = analysis_qt.FeedbackDialog.exec
+
+    def inspect_modal(dialog):
+        def inspect_and_close():
+            observed.append(
+                (
+                    dialog.isVisible(),
+                    dialog.property("tomcAppearance"),
+                    dialog.grab().toImage().pixelColor(0, 0),
+                    dialog.heading.palette().color(QPalette.ColorRole.WindowText),
+                )
+            )
+            dialog.reject()
+
+        QTimer.singleShot(0, inspect_and_close)
+        return original_exec(dialog)
+
+    monkeypatch.setattr(analysis_qt.FeedbackDialog, "exec", inspect_modal)
+    page.open_feedback()
+    colors = macos_ui.tokens(parent)
+    assert observed == [(True, None, QColor(colors["background"]), QColor(colors["text"]))]
 
 
 def test_windows_analysis_and_feedback_keep_legacy_presentation(host, monkeypatch):

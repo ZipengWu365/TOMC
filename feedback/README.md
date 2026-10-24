@@ -1,7 +1,7 @@
 # Feedback reports
 
 Anonymous savings reports that TOMC users choose to send from the desktop
-companion: **All records › Analysis › Send feedback**. Each report is one
+companion: **All records › Analysis › Send anonymous feedback**. Each report is one
 Markdown file in `feedback/reports/`, named `<date>-<random>.md` and proposed
 by pull request. Nothing is sent automatically.
 
@@ -52,6 +52,6 @@ editing its numbers.
 ## 中文说明
 
 这里收集用户自愿提交的匿名节省报告：在桌面小猫的“全部记录 › 分析报告 ›
-提交反馈”里预览、修改工作类型后，通过 GitHub Pull Request 提交。报告只有工作类型、
+匿名提交反馈”里预览、修改工作类型后，通过 GitHub Pull Request 提交。报告只有工作类型、
 编号和数字，不含对话名称、文件夹、任务、正文或任何 ID。报告和 Pull Request 是公开的，
 会显示提交者的 GitHub 账号。

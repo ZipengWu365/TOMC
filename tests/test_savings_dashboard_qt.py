@@ -13,7 +13,8 @@ import pytest
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 pytest.importorskip("PySide6")
 
-from PySide6.QtCore import QEvent  # noqa: E402
+from PySide6.QtCore import QEvent, Qt  # noqa: E402
+from PySide6.QtTest import QTest  # noqa: E402
 from PySide6.QtWidgets import QApplication, QLabel, QPushButton  # noqa: E402
 
 from tomc import conversation_names, pricing_catalog, savings, usage_widget_qt  # noqa: E402
@@ -400,5 +401,22 @@ def test_analysis_link_opens_the_library_on_its_analysis_tab(app, tmp_path, monk
         assert library.tabs.currentWidget() is library.analysis_page
         assert library.analysis_page.report["totals"]["tokens_saved"] == 40_000
         library.close()
+    finally:
+        close(app, pet)
+
+
+def test_escape_on_the_cat_closes_the_panel_and_never_quits(app, tmp_path, monkeypatch):
+    pet = make_pet(app, tmp_path / "memory.sqlite3", monkeypatch)
+    quits = []
+    monkeypatch.setattr(usage_widget_qt.QApplication, "quit", lambda *args: quits.append(1))
+    try:
+        pet.show()
+        pet.show_details()
+        app.processEvents()
+        assert pet.details.isVisible()
+        QTest.keyClick(pet, Qt.Key.Key_Escape)
+        assert not pet.details.isVisible() and pet.isVisible() and quits == []
+        QTest.keyClick(pet, Qt.Key.Key_Escape)  # nothing open: still running
+        assert pet.isVisible() and quits == []
     finally:
         close(app, pet)

@@ -548,6 +548,7 @@ QTabBar::tab { background: transparent; border: none; padding: 8px 14px; margin:
 QTabBar::tab:selected { color: #345743; border-bottom: 2px solid #507461; }
 QTabBar::tab:hover:!selected { color: #4E453D; }
 QWidget#analysisSurface { background: #FBF8F2; }
+QLabel#privacy { background: #EEF4EE; border: 1px solid #D5E4D7; border-radius: 8px; padding: 8px 12px; color: #2F4A3B; }
 QTableWidget { background: #FFFFFF; border: 1px solid #ECE6DB; border-radius: 8px; }
 QHeaderView::section { background: #F6F2EA; border: none; padding: 6px; color: #6E655B; }
 """
