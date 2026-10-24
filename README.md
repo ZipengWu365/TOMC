@@ -39,9 +39,9 @@ Reuse saved task notes in a new chat with the same assistant or another assistan
   <img src="assets/plugin_usage_api_20261003.png" alt="Install TOMC in Codex, Cursor, Claude Desktop or Claude Code. Supply history, task and budget; TOMC prepares context for the same assistant." width="1280">
 </a>
 
-This is the **0.2.0** preview. Download 0.2.0 from the [release page](https://github.com/ZipengWu365/TOMC/releases/tag/v0.2.0-preview.1); earlier packages stay in the [MIT-licensed assistant downloads](https://github.com/ZipengWu365/TOMC/tree/main/plugins/downloads). There is no PyPI package or public marketplace listing.
+This is the **0.2.1** preview. Download 0.2.1 from the [release page](https://github.com/ZipengWu365/TOMC/releases/tag/v0.2.1-preview.1); earlier packages stay in the [MIT-licensed assistant downloads](https://github.com/ZipengWu365/TOMC/tree/main/plugins/downloads). There is no PyPI package or public marketplace listing.
 
-**In the 0.2.0 MCP runtime, successful preparation and recall save the prepared context and task locally by default.** Turn off context recording in the TOMC panel to stop future body storage; existing snapshots remain until deleted. The ten tools include four new read-only tools: `get_status`, `list_contexts`, `get_context` and `make_handoff`. Old statistics containing only numbers cannot reconstruct earlier chat content.
+**Since the 0.2.0 MCP runtime, successful preparation and recall save the prepared context and task locally by default.** Turn off context recording in the TOMC panel to stop future body storage; existing snapshots remain until deleted. The ten tools include four new read-only tools: `get_status`, `list_contexts`, `get_context` and `make_handoff`. Old statistics containing only numbers cannot reconstruct earlier chat content.
 
 Processing is on by default globally and for newly registered sessions. User-level setup makes tools available across projects; session-specific controls require installed, loaded hooks, with `/hooks` trust review in Codex. Configuration does not prove a live connection, and lifecycle hooks do not replace native model requests. The panel follows session/prompt events rather than every UI tab switch. [Host integration validation](docs/host_integration_validation_20261022.md).
 
@@ -97,7 +97,7 @@ Report the saved constraints and unfinished work. Show the tool result.
 
 Save and recall are explicit tool calls. The plugin does not record the whole chat automatically. [Detailed Claude Code setup](docs/assistant_plugin.md#claude-code) · [Shared-notebook checks](docs/usage_tips.md#reuse-notebooks).
 
-**Codex CLI: install the plugin and verify tool availability.** [Download the 0.2.0 Codex ZIP](https://github.com/ZipengWu365/TOMC/releases/download/v0.2.0-preview.1/tomc-memory-codex-0.2.0.zip), extract it into a directory you will keep, and run there with UV and a compatible Codex CLI:
+**Codex CLI: install the plugin and verify tool availability.** [Download the 0.2.1 Codex ZIP](https://github.com/ZipengWu365/TOMC/releases/download/v0.2.1-preview.1/tomc-memory-codex-0.2.1.zip), extract it into a directory you will keep, and run there with UV and a compatible Codex CLI:
 
 ```bash
 uv run --no-project --python 3.12 install.py --check
@@ -124,12 +124,12 @@ This example prepares and counts context locally; it makes **no model call**. To
 
 | Client | Start here | Prerequisites |
 |---|---|---|
-| Codex CLI | [Download the plugin ZIP](https://github.com/ZipengWu365/TOMC/releases/download/v0.2.0-preview.1/tomc-memory-codex-0.2.0.zip) | Current Codex CLI with plugin commands, plus [`uv`](https://docs.astral.sh/uv/getting-started/installation/) on PATH or supplied with `--uv` |
+| Codex CLI | [Download the plugin ZIP](https://github.com/ZipengWu365/TOMC/releases/download/v0.2.1-preview.1/tomc-memory-codex-0.2.1.zip) | Current Codex CLI with plugin commands, plus [`uv`](https://docs.astral.sh/uv/getting-started/installation/) on PATH or supplied with `--uv` |
 | Codex IDE extension | [Configure the local MCP server](docs/assistant_setup.md) | Local TOMC environment with `.[mcp]` installed |
 | Cursor | Generate an installation link, or [add the MCP configuration](docs/cursor_trae.md) | Local TOMC runtime; client tool calls remain unverified |
 | TRAE (International / CN) | [Add TOMC as a local MCP server](docs/cursor_trae.md#trae) | Local TOMC runtime; client tool calls remain unverified |
 | Tencent WorkBuddy | [Configure TOMC through local MCP](docs/workbuddy.md) | Local TOMC runtime; client tool calls remain unverified |
-| Claude Desktop | [Download the `.mcpb` extension](https://github.com/ZipengWu365/TOMC/releases/download/v0.2.0-preview.1/tomc-memory-0.2.0.mcpb) | Updated Claude Desktop with UV extension support; network access for the first install |
+| Claude Desktop | [Download the `.mcpb` extension](https://github.com/ZipengWu365/TOMC/releases/download/v0.2.1-preview.1/tomc-memory-0.2.1.mcpb) | Updated Claude Desktop with UV extension support; network access for the first install |
 | Claude Code | `/plugin marketplace add ZipengWu365/TOMC`, then `/plugin install tomc-memory@tomc` ([details](docs/assistant_plugin.md#claude-code)) | [`uv`](https://docs.astral.sh/uv/getting-started/installation/); tested with the Claude Code VS Code extension |
 
 <details>
@@ -195,7 +195,7 @@ This is a manual local MCP integration preview. WorkBuddy client tool discovery 
 
 1. Download the `.mcpb` file above.
 2. Open **Settings → Extensions → Advanced settings → Install Extension…** and select the file.
-3. Follow the installation prompts, then start a new chat and check the TOMC tools. The current 0.2.0 runtime exposes ten; older download artifacts retain their original tool sets.
+3. Follow the installation prompts, then start a new chat and check the TOMC tools. The current 0.2.1 runtime exposes ten; older download artifacts retain their original tool sets.
 
 A supported host installs Python and the locked dependencies through the UV runtime; you do not need to clone the repository or set up Python manually for this package.
 
@@ -213,7 +213,7 @@ uv sync --locked --directory "/absolute/path/to/extracted"
 claude mcp add tomc-memory --scope user -- uv run --locked --directory "/absolute/path/to/extracted" src/server.py
 ```
 
-Start a new Claude Code session and run `/mcp` to check the tools (ten in the 0.2.0 runtime). Name the tool in your request, for example *"Use tomc-memory prepare_context on this history with task … and budget 200"*. If `claude` is not on PATH, use the CLI bundled in the VS Code extension's `resources/native-binary` folder (`claude.exe` on Windows). [Steps, VS Code notes and usage tips](docs/assistant_plugin.md#claude-code)
+Start a new Claude Code session and run `/mcp` to check the tools (ten in the 0.2.1 runtime). Name the tool in your request, for example *"Use tomc-memory prepare_context on this history with task … and budget 200"*. If `claude` is not on PATH, use the CLI bundled in the VS Code extension's `resources/native-binary` folder (`claude.exe` on Windows). [Steps, VS Code notes and usage tips](docs/assistant_plugin.md#claude-code)
 
 In the VS Code extension trial with Claude Opus 5.5, with budget 8,192, recalling a notebook answered five questions correctly and cost 38% and 65% less than pasting 20K- and 40K-token histories into the prompt; at about 10K tokens the cost was unchanged. A 1,024 budget was cheaper but missed some latest values. Import long histories outside the chat.
 
@@ -221,7 +221,7 @@ In the VS Code extension trial with Claude Opus 5.5, with budget 8,192, recallin
 
 **Tested on Windows, macOS and Linux, and in Claude Code.** Installation and tool checks passed on all three systems; real model calls passed in Codex on [Windows with preview.4](docs/validation.md#windows-codex-preview4) and macOS and in Claude Code with Claude Opus 5.5. GUI installation in Claude Desktop, Cursor and the Codex app is still unverified. [Platform checks and dates](docs/platform_checks.md)
 
-[Usage tips (English)](docs/usage_tips.md) · [Chinese usage tips](docs/usage_tips_zh.md) · [Windows installation feedback](docs/windows_installation_feedback.md) · [Full installation guide](docs/assistant_plugin.md) · [Validation record](docs/validation.md) · [Claude checksum](https://github.com/ZipengWu365/TOMC/releases/download/v0.2.0-preview.1/tomc-memory-0.2.0.mcpb.sha256) · [Codex checksum](https://github.com/ZipengWu365/TOMC/releases/download/v0.2.0-preview.1/tomc-memory-codex-0.2.0.zip.sha256).
+[Usage tips (English)](docs/usage_tips.md) · [Chinese usage tips](docs/usage_tips_zh.md) · [Windows installation feedback](docs/windows_installation_feedback.md) · [Full installation guide](docs/assistant_plugin.md) · [Validation record](docs/validation.md) · [Claude checksum](https://github.com/ZipengWu365/TOMC/releases/download/v0.2.1-preview.1/tomc-memory-0.2.1.mcpb.sha256) · [Codex checksum](https://github.com/ZipengWu365/TOMC/releases/download/v0.2.1-preview.1/tomc-memory-codex-0.2.1.zip.sha256).
 
 <a id="switch-assistants"></a>
 

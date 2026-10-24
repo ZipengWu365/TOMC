@@ -2,7 +2,7 @@
   "manifest_version": "0.4",
   "name": "tomc-memory",
   "display_name": "TOMC",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Prepare external task evidence and optional notebooks; the host manages active-chat compaction.",
   "long_description": "TOMC prepares supplied task evidence on CPU, with optional named notebooks and a local context library. Successful prepared context and its task are saved by default; local recording can be disabled independently of processing. The original input is not separately archived, but short inputs may remain intact in prepared context. Context snapshots support portable export and continuation prompts. Numeric context-reduction estimates are separate from saved text and are not API or billing savings. The host owns active-chat compaction; this MCP server does not replace the host's full request history. Optional metadata-only session hooks support default-on processing and persistent per-session pause; installation, host loading and hook trust are required. The first installation needs network access for the runtime and dependencies. Use get_status for configuration and get_usage_stats for context estimates.",
   "author": {
