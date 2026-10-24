@@ -670,76 +670,6 @@
       "sha256": "7ac382fac8d9a7f0bb26fb45fb03d919e79b1bea618f3c51f655e6f0d3a28f3a"
     },
     {
-      "path": "docs/TOMC_015_delivery_20261022_zh.md",
-      "bytes": 6978,
-      "sha256": "65a3413196a29090beec0dda65affeb9c051603c2da377a751cc505a90e6f772"
-    },
-    {
-      "path": "docs/TOMC_016_automatic_gateway_20261022_zh.md",
-      "bytes": 4736,
-      "sha256": "e9469f63c7bccc59fc9a863948febe09a6fb87d062365e58881dc5bf0e7bf514"
-    },
-    {
-      "path": "docs/TOMC_016_delivery_20261022_zh.md",
-      "bytes": 5532,
-      "sha256": "c7abb421f764604500c54a635054f5d22c0c0435b47680b262a6da3bbb9e93e8"
-    },
-    {
-      "path": "docs/TOMC_ACCEPTANCE_20261023_ZH.md",
-      "bytes": 20171,
-      "sha256": "7f31785760455729692576927bcbdbc32fc966cf62a7084cbe8be0387b65d40b"
-    },
-    {
-      "path": "docs/TOMC_CONTEXT_OWNERSHIP_20261023_ZH.md",
-      "bytes": 19393,
-      "sha256": "c68ccf8e45ea1e6fdaf87a0fe324fe29443c87c93c23a9107c06da306b85d675"
-    },
-    {
-      "path": "docs/TOMC_DEPLOY_ROLLBACK_20261023_ZH.md",
-      "bytes": 12269,
-      "sha256": "3de340162ccb23ad3c196d7fc4885388dba62b4b4202e3be728528bf4d8daa98"
-    },
-    {
-      "path": "docs/TOMC_DEVELOPER_HANDOFF_20261023_ZH.md",
-      "bytes": 18586,
-      "sha256": "b1df6941ec593e6ac1f48feaed3213d05f9f11e53df41a42c3b08103d24cf286"
-    },
-    {
-      "path": "docs/TOMC_NEXT_DEVELOPER_PROMPT_20261023_ZH.md",
-      "bytes": 3558,
-      "sha256": "5e6bbdbbe309c1e5ec493a7c2367659ba966d5fcf34e7461079ba3d12754fddf"
-    },
-    {
-      "path": "docs/TOMC_POPUP_FIX_20261023.md",
-      "bytes": 1824,
-      "sha256": "f3d47db1d6b0f8de022c9abca9c95e8aab4be2da12c319272d2a4f2cbfeaa615"
-    },
-    {
-      "path": "docs/TOMC_animation_acceptance_20261022_zh.md",
-      "bytes": 5095,
-      "sha256": "beaed91b39ef7492e432896a070a3936b014204eb75f7573bc14aaaee5426a8a"
-    },
-    {
-      "path": "docs/TOMC_bilingual_stage_status_20261022_zh.md",
-      "bytes": 5703,
-      "sha256": "b291d549aef00db37080ac7d38c9f74a2cc396b454fbc3df22258a964b7b5481"
-    },
-    {
-      "path": "docs/TOMC_open_chat_activation_20261022_zh.md",
-      "bytes": 5993,
-      "sha256": "2402666f4108c5524a99c99bcde3d63d9cd711d05972670349228b1508b18c48"
-    },
-    {
-      "path": "docs/TOMC_product_architecture_draft_20261022T201152Z_zh.md",
-      "bytes": 18846,
-      "sha256": "54576b0b10285d0d04d38da5e88dca4da37ac21dcb29713ee2951833ab106fb3"
-    },
-    {
-      "path": "docs/TOMC_reopened_chat_acceptance_20261023_zh.md",
-      "bytes": 4560,
-      "sha256": "9e2abb6bfbff2590443c4987efcb4a5dcfa26268d8bd798d2a41170760ad3c26"
-    },
-    {
       "path": "docs/WRITING_REVIEW_SOURCES.json",
       "bytes": 5275,
       "sha256": "709b386d9a2f87abf4ae0f6933d59d04baa269a8386748732ab5a019830700ec"
@@ -815,21 +745,6 @@
       "sha256": "1de2b696865ccf56d31bb18dc53b7259dd01b2ab7c40a119a31a75b61ba9ee4e"
     },
     {
-      "path": "docs/claude_request_integration_20261022.md",
-      "bytes": 17260,
-      "sha256": "b6cfda01bc965ae9ae18b20c5cdf1c7fea56802df3344fe5d6d74a2245cd04a5"
-    },
-    {
-      "path": "docs/codex_desktop_reload_20261022.md",
-      "bytes": 5276,
-      "sha256": "531886fc768fb0eeb978a21ae29feb06b1d8c357cb8e17fc556309657b6e3af0"
-    },
-    {
-      "path": "docs/codex_request_integration_20261022.md",
-      "bytes": 9638,
-      "sha256": "bd1d786d4465f5c2639fbb812142828d6862cc4ff9fd900b08dae77324658cf2"
-    },
-    {
       "path": "docs/codex_retention_20261005.md",
       "bytes": 7962,
       "sha256": "a144cf5b2c183f651cd8f3e72d517376e33bfc9497a1f068f7ce385508fdad4c"
@@ -871,8 +786,8 @@
     },
     {
       "path": "docs/host_integration_validation_20261022.md",
-      "bytes": 6146,
-      "sha256": "ff09b07dc1591996500e1bc125f6e01d3094bc4e330208122ec5099d17de87bb"
+      "bytes": 6076,
+      "sha256": "d27def89c9afcda84208dc310edde1d22b57f3699e1cdfb4e88bc83995f68757"
     },
     {
       "path": "docs/huggingface_space.md",
@@ -1581,8 +1496,8 @@
     },
     {
       "path": "mkdocs.yml",
-      "bytes": 2873,
-      "sha256": "aafd5c141fbcc52641734c7c9bc141a4ffd9f70b41952c76dec2729d9776b192"
+      "bytes": 2182,
+      "sha256": "a767b692fed64f3f7f7dd325db186a3189fc92cbb58edc92058a2240692aab55"
     },
     {
       "path": "plugins/claude-code/.claude-plugin/plugin.json",
@@ -3170,7 +3085,7 @@
       "sha256": "be8dbb0aa75e27d1625255b99019c1b078833d1afc864951da7d6de1c4b70807"
     }
   ],
-  "total_bytes": 147353477,
+  "total_bytes": 147187298,
   "self_excluded": [
     "PUBLIC_RELEASE_MANIFEST.json",
     "SHA256SUMS"

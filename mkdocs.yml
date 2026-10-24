@@ -2,26 +2,9 @@ site_name: TOMC Memory
 site_description: TOMC Memory provides open-source context compression and task memory for Claude Code, Codex and LLM APIs.
 docs_dir: docs
 site_dir: site
-# Internal development records stay in the repository but are not published on
-# the site; they cite local evidence under the ignored outputs/ directory.
+# Design notes and the host validation record stay in the repository but are not
+# published on the site; they cite local evidence under the ignored outputs/ directory.
 exclude_docs: |
-  /TOMC_015_delivery_20261022_zh.md
-  /TOMC_016_automatic_gateway_20261022_zh.md
-  /TOMC_016_delivery_20261022_zh.md
-  /TOMC_ACCEPTANCE_20261023_ZH.md
-  /TOMC_CONTEXT_OWNERSHIP_20261023_ZH.md
-  /TOMC_DEPLOY_ROLLBACK_20261023_ZH.md
-  /TOMC_DEVELOPER_HANDOFF_20261023_ZH.md
-  /TOMC_NEXT_DEVELOPER_PROMPT_20261023_ZH.md
-  /TOMC_POPUP_FIX_20261023.md
-  /TOMC_animation_acceptance_20261022_zh.md
-  /TOMC_bilingual_stage_status_20261022_zh.md
-  /TOMC_open_chat_activation_20261022_zh.md
-  /TOMC_product_architecture_draft_20261022T201152Z_zh.md
-  /TOMC_reopened_chat_acceptance_20261023_zh.md
-  /claude_request_integration_20261022.md
-  /codex_desktop_reload_20261022.md
-  /codex_request_integration_20261022.md
   /host_integration_validation_20261022.md
   /pet_design.md
   /plush_cat_asset.md
