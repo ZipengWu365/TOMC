@@ -37,6 +37,13 @@ def main(argv: list[str] | None = None) -> int:
         help="Memory budget in estimated tokens; default keeps 80%% of a short history, "
         "falling to 60%% from a million tokens (at least 1,024)",
     )
+    easy.add_argument(
+        "--max-chars",
+        type=int,
+        default=None,
+        help="Keep the memory within this many characters, for an agent that reads the "
+        "output as one tool result (for example 20000 in Codex)",
+    )
     easy.add_argument("--output", type=Path)
     easy.add_argument(
         "--messages", action="store_true", help="Output provider-neutral messages JSON"
@@ -88,7 +95,7 @@ def main(argv: list[str] | None = None) -> int:
             )
             if args.conversation != "-" and Path(args.conversation).suffix.lower() == ".json":
                 source = json.loads(source)
-            prepared = prepare_context(source, args.task, args.budget)
+            prepared = prepare_context(source, args.task, args.budget, max_chars=args.max_chars)
             if not prepared.prompt:
                 raise ValueError("No complete record fits. Increase --budget.")
             payload = (

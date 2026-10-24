@@ -245,6 +245,8 @@ The MCP `prepare_context` tool saves the successful prepared result and task by 
 
 The 64-token budget above is an explicit small example. For the current default, omit `budget`: TOMC uses about 80% of the history's lexical-estimate length, with a minimum budget of 1,024. Histories that fit that budget remain intact; this is not a guaranteed saving rate.
 
+Each MCP result fits one tool output. Clients cut long tool results, so TOMC keeps the most relevant memory within about 20,000 characters (50,000 when Claude Code identifies itself through the host hook); set `TOMC_MCP_MAX_CHARS` to change it. For notes and documents, the result may also stop below the budget when the question's evidence is unambiguous. When the assistant prepares the same source again in the same chat, it can pass the previous `delivery.id` as `since_delivery_id`: TOMC then returns only the changed, removed or newly relevant lines, or a short note that nothing changed. A new chat, a restarted server or an outdated ID gets the full context.
+
 ### Use a smaller context for the next call
 
 In an application, send `prepared.messages` instead of the original history. In an assistant, you can use the prepared text in a new chat. Calling TOMC inside an existing long chat does not remove messages already held by that host, so the tool call alone does not establish token savings. The plugin does not globally intercept API requests. Check the complete input with the model's tokenizer when measuring savings, and keep the original history for details omitted from the result.

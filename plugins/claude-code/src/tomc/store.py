@@ -79,18 +79,23 @@ class MemoryStore:
                 db.execute("INSERT INTO entries(name,payload) VALUES (?,?)", (name, payload))
             return {"name": name, "saved": not duplicate, "entries": len(rows) + (not duplicate)}
 
-    def recall(self, name: str, task: str, budget: int | None = None) -> PreparedContext:
+    def recall(
+        self, name: str, task: str, budget: int | None = None, *, max_chars: int | None = None
+    ) -> PreparedContext:
         """Read only the chosen notebook and compile for the supplied next task.
 
         Without a budget, 60-80% of the notebook's estimated tokens are kept
-        (more compression for longer notebooks)."""
+        (more compression for longer notebooks). ``max_chars`` fits the result to
+        a client's tool-output limit, as in ``prepare_context``."""
         with self._connection() as db:
             rows = db.execute(
                 "SELECT payload FROM entries WHERE name=? ORDER BY id", (self._name(name),)
             ).fetchall()
         if not rows:
             raise ValueError("Notebook not found. List notebooks or save some memory first.")
-        return prepare_context(self._messages(rows), task, budget, adaptive=False)
+        return prepare_context(
+            self._messages(rows), task, budget, adaptive=False, max_chars=max_chars
+        )
 
     def list(self) -> list[dict]:
         """Return notebook names and counts, without returning their contents."""

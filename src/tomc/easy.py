@@ -66,8 +66,18 @@ def is_conversation(parsed: object) -> bool:
     return len(parsed) > 1 and (len(roles) > 1 or bool(roles & {"assistant", "tool"}))
 
 
+def _positive(value: object, message: str) -> None:
+    if value is not None and (isinstance(value, bool) or not isinstance(value, int) or value < 1):
+        raise ValueError(message)
+
+
 def prepare_context(
-    history: object, task: str, budget: int | None = None, *, adaptive: bool | None = None
+    history: object,
+    task: str,
+    budget: int | None = None,
+    *,
+    adaptive: bool | None = None,
+    max_chars: int | None = None,
 ) -> PreparedContext:
     """Keep a fitting history intact; otherwise use existing hybrid routing offline.
 
@@ -80,13 +90,15 @@ def prepare_context(
     ``adaptive`` may keep less than the budget when the task's evidence is
     unambiguous. By default it applies to notes and documents; conversation
     histories keep the full-budget selection used for long-context compression.
+
+    ``max_chars`` lowers the budget so the memory fits a client that cuts long tool
+    outputs: at most that many characters and a quarter as many estimated tokens,
+    so scripts such as Chinese, with more tokens per character, fit as well.
     """
     if not isinstance(task, str) or not task.strip():
         raise ValueError("Describe what you want the model to do next.")
-    if budget is not None and (
-        isinstance(budget, bool) or not isinstance(budget, int) or budget < 1
-    ):
-        raise ValueError("Memory budget must be a positive integer.")
+    _positive(budget, "Memory budget must be a positive integer.")
+    _positive(max_chars, "The character limit must be a positive integer.")
     parsed = parse_history(history)
     if adaptive is None:
         adaptive = not is_conversation(parsed)
@@ -96,25 +108,46 @@ def prepare_context(
     history_tokens = get_counter("regex").count(text)
     if budget is None:
         budget = default_budget(history_tokens)
-    fits = history_tokens <= budget
-    strategy = "raw" if fits else "hybrid"
-    route_reason = None
-    if adaptive and not fits:
-        # Raw evidence may stop below the budget when the task's evidence is unambiguous;
-        # typed records compile exactly as before.
-        route, route_reason = hybrid_route(text, task)
-        strategy = (
-            AdaptiveRetrievalStrategy()
-            if route == "rag"
-            else TOMCStrategy(True, raw_selector=adaptive_selection)
-        )
-    result = compile_memory(parsed, task, budget, strategy)
+    requested = budget
+    if max_chars is not None:
+        per_token = len(text) / max(history_tokens, 1)
+        budget = max(1, min(budget, max_chars // 4, int(0.9 * max_chars / per_token)))
+    for _ in range(4):
+        fits = history_tokens <= budget
+        strategy = "raw" if fits else "hybrid"
+        route_reason = None
+        if adaptive and not fits:
+            # Raw evidence may stop below the budget when the task's evidence is unambiguous;
+            # typed records compile exactly as before.
+            route, route_reason = hybrid_route(text, task)
+            strategy = (
+                AdaptiveRetrievalStrategy()
+                if route == "rag"
+                else TOMCStrategy(True, raw_selector=adaptive_selection)
+            )
+        result = compile_memory(parsed, task, budget, strategy)
+        size = len(result.compiled_memory)
+        if max_chars is None or size <= max_chars or budget == 1:
+            break
+        # Rendered records can use more characters per token than the history.
+        budget = max(1, int(0.95 * budget * max_chars / size))
     if route_reason and not isinstance(strategy, str):
         result.diagnostics["route_reason"] = route_reason
+    if budget < requested:
+        result.diagnostics["delivery_limit"] = {
+            "max_chars": max_chars,
+            "requested_budget": requested,
+            "budget": budget,
+        }
     if fits:
         note = "This history fits. Kept the complete input; no compression was needed."
     elif result.compiled_memory:
         note = "Prepared relevant memory automatically. Inspect retained sources in the audit details; keep the original history for omitted details."
+        if budget < requested:
+            note += (
+                f" Kept the most relevant part within {max_chars:,} characters so one tool"
+                " result can carry it whole; ask a narrower question if something is missing."
+            )
     else:
         note = "No complete record fits. Increase the memory size before handing this to a model."
     messages = result.reader_messages(task.strip())
