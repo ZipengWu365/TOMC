@@ -20,13 +20,12 @@ class TOMCStrategy:
         """Choose compiler-only or the reference 0.42 compiled-fraction layout.
 
         ``raw_selector(units, query, budget, counter)`` may return the source IDs to keep
-        as raw evidence, or None to fill the remaining budget as before.
+        as raw evidence, or None to fill the remaining budget as before. The method name
+        stays the same; diagnostics report whether the selector shrank the evidence.
         """
         self.raw = raw_fallback
         self.raw_selector = raw_selector
         self.name = "tomc_raw" if raw_fallback else "tomc"
-        if raw_selector is not None:
-            self.name += "_adaptive"
 
     def compress(
         self, history: str, units: list[Source], query: str, budget: int, counter: TokenCounter
@@ -68,6 +67,7 @@ class TOMCStrategy:
                 _, raw_ids = pack_rows(raw_rows(ranked), remaining, counter)
             else:
                 raw_ids = chosen
+                warnings.append("Adaptive lexical selection kept less than the budget allows.")
             raw_text, raw_ids = pack_rows(
                 raw_rows([u for u in units if u.source_id in raw_ids]), remaining, counter
             )

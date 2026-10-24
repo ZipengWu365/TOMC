@@ -1606,8 +1606,8 @@
     },
     {
       "path": "plugins/claude-code/src/tomc/adaptive.py",
-      "bytes": 11713,
-      "sha256": "e286e90fdfaa71944b472353258e7747545a4f03fd418127ee7a58c34d2139ed"
+      "bytes": 11796,
+      "sha256": "446280aeeeb7766e1394ca70954809e022b37278958e15853a7b16316ea46f20"
     },
     {
       "path": "plugins/claude-code/src/tomc/analysis.py",
@@ -1911,8 +1911,8 @@
     },
     {
       "path": "plugins/claude-code/src/tomc/strategies/typed.py",
-      "bytes": 4733,
-      "sha256": "6ab9a140b58c36d4dae44d17c0e77ac170b20562a04c3d54d170bc42ef44c61b"
+      "bytes": 4856,
+      "sha256": "173d6bc28b48852d624cccdcbe77ce35f7c7c022030421a97fc5ac9071a8f9b0"
     },
     {
       "path": "plugins/claude-code/src/tomc/tokenization.py",
@@ -2461,8 +2461,8 @@
     },
     {
       "path": "src/tomc/adaptive.py",
-      "bytes": 11713,
-      "sha256": "e286e90fdfaa71944b472353258e7747545a4f03fd418127ee7a58c34d2139ed"
+      "bytes": 11796,
+      "sha256": "446280aeeeb7766e1394ca70954809e022b37278958e15853a7b16316ea46f20"
     },
     {
       "path": "src/tomc/analysis.py",
@@ -2811,8 +2811,8 @@
     },
     {
       "path": "src/tomc/strategies/typed.py",
-      "bytes": 4733,
-      "sha256": "6ab9a140b58c36d4dae44d17c0e77ac170b20562a04c3d54d170bc42ef44c61b"
+      "bytes": 4856,
+      "sha256": "173d6bc28b48852d624cccdcbe77ce35f7c7c022030421a97fc5ac9071a8f9b0"
     },
     {
       "path": "src/tomc/tokenization.py",
@@ -2861,8 +2861,8 @@
     },
     {
       "path": "tests/test_adaptive.py",
-      "bytes": 6462,
-      "sha256": "68fccd705fcedbd19687fd90ca4a6d0a66e77390d05a24908e2995fa75dac145"
+      "bytes": 6776,
+      "sha256": "11ade47c69e67f63efd34eb72144c2fdfe7f34084ed3f41d3a930a666f710ffc"
     },
     {
       "path": "tests/test_analysis.py",
@@ -3150,7 +3150,7 @@
       "sha256": "be8dbb0aa75e27d1625255b99019c1b078833d1afc864951da7d6de1c4b70807"
     }
   ],
-  "total_bytes": 147315207,
+  "total_bytes": 147315933,
   "self_excluded": [
     "PUBLIC_RELEASE_MANIFEST.json",
     "SHA256SUMS"

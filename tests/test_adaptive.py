@@ -137,6 +137,10 @@ def test_notes_are_adaptive_by_default_while_conversations_keep_the_full_budget(
     notes = note_cases()[0]
     default = prepare_context(notes.history, notes.task, 4096).compilation
     assert default.diagnostics["adaptive"] == "shrunk"
+    # The reported method stays the one budget filling reports.
+    fill = prepare_context(notes.history, notes.task, 4096, adaptive=False).compilation
+    assert default.diagnostics["selected_strategy"] == fill.diagnostics["selected_strategy"]
+    assert "kept less than the budget" in " ".join(default.warnings)
     chat = next(c for c in conversation_cases() if c.kind == "direct")
     for history in (chat.history, transcript(chat.history)):
         for budget in (4096, None):

@@ -241,9 +241,12 @@ def adaptive_selection(
 
 
 class AdaptiveRetrievalStrategy:
-    """Lexical retrieval that stops early only when the evidence is unambiguous."""
+    """Lexical retrieval that stops early only when the evidence is unambiguous.
 
-    name = "rag_adaptive"
+    It keeps the ``rag`` method name; diagnostics report whether the evidence shrank.
+    """
+
+    name = "rag"
 
     def compress(
         self, history: str, units: list[Source], query: str, budget: int, counter: TokenCounter
