@@ -75,6 +75,11 @@ async def check(bundle: Path, uv: str) -> dict:
                 "recall_memory",
                 "list_memories",
                 "forget_memory",
+                "get_usage_stats",
+                "get_status",
+                "list_contexts",
+                "get_context",
+                "make_handoff",
             }
             await call(
                 client,
@@ -98,6 +103,8 @@ async def check(bundle: Path, uv: str) -> dict:
                 {"history": "Temporary note / 临时笔记", "task": "continue"},
             )
             assert "临时笔记" in prepared["memory"]
+            assert prepared["context_reduction"]["recorded"]
+            assert (await call(client, "get_usage_stats"))["preparations"] == 2
             await call(client, "forget_memory", {"name": "workshop"})
             assert (await call(client, "list_memories"))["notebooks"][0]["name"] == "other"
         assert database.exists() and not list(install.rglob("*.sqlite3"))

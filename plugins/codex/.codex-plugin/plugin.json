@@ -1,6 +1,6 @@
 {
   "name": "tomc-memory",
-  "version": "0.1.2",
+  "version": "0.1.5",
   "description": "External task evidence and optional local notebooks; the host manages active-chat compaction.",
   "mcpServers": "./mcp.json",
   "skills": "./skills/",

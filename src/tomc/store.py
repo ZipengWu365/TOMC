@@ -10,7 +10,7 @@ from dataclasses import asdict
 from pathlib import Path
 
 from .easy import PreparedContext, prepare_context
-from .input import MAX_INPUT_CHARS, parse_history
+from .input import parse_history
 from .schemas import Message
 
 
@@ -76,18 +76,14 @@ class MemoryStore:
             ).fetchall()
             duplicate = bool(rows and rows[-1][0] == payload)
             if not duplicate:
-                all_messages = self._messages(rows) + messages
-                if sum(len(m.content) + len(m.role) + 16 for m in all_messages) > MAX_INPUT_CHARS:
-                    raise ValueError(
-                        "Notebook is full (200,000 characters). Start a new named notebook; nothing was deleted."
-                    )
                 db.execute("INSERT INTO entries(name,payload) VALUES (?,?)", (name, payload))
             return {"name": name, "saved": not duplicate, "entries": len(rows) + (not duplicate)}
 
     def recall(self, name: str, task: str, budget: int | None = None) -> PreparedContext:
         """Read only the chosen notebook and compile for the supplied next task.
 
-        Without a budget, about 80% of the notebook's estimated tokens are kept."""
+        Without a budget, 60-80% of the notebook's estimated tokens are kept
+        (more compression for longer notebooks)."""
         with self._connection() as db:
             rows = db.execute(
                 "SELECT payload FROM entries WHERE name=? ORDER BY id", (self._name(name),)

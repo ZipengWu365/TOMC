@@ -39,7 +39,15 @@ Reuse saved task notes in a new chat with the same assistant or another assistan
   <img src="assets/plugin_usage_api_20261003.png" alt="Install TOMC in Codex, Cursor, Claude Desktop or Claude Code. Supply history, task and budget; TOMC prepares context for the same assistant." width="1280">
 </a>
 
-This is a preview, version **0.1.0**. Download the plugins from the [MIT-licensed assistant preview](https://github.com/ZipengWu365/TOMC/tree/main/plugins/downloads). There is no PyPI package or public marketplace listing.
+The compiler core remains **0.1.0**; the current local plugin preview is **0.1.5**. The [MIT-licensed assistant preview downloads](https://github.com/ZipengWu365/TOMC/tree/main/plugins/downloads) include earlier published packages; build the current source for the new context-library features. There is no PyPI package or public marketplace listing.
+
+**In the 0.1.5 MCP runtime, successful preparation and recall save the prepared context and task locally by default.** Turn off context recording in the TOMC panel to stop future body storage; existing snapshots remain until deleted. The ten tools include four new read-only tools: `get_status`, `list_contexts`, `get_context` and `make_handoff`. Old statistics containing only numbers cannot reconstruct earlier chat content.
+
+Processing is on by default globally and for newly registered sessions. User-level setup makes tools available across projects; session-specific controls require installed, loaded hooks, with `/hooks` trust review in Codex. Configuration does not prove a live connection, and lifecycle hooks do not replace native model requests. The panel follows session/prompt events rather than every UI tab switch. [Host integration validation](docs/host_integration_validation_20261022.md).
+
+The context library can provide a self-contained continuation prompt or a portable text package for another Agent or computer. You may add the exported package to Git yourself; TOMC does not automatically commit or push. [Current plugin guide](docs/assistant_plugin.md#current-local-preview-015).
+
+**Desktop companion (beta).** A small desktop cat shows the tokens TOMC saved, their value at each model's listed input price and the conversations they came from, with an analysis report and the context library. On Windows it can also process Codex and Claude Code requests automatically through a local gateway. [Install the desktop companion](docs/desktop_companion.md) (Windows and macOS).
 
 ### Video overview
 
@@ -187,7 +195,7 @@ This is a manual local MCP integration preview. WorkBuddy client tool discovery 
 
 1. Download the `.mcpb` file above.
 2. Open **Settings → Extensions → Advanced settings → Install Extension…** and select the file.
-3. Follow the installation prompts, then start a new chat and check that TOMC's five tools are available.
+3. Follow the installation prompts, then start a new chat and check the TOMC tools. The current 0.1.5 runtime exposes ten; older download artifacts retain their original tool sets.
 
 A supported host installs Python and the locked dependencies through the UV runtime; you do not need to clone the repository or set up Python manually for this package.
 
@@ -205,7 +213,7 @@ uv sync --locked --directory "/absolute/path/to/extracted"
 claude mcp add tomc-memory --scope user -- uv run --locked --directory "/absolute/path/to/extracted" src/server.py
 ```
 
-Start a new Claude Code session and run `/mcp` to check the five tools. Name the tool in your request, for example *"Use tomc-memory prepare_context on this history with task … and budget 200"*. If `claude` is not on PATH, use the CLI bundled in the VS Code extension's `resources/native-binary` folder (`claude.exe` on Windows). [Steps, VS Code notes and usage tips](docs/assistant_plugin.md#claude-code)
+Start a new Claude Code session and run `/mcp` to check the tools (ten in the 0.1.5 runtime). Name the tool in your request, for example *"Use tomc-memory prepare_context on this history with task … and budget 200"*. If `claude` is not on PATH, use the CLI bundled in the VS Code extension's `resources/native-binary` folder (`claude.exe` on Windows). [Steps, VS Code notes and usage tips](docs/assistant_plugin.md#claude-code)
 
 In the VS Code extension trial with Claude Opus 5.5, with budget 8,192, recalling a notebook answered five questions correctly and cost 38% and 65% less than pasting 20K- and 40K-token histories into the prompt; at about 10K tokens the cost was unchanged. A 1,024 budget was cheaper but missed some latest values. Import long histories outside the chat.
 
@@ -302,7 +310,7 @@ On synthetic team-chat histories of about 10K, 20K and 40K tokens, with dozens t
 
 **Claude Code default-budget check.** Without `budget`, TOMC keeps about 80% of a history's estimated tokens (at least 1,024, so short histories stay intact). Across three different histories at each length, Claude Opus 5.5 answered all 45 questions correctly with about 20% less input; keeping 50%, 60% and 70% also answered all 45 and saved about 49%, 39% and 30%. Smaller budgets started returning outdated values: keeping 10–20% answered three or four of the five questions. Pass a smaller `budget` only after checking it against the full history on a sample of your own tasks. These are synthetic histories with one model and a separate request workflow from the Codex test. [Validation record](docs/validation.md#claude-code-windows-validation) · [Budget tips](docs/usage_tips.md)
 
-The assistant plugin exposes context-preparation tools. It does not intercept every API request or clear messages already in an active chat. To use a smaller request, your application must send the prepared context, or you can hand it to a new chat. Notebook storage is optional.
+The assistant plugin exposes context-preparation tools. It does not intercept every API request or clear messages already in an active chat. To use a smaller request, your application must send the prepared context, or you can hand it to a new chat. Named notebooks are optional; the 0.1.5 runtime saves prepared-context snapshots by default unless context recording is disabled.
 
 ### Prepare context
 
@@ -321,12 +329,12 @@ This example uses explicit assignments and a snapshot copy. TOMC prepares `frame
 
 With the same instructions and task, this example's message text goes from **147 to 108 tokens** under `cl100k_base`. This counts message content, excluding provider chat framing and tools; it is a single example, not billed usage or a fixed saving rate. Run `python examples/api_context.py` for the offline lexical estimate, or see the [API guide](docs/api_reference.md) for BPE counting.
 
-`prepare_context` does not save this history. Histories that already fit stay intact; longer prose can use retrieval instead of typed records. The `budget` covers memory under the lexical counter; task text and tool framing add overhead.
+The MCP `prepare_context` tool saves the successful prepared result and task by default, unless context recording is disabled. It does not separately copy the entire original history, but short histories may remain intact in the saved result. The standalone Python preparation helper remains stateless. The `budget` covers memory under the lexical counter; task text and tool framing add overhead.
 
 <details>
 <summary>Optional: keep history across chats</summary>
 
-The notebook stores supplied text in its original form. `recall_memory` prepares that history for the requested task; direct `prepare_context` calls need no notebook and write nothing to it.
+The notebook stores supplied text in its original form. `recall_memory` prepares that history for the requested task; direct `prepare_context` calls need no notebook. With context recording on, both MCP preparation routes save their successful result and task as separate snapshots.
 
 #### Try memory across two chats or assistants
 
@@ -647,3 +655,7 @@ Maintainer drafts: [launch copy](launch/CONTENT_KIT.md) · [launch plan](launch/
 
 </details>
 
+
+## Context reduction statistics (0.1.2)
+
+Preparation and recall return a per-call estimated context reduction for the assistant to display. Ask for `get_usage_stats` with `period="all"`, `"today"`, or `"7d"` (UTC) to view cumulative totals. These are context-text estimates, not actual API or billing savings. Repeated preparations count separately; empty outputs are excluded and negative reductions retained. Numeric statistics contain no history, task text or notebook names. Since 0.1.5, prepared-context bodies and tasks are saved separately by default, unless context recording is disabled. No telemetry is uploaded. Statistics survive notebook deletion; old numeric-only records cannot restore historical content. Existing clients need the new runtime and a new session or supported reload; desktop rendering depends on the host.

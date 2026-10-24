@@ -2,6 +2,17 @@ site_name: TOMC Memory
 site_description: TOMC Memory provides open-source context compression and task memory for Claude Code, Codex and LLM APIs.
 docs_dir: docs
 site_dir: site
+# Design notes and the host validation record stay in the repository but are not
+# published on the site; they cite local evidence under the ignored outputs/ directory.
+exclude_docs: |
+  /host_integration_validation_20261022.md
+  /pet_design.md
+  /plush_cat_asset.md
+  /token_statistics_zh.md
+  /tomc_dejected_expression_prompt.md
+  /tomc_evolution_prompts.md
+  /tomc_expression_prompts.md
+  /tomc_material_prompts.md
 markdown_extensions:
   - md_in_html
 theme:
@@ -10,6 +21,7 @@ theme:
 nav:
   - Overview: index.md
   - Install TOMC Memory: assistant_plugin.md
+  - Desktop companion (beta): desktop_companion.md
   - macOS setup and tips: macos_usage.md
   - Manual MCP setup: assistant_setup.md
   - Cursor and TRAE setup: cursor_trae.md

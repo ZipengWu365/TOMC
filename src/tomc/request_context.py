@@ -331,8 +331,8 @@ class RequestContextManager:
         """Plan one logical request; leave original history and provider options alone.
 
         Per-request integer budgets override constructor settings. ``None`` uses
-        the constructor setting, which defaults to an 80% old-history memory
-        budget with a 1,024-token minimum. The request budget is an offline lexical
+        the constructor setting, which defaults to a 60-80% old-history memory
+        budget (less for longer histories) with a 1,024-token minimum. The request budget is an offline lexical
         estimate supplied by the wrapper; it is not a measured provider limit.
         A wrapper-supplied ``passthrough_reason`` skips compilation after native
         event/cooldown handling; the request still counts for cadence and cooldown.

@@ -6,7 +6,7 @@ TOMC is free to use, including commercially, under the MIT License in `plugins/t
 
 ## Install
 
-Install a current Codex CLI with plugin support and [UV](https://docs.astral.sh/uv/getting-started/installation/). Extract `tomc-memory-codex-0.1.2.zip` to a permanent directory, open a terminal in that directory, then run:
+Install a current Codex CLI with plugin support and [UV](https://docs.astral.sh/uv/getting-started/installation/). Extract the current locally built `tomc-memory-codex-0.1.5.zip` to a permanent directory, open a terminal in that directory, then run:
 
 ```bash
 uv run --no-project --python 3.12 install.py --check
@@ -32,15 +32,23 @@ After a successful installation, the helper prints one optional invitation to [S
 
 ## Host-managed conversations
 
-Leave active-chat compaction with the host. When native compaction is enabled or unknown, do not proactively call TOMC to recompact the same chat. Use TOMC for separately supplied external history or explicit saved notebooks. This is an assistant workflow policy, not a switch detector or automatic per-call hook. [Context ownership](https://github.com/ZipengWu365/TOMC/blob/main/docs/context_ownership.md).
+Leave active-chat compaction with the host. When native compaction is enabled or unknown, do not proactively call TOMC to recompact the same chat. Use TOMC for separately supplied external history or explicit saved notebooks. This is an assistant workflow policy, not a compaction detector or automatic model-request replacement hook. [Context ownership](https://github.com/ZipengWu365/TOMC/blob/main/docs/context_ownership.md).
 
 ## Prepare external context
 
 Ask Codex to call TOMC's `prepare_context` with your supplied history, next task and memory budget, then answer using the returned memory. No notebook is needed. For a state example, use `framework = Flask`, `backup_framework copies framework` and `framework = FastAPI`; ask for the current values. TOMC supports these explicit assignments and snapshot copies. Histories that fit the budget stay intact; longer input can use task records and source retrieval.
 
-The plugin includes the same five tools as the Claude and Cursor integrations, plus a skill explaining when to prepare context and how to use its sources. Counts and the budget cover memory text under a lexical estimate, excluding task text, tool envelopes and provider framing.
+The 0.1.5 runtime includes ten tools: the six preparation, notebook and statistics tools, plus four read-only tools: `get_status`, `list_contexts`, `get_context` and `make_handoff`. The skill explains when to prepare context and how to use its sources. Counts and the budget cover memory text under a lexical estimate, excluding task text, tool envelopes and provider framing.
 
 In an API integration, your application sends the prepared context instead of the original history in its next request. In Codex, a tool call does not delete the host's existing chat history or automatically intercept API requests. Short inputs can stay the same size, and record metadata can add overhead; savings depend on what you actually send.
+
+## Saved context and session controls (0.1.5)
+
+Successful preparation and recall save the prepared context and task locally by default, separately from optional notebooks and numeric statistics. Turn off context recording in the TOMC panel to stop future body storage; existing snapshots remain until deleted. Short input can be preserved in full inside a snapshot. Old statistics that recorded numbers only cannot reconstruct past chat bodies.
+
+Processing is on by default globally and for newly registered sessions. User-level installation makes tools available across projects; it does not force a tool call in every chat. Session registration and per-session pause require the TOMC hooks to be installed and loaded. Codex requires review and trust in `/hooks`; the installer does not change trust or approval settings. The panel follows startup/resume and prompt events, not arbitrary UI tab switches. See [host integration validation](https://github.com/ZipengWu365/TOMC/blob/main/docs/host_integration_validation_20261022.md).
+
+Use `list_contexts` and `get_context` to inspect saved results, or `make_handoff` to obtain a self-contained continuation prompt. The management window can export a portable text package for another Agent or computer. You may include that package in Git; TOMC does not automatically commit or push. These features do not replace the native host's model requests.
 
 ## IDE extension
 
@@ -72,3 +80,7 @@ codex plugin marketplace remove tomc-local
 After stopping TOMC sessions, you can remove the extracted trial package. If you selected a separate `--store` path, delete that test database only when its notes are no longer needed. The default `~/.tomc/memory.sqlite3` persists after uninstall; keep existing notebooks or use `forget_memory` to delete a requested notebook before removing the plugin.
 
 [Official plugin packaging](https://developers.openai.com/plugins/build/plugins) · [Codex plugin support](https://developers.openai.com/codex/plugins) · [MCP setup](https://developers.openai.com/codex/mcp)
+
+## Context reduction statistics (0.1.2)
+
+Preparation and recall return a per-call estimated context reduction for the assistant to display. Ask for `get_usage_stats` with `period="all"`, `"today"`, or `"7d"` (UTC) to view cumulative totals. These are context-text estimates, not actual API or billing savings. Repeated preparations count separately; empty outputs are excluded and negative reductions retained. Numeric statistics contain no history, task text or notebook names. Since 0.1.5, prepared-context bodies and tasks are saved separately by default, unless context recording is disabled. No telemetry is uploaded. Statistics survive notebook deletion; old numeric-only records cannot restore historical content. Existing clients need the new runtime and a new session or supported reload; desktop rendering depends on the host.

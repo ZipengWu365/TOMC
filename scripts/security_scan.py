@@ -33,6 +33,8 @@ PATTERNS = {
         rb"(?im)^[ \t]*(?:export[ \t]+)?(?:TOMC_READER_API_KEY|OPENAI_API_KEY|HF_TOKEN|GITHUB_TOKEN|DEEPSEEK_API_KEY)[ \t]*=[ \t]*['\"]?[^\s'\"#][^\r\n]{10,}$"
     ),
 }
+# Exact, known-fake test fixture values; they are removed before pattern matching.
+KNOWN_FIXTURES = (b"Bearer fixture-only-never-a-real-token",)
 
 
 def candidates(root: Path = ROOT) -> list[Path]:
@@ -52,7 +54,10 @@ def candidates(root: Path = ROOT) -> list[Path]:
 
 def inspect_blob(data: bytes, label: str) -> list[str]:
     """Only report category and file/blob label, never matching bytes."""
-    findings = [f"{label}: {name}" for name, pattern in PATTERNS.items() if pattern.search(data)]
+    scanned = data
+    for fixture in KNOWN_FIXTURES:
+        scanned = scanned.replace(fixture, b"")
+    findings = [f"{label}: {name}" for name, pattern in PATTERNS.items() if pattern.search(scanned)]
     if len(data) > 5_000_000:
         findings.append(f"{label}: file larger than 5 MB")
     return findings

@@ -61,7 +61,9 @@ The host owns active-chat compaction when enabled or unknown. Do not proactively
 
 ## Tools
 
-- `prepare_context`: prepare supplied history for the next task without saving it. Omit `budget` to keep about 80% of the history (at least 1,024 estimated tokens).
+- `prepare_context`: prepare supplied history for the next task. Successful prepared context and its task are saved to the local library by default; recording can be disabled independently. Omit `budget` to keep 60-80% of the history (80% when short, 60% from a million estimated tokens; at least 1,024).
+- `get_status`, `list_contexts`, `get_context`, `make_handoff`: inspect configuration, browse saved context, and create a self-contained continuation prompt without sending it.
+- `get_usage_stats`: view local cumulative estimated context reduction (`all`, `today`, or `7d`, UTC). Preparation and recall return a per-call summary for the assistant to display. These are context-text estimates, not API or billing savings; repeated preparations count separately.
 - `remember_memory`, `recall_memory`, `list_memories`, `forget_memory`: optional named notebooks for reusing supplied notes in later sessions.
 
 For a long history, import it into a notebook from a file and call `recall_memory`, instead of pasting it into the chat: a tool call cannot shrink history the session already holds. Usage tips and measured results are in the [project README](https://github.com/ZipengWu365/TOMC).
@@ -69,8 +71,10 @@ For a long history, import it into a notebook from a file and call `recall_memor
 ## What it runs, stores and fetches
 
 - **Runs:** the MCP server `src/server.py` in this folder, started with `uv run --locked`. On first start, uv downloads a compatible Python if needed and the locked `mcp` dependency from PyPI; later starts reuse them.
-- **Stores:** notebooks only when you call `remember_memory`, as local plaintext SQLite in `~/.tomc/memory.sqlite3` (or `TOMC_MEMORY_PATH`). Preparation itself writes nothing. Uninstalling does not delete notebooks; use `forget_memory` for a specific notebook.
+- **Stores:** local plaintext SQLite in `~/.tomc/memory.sqlite3` (or `TOMC_MEMORY_PATH`). Named notebooks are saved only when requested. Successful preparation/recall saves prepared context and its task to the context library by default. Short input can remain intact; this is not an anonymizer. The cat's context window controls processing, recording, per-session settings, portable export/import and snapshot deletion. Separate numeric statistics survive snapshot or notebook deletion and uninstall. Use `forget_memory` for a named notebook.
 - **Sends:** nothing. The server makes no network requests and sees only the arguments Claude passes to its tools. Returned memory enters Claude's context like any other tool result.
+
+Optional metadata-only session hooks register startup/activity and enforce per-session pause before TOMC preparation tools. They do not read transcripts, replace full model requests, or guarantee detection of a pure UI tab switch. Existing chats need to load the new integration; hook trust remains under the host's control. No billed savings have been measured by this integration.
 
 ## License
 
@@ -90,7 +94,14 @@ def expected() -> dict[str, bytes]:
     }
     core = ROOT / "src" / "tomc"
     for path in sorted(core.rglob("*")):
-        if path.suffix == ".py" or (path.suffix == ".json" and path.parent == core / "data"):
+        if (
+            path.suffix == ".py"
+            or (path.suffix == ".json" and path.parent == core / "data")
+            or (
+                path.parent == core / "data"
+                and path.name in {f"tomc-expression-{i}.png" for i in range(1, 5)}
+            )
+        ):
             files["src/tomc/" + path.relative_to(core).as_posix()] = path.read_bytes()
     return files
 
