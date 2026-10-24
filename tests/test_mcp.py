@@ -41,9 +41,16 @@ def test_stdio_memory_roundtrip(tmp_path):
                 "recall_memory",
                 "list_memories",
                 "forget_memory",
+                "get_usage_stats",
+                "get_status",
+                "list_contexts",
+                "get_context",
+                "make_handoff",
             }
             assert tools["forget_memory"].annotations.destructiveHint
-            assert tools["recall_memory"].annotations.readOnlyHint
+            assert not tools["recall_memory"].annotations.readOnlyHint
+            assert not tools["prepare_context"].annotations.readOnlyHint
+            assert tools["get_usage_stats"].annotations.readOnlyHint
             assert not tools["remember_memory"].annotations.readOnlyHint
             await call(
                 client,
@@ -63,6 +70,19 @@ def test_stdio_memory_roundtrip(tmp_path):
                 client, "prepare_context", {"history": "A temporary note", "task": "continue"}
             )
             assert prepared["memory"] == "A temporary note"
+            assert prepared["context_reduction"]["reduced_tokens"] == 0
+            assert prepared["context_reduction"]["recorded"]
+            assert prepared["context_record"]["status"] == "saved"
+            snapshot_id = prepared["context_record"]["id"]
+            assert (await call(client, "get_context", {"context_id": snapshot_id}))[
+                "memory"
+            ] == "A temporary note"
+            prompt = await call(client, "make_handoff", {"context_id": snapshot_id})
+            assert "A temporary note" in prompt["prompt"]
+            assert len((await call(client, "list_contexts"))["contexts"]) == 2
+            stats = await call(client, "get_usage_stats")
+            assert stats["preparations"] == 2
+            assert (await call(client, "get_usage_stats")) == stats
             notebooks = await call(client, "list_memories")
             assert len(notebooks["notebooks"]) == 2
             await call(client, "forget_memory", {"name": "parser"})
@@ -71,6 +91,65 @@ def test_stdio_memory_roundtrip(tmp_path):
                 "recall_memory", {"name": "parser", "task": "continue"}
             )
             assert missing.isError
+
+        async with connected(params) as client:
+            assert (await call(client, "get_usage_stats"))["preparations"] == 2
+
+    asyncio.run(run())
+
+
+def test_session_pause_and_recording_are_independent(tmp_path):
+    from tomc.session_store import SessionStore
+
+    database = tmp_path / "session.sqlite3"
+    sessions = SessionStore(database)
+    sessions.register("codex", "chat-a", title="Paused chat")
+    sessions.register("codex", "chat-b", title="Enabled chat")
+    sessions.set_enabled("codex", "chat-a", False)
+
+    async def run():
+        params = StdioServerParameters(
+            command=sys.executable, args=["-m", "tomc", "mcp", "--store", str(database)]
+        )
+        async with connected(params) as client:
+
+            async def call(tool, args=None):
+                result = await client.call_tool(tool, args)
+                assert not result.isError, result
+                return json.loads(result.content[0].text)
+
+            arguments = {
+                "history": "project = TOMC",
+                "task": "Continue project",
+                "tomc_host": "codex",
+                "tomc_session_id": "chat-a",
+            }
+            assert (await call("prepare_context", arguments))["status"] == "paused"
+            assert (await call("get_usage_stats"))["preparations"] == 0
+            assert (await call("list_contexts"))["contexts"] == []
+            arguments["tomc_session_id"] = "chat-b"
+            result = await call("prepare_context", arguments)
+            assert result["status"] == "prepared" and result["session_id"] == "chat-b"
+            assert not result["request_replacement_verified"]
+            sessions.update_settings(save_contexts=False)
+            result = await call("prepare_context", arguments)
+            assert result["context_record"]["status"] == "disabled"
+            assert (await call("get_usage_stats"))["preparations"] == 2
+            assert len((await call("list_contexts"))["contexts"]) == 1
+            # A globally active card must never attribute an unidentified call to chat-b.
+            result = await call("prepare_context", {"history": "unassociated", "task": "continue"})
+            assert result["status"] == "identity_required" and not result["prepared"]
+            assert (await call("get_usage_stats"))["preparations"] == 2
+            sessions.set_enabled("codex", "chat-a", True)
+            result = await call("prepare_context", {"history": "unassociated", "task": "continue"})
+            assert result["session_id"] is None and result["attribution"] == "unassociated"
+            sessions.update_settings(enabled=False)
+            assert (await call("prepare_context", arguments))["status"] == "paused"
+            assert (await call("get_usage_stats"))["preparations"] == 3
+            unknown = await client.call_tool(
+                "prepare_context", {**arguments, "tomc_session_id": "missing"}
+            )
+            assert unknown.isError
 
     asyncio.run(run())
 

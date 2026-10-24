@@ -16,7 +16,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python }}
-      - run: python -m pip install -e '.[demo,dev,mcp]'
+      - run: python -m pip install -e '.[demo,dev,gateway,mcp]'
       - run: python -m pytest -q
       - run: ruff check . && ruff format --check .
       - run: python scripts/security_scan.py
@@ -28,10 +28,23 @@ jobs:
       - run: python scripts/benchmarks/codex_retention_report.py --verify-published docs/validation_data/windows_codex_retention_20261005.json
       - run: mkdocs build --strict
       - run: python -m build
+      - name: Desktop companion UI tests on macOS (offscreen Qt)
+        if: runner.os == 'macOS'
+        env:
+          QT_QPA_PLATFORM: offscreen
+        run: |
+          python -m pip install -e '.[widget]'
+          python -m pytest -q tests/test_usage_widget_language.py tests/test_savings_dashboard_qt.py \
+            tests/test_context_library_qt.py tests/test_animation_receipts_qt.py \
+            tests/test_pricing_language_qt.py tests/test_ui_language.py tests/test_macos_pet_window.py \
+            tests/test_macos_ui.py tests/test_macos_functional_flow.py \
+            tests/test_install_context_workspace.py tests/test_install_request_gateway.py tests/test_update_pet_ui.py \
+            tests/test_analysis_qt.py tests/test_analysis_macos_qt.py
       - name: Check packaged MCP runtime on macOS
         if: runner.os == 'macOS'
         run: |
           python -m pip install uv
           python scripts/build_plugin.py
           python scripts/build_codex_plugin.py
-          python scripts/plugin_smoke.py outputs/plugins/tomc-memory-0.1.0.mcpb
+          version="$(python -c "import json; print(json.load(open('plugins/claude/manifest.json'))['version'])")"
+          python scripts/plugin_smoke.py "outputs/plugins/tomc-memory-${version}.mcpb"

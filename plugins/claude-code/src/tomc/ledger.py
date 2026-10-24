@@ -6,7 +6,7 @@ import json
 from collections.abc import Mapping, Sequence
 
 from .schemas import Message, Source
-from .tokenization import TokenCounter
+from .tokenization import RegexCounter, TokenCounter
 
 
 def normalize(messages: str | Sequence[Message | Mapping[str, object]]) -> tuple[str, list[Source]]:
@@ -52,9 +52,22 @@ def pack_rows(
     output: list[str] = []
     keys: set[str] = set()
     used = 0
+    # This builtin matches no whitespace. Joining rows with a newline cannot
+    # merge matches or add a token, so its exact count is the sum of row counts.
+    # Exclude subclasses and instance-overridden methods; arbitrary counters
+    # still count each complete candidate and retain their original behavior.
+    additive = (
+        type(counter) is RegexCounter
+        and getattr(counter.count, "__func__", None) is RegexCounter.count
+    )
     for key, row in rows:
-        # Cheap additive precheck for large histories, exact check on every accepted row.
-        if counter.count(row) > budget - used:
+        row_cost = counter.count(row)
+        if row_cost > budget - used:
+            continue
+        if additive:
+            output.append(row)
+            keys.add(key)
+            used += row_cost
             continue
         candidate = "\n".join((*output, row))
         cost = counter.count(candidate)

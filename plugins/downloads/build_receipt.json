@@ -1,8 +1,19 @@
 {
-  "artifact": "tomc-memory-0.1.0.mcpb",
-  "bytes": 85135,
-  "sha256": "c4ea4aae5ec5995a72f3e0891e0708f880035ff7dc7e3d91f57393de3c8ad4ac",
-  "files": 37,
+  "artifact": "tomc-memory-0.1.1.mcpb",
+  "bytes": 100478,
+  "sha256": "f1186ac6cd146fd71a27e4444e189e398b894985a2d5fc66c8ca3a7a599512be",
+  "files": 42,
   "runtime": "MCPB 0.4 UV; first installation downloads Python and dependencies",
-  "status": "private installation candidate; desktop GUI acceptance pending"
+  "status": "rebuilt unpublished 0.1.1 candidate; source equality verified; no new client/model acceptance",
+  "built_at_utc": "2026-10-12T12:16:13.255316+00:00",
+  "scopes": {
+    "caller_controlled_api": "Opt-in AutomaticChatSession for synchronous OpenAI-compatible Chat Completions; existing client/provider remains unchanged. Default periodic request optimization, explicit original caller history, cheap boundary checks and optional trusted native events; no extra model request.",
+    "mcp": "Five explicit tools prepare supplied external history and optionally save/recall/list/delete named notebook memory. MCP does not intercept host model requests or remove the host conversation history.",
+    "native_client_acceptance": "No new installed-client GUI, model-driven tool selection, native-event transport or public-directory acceptance is claimed by this rebuild."
+  },
+  "automatic_native_detector": false,
+  "native_client_request_hook_installed": false,
+  "caller_controlled_request_helper": true,
+  "offline_source_test_evidence": "Root reports 165 tests passed on integrated current source before packaging; this rebuild adds archive/source equality checks, not client acceptance.",
+  "runtime_source_files": 36
 }

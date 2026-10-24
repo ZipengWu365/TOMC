@@ -2,6 +2,60 @@
 
 [中文速查](#chinese-quickstart) · [Assistant installation](assistant_plugin.md) · [Dated validation](validation.md)
 
+## Desktop companion beta: macOS
+
+The **resident desktop cat** and the **four-stage animation preview** are separate programs.
+Installing the MCP ZIP does not start a desktop cat or connect a request gateway.
+
+From this beta source checkout, prepare a Python environment with the widget dependency:
+
+```bash
+uv venv --python 3.12 .venv
+uv pip install --python .venv/bin/python -e '.[widget]'
+.venv/bin/python scripts/install_macos_pet.py
+```
+
+The installer needs macOS, a C compiler (`clang` from Apple's developer tools), and a
+Python installation with development headers and a shared library. It creates
+`~/Applications/TOMC.app` using the environment that ran the installer. Open **TOMC.app**
+in Finder to start the normal cat near the bottom-right corner of the primary screen.
+It does not appear in the Dock. Click the cat for details, drag it to move it, or
+right-click and choose **Quit TOMC** to stop it.
+
+The app embeds Python in its native executable so macOS can identify the running
+application. Keep the checkout, Python installation and virtual environment in place;
+this is a local development launcher, not a self-contained distributable app.
+If the default target already exists, the installer refuses to replace it silently.
+Use `--replace` to update a TOMC app; it backs up the old bundle and rejects unrelated
+apps. `--output /path/to/TOMC.app` selects a different destination.
+
+No login item is installed, no assistant routing is changed, and no test usage events
+are generated. The cat uses `TOMC_MEMORY_PATH` when supplied, otherwise
+`~/.tomc/memory.sqlite3`. Without new preparation events it remains idle; seeing the cat
+does **not** establish that a real assistant request was compressed.
+
+For a separate, synthetic four-stage preview:
+
+```bash
+.venv/bin/python scripts/desktop_pet_stages.py /tmp/tomc-animation-preview
+```
+
+This opens a normal preview window on macOS. Each form is selected from its example
+input length, and no compression or production statistics are written.
+
+**2026-10-23 Mac check:** the native Cocoa companion was visible as a single floating
+cat, and remained visible after switching to another application. The macOS tool-window
+policy now explicitly preserves visibility when the application loses focus; initial
+launch reveals the cat, while ordinary polling does not activate it. Four queued
+synthetic events separately completed all four animations and returned to idle. These
+checks do not validate real-chat gateway triggering or transfer from another computer.
+
+中文：日常入口是 **TOMC.app**，显示在桌面右下角；横排四只猫的窗口只是素材预览。
+本次修复了 Mac 切换应用后小猫隐藏的问题。安装启动器不等于接通自动压缩，
+没有新准备事件时小猫会待机。入口依赖本机源码和 Python 环境，暂不是可直接分发的独立安装包。
+
+## Earlier MCP installation checks
+
 On **2026-10-02**, the downloaded `v0.1.0-assistant-preview.2` installed and enabled as a native Codex plugin on **macOS 26.3 (25D125), Apple Silicon arm64, Codex CLI 0.159.2**. A real model called `prepare_context` and correctly answered `framework = FastAPI`, `backup_framework = Flask`. The local browser demo also prepared the correct result for a manually entered Chinese task. See the [original test report](validation/macos-20261002-preview2.json) and [demo screenshot](assets/macos_demo_20261002.jpg).
 
 Installation worked after preparing the prerequisites. This Mac initially had no UV on PATH and Python 3.9.6; TOMC requires Python 3.10 or later. The trial used UV 0.12.22 and Python 3.12.14; the Claude bundle's separate managed runtime used Python 3.13.16. These are recorded versions, rather than requirements to install these exact releases. Codex, Claude Desktop and Cursor **GUI installation was not tested**. Claude Code on macOS has not been tested. Claude's extracted `.mcpb` passed stdio runtime checks, which do not validate its desktop installation flow.

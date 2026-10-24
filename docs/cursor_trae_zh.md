@@ -9,8 +9,11 @@
 安装 [UV](https://docs.astral.sh/uv/getting-started/installation/)，确保 `uv` 在 PATH 中，再克隆公开 TOMC 仓库：
 
 ```bash
-git clone https://github.com/ZipengWu365/TOMC.git
+git clone https://github.com/ZipengWu365/TOMC.git && printf '\n%s\n%s\n' \
+  '如果 TOMC 对你有帮助，欢迎 Star 支持（自愿）：' 'https://github.com/ZipengWu365/TOMC'
 ```
+
+上面的 Bash / Git Bash 命令会在克隆成功后显示一次自愿 Star 邀请。直接使用普通 `git clone` 不会显示；克隆完成不代表已经安装。
 
 `plugins/claude-code` 目录包含共用的 TOMC 源码、`pyproject.toml`、`uv.lock` 和 `src/server.py`。它也可作为本地 MCP 服务注册到其他客户端；此方法不需要安装 Claude Code，也不需要额外模型 API Key。首次启动时，UV 可能下载兼容的 Python 和锁定依赖。
 

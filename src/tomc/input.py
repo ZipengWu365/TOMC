@@ -8,14 +8,14 @@ from collections.abc import Mapping, Sequence
 
 from .schemas import Message
 
-MAX_INPUT_CHARS = 200_000
-
 
 def parse_history(value: object) -> str | list[Message]:
-    """Accept common text-message envelopes; reject unsupported blocks without dropping them."""
+    """Accept common text-message envelopes; reject unsupported blocks without dropping them.
+
+    There is no length cap: the compiler scales linearly (about 2.6 s per million
+    estimated tokens on CPU) and the paper's experiments compile 10M-token histories.
+    """
     if isinstance(value, str):
-        if len(value) > MAX_INPUT_CHARS:
-            raise ValueError("Use at most 200,000 characters per history.")
         value = value.removeprefix("\ufeff")
         if not re.match(r'^\s*(?:\[\s*(?:\{|\])|\{\s*["}])', value):
             return value
@@ -66,6 +66,4 @@ def parse_history(value: object) -> str | list[Message]:
         if not isinstance(message.content, str) or not isinstance(message.role, str):
             raise ValueError("Message content and role must be text.")
         messages.append(message)
-    if sum(len(m.content) + len(m.role) + 16 for m in messages) > MAX_INPUT_CHARS:
-        raise ValueError("Use at most 200,000 characters per history.")
     return messages

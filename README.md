@@ -1,13 +1,25 @@
 <div align="center">
-  <img src="assets/tomc_logo_20261002.png" alt="TOMC Memory" width="380">
+  <table width="100%" role="presentation">
+    <tr>
+      <td width="30%" align="center" valign="middle"><a href="https://github.com/ZipengWu365/TOMC/stargazers"><img src="assets/star-us-monospace.svg" alt="Star us on GitHub" width="85%"></a></td>
+      <td width="40%" align="center" valign="middle"><img src="assets/tomc_logo_20261002.png" alt="TOMC Memory" width="100%"></td>
+      <td width="30%" align="center" valign="middle"><a href="https://github.com/ZipengWu365/TOMC/stargazers"><img src="assets/traffic/stars.svg" alt="GitHub Stars" width="42%"></a> <a href="docs/traffic_metrics.md"><img src="assets/traffic/clones-total.svg" alt="Cumulative recorded clones" width="56%"></a></td>
+    </tr>
+  </table>
+<!-- traffic-status:start -->
+  <p>Cumulative clones · recorded since 2026-10-02 · updated 2026-10-23 UTC. <a href="docs/traffic_metrics.md">Method and updates</a></p>
+<!-- traffic-status:end -->
+  <p><strong>Found TOMC useful? Click ⭐ Star at the top right to support the project.</strong></p>
   <h1>TOMC Memory</h1>
-  <h3>Context compression and task memory for Codex / Claude Code / Cursor / TRAE</h3>
+  <h3>Context compression and task memory for Codex / Claude Code / Cursor / TRAE / WorkBuddy</h3>
   <p><strong>Compress and compile long histories, and recall saved task notes on CPU.</strong></p>
-  <p><a href="#use-before-your-api-call"><strong>Use with your API</strong></a> · <a href="#install-in-your-assistant">Install TOMC Memory</a> · <a href="#switch-assistants">Switch assistants</a> · <a href="#try-the-demo">See the demo</a> · <a href="#paper-explained">Paper explained</a> · <a href="#same-reader-baseline-memory-vs-tomc-memory">Paper results</a> · <a href="README_zh.md">中文</a></p>
+  <p><a href="#use-before-your-api-call"><strong>Use with your API</strong></a> · <a href="#install-in-your-assistant">Install TOMC Memory</a> · <a href="#switch-assistants">Switch assistants</a> · <a href="#try-the-demo">See the demo</a> · <a href="#paper-explained">Paper explained</a> · <a href="#same-reader-baseline-memory-vs-tomc-memory">Paper results</a> · <strong>English</strong> | <a href="README_zh.md">简体中文</a></p>
   <p><strong>CPU preparation</strong> · No training or extra model service · Plain-text output · Research preview</p>
 </div>
 
-[TOMC Memory project homepage](https://zipengwu.me/tomc/) · [中文](README_zh.md)
+[Official GitHub home](https://github.com/ZipengWu365/TOMC) · [Plugin downloads](plugins/downloads) · [Installation guide](#install-in-your-assistant)
+
+This is the official repository for **TOMC Memory**, with source code, plugin downloads and installation guides.
 
 [Inspect recorded examples](https://zipengwu.me/tomc/examples/) · [API, shared-memory and evaluation guides](https://zipengwu.me/tomc/guides/)
 
@@ -19,7 +31,7 @@
 
 Use task memory while making videos, organizing materials, handling files or developing code: save the brief, decisions, constraints, completed steps and remaining work with `remember_memory`, then use `recall_memory` to prepare those notes for the next task. These are examples of how to use saved notes. The recorded measurements below cover synthetic project histories and the paper benchmarks, with their own tasks and protocols; they do not establish performance for every task in these workflows.
 
-Add the Python API to your own application, install the plugin in Codex or Claude Code, or connect Cursor, TRAE and Claude Desktop through local MCP. Savings depend on the history and task; short histories can stay intact. The default keeps about 80% of a long history. Compare 40% or 60% budgets on your own tasks when you need smaller requests; see the separate [Codex and Claude results](#measured-savings).
+Add the Python API to your own application, install the plugin in Codex or Claude Code, or connect Cursor, TRAE, Tencent WorkBuddy and Claude Desktop through local MCP. Savings depend on the history and task; short histories can stay intact. The default keeps about 80% of a long history. Compare 40% or 60% budgets on your own tasks when you need smaller requests; see the separate [Codex and Claude results](#measured-savings).
 
 Reuse saved task notes in a new chat with the same assistant or another assistant. With both clients using the same TOMC database on one computer, you can reuse saved decisions, constraints and next steps. [Try the Codex → Claude Code → Codex handoff](#switch-assistants).
 
@@ -27,15 +39,27 @@ Reuse saved task notes in a new chat with the same assistant or another assistan
   <img src="assets/plugin_usage_api_20261003.png" alt="Install TOMC in Codex, Cursor, Claude Desktop or Claude Code. Supply history, task and budget; TOMC prepares context for the same assistant." width="1280">
 </a>
 
-This is a preview, version **0.1.0**. Download the plugins from the [MIT-licensed assistant preview](https://github.com/ZipengWu365/TOMC/tree/main/plugins/downloads). There is no PyPI package or public marketplace listing.
+The compiler core remains **0.1.0**; the current local plugin preview is **0.1.5**. The [MIT-licensed assistant preview downloads](https://github.com/ZipengWu365/TOMC/tree/main/plugins/downloads) include earlier published packages; build the current source for the new context-library features. There is no PyPI package or public marketplace listing.
 
-### 30-second demo
+**In the 0.1.5 MCP runtime, successful preparation and recall save the prepared context and task locally by default.** Turn off context recording in the TOMC panel to stop future body storage; existing snapshots remain until deleted. The ten tools include four new read-only tools: `get_status`, `list_contexts`, `get_context` and `make_handoff`. Old statistics containing only numbers cannot reconstruct earlier chat content.
 
-[![TOMC: context compression and compilation, with saved task notes](launch/media/v12/gifs/TOMC_Agent_Complete_EN.gif)](launch/media/v12/videos/TOMC_Agent_Complete_EN.mp4)
+Processing is on by default globally and for newly registered sessions. User-level setup makes tools available across projects; session-specific controls require installed, loaded hooks, with `/hooks` trust review in Codex. Configuration does not prove a live connection, and lifecycle hooks do not replace native model requests. The panel follows session/prompt events rather than every UI tab switch. [Host integration validation](docs/host_integration_validation_20261022.md).
 
-[Landscape video](launch/media/v12/videos/TOMC_Agent_Complete_EN.mp4) · [中文视频](launch/media/v12/videos/TOMC_Agent_Complete_ZH.mp4) · [Media and test scope](launch/media/v12/README.md)
+The context library can provide a self-contained continuation prompt or a portable text package for another Agent or computer. You may add the exported package to Git yourself; TOMC does not automatically commit or push. [Current plugin guide](docs/assistant_plugin.md#current-local-preview-015).
 
-The ending labels **models tested with TOMC** and explains their use: API models receive prepared context; Codex and Claude Code call TOMC tools. The list includes DeepSeek 4.1 Flash, DeepSeek 4 PRO, Rednote Red preview, Claude Opus 5.5 and ChatGPT Codex 6.1 Sol. The five-model list combines recorded tests and the author's reported tests; the demo's token and cost measurements retain their separate protocols. It does not imply a uniform five-model benchmark or provider endorsement.
+**Desktop companion (beta).** A small desktop cat shows the tokens TOMC saved, their value at each model's listed input price and the conversations they came from, with an analysis report and the context library. On Windows it can also process Codex and Claude Code requests automatically through a local gateway. [Install the desktop companion](docs/desktop_companion.md) (Windows and macOS).
+
+### Video overview
+
+[![TOMC overview: smaller inputs, switching assistants, carrying notes to another computer, and BEAM results](launch/media/v13/gifs/TOMC_Overview_EN.gif)](launch/media/v13/videos/TOMC_Overview_EN.mp4)
+
+[Full video (1:37, with sound)](launch/media/v13/videos/TOMC_Overview_EN.mp4) · [Chinese video](launch/media/v13/videos/TOMC_Overview_ZH.mp4) · [Media and test scope](launch/media/v13/README.md)
+
+API integrations call TOMC before the next request and send the prepared context. Codex and Claude Code use tools to save or recall task notes. The numbers in the video come from specific tests with their own protocols and imply no provider endorsement.
+
+The [measured results](#measured-savings) give the Codex and Claude Code protocols and their source records.
+
+[First-run guide](#first-run-tomc) · [Python API](#use-before-your-api-call) · [Full results and limitations](#measured-savings).
 
 TOMC is a research preview. Feedback, issues, pull requests and research collaboration are welcome. Device choice and assistant choice are independent; cross-device notebook transfer uses manual Git.
 
@@ -43,13 +67,69 @@ TOMC is a research preview. Feedback, issues, pull requests and research collabo
 
 Choose the setup for your client. TOMC prepares context locally on CPU; your assistant generates the answer. The plugin itself needs no additional model API key or GPU.
 
+**The host manages the active chat.** When Codex, Claude Code or another host owns conversation compaction, TOMC does not proactively recompact that chat. Unknown host state also defaults to host ownership. Use TOMC for separately supplied external history or explicitly saved notes. This is a tool-use policy, not an automatic compaction detector. [Context ownership](docs/context_ownership.md). Plugin packages 0.1.1 include this policy; the compiler core remains 0.1.0.
+
+<a id="first-run-tomc"></a>
+
+#### First run
+
+**Claude Code: save one note, then recall it in a new chat.** Install [UV](https://docs.astral.sh/uv/getting-started/installation/) first. In Claude Code, run:
+
+```text
+/plugin marketplace add ZipengWu365/TOMC
+/plugin install tomc-memory@tomc
+```
+
+Start a new session or reload VS Code and check `/mcp` for `plugin:tomc-memory:tomc`. Ask the assistant explicitly to run the tool:
+
+```text
+Use TOMC's remember_memory to save a note named api-refactor:
+keep public API routes unchanged; pagination tests have not been written.
+Show the tool result.
+```
+
+In a **new chat using the same local notebook database**, ask:
+
+```text
+Use TOMC's recall_memory on api-refactor.
+Report the saved constraints and unfinished work. Show the tool result.
+```
+
+Save and recall are explicit tool calls. The plugin does not record the whole chat automatically. [Detailed Claude Code setup](docs/assistant_plugin.md#claude-code) · [Shared-notebook checks](docs/usage_tips.md#reuse-notebooks).
+
+**Codex CLI: install the plugin and verify tool availability.** [Download the 0.1.2 Codex ZIP](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-codex-0.1.2.zip), extract it into a directory you will keep, and run there with UV and a compatible Codex CLI:
+
+```bash
+uv run --no-project --python 3.12 install.py --check
+uv run --no-project --python 3.12 install.py
+```
+
+The first command checks prerequisites without changing Codex configuration. Start a **new Codex session** after installing and explicitly ask it to save/recall a named note. [Full Codex instructions](docs/assistant_plugin.md#codex) · [Platform validation](docs/platform_checks.md).
+
+**Python API: inspect an offline context example before calling a model.** With Python 3.10+:
+
+```bash
+git clone https://github.com/ZipengWu365/TOMC.git && printf '\n%s\n%s\n' \
+  'If TOMC helps with your work, consider a Star on GitHub (optional):' 'https://github.com/ZipengWu365/TOMC'
+cd TOMC
+python -m pip install -e .
+python examples/api_context.py
+```
+
+The Bash / Git Bash command above prints an optional Star invitation after a successful clone. Plain `git clone` does not show it; cloning alone does not install TOMC.
+
+This example prepares and counts context locally; it makes **no model call**. To integrate TOMC, send `prepared.messages` **in place of** the original history, preserving your application's instructions and protocol. [API example](#use-before-your-api-call) · [Reference](docs/api_reference.md).
+
+#### Other client integrations
+
 | Client | Start here | Prerequisites |
 |---|---|---|
-| Codex CLI | [Download the plugin ZIP](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-codex-0.1.0.zip) | Current Codex CLI with plugin commands, plus [`uv`](https://docs.astral.sh/uv/getting-started/installation/) on PATH or supplied with `--uv` |
+| Codex CLI | [Download the plugin ZIP](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-codex-0.1.2.zip) | Current Codex CLI with plugin commands, plus [`uv`](https://docs.astral.sh/uv/getting-started/installation/) on PATH or supplied with `--uv` |
 | Codex IDE extension | [Configure the local MCP server](docs/assistant_setup.md) | Local TOMC environment with `.[mcp]` installed |
 | Cursor | Generate an installation link, or [add the MCP configuration](docs/cursor_trae.md) | Local TOMC runtime; client tool calls remain unverified |
 | TRAE (International / CN) | [Add TOMC as a local MCP server](docs/cursor_trae.md#trae) | Local TOMC runtime; client tool calls remain unverified |
-| Claude Desktop | [Download the `.mcpb` extension](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-0.1.0.mcpb) | Updated Claude Desktop with UV extension support; network access for the first install |
+| Tencent WorkBuddy | [Configure TOMC through local MCP](docs/workbuddy.md) | Local TOMC runtime; client tool calls remain unverified |
+| Claude Desktop | [Download the `.mcpb` extension](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-0.1.1.mcpb) | Updated Claude Desktop with UV extension support; network access for the first install |
 | Claude Code | `/plugin marketplace add ZipengWu365/TOMC`, then `/plugin install tomc-memory@tomc` ([details](docs/assistant_plugin.md#claude-code)) | [`uv`](https://docs.astral.sh/uv/getting-started/installation/); tested with the Claude Code VS Code extension |
 
 <details>
@@ -98,13 +178,24 @@ TRAE and Cursor client tool discovery and model calls have not been validated. T
 </details>
 
 <details>
+<summary>Tencent WorkBuddy installation steps</summary>
+
+#### Tencent WorkBuddy
+
+Follow the [WorkBuddy guide](docs/workbuddy.md) and edit its JSON template for your local runtime. Open **Plugins → MCP Servers → Configure MCP**. Merge the `tomc` entry into user `~/.workbuddy/mcp.json` or project `.workbuddy/mcp.json`, preserving existing servers. A current source environment with `.[mcp]` installed can also generate configuration with `python -m tomc setup --client workbuddy`. The command prints configuration only.
+
+This is a manual local MCP integration preview. WorkBuddy client tool discovery and model calls remain unverified; TOMC is not listed in Tencent's marketplace.
+
+</details>
+
+<details>
 <summary>Claude Desktop installation steps</summary>
 
 #### Claude Desktop
 
 1. Download the `.mcpb` file above.
 2. Open **Settings → Extensions → Advanced settings → Install Extension…** and select the file.
-3. Follow the installation prompts, then start a new chat and check that TOMC's five tools are available.
+3. Follow the installation prompts, then start a new chat and check the TOMC tools. The current 0.1.5 runtime exposes ten; older download artifacts retain their original tool sets.
 
 A supported host installs Python and the locked dependencies through the UV runtime; you do not need to clone the repository or set up Python manually for this package.
 
@@ -122,7 +213,7 @@ uv sync --locked --directory "/absolute/path/to/extracted"
 claude mcp add tomc-memory --scope user -- uv run --locked --directory "/absolute/path/to/extracted" src/server.py
 ```
 
-Start a new Claude Code session and run `/mcp` to check the five tools. Name the tool in your request, for example *"Use tomc-memory prepare_context on this history with task … and budget 200"*. If `claude` is not on PATH, use the CLI bundled in the VS Code extension's `resources/native-binary` folder (`claude.exe` on Windows). [Steps, VS Code notes and usage tips](docs/assistant_plugin.md#claude-code)
+Start a new Claude Code session and run `/mcp` to check the tools (ten in the 0.1.5 runtime). Name the tool in your request, for example *"Use tomc-memory prepare_context on this history with task … and budget 200"*. If `claude` is not on PATH, use the CLI bundled in the VS Code extension's `resources/native-binary` folder (`claude.exe` on Windows). [Steps, VS Code notes and usage tips](docs/assistant_plugin.md#claude-code)
 
 In the VS Code extension trial with Claude Opus 5.5, with budget 8,192, recalling a notebook answered five questions correctly and cost 38% and 65% less than pasting 20K- and 40K-token histories into the prompt; at about 10K tokens the cost was unchanged. A 1,024 budget was cheaper but missed some latest values. Import long histories outside the chat.
 
@@ -130,7 +221,7 @@ In the VS Code extension trial with Claude Opus 5.5, with budget 8,192, recallin
 
 **Tested on Windows, macOS and Linux, and in Claude Code.** Installation and tool checks passed on all three systems; real model calls passed in Codex on [Windows with preview.4](docs/validation.md#windows-codex-preview4) and macOS and in Claude Code with Claude Opus 5.5. GUI installation in Claude Desktop, Cursor and the Codex app is still unverified. [Platform checks and dates](docs/platform_checks.md)
 
-[Usage tips (English)](docs/usage_tips.md) · [中文使用技巧](docs/usage_tips_zh.md) · [Windows installation feedback](docs/windows_installation_feedback.md) · [Full installation guide](docs/assistant_plugin.md) · [Validation record](docs/validation.md) · [Claude checksum](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-0.1.0.mcpb.sha256) · [Codex checksum](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-codex-0.1.0.zip.sha256).
+[Usage tips (English)](docs/usage_tips.md) · [Chinese usage tips](docs/usage_tips_zh.md) · [Windows installation feedback](docs/windows_installation_feedback.md) · [Full installation guide](docs/assistant_plugin.md) · [Validation record](docs/validation.md) · [Claude checksum](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-0.1.1.mcpb.sha256) · [Codex checksum](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-codex-0.1.2.zip.sha256).
 
 <a id="switch-assistants"></a>
 
@@ -158,6 +249,10 @@ This example saves a planning note, not a claim that tests have run.
 
 The notebook keeps the original notes and appended updates; recall prepares that history for the next task. This shares saved notes, rather than migrating native chat histories or providing cross-device cloud sync. [MCP interoperability and user-guided checks](docs/validation.md#cross-assistant-notebooks).
 
+### Automatic API request loop
+
+Use [AutomaticChatSession](docs/context_ownership.md) before your existing synchronous Chat Completions call: a cache-friendly stable prefix by default (the compiled memory stays identical until the request no longer fits), cached model limits, one-shot window-boundary backoff and brief native-compaction cooldown. Only the outgoing old-history view changes; original history, instructions, recent messages and tool protocol stay with the caller. The default lexical packing path now avoids repeated prefix scans. [34-model capacity snapshot](docs/model_context_limits_20261012.md). This does not make an installed MCP plugin intercept built-in client requests, and no native-client/model acceptance is asserted.
+
 ### Use before your API call
 
 Install the core package from this checkout with `python -m pip install -e .`. Prepare the history, inspect `prepared.prompt`, then send `prepared.messages` with your existing chat-completions client:
@@ -180,6 +275,11 @@ Here `history`, `task`, `client` and `model` are your application's existing inp
 
 **45/45 answers at each budget.** On nine synthetic team-chat histories (three seeds at about 10K, 20K and 40K history tokens), Windows Codex 0.160.0 answered five latest-project-state questions per history. Its original model, `ultra` effort and installed plugins were retained. TOMC prepared context through the installed MCP tool before each new answering chat.
 
+[![Windows Codex: all four budgets score 45/45. Mean request input and paired reductions.](assets/results/codex_savings_en.svg)](docs/codex_retention_20261005.md)
+
+<details>
+<summary>Exact values (copyable text)</summary>
+
 | Context sent | Mean request input tokens | Mean paired input reduction | Correct answers |
 |---|---:|---:|---:|
 | Full history | 42,191 | Reference | 45/45 |
@@ -187,11 +287,18 @@ Here `history`, `task`, `client` and `model` are your application's existing inp
 | TOMC · 60% history budget | 33,344 | 19.5% | 45/45 |
 | TOMC · default 80% history budget | 38,035 | 9.2% | 45/45 |
 
-Input is Codex's reported total, including cached input, host instructions and tool definitions. Reduction is the mean of nine paired history-level ratios, not the ratio of the table's means. These figures cover one answering turn per history and condition; asking the model to prepare or recall within a chat adds turns. All prepared contexts used `tomc_raw` source selection, without compiled operation records. This tests synthetic latest-state retrieval, rather than general coding quality. [English report](docs/codex_retention_20261005.md) · [中文报告](docs/codex_retention_20261005_zh.md) · [Recorded data](docs/validation_data/windows_codex_retention_20261005.json) · [Budget tips](docs/usage_tips.md#choose-budget). Full-history requests used the same profile with TOMC installed and all existing plugins enabled. The table covers a single answering turn per condition in the test harness; a full agent workflow may involve additional turns.
+</details>
+
+Input is Codex's reported total, including cached input, host instructions and tool definitions. Reduction is the mean of nine paired history-level ratios, not the ratio of the table's means. These figures cover one answering turn per history and condition; asking the model to prepare or recall within a chat adds turns. All prepared contexts used `tomc_raw` source selection, without compiled operation records. This tests synthetic latest-state retrieval, rather than general coding quality. [English report](docs/codex_retention_20261005.md) · [Chinese report](docs/codex_retention_20261005_zh.md) · [Recorded data](docs/validation_data/windows_codex_retention_20261005.json) · [Budget tips](docs/usage_tips.md#choose-budget). Full-history requests used the same profile with TOMC installed and all existing plugins enabled. The table covers a single answering turn per condition in the test harness; a full agent workflow may involve additional turns.
 
 ##### Claude Code · Claude Opus 5.5
 
-**Same answers, smaller requests.** On synthetic team-chat histories of about 10K, 20K and 40K tokens, with dozens to hundreds of state updates and look-alike distractors, Claude Opus 5.5 answered five questions about the latest project state. When TOMC kept 40% of the history, every answer matched the full history and the request cost fell by more than half:
+On synthetic team-chat histories of about 10K, 20K and 40K tokens, with dozens to hundreds of state updates and look-alike distractors, Claude Opus 5.5 answered five questions about the latest project state. When TOMC kept 40% of the history, all five answers matched the full-history condition. The answering-request costs were:
+
+[![Claude Code: costs at 10K, 20K and 40K histories; all shown conditions score 5/5.](assets/results/claude_savings_en.svg)](docs/validation.md#claude-code-windows-validation)
+
+<details>
+<summary>Exact values (copyable text)</summary>
 
 | History | Full history | TOMC keeps 40% | TOMC keeps 60% |
 |---|---|---|---|
@@ -199,9 +306,11 @@ Input is Codex's reported total, including cached input, host instructions and t
 | ~20K tokens | US$0.334 · 5/5 | US$0.141 · 5/5 (−58%) | US$0.195 · 5/5 (−42%) |
 | ~40K tokens | US$0.628 · 5/5 | US$0.255 · 5/5 (−59%) | US$0.369 · 5/5 (−41%) |
 
+</details>
+
 **Claude Code default-budget check.** Without `budget`, TOMC keeps about 80% of a history's estimated tokens (at least 1,024, so short histories stay intact). Across three different histories at each length, Claude Opus 5.5 answered all 45 questions correctly with about 20% less input; keeping 50%, 60% and 70% also answered all 45 and saved about 49%, 39% and 30%. Smaller budgets started returning outdated values: keeping 10–20% answered three or four of the five questions. Pass a smaller `budget` only after checking it against the full history on a sample of your own tasks. These are synthetic histories with one model and a separate request workflow from the Codex test. [Validation record](docs/validation.md#claude-code-windows-validation) · [Budget tips](docs/usage_tips.md)
 
-The assistant plugin exposes context-preparation tools. It does not intercept every API request or clear messages already in an active chat. To use a smaller request, your application must send the prepared context, or you can hand it to a new chat. Notebook storage is optional.
+The assistant plugin exposes context-preparation tools. It does not intercept every API request or clear messages already in an active chat. To use a smaller request, your application must send the prepared context, or you can hand it to a new chat. Named notebooks are optional; the 0.1.5 runtime saves prepared-context snapshots by default unless context recording is disabled.
 
 ### Prepare context
 
@@ -220,12 +329,12 @@ This example uses explicit assignments and a snapshot copy. TOMC prepares `frame
 
 With the same instructions and task, this example's message text goes from **147 to 108 tokens** under `cl100k_base`. This counts message content, excluding provider chat framing and tools; it is a single example, not billed usage or a fixed saving rate. Run `python examples/api_context.py` for the offline lexical estimate, or see the [API guide](docs/api_reference.md) for BPE counting.
 
-`prepare_context` does not save this history. Histories that already fit stay intact; longer prose can use retrieval instead of typed records. The `budget` covers memory under the lexical counter; task text and tool framing add overhead.
+The MCP `prepare_context` tool saves the successful prepared result and task by default, unless context recording is disabled. It does not separately copy the entire original history, but short histories may remain intact in the saved result. The standalone Python preparation helper remains stateless. The `budget` covers memory under the lexical counter; task text and tool framing add overhead.
 
 <details>
 <summary>Optional: keep history across chats</summary>
 
-The notebook stores supplied text in its original form. `recall_memory` prepares that history for the requested task; direct `prepare_context` calls need no notebook and write nothing to it.
+The notebook stores supplied text in its original form. `recall_memory` prepares that history for the requested task; direct `prepare_context` calls need no notebook. With context recording on, both MCP preparation routes save their successful result and task as separate snapshots.
 
 #### Try memory across two chats or assistants
 
@@ -250,7 +359,8 @@ The demo shows how TOMC prepares context for a task. It does not create notebook
 The Gradio interface requires Python 3.10–3.13. Clone the repository:
 
 ```bash
-git clone https://github.com/ZipengWu365/TOMC.git
+git clone https://github.com/ZipengWu365/TOMC.git && printf '\n%s\n%s\n' \
+  'If TOMC helps with your work, consider a Star on GitHub (optional):' 'https://github.com/ZipengWu365/TOMC'
 cd TOMC
 ```
 
@@ -545,3 +655,7 @@ Maintainer drafts: [launch copy](launch/CONTENT_KIT.md) · [launch plan](launch/
 
 </details>
 
+
+## Context reduction statistics (0.1.2)
+
+Preparation and recall return a per-call estimated context reduction for the assistant to display. Ask for `get_usage_stats` with `period="all"`, `"today"`, or `"7d"` (UTC) to view cumulative totals. These are context-text estimates, not actual API or billing savings. Repeated preparations count separately; empty outputs are excluded and negative reductions retained. Numeric statistics contain no history, task text or notebook names. Since 0.1.5, prepared-context bodies and tasks are saved separately by default, unless context recording is disabled. No telemetry is uploaded. Statistics survive notebook deletion; old numeric-only records cannot restore historical content. Existing clients need the new runtime and a new session or supported reload; desktop rendering depends on the host.

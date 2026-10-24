@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="260" height="76" viewBox="0 0 260 76" role="img" aria-labelledby="title">
+  <title id="title">Star us on GitHub</title>
+  <defs>
+    <linearGradient id="gold" x2="0.7" y2="1">
+      <stop stop-color="#ffe56b"/>
+      <stop offset="1" stop-color="#f2b90c"/>
+    </linearGradient>
+  </defs>
+  <rect x="62" y="8" width="196" height="60" rx="11" fill="#eff1f3"/>
+  <path d="m28 10 8 17 19 3-14 13 3 19-16-9-17 9 3-19L1 30l19-3z" fill="url(#gold)" stroke="#deb526" stroke-width="1.5" stroke-linejoin="round"/>
+  <text x="73" y="51" fill="#202428" font-family="'Courier New', Courier, monospace" font-size="41" font-weight="700" letter-spacing="-0.7">Star us</text>
+</svg>

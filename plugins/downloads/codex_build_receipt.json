@@ -1,8 +1,8 @@
 {
-  "artifact": "tomc-memory-codex-0.1.0.zip",
-  "bytes": 91166,
-  "sha256": "a7b3aa22451f4769cfccfff47d00c6cb09e5782af45e048160823c7fcf131c34",
-  "files": 41,
+  "artifact": "tomc-memory-codex-0.1.2.zip",
+  "bytes": 107160,
+  "sha256": "34f9d4eadd4c1a7febf77ad9b177b782831d281e8f548ec3e6781a4b67743fba",
+  "files": 46,
   "runtime": "Codex native plugin; UV is required on PATH or supplied with --uv",
   "status": "private candidate; no public directory or model-driven acceptance"
 }

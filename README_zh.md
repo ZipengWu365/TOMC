@@ -1,23 +1,39 @@
 <div align="center">
-  <img src="assets/tomc_logo_20261002.png" alt="TOMC Memory" width="380">
+  <table width="100%" role="presentation">
+    <tr>
+      <td width="30%" align="center" valign="middle"><a href="https://github.com/ZipengWu365/TOMC/stargazers"><img src="assets/star-us-monospace.svg" alt="Star us on GitHub" width="85%"></a></td>
+      <td width="40%" align="center" valign="middle"><img src="assets/tomc_logo_20261002.png" alt="TOMC Memory" width="100%"></td>
+      <td width="30%" align="center" valign="middle"><a href="https://github.com/ZipengWu365/TOMC/stargazers"><img src="assets/traffic/stars.svg" alt="GitHub Stars" width="42%"></a> <a href="docs/traffic_metrics.md"><img src="assets/traffic/clones-total.svg" alt="Cumulative recorded clones" width="56%"></a></td>
+    </tr>
+  </table>
+<!-- traffic-status:start -->
+  <p>累计克隆 · 自 2026-10-02 起记录 · 更新于 2026-10-23 UTC。 <a href="docs/traffic_metrics.md">统计口径与更新</a></p>
+<!-- traffic-status:end -->
+  <p><strong>TOMC 帮上忙了？点一下右上角 ⭐ Star，支持我们继续更新。</strong></p>
   <h1>TOMC Memory</h1>
-  <h3>面向 Codex / Claude Code / Cursor / TRAE 的上下文压缩与任务记忆插件</h3>
+  <h3>面向 Codex / Claude Code / Cursor / TRAE / WorkBuddy 的上下文压缩与任务记忆插件</h3>
   <p><strong>在 CPU 上压缩编译长历史，取回已保存的任务笔记。</strong></p>
-  <p><a href="#接在你的-api-调用之前"><strong>接入 API</strong></a> · <a href="#接入常用助手">安装 TOMC Memory</a> · <a href="#switch-assistants">换助手继续</a> · <a href="#试用演示">查看 Demo</a> · <a href="#paper-explained">论文详解</a> · <a href="#同一个模型基线记忆与-tomc-记忆">论文结果</a> · <a href="README.md">English</a></p>
+  <p><a href="#接在你的-api-调用之前"><strong>接入 API</strong></a> · <a href="#接入常用助手">安装 TOMC Memory</a> · <a href="#switch-assistants">换助手继续</a> · <a href="#试用演示">查看 Demo</a> · <a href="#paper-explained">论文详解</a> · <a href="#同一个模型基线记忆与-tomc-记忆">论文结果</a> · <a href="README.md">English</a> | <strong>简体中文</strong></p>
   <p><strong>CPU 准备上下文</strong> · 无需训练或额外模型服务 · 输出普通文本 · 研究预览</p>
 </div>
 
-[TOMC Memory 项目主页](https://zipengwu.me/tomc/) · [English](README.md)
+[TOMC Memory 官方 GitHub 主页](https://github.com/ZipengWu365/TOMC) · [插件下载](plugins/downloads) · [中文安装教程](#接入常用助手) · [English](README.md)
+
+## TOMC 插件官网地址与下载
+
+**TOMC 插件官网地址：[github.com/ZipengWu365/TOMC](https://github.com/ZipengWu365/TOMC)。** 本 GitHub 仓库就是 TOMC Memory的官方主页，源码、插件下载和安装教程都在这里。
+
+下载安装请先查看[接入常用助手](#接入常用助手)，按你的客户端选择 Codex 插件、Claude Code 插件，或 Cursor、TRAE、腾讯 WorkBuddy、Claude Desktop 的 MCP 接入方式。安装包在[插件下载目录](plugins/downloads)，使用方法见[中文使用技巧](docs/usage_tips_zh.md)。
 
 <a id="use-tomc"></a>
 
 ## 第一部分：使用 TOMC Memory
 
-**TOMC Memory（汤姆 C）**是基于 Task-Oriented Memory Compilation（TOMC）的开源工具，为 AI 助手压缩编译上下文，并通过明确保存的笔记提供任务记忆。它提供 MCP 服务和 Python API。给它一段历史、下一步任务和记忆预算。它选择原文，对支持的状态、关系或计数操作计算记录，让你的应用用准备后的上下文替换完整历史。准备过程在 CPU 上运行，无需训练或额外模型服务。
+**TOMC Memory**是基于 Task-Oriented Memory Compilation（TOMC）的开源工具，为 AI 助手压缩编译上下文，并通过明确保存的笔记提供任务记忆。它提供 MCP 服务和 Python API。给它一段历史、下一步任务和记忆预算。它选择原文，对支持的状态、关系或计数操作计算记录，让你的应用用准备后的上下文替换完整历史。准备过程在 CPU 上运行，无需训练或额外模型服务。
 
 让助手制作视频、整理资料、处理文件或进行编程开发时，可以用 `remember_memory` 保存任务要求、决策、约束、已完成步骤和待办事项，再用 `recall_memory` 为下一步任务准备这些笔记。这里列的是任务记忆的使用场景。下面的实测数据来自合成项目历史和论文基准，各有明确的任务与协议，不能直接推广为上述所有任务的效果。
 
-可以把 Python API 接进自己的应用，在 Codex 或 Claude Code 中安装插件，或通过本地 MCP 接入 Cursor、TRAE 和 Claude Desktop。节省量取决于历史和任务；短历史可以保持完整。默认保留长历史的约 80%。需要更小的请求时，可以用自己的任务比较 40% 或 60% 预算；参见分别记录的 [Codex 与 Claude 实测](#实测节省)。
+可以把 Python API 接进自己的应用，在 Codex 或 Claude Code 中安装插件，或通过本地 MCP 接入 Cursor、TRAE、腾讯 WorkBuddy 和 Claude Desktop。节省量取决于历史和任务；短历史可以保持完整。默认保留长历史的约 80%。需要更小的请求时，可以用自己的任务比较 40% 或 60% 预算；参见分别记录的 [Codex 与 Claude 实测](#实测节省)。
 
 新开聊天后，可以在原来的助手或另一个助手中复用已保存的任务笔记。两个客户端使用同一台电脑上的同一 TOMC 数据库时，可以复用已保存的决策、约束和下一步任务。[试一次 Codex → Claude Code → Codex 接续](#switch-assistants)。
 
@@ -27,13 +43,19 @@
 
 当前是 **v0.1.0 预览版**。插件可从[MIT 许可助手插件预览包](https://github.com/ZipengWu365/TOMC/tree/main/plugins/downloads)下载。尚无 PyPI 发布版或公开插件市场条目。
 
-### 30 秒演示
+**桌面小猫（测试版）。** 桌面上的小猫显示 TOMC 节省的 token、按各模型输入价值多少钱、来自哪些对话，并提供分析报告和上下文库。Windows 上还可以通过本机网关自动处理 Codex 和 Claude Code 的请求。[安装桌面小猫](docs/desktop_companion.md#chinese-quickstart)（Windows 和 macOS）。
 
-[![TOMC：上下文压缩编译与任务笔记续接](launch/media/v12/gifs/TOMC_Agent_Complete_ZH.gif)](launch/media/v12/videos/TOMC_Agent_Complete_ZH.mp4)
+### 视频介绍
 
-[横版视频](launch/media/v12/videos/TOMC_Agent_Complete_ZH.mp4) · [English video](launch/media/v12/videos/TOMC_Agent_Complete_EN.mp4) · [素材与测试范围](launch/media/v12/README.md)
+[![TOMC 介绍：省输入、换助手、换电脑，以及 BEAM 测评结果](launch/media/v13/gifs/TOMC_Overview_ZH.gif)](launch/media/v13/videos/TOMC_Overview_ZH.mp4)
 
-结尾明确标注**已使用 TOMC 测试的模型**及用途：API 模型接收准备好的上下文，Codex 和 Claude Code 调用 TOMC 工具。名单包含 DeepSeek 4.1 Flash、DeepSeek 4 PRO、小红书 Red preview、Claude Opus 5.5、ChatGPT Codex 6.1 Sol。这份名单综合已有测试记录与作者提供的测试情况；视频中的 token 和费用结果各有独立协议，不能解释为五模型统一基准或提供商背书。
+[完整视频（1 分 28 秒，有声）](launch/media/v13/videos/TOMC_Overview_ZH.mp4) · [English video](launch/media/v13/videos/TOMC_Overview_EN.mp4) · [素材与测试范围](launch/media/v13/README.md)
+
+API 接入方在请求前调用 TOMC，发送准备好的上下文。Codex 和 Claude Code 通过工具保存或召回任务笔记。视频中的数字来自各自的测试条件，不代表模型提供商背书。
+
+[实测结果](#实测节省)保留了 Codex、Claude Code 各自的实验条件和原始记录。
+
+[首次使用指南](#first-run-tomc) · [Python API](#接在你的-api-调用之前) · [完整实验结果和局限](#实测节省)。
 
 TOMC 目前是研究预览。欢迎试用、反馈、提交 Issue 和 PR，以及交流与研究合作。换设备与换助手可以独立选择；跨设备笔记传递采用手动 Git。
 
@@ -41,13 +63,69 @@ TOMC 目前是研究预览。欢迎试用、反馈、提交 Issue 和 PR，以�
 
 选择你所用客户端的接入方式。TOMC 在本地 CPU 上准备上下文，回答由助手生成；插件本身不需要额外的大模型 API key 或 GPU。
 
+**当前聊天由宿主管理。** Codex、Claude Code 等宿主负责上下文压缩时，TOMC 不主动再次压缩同一聊天；无法确认宿主状态时也默认由宿主负责。TOMC 用于另外提供的外部历史和明确保存的任务笔记。这是工具调用规则，不是自动压缩状态检测器。[上下文归属说明](docs/context_ownership_zh.md)。插件包 0.1.1 包含此规则，编译核心仍为 0.1.0。
+
+<a id="first-run-tomc"></a>
+
+#### 首次试用
+
+**Claude Code：保存一条任务笔记，再在新聊天中取回。** 先安装 [UV](https://docs.astral.sh/uv/getting-started/installation/)，然后在 Claude Code 内执行：
+
+```text
+/plugin marketplace add ZipengWu365/TOMC
+/plugin install tomc-memory@tomc
+```
+
+新开会话或重新加载 VS Code，使用 `/mcp` 检查 `plugin:tomc-memory:tomc`，再明确要求调用工具：
+
+```text
+请调用 TOMC 的 remember_memory，将下面的笔记保存为 api-refactor：
+公共 API 路由不得改变；分页测试尚未编写。
+请展示工具结果。
+```
+
+在**使用同一本地记忆数据库的新聊天**中，要求：
+
+```text
+请调用 TOMC 的 recall_memory，取回 api-refactor。
+报告之前的约束和未完成工作，并展示工具结果。
+```
+
+笔记需要主动保存和召回，插件不会自动记录全部聊天。[Claude Code 安装指南](docs/assistant_plugin_zh.md#claude-code) · [笔记共用排查](docs/usage_tips_zh.md#reuse-notebooks)。
+
+**Codex CLI：安装插件并检查工具是否可用。** [下载 0.1.2 版 Codex ZIP](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-codex-0.1.2.zip)，解压到准备保留的目录，使用 UV 与兼容的 Codex CLI 执行：
+
+```bash
+uv run --no-project --python 3.12 install.py --check
+uv run --no-project --python 3.12 install.py
+```
+
+第一条命令只检查前提条件，不修改 Codex 配置；安装后需要**新开 Codex 会话**，并明确要求调用 TOMC 保存或召回命名笔记。[完整 Codex 说明](docs/assistant_plugin_zh.md#codex) · [平台验证范围](docs/platform_checks.md)。
+
+**Python API：先离线检查上下文，再接入大模型。** 需要 Python 3.10 或更新版本：
+
+```bash
+git clone https://github.com/ZipengWu365/TOMC.git && printf '\n%s\n%s\n' \
+  '如果 TOMC 对你有帮助，欢迎 Star 支持（自愿）：' 'https://github.com/ZipengWu365/TOMC'
+cd TOMC
+python -m pip install -e .
+python examples/api_context.py
+```
+
+上面的 Bash / Git Bash 命令会在克隆成功后显示一次自愿 Star 邀请。直接使用普通 `git clone` 不会显示；克隆完成不代表已经安装。
+
+这个示例仅在本地准备并统计上下文，**不调用模型**。实际使用时，`prepared.messages` 应当**替换**原历史，并保留应用需要的指令和工具协议。[API 接入示例](#接在你的-api-调用之前) · [参考文档](docs/api_reference.md)。
+
+#### 其他客户端接入
+
 | 客户端 | 从哪里开始 | 前提条件 |
 |---|---|---|
-| Codex CLI | [下载插件 ZIP](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-codex-0.1.0.zip) | 支持插件命令的新版 Codex CLI，且 [`uv`](https://docs.astral.sh/uv/getting-started/installation/) 在 PATH 中或通过 `--uv` 指定 |
+| Codex CLI | [下载插件 ZIP](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-codex-0.1.2.zip) | 支持插件命令的新版 Codex CLI，且 [`uv`](https://docs.astral.sh/uv/getting-started/installation/) 在 PATH 中或通过 `--uv` 指定 |
 | Codex IDE extension | [配置本地 MCP 服务](docs/assistant_setup.md) | 本地 TOMC 环境已安装 `.[mcp]` |
 | Cursor | 生成安装链接，或[添加 MCP 配置](docs/cursor_trae_zh.md) | 本地 TOMC 运行环境；客户端工具调用尚未验证 |
 | TRAE（国际版 / 国内版） | [添加 TOMC 本地 MCP 服务](docs/cursor_trae_zh.md#trae) | 本地 TOMC 运行环境；客户端工具调用尚未验证 |
-| Claude Desktop | [下载 `.mcpb` 扩展](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-0.1.0.mcpb) | 支持 UV 扩展的新版 Claude Desktop；首次安装需要联网 |
+| 腾讯 WorkBuddy | [配置 TOMC 本地 MCP 服务](docs/workbuddy_zh.md) | 本地 TOMC 运行环境；客户端工具调用尚未验证 |
+| Claude Desktop | [下载 `.mcpb` 扩展](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-0.1.1.mcpb) | 支持 UV 扩展的新版 Claude Desktop；首次安装需要联网 |
 | Claude Code | `/plugin marketplace add ZipengWu365/TOMC`，再运行 `/plugin install tomc-memory@tomc`（[说明](docs/assistant_plugin_zh.md#claude-code)） | [`uv`](https://docs.astral.sh/uv/getting-started/installation/)；已在 Claude Code 的 VS Code 扩展中测试 |
 
 <details>
@@ -96,6 +174,17 @@ TRAE 和 Cursor 的客户端工具发现及模型调用尚未验证。目前提�
 </details>
 
 <details>
+<summary>腾讯 WorkBuddy 安装步骤</summary>
+
+#### 腾讯 WorkBuddy
+
+按 [WorkBuddy 接入指南](docs/workbuddy_zh.md)修改 JSON 模板中的本地运行路径。打开**插件 → MCP 服务器 → 配置 MCP**，把 `tomc` 条目合并到用户级 `~/.workbuddy/mcp.json` 或项目级 `.workbuddy/mcp.json`，保留已有服务。最新源码环境安装 `.[mcp]` 后，也可以运行 `python -m tomc setup --client workbuddy` 生成配置。命令只打印配置，不修改客户端设置。
+
+目前提供手动本地 MCP 接入预览；WorkBuddy 的客户端工具发现和模型调用尚未验证，TOMC 尚未上架腾讯市场。
+
+</details>
+
+<details>
 <summary>Claude Desktop 安装步骤</summary>
 
 #### Claude Desktop
@@ -128,7 +217,7 @@ VS Code 扩展实测中（模型为 Claude Opus 5.5），预算设为 8,192 时�
 
 **已在 Windows、macOS、Linux 和 Claude Code 中实测。** 三个系统都通过了安装和工具检查；Codex（[Windows preview.4](docs/validation.md#windows-codex-preview4)、macOS）和 Claude Code（Claude Opus 5.5）通过了真实模型调用。Claude Desktop、Cursor 和 Codex 桌面应用的图形界面安装仍待验证。[各平台检查记录](docs/platform_checks_zh.md)
 
-[Usage tips (English)](docs/usage_tips.md) · [中文使用技巧](docs/usage_tips_zh.md) · [Windows 安装反馈](docs/windows_installation_feedback_zh.md) · [完整中文安装指南](docs/assistant_plugin_zh.md) · [验证记录](docs/validation.md) · [Claude 校验文件](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-0.1.0.mcpb.sha256) · [Codex 校验文件](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-codex-0.1.0.zip.sha256)。
+[Usage tips (English)](docs/usage_tips.md) · [中文使用技巧](docs/usage_tips_zh.md) · [Windows 安装反馈](docs/windows_installation_feedback_zh.md) · [完整中文安装指南](docs/assistant_plugin_zh.md) · [验证记录](docs/validation.md) · [Claude 校验文件](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-0.1.1.mcpb.sha256) · [Codex 校验文件](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-codex-0.1.2.zip.sha256)。
 
 <a id="switch-assistants"></a>
 
@@ -156,6 +245,10 @@ VS Code 扩展实测中（模型为 Claude Opus 5.5），预算设为 8,192 时�
 
 记忆本保留原始笔记和追加更新，取回时为下一步任务准备上下文。共享的是明确保存的笔记，不会迁移原生聊天记录，也不提供跨设备云同步。[MCP 互操作和用户引导检查](docs/validation.md#cross-assistant-notebooks)。
 
+### API 请求循环的自动处理
+
+在已有同步 Chat Completions 调用前使用 [AutomaticChatSession](docs/context_ownership_zh.md)：默认使用对缓存友好的稳定前缀（整理结果保持不变，直到请求装不下才重整），缓存模型规格，跨窗口边界短暂避让，原生压缩刚完成后短暂冷却。只改变发送的旧历史视图，原历史、指令、近期消息和工具协议由调用方保留。默认词法打包已修复重复扫描。[模型容量对应表](docs/model_context_limits_20261012.md)。安装 MCP 本身不会拦截客户端内置请求；没有新增原生客户端或真实模型验收声明。
+
 ### 接在你的 API 调用之前
 
 在仓库环境中用 `python -m pip install -e .` 安装核心包。先准备历史，检查 `prepared.prompt`，再把 `prepared.messages` 交给已有的 chat-completions 客户端：
@@ -170,13 +263,18 @@ response = client.chat.completions.create(
 )
 ```
 
-这里的 `history`、`task`、`client` 和 `model` 来自你已有的应用。**本次请求用准备后的消息替换原历史；追加到原历史后面会增加输入。** 保留应用所需的指令。其他文本 API 可转换为各自的消息格式；TOMC 改变请求文本，无需修改模型权重。[API 用法与 token 计数](docs/api_reference.md)。
+`history`、`task`、`client` 和 `model` 来自你已有的应用。**本次请求用准备后的消息替换原历史；追加到原历史后面会增加输入。** 保留应用所需的指令。其他文本 API 可转换为各自的消息格式；TOMC 改变请求文本，无需修改模型权重。[API 用法与 token 计数](docs/api_reference.md)。
 
 #### 实测节省
 
 ##### Windows Codex · gpt-6.1-sol
 
 **每种预算均为 45/45。** 测试使用九份合成团队聊天历史：三个 seed，分别生成约 10K、20K、40K history token 的历史，每份回答五个项目最新状态问题。Windows Codex 0.160.0 保留原有模型、`ultra` effort 和已安装插件。TOMC 先通过已安装的 MCP 工具准备上下文，再交给各自的新聊天回答。
+
+[![Windows Codex：4 种预算下均为 45/45；平均请求输入及配对减少比例。](assets/results/codex_savings_zh.svg)](docs/codex_retention_20261005_zh.md)
+
+<details>
+<summary>查看可复制的原始数值</summary>
 
 | 发送的上下文 | 平均请求输入 token | 平均配对输入减少 | 正确回答 |
 |---|---:|---:|---:|
@@ -185,17 +283,26 @@ response = client.chat.completions.create(
 | TOMC · 60% 历史预算 | 33,344 | 19.5% | 45/45 |
 | TOMC · 默认 80% 历史预算 | 38,035 | 9.2% | 45/45 |
 
+</details>
+
 输入采用 Codex 返回的总量，包含缓存输入、宿主指令和工具定义。减少比例是九份历史各自配对比例的均值，不是表中两个均值直接相除。每份历史、每种条件只统计一次回答回合；让模型在聊天中准备或取回上下文还会增加回合。所有准备结果都使用 `tomc_raw` 原文选择，没有生成操作记录。本次测试针对合成历史的最新状态查找，不代表通用编程质量。[English report](docs/codex_retention_20261005.md) · [中文报告](docs/codex_retention_20261005_zh.md) · [原始记录](docs/validation_data/windows_codex_retention_20261005.json) · [预算技巧](docs/usage_tips_zh.md#choose-budget)。完整历史对照也使用相同的配置，TOMC 已安装，其他已启用插件保持启用。表中测量的是测试程序内每种条件的单次回答回合；完整 agent 工作流还可能包含额外回合。
 
 ##### Claude Code · Claude Opus 5.5
 
-**答案一样，请求更小。** 我们用约 10K、20K、40K token 的合成团队聊天历史测试，里面有几十到几百次状态更新，还混有同样关键词的干扰信息；由 Claude Opus 5.5 回答 5 个关于项目最新状态的问题。TOMC 保留 40% 的历史时，答案与完整历史完全一致，请求费用降低一半以上：
+我们用约 10K、20K、40K token 的合成团队聊天历史测试，里面有几十到几百次状态更新，还混有同样关键词的干扰信息；由 Claude Opus 5.5 回答 5 个关于项目最新状态的问题。TOMC 保留 40% 的历史时，这 5 个问题的答案与完整历史一致。费用如下：
+
+[![Claude Code：10K、20K、40K 历史的请求费用；各展示条件均为 5/5。](assets/results/claude_savings_zh.svg)](docs/validation.md#claude-code-windows-validation)
+
+<details>
+<summary>查看可复制的原始数值</summary>
 
 | 历史长度 | 完整历史 | TOMC 保留 40% | TOMC 保留 60% |
 |---|---|---|---|
 | 约 10K token | US$0.169 · 5/5 | US$0.075 · 5/5（−56%） | US$0.103 · 5/5（−39%） |
 | 约 20K token | US$0.334 · 5/5 | US$0.141 · 5/5（−58%） | US$0.195 · 5/5（−42%） |
 | 约 40K token | US$0.628 · 5/5 | US$0.255 · 5/5（−59%） | US$0.369 · 5/5（−41%） |
+
+</details>
 
 **Claude Code 的默认预算检查。** 不传 `budget` 时，TOMC 保留历史估算长度的约 80%（至少 1,024，短历史保持完整）。在每种长度各 3 份不同的历史上，Claude Opus 5.5 默认设置 45 题全对，输入约减少 20%；保留 50%、60%、70% 也都 45 题全对，分别约省 49%、39%、30%。预算再小就开始返回过时的值：只保留 10–20% 时，5 题只答对 3 到 4 题。只有在拿自己的一部分任务和完整历史对比确认后，才建议传入更小的 `budget`。以上为单一模型在合成历史上的测试，请求工作流与 Codex 测试不同。[验证记录](docs/validation.md#claude-code-windows-validation) · [预算技巧](docs/usage_tips_zh.md)
 
@@ -248,7 +355,8 @@ Demo 用于查看 TOMC 如何为任务准备上下文，不创建跨聊天记忆
 Gradio 界面需要 Python 3.10–3.13。先克隆仓库：
 
 ```bash
-git clone https://github.com/ZipengWu365/TOMC.git
+git clone https://github.com/ZipengWu365/TOMC.git && printf '\n%s\n%s\n' \
+  '如果 TOMC 对你有帮助，欢迎 Star 支持（自愿）：' 'https://github.com/ZipengWu365/TOMC'
 cd TOMC
 ```
 

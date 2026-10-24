@@ -2,30 +2,88 @@
   "manifest_version": "0.4",
   "name": "tomc-memory",
   "display_name": "TOMC",
-  "version": "0.1.0",
-  "description": "Prepare task-specific context from supplied history for your existing assistant.",
-  "long_description": "Give TOMC a history, the next task and a memory budget. It prepares context on CPU using selected source text and supported task records; your existing assistant writes the answer. No extra model API key or model service is required. Optional notebooks keep supplied history across chats. An API application can send prepared context instead of the full history in its next request; a tool call does not remove existing host history or intercept every request. Counts and the budget cover memory text under a lexical estimate, excluding task text, tool envelopes and provider framing. Short histories can stay intact, and savings depend on the context sent. The first installation needs network access to download the runtime and dependencies.",
-  "author": {"name": "Zipeng Wu"},
-  "repository": {"type": "git", "url": "https://github.com/ZipengWu365/TOMC.git"},
+  "version": "0.1.5",
+  "description": "Prepare external task evidence and optional notebooks; the host manages active-chat compaction.",
+  "long_description": "TOMC prepares supplied task evidence on CPU, with optional named notebooks and a local context library. Successful prepared context and its task are saved by default; local recording can be disabled independently of processing. The original input is not separately archived, but short inputs may remain intact in prepared context. Context snapshots support portable export and continuation prompts. Numeric context-reduction estimates are separate from saved text and are not API or billing savings. The host owns active-chat compaction; this MCP server does not replace the host's full request history. Optional metadata-only session hooks support default-on processing and persistent per-session pause; installation, host loading and hook trust are required. The first installation needs network access for the runtime and dependencies. Use get_status for configuration and get_usage_stats for context estimates.",
+  "author": {
+    "name": "Zipeng Wu"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ZipengWu365/TOMC.git"
+  },
   "license": "MIT",
   "server": {
     "type": "uv",
     "entry_point": "src/server.py",
     "mcp_config": {
       "command": "uv",
-      "args": ["run", "--locked", "--directory", "${__dirname}", "src/server.py"]
+      "args": [
+        "run",
+        "--locked",
+        "--directory",
+        "${__dirname}",
+        "src/server.py"
+      ]
     }
   },
   "tools": [
-    {"name": "prepare_context", "description": "Prepare supplied history for the next task without saving it; budget covers estimated memory tokens."},
-    {"name": "remember_memory", "description": "Optionally save user-supplied history in a named notebook."},
-    {"name": "recall_memory", "description": "Prepare an optional notebook's history for the next task."},
-    {"name": "list_memories", "description": "Find saved notebook names."},
-    {"name": "forget_memory", "description": "Delete a specified notebook when requested."}
+    {
+      "name": "prepare_context",
+      "description": "Prepare supplied history for the next task; save the prepared context when local recording is enabled. Budget covers estimated memory tokens."
+    },
+    {
+      "name": "remember_memory",
+      "description": "Optionally save user-supplied history in a named notebook."
+    },
+    {
+      "name": "recall_memory",
+      "description": "Prepare an optional notebook's history for the next task."
+    },
+    {
+      "name": "list_memories",
+      "description": "Find saved notebook names."
+    },
+    {
+      "name": "forget_memory",
+      "description": "Delete a specified notebook when requested."
+    },
+    {
+      "name": "get_usage_stats",
+      "description": "View local cumulative estimated context reduction for all, today, or 7d (UTC), not API or billing savings."
+    },
+    {
+      "name": "get_status",
+      "description": "Inspect configuration, processing settings and declared session state; configuration is not runtime verification."
+    },
+    {
+      "name": "list_contexts",
+      "description": "List saved prepared-context snapshots without their body."
+    },
+    {
+      "name": "get_context",
+      "description": "Read one selected context snapshot as historical evidence."
+    },
+    {
+      "name": "make_handoff",
+      "description": "Build a self-contained continuation prompt; does not send it."
+    }
   ],
   "compatibility": {
-    "platforms": ["darwin", "win32", "linux"],
-    "runtimes": {"python": ">=3.10,<3.14"}
+    "platforms": [
+      "darwin",
+      "win32",
+      "linux"
+    ],
+    "runtimes": {
+      "python": ">=3.10,<3.14"
+    }
   },
-  "keywords": ["context", "compression", "cpu", "tomc", "memory"]
+  "keywords": [
+    "context",
+    "compression",
+    "cpu",
+    "tomc",
+    "memory"
+  ]
 }

@@ -1,5 +1,7 @@
 # Python API
 
+For a caller-controlled request loop, [AutomaticChatSession](context_ownership.md) optimizes old message history every one/two logical requests using a cached model limit, with brief native-compaction cooldown. It does not install a client interceptor. MCP tools leave the active chat with the host. [Model capacities](model_context_limits_20261012.md).
+
 ## Prepare context before your API call
 
 Put TOMC between your stored history and the next model request. `prepare_context` returns a prompt, messages and compilation details. Inspect what it retained, then send the prepared messages in place of the original history. Your model and SDK stay the same.
