@@ -1,9 +1,18 @@
+# TOMC 0.2.1 — 2026-10-24
+
+0.2.1 fits each MCP result into one tool output, can send only the changes on a repeat call, and lets notes and documents stop below the budget when the evidence is clear. Like 0.2.0, the packages are [release assets](https://github.com/ZipengWu365/TOMC/releases/tag/v0.2.1-preview.1).
+
+| Current package | Download | Size | SHA-256 |
+|---|---|---|---|
+| Claude MCP runtime 0.2.1 | [MCPB](https://github.com/ZipengWu365/TOMC/releases/download/v0.2.1-preview.1/tomc-memory-0.2.1.mcpb) | 7.6 MB | `0b2807382011bee9fe6dd7fa36b9f35f9a830b980964cfb650eccc651409bbed` |
+| Codex native plugin 0.2.1 | [ZIP](https://github.com/ZipengWu365/TOMC/releases/download/v0.2.1-preview.1/tomc-memory-codex-0.2.1.zip) | 7.6 MB | `1bab23d6978165c460bc6d30c8d9ecd02f0f57e2755ced6f3a5a6bbfbc68cf1f` |
+
 # TOMC 0.2.0 — 2026-10-24
 
 The 0.2.0 packages include the desktop cat images, so at about 7.6 MB they are published as [release assets](https://github.com/ZipengWu365/TOMC/releases/tag/v0.2.0-preview.1) rather than in this folder. They add the context library tools, the savings dashboard data and the analysis report; the desktop companion itself is installed from a checkout ([guide](../../docs/desktop_companion.md)).
 
-| Current package | Size | SHA-256 |
-|---|---|---|
+| Package | Download | Size | SHA-256 |
+|---|---|---|---|
 | Claude MCP runtime 0.2.0 | [MCPB](https://github.com/ZipengWu365/TOMC/releases/download/v0.2.0-preview.1/tomc-memory-0.2.0.mcpb) | 7.6 MB | `b813f064ec02f3be408d551f8d3244926920d1b6f648908d0efa3402f401be09` |
 | Codex native plugin 0.2.0 | [ZIP](https://github.com/ZipengWu365/TOMC/releases/download/v0.2.0-preview.1/tomc-memory-codex-0.2.0.zip) | 7.6 MB | `4666c15cdfc321aec2f5e358272ff0e761fbc5a570dd085977abd85068586aac` |
 

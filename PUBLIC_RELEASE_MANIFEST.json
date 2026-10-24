@@ -91,13 +91,13 @@
     },
     {
       "path": "README.md",
-      "bytes": 51169,
-      "sha256": "461ea2e99a882a79045929e6a863af359d199bf0c690a7921dd5a29ec1bd58de"
+      "bytes": 51172,
+      "sha256": "de716eb8a4f8d9549bfc4576ff35d160707a7daffc376d6cb3d35b3c0a0fd365"
     },
     {
       "path": "README_zh.md",
       "bytes": 46491,
-      "sha256": "7d78d3708e60e7c6dce5e98ec435fbcc6825fecca9d8c6ded6fbd87c72258bb4"
+      "sha256": "cb35cdf205dc915081ebd7a86e28df22fb125a70cf9b396bca4108ef293971ab"
     },
     {
       "path": "SECURITY.md",
@@ -686,8 +686,8 @@
     },
     {
       "path": "docs/api_reference.md",
-      "bytes": 13373,
-      "sha256": "fd5f82bc0d24dda8e8c5bf08ad1aa551b28a8b078c57c2db83b1e0a13ea68233"
+      "bytes": 13960,
+      "sha256": "ff941b80ba18b9f7e7adecd4c49ff867deba6107e1cf68dbdf68e9d083ee4ace"
     },
     {
       "path": "docs/architecture.md",
@@ -736,13 +736,13 @@
     },
     {
       "path": "docs/assistant_plugin.md",
-      "bytes": 29314,
-      "sha256": "f95c468f6384ff4587ca31e5f79aec38500baf3f86f2b24a67183ab239208c04"
+      "bytes": 30006,
+      "sha256": "1d211195812bcdf429a9926d199d3d3064baebdb969e8e8c8e312d6f73d581ce"
     },
     {
       "path": "docs/assistant_plugin_zh.md",
-      "bytes": 29078,
-      "sha256": "b67c27bf158d827b843304ab2a684c32f92b4f69951454152633121cef29689b"
+      "bytes": 29735,
+      "sha256": "436b432434b14c0a179acae02a8114cb9104b3fcc320b9c94f57ff44a9d30a1a"
     },
     {
       "path": "docs/assistant_setup.md",
@@ -1527,7 +1527,7 @@
     {
       "path": "plugins/claude-code/.claude-plugin/plugin.json",
       "bytes": 451,
-      "sha256": "0de0c2b4ca90b77c204b7ce655bb43e81f1b4c071541a3517e5af279d06f0141"
+      "sha256": "c1267348ba5ace60d61ac10ef3ac0fbf262d359e7383102130bd055d1dea5bf9"
     },
     {
       "path": "plugins/claude-code/.mcp.json",
@@ -1541,8 +1541,8 @@
     },
     {
       "path": "plugins/claude-code/README.md",
-      "bytes": 3797,
-      "sha256": "a18a9bd68bf80c02db7b94a2ff6cced11f71802d428baef2a85ac79c6f817e67"
+      "bytes": 4062,
+      "sha256": "0461133b15069badd321bef45ec2f5aa87a02564db6779eeeee47c646d7ffbbd"
     },
     {
       "path": "plugins/claude-code/pyproject.toml",
@@ -1557,7 +1557,7 @@
     {
       "path": "plugins/claude-code/src/tomc/__init__.py",
       "bytes": 791,
-      "sha256": "574ada8a59283baff06bcd290b682d2a688da7a04d7a7654789ef915a3443607"
+      "sha256": "c016e276143f0e41818357e1e4130a59b497c24b7246ff9c74bc5e3a9da605ee"
     },
     {
       "path": "plugins/claude-code/src/tomc/__main__.py",
@@ -1641,8 +1641,8 @@
     },
     {
       "path": "plugins/claude-code/src/tomc/cli.py",
-      "bytes": 5344,
-      "sha256": "78572e852194e36da338648e39e7883e111f353cf305a95e2e1d101bb9ce42b7"
+      "bytes": 5617,
+      "sha256": "9c56f76f84305cbd8b57fb0e7a02ac7ad83b497572779f13ec727005a018bfc1"
     },
     {
       "path": "plugins/claude-code/src/tomc/compiler.py",
@@ -1731,8 +1731,8 @@
     },
     {
       "path": "plugins/claude-code/src/tomc/easy.py",
-      "bytes": 5049,
-      "sha256": "16deb44c527438c8f7b6c640750ef52e8ccd7cd0fe5409fb1978e83cb7b13272"
+      "bytes": 6475,
+      "sha256": "7b6c05067df119b06cd8ea3e16ea4b91a2f68cc3d1aad57e111247fc46726ede"
     },
     {
       "path": "plugins/claude-code/src/tomc/gateway_protocol.py",
@@ -1746,8 +1746,8 @@
     },
     {
       "path": "plugins/claude-code/src/tomc/incremental.py",
-      "bytes": 5431,
-      "sha256": "dcf2a3d471cdf75bcdeda41e10b238f1b71d3fafbca2deb425392daded02a1f7"
+      "bytes": 5583,
+      "sha256": "6ea38cbc8a6b94245f721bc8190fe095d916cf7afd23b13726ccc96624efcb29"
     },
     {
       "path": "plugins/claude-code/src/tomc/input.py",
@@ -1771,8 +1771,8 @@
     },
     {
       "path": "plugins/claude-code/src/tomc/mcp_server.py",
-      "bytes": 14684,
-      "sha256": "6e25e9f66ce1c62faaf03951bd0c2a5a4a866a5c74806d350a9bd6b829d14183"
+      "bytes": 18587,
+      "sha256": "7d513ac9baa3ac626b954584866f99c3d8ba691d8bad6367bf796bf610735bc8"
     },
     {
       "path": "plugins/claude-code/src/tomc/model_detection.py",
@@ -1886,8 +1886,8 @@
     },
     {
       "path": "plugins/claude-code/src/tomc/store.py",
-      "bytes": 4499,
-      "sha256": "ec7a4000dd3223aaea09166786745f0bbf6c39a9d8b3f309457d9506bc6230d5"
+      "bytes": 4687,
+      "sha256": "2f5ab0913186551a74f6122ae7ebaafe4f11e7195e38bf49d08e9f49becf95fa"
     },
     {
       "path": "plugins/claude-code/src/tomc/strategies/__init__.py",
@@ -1946,13 +1946,13 @@
     },
     {
       "path": "plugins/claude/README.md",
-      "bytes": 5976,
-      "sha256": "77fe772196c677c8bbe013f4fd3e7fd6024e208321f469e0920e3e539796d1aa"
+      "bytes": 5982,
+      "sha256": "37c6c255d9714bddbd47459671dc51aa7b3fd2f9caa0f125017116c9a5f0a959"
     },
     {
       "path": "plugins/claude/manifest.json",
       "bytes": 3231,
-      "sha256": "f448c76ae45f170ad2f313422858cddea766b7277cdf0cb57deff9dfa3e812af"
+      "sha256": "669d1f4c9f2e5eaaaa63b7521cf95c1631f62c55d8294f0034af7c0be9ed91e7"
     },
     {
       "path": "plugins/claude/pyproject.toml",
@@ -1972,12 +1972,12 @@
     {
       "path": "plugins/codex/.codex-plugin/plugin.json",
       "bytes": 610,
-      "sha256": "4a9cea0b89db9e42b4b228f61dcd1d1d81f369c0d9ff492708534f5053aa33f7"
+      "sha256": "567881d35f5496bdf9f7c2a78f5465592aa445a27b7349af8c230371ce2e2f91"
     },
     {
       "path": "plugins/codex/README.md",
-      "bytes": 9568,
-      "sha256": "1e6ac68c2c811c10e966e43fc384ef9db4991cfd561a4a5330fecff5f9198c56"
+      "bytes": 9574,
+      "sha256": "a169faa6c7a61f57c25ec54c7737158c531b1b3100177d20ad2941f8cf05c425"
     },
     {
       "path": "plugins/codex/install.py",
@@ -2001,8 +2001,8 @@
     },
     {
       "path": "plugins/downloads/README.md",
-      "bytes": 4924,
-      "sha256": "e5f641538592dcb7d423c104e06c79e59b7374cb0ef49976cf97f0304f7dc908"
+      "bytes": 5741,
+      "sha256": "44eb0f9e59ceb25c02b6e2c6d09617ce1fd1c40a2cc0a3f8b6663835438ce597"
     },
     {
       "path": "plugins/downloads/build_receipt.json",
@@ -2087,7 +2087,7 @@
     {
       "path": "pyproject.toml",
       "bytes": 1290,
-      "sha256": "5fe2dbd70c48042ae16019fbe0d9083eb22bf98779478f82e83a1ee7186cfe2e"
+      "sha256": "8ccd233c38cc406bac62bad2e142ddfc4e4a4dde8b4a13f35011737626c761d1"
     },
     {
       "path": "requirements-core.lock",
@@ -2146,8 +2146,8 @@
     },
     {
       "path": "scripts/build_claude_code_plugin.py",
-      "bytes": 7399,
-      "sha256": "e8f284250430f805d0d794cfadd81411d3fb3c46194fd68ceb3be803d7ea9090"
+      "bytes": 7664,
+      "sha256": "2c334f65b0eb830af6883146501d8652e920bfeb6ca3bff3b995f3df62a6b923"
     },
     {
       "path": "scripts/build_codex_plugin.py",
@@ -2412,7 +2412,7 @@
     {
       "path": "src/tomc/__init__.py",
       "bytes": 791,
-      "sha256": "574ada8a59283baff06bcd290b682d2a688da7a04d7a7654789ef915a3443607"
+      "sha256": "c016e276143f0e41818357e1e4130a59b497c24b7246ff9c74bc5e3a9da605ee"
     },
     {
       "path": "src/tomc/__main__.py",
@@ -2496,8 +2496,8 @@
     },
     {
       "path": "src/tomc/cli.py",
-      "bytes": 5344,
-      "sha256": "78572e852194e36da338648e39e7883e111f353cf305a95e2e1d101bb9ce42b7"
+      "bytes": 5617,
+      "sha256": "9c56f76f84305cbd8b57fb0e7a02ac7ad83b497572779f13ec727005a018bfc1"
     },
     {
       "path": "src/tomc/compiler.py",
@@ -2631,8 +2631,8 @@
     },
     {
       "path": "src/tomc/easy.py",
-      "bytes": 5049,
-      "sha256": "16deb44c527438c8f7b6c640750ef52e8ccd7cd0fe5409fb1978e83cb7b13272"
+      "bytes": 6475,
+      "sha256": "7b6c05067df119b06cd8ea3e16ea4b91a2f68cc3d1aad57e111247fc46726ede"
     },
     {
       "path": "src/tomc/gateway_protocol.py",
@@ -2646,8 +2646,8 @@
     },
     {
       "path": "src/tomc/incremental.py",
-      "bytes": 5431,
-      "sha256": "dcf2a3d471cdf75bcdeda41e10b238f1b71d3fafbca2deb425392daded02a1f7"
+      "bytes": 5583,
+      "sha256": "6ea38cbc8a6b94245f721bc8190fe095d916cf7afd23b13726ccc96624efcb29"
     },
     {
       "path": "src/tomc/input.py",
@@ -2671,8 +2671,8 @@
     },
     {
       "path": "src/tomc/mcp_server.py",
-      "bytes": 14684,
-      "sha256": "6e25e9f66ce1c62faaf03951bd0c2a5a4a866a5c74806d350a9bd6b829d14183"
+      "bytes": 18587,
+      "sha256": "7d513ac9baa3ac626b954584866f99c3d8ba691d8bad6367bf796bf610735bc8"
     },
     {
       "path": "src/tomc/model_detection.py",
@@ -2786,8 +2786,8 @@
     },
     {
       "path": "src/tomc/store.py",
-      "bytes": 4499,
-      "sha256": "ec7a4000dd3223aaea09166786745f0bbf6c39a9d8b3f309457d9506bc6230d5"
+      "bytes": 4687,
+      "sha256": "2f5ab0913186551a74f6122ae7ebaafe4f11e7195e38bf49d08e9f49becf95fa"
     },
     {
       "path": "src/tomc/strategies/__init__.py",
@@ -2943,6 +2943,11 @@
       "path": "tests/test_cost_estimate.py",
       "bytes": 3163,
       "sha256": "702446290cfa74b6fd3f784cadffb573ac64a1c213da41ab37d5a75997f1a4ca"
+    },
+    {
+      "path": "tests/test_delivery.py",
+      "bytes": 5369,
+      "sha256": "e3fb3ee2e4e6a1ddef5e59cfc9ac9fbe09d3d5dfbfff550ed28d183ae20ad668"
     },
     {
       "path": "tests/test_demo.py",
@@ -3150,7 +3155,7 @@
       "sha256": "be8dbb0aa75e27d1625255b99019c1b078833d1afc864951da7d6de1c4b70807"
     }
   ],
-  "total_bytes": 147315933,
+  "total_bytes": 147336484,
   "self_excluded": [
     "PUBLIC_RELEASE_MANIFEST.json",
     "SHA256SUMS"

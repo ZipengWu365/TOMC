@@ -41,7 +41,7 @@
   <img src="assets/plugin_usage_api_20261003.png" alt="在 Codex、Cursor、Claude Desktop 或 Claude Code 中安装 TOMC，传入历史、任务和预算；TOMC 准备上下文，再交给原来的助手。" width="1280">
 </a>
 
-当前是 **v0.2.0 预览版**。安装包见[发布页](https://github.com/ZipengWu365/TOMC/releases/tag/v0.2.0-preview.1)；早期安装包仍在[MIT 许可助手插件预览包](https://github.com/ZipengWu365/TOMC/tree/main/plugins/downloads)。尚无 PyPI 发布版或公开插件市场条目。
+当前是 **v0.2.1 预览版**。安装包见[发布页](https://github.com/ZipengWu365/TOMC/releases/tag/v0.2.1-preview.1)；早期安装包仍在[MIT 许可助手插件预览包](https://github.com/ZipengWu365/TOMC/tree/main/plugins/downloads)。尚无 PyPI 发布版或公开插件市场条目。
 
 **桌面小猫（测试版）。** 桌面上的小猫显示 TOMC 节省的 token、按各模型输入价值多少钱、来自哪些对话，并提供分析报告和上下文库。Windows 上还可以通过本机网关自动处理 Codex 和 Claude Code 的请求。[安装桌面小猫](docs/desktop_companion.md#chinese-quickstart)（Windows 和 macOS）。
 
@@ -93,7 +93,7 @@ TOMC 目前是研究预览。欢迎试用、反馈、提交 Issue 和 PR，以�
 
 笔记需要主动保存和召回，插件不会自动记录全部聊天。[Claude Code 安装指南](docs/assistant_plugin_zh.md#claude-code) · [笔记共用排查](docs/usage_tips_zh.md#reuse-notebooks)。
 
-**Codex CLI：安装插件并检查工具是否可用。** [下载 0.2.0 版 Codex ZIP](https://github.com/ZipengWu365/TOMC/releases/download/v0.2.0-preview.1/tomc-memory-codex-0.2.0.zip)，解压到准备保留的目录，使用 UV 与兼容的 Codex CLI 执行：
+**Codex CLI：安装插件并检查工具是否可用。** [下载 0.2.1 版 Codex ZIP](https://github.com/ZipengWu365/TOMC/releases/download/v0.2.1-preview.1/tomc-memory-codex-0.2.1.zip)，解压到准备保留的目录，使用 UV 与兼容的 Codex CLI 执行：
 
 ```bash
 uv run --no-project --python 3.12 install.py --check
@@ -120,12 +120,12 @@ python examples/api_context.py
 
 | 客户端 | 从哪里开始 | 前提条件 |
 |---|---|---|
-| Codex CLI | [下载插件 ZIP](https://github.com/ZipengWu365/TOMC/releases/download/v0.2.0-preview.1/tomc-memory-codex-0.2.0.zip) | 支持插件命令的新版 Codex CLI，且 [`uv`](https://docs.astral.sh/uv/getting-started/installation/) 在 PATH 中或通过 `--uv` 指定 |
+| Codex CLI | [下载插件 ZIP](https://github.com/ZipengWu365/TOMC/releases/download/v0.2.1-preview.1/tomc-memory-codex-0.2.1.zip) | 支持插件命令的新版 Codex CLI，且 [`uv`](https://docs.astral.sh/uv/getting-started/installation/) 在 PATH 中或通过 `--uv` 指定 |
 | Codex IDE extension | [配置本地 MCP 服务](docs/assistant_setup.md) | 本地 TOMC 环境已安装 `.[mcp]` |
 | Cursor | 生成安装链接，或[添加 MCP 配置](docs/cursor_trae_zh.md) | 本地 TOMC 运行环境；客户端工具调用尚未验证 |
 | TRAE（国际版 / 国内版） | [添加 TOMC 本地 MCP 服务](docs/cursor_trae_zh.md#trae) | 本地 TOMC 运行环境；客户端工具调用尚未验证 |
 | 腾讯 WorkBuddy | [配置 TOMC 本地 MCP 服务](docs/workbuddy_zh.md) | 本地 TOMC 运行环境；客户端工具调用尚未验证 |
-| Claude Desktop | [下载 `.mcpb` 扩展](https://github.com/ZipengWu365/TOMC/releases/download/v0.2.0-preview.1/tomc-memory-0.2.0.mcpb) | 支持 UV 扩展的新版 Claude Desktop；首次安装需要联网 |
+| Claude Desktop | [下载 `.mcpb` 扩展](https://github.com/ZipengWu365/TOMC/releases/download/v0.2.1-preview.1/tomc-memory-0.2.1.mcpb) | 支持 UV 扩展的新版 Claude Desktop；首次安装需要联网 |
 | Claude Code | `/plugin marketplace add ZipengWu365/TOMC`，再运行 `/plugin install tomc-memory@tomc`（[说明](docs/assistant_plugin_zh.md#claude-code)） | [`uv`](https://docs.astral.sh/uv/getting-started/installation/)；已在 Claude Code 的 VS Code 扩展中测试 |
 
 <details>
@@ -217,7 +217,7 @@ VS Code 扩展实测中（模型为 Claude Opus 5.5），预算设为 8,192 时�
 
 **已在 Windows、macOS、Linux 和 Claude Code 中实测。** 三个系统都通过了安装和工具检查；Codex（[Windows preview.4](docs/validation.md#windows-codex-preview4)、macOS）和 Claude Code（Claude Opus 5.5）通过了真实模型调用。Claude Desktop、Cursor 和 Codex 桌面应用的图形界面安装仍待验证。[各平台检查记录](docs/platform_checks_zh.md)
 
-[Usage tips (English)](docs/usage_tips.md) · [中文使用技巧](docs/usage_tips_zh.md) · [Windows 安装反馈](docs/windows_installation_feedback_zh.md) · [完整中文安装指南](docs/assistant_plugin_zh.md) · [验证记录](docs/validation.md) · [Claude 校验文件](https://github.com/ZipengWu365/TOMC/releases/download/v0.2.0-preview.1/tomc-memory-0.2.0.mcpb.sha256) · [Codex 校验文件](https://github.com/ZipengWu365/TOMC/releases/download/v0.2.0-preview.1/tomc-memory-codex-0.2.0.zip.sha256)。
+[Usage tips (English)](docs/usage_tips.md) · [中文使用技巧](docs/usage_tips_zh.md) · [Windows 安装反馈](docs/windows_installation_feedback_zh.md) · [完整中文安装指南](docs/assistant_plugin_zh.md) · [验证记录](docs/validation.md) · [Claude 校验文件](https://github.com/ZipengWu365/TOMC/releases/download/v0.2.1-preview.1/tomc-memory-0.2.1.mcpb.sha256) · [Codex 校验文件](https://github.com/ZipengWu365/TOMC/releases/download/v0.2.1-preview.1/tomc-memory-codex-0.2.1.zip.sha256)。
 
 <a id="switch-assistants"></a>
 

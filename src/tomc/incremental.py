@@ -54,8 +54,14 @@ def _headings(units):
 class ContextUpdates:
     """Remembers what one conversation has been shown; prepare() returns only news."""
 
-    def __init__(self, budget: int | None = None, *, adaptive: bool | None = None):
-        self.budget, self.adaptive = budget, adaptive
+    def __init__(
+        self,
+        budget: int | None = None,
+        *,
+        adaptive: bool | None = None,
+        max_chars: int | None = None,
+    ):
+        self.budget, self.adaptive, self.max_chars = budget, adaptive, max_chars
         self.shown: dict[tuple[int, int], str] = {}
         self.records: set[tuple] = set()
         self.counter = get_counter("regex")
@@ -66,7 +72,9 @@ class ContextUpdates:
         self.records = {(r.kind, r.key, r.value) for r in result.ledger if r.included}
 
     def prepare(self, history: object, task: str) -> ContextUpdate:
-        prepared = prepare_context(history, task, self.budget, adaptive=self.adaptive)
+        prepared = prepare_context(
+            history, task, self.budget, adaptive=self.adaptive, max_chars=self.max_chars
+        )
         result = prepared.compilation
         records = {(r.kind, r.key, r.value) for r in result.ledger if r.included}
         first = not self.shown and not self.records
