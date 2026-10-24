@@ -3,6 +3,7 @@
 import json
 import os
 import re
+import sys
 import uuid
 from urllib.parse import parse_qs, urlsplit
 
@@ -130,6 +131,19 @@ def test_copied_report_has_no_conversation_names(dialog, app):
     assert copied.startswith("# TOMC feedback report")
     assert not [name for name in (*NAMES, *NAMES.values()) if name in copied]
     assert "匿名" in dialog.message.text()
+
+
+@pytest.mark.skipif(sys.platform != "darwin", reason="macOS analysis refresh")
+def test_mac_refresh_keeps_visible_analysis_in_sync_with_new_requests(dialog, app):
+    dialog.show_analysis()
+    assert dialog.analysis_page.report["totals"]["tokens_saved"] == 21_000
+    compress(dialog.path, "thread-a", 20_000, 10_000)
+    dialog.refresh_button.click()
+    app.processEvents()
+    assert dialog.analysis_page.report["totals"]["tokens_saved"] == 31_000
+    assert dialog.analysis_page.report["totals"]["requests"] == 3
+    assert dialog.analysis_page.table.item(0, 4).text() == "30,000"
+    assert dialog.kpis["tokens"][0].text() == "31,000"
 
 
 def test_feedback_dialog_lets_the_user_fix_kinds_then_opens_github(dialog, app, monkeypatch):

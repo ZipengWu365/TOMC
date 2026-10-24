@@ -729,6 +729,128 @@ def test_export_carries_the_conversation_name_to_the_other_computer(
         app.sendPostedEvents(None, QEvent.Type.DeferredDelete)
 
 
+@pytest.mark.parametrize("platform", ["darwin", "win32", "linux"])
+def test_only_macos_uses_the_compact_context_workspace(app, tmp_path, monkeypatch, platform):
+    from PySide6.QtWidgets import QScrollArea
+
+    from tomc import context_library_qt
+
+    with monkeypatch.context() as patch:
+        patch.setattr(context_library_qt.sys, "platform", platform)
+        window = ContextLibraryDialog(
+            tmp_path / "layout.sqlite3", integrations=STATUS, pricing=None
+        )
+    try:
+        pane = window.preview_stack.widget(1)
+        assert not isinstance(pane, QScrollArea)
+        if platform == "darwin":
+            assert pane.isAncestorOf(window.context_split)
+            assert not window.context_split.isAncestorOf(window.copy_button)
+            assert not window.context_split.isAncestorOf(window.conversation_list)
+            assert window.statistics_detail.isHidden()
+        else:
+            assert pane.isAncestorOf(window.copy_button)
+            assert not hasattr(window, "context_split")
+            assert not hasattr(window, "statistics_toggle")
+    finally:
+        window.close()
+        window.deleteLater()
+        app.sendPostedEvents(None, QEvent.Type.DeferredDelete)
+
+
+@pytest.mark.parametrize("language", ["zh", "en"])
+@pytest.mark.parametrize("appearance", ["light", "dark"])
+def test_macos_session_notice_fits_its_text_and_actions(
+    app, tmp_path, monkeypatch, language, appearance
+):
+    from tomc import context_library_qt
+
+    store = SessionStore(tmp_path / "notice.sqlite3")
+    store.register("codex", "synthetic-session", title="Synthetic conversation title " * 3)
+    with monkeypatch.context() as patch:
+        patch.setattr(context_library_qt.sys, "platform", "darwin")
+        notice = SessionNotice(store)
+    try:
+        notice.setProperty("tomcAppearance", appearance)
+        notice.language.set_language(language)
+        notice.present(store.active())
+        app.processEvents()
+        assert notice.width() == (430 if language == "en" else 370)
+        for label in (notice.heading, notice.detail):
+            assert label.height() >= label.heightForWidth(label.width())
+        for button in (notice.keep_button, notice.toggle_button):
+            assert button.height() >= button.minimumSizeHint().height()
+            assert button.width() >= button.minimumSizeHint().width()
+            assert notice.rect().contains(button.geometry())
+        assert notice.target == ("codex", "synthetic-session")
+    finally:
+        notice.close()
+        notice.deleteLater()
+        app.sendPostedEvents(None, QEvent.Type.DeferredDelete)
+
+
+@pytest.mark.parametrize("language", ["zh", "en"])
+@pytest.mark.parametrize("size", [(900, 680), (1100, 800)])
+@pytest.mark.parametrize("appearance", ["light", "dark"])
+def test_macos_context_actions_remain_readable_and_reachable(
+    app, tmp_path, monkeypatch, fixed_prices, language, size, appearance
+):
+    from PySide6.QtCore import QPoint, QRect
+
+    from tomc import context_library_qt
+
+    with monkeypatch.context() as patch:
+        patch.setattr(context_library_qt.sys, "platform", "darwin")
+        window = ContextLibraryDialog(
+            tmp_path / "layout.sqlite3", integrations=STATUS, pricing=None
+        )
+    try:
+        for index in range(4):
+            selected = save_fixture(window.library, f"Synthetic context {index}")
+        compiled_request(window, "fixture-request", 100_000, 60_000)
+        window.setProperty("tomcAppearance", appearance)
+        window.language.set_language(language)
+        window.refresh(select_id=selected["id"])
+        window.resize(*size)
+        window.show()
+        app.processEvents()
+        pane = window.preview_stack.widget(1)
+        assert window.width() == size[0] and window.height() == size[1]
+        assert window.memory.viewport().height() >= 100
+        visible_versions = 2 if size == (900, 680) else 3
+        assert window.version_list.viewport().height() >= (
+            visible_versions * window.version_list.sizeHintForRow(0)
+        )
+        for button in window.record_buttons:
+            assert button.height() >= button.minimumSizeHint().height()
+            assert button.width() >= button.minimumSizeHint().width()
+            bounds = QRect(button.mapTo(pane, QPoint()), button.size())
+            assert pane.rect().contains(bounds)
+        action_position = window.copy_button.mapTo(window, QPoint())
+        title_position = window.conversation_title.mapTo(window, QPoint())
+        window.version_list.verticalScrollBar().setValue(
+            window.version_list.verticalScrollBar().maximum()
+        )
+        window.memory.setPlainText("Synthetic context line\n" * 200)
+        window.memory.verticalScrollBar().setValue(window.memory.verticalScrollBar().maximum())
+        app.processEvents()
+        assert window.memory.verticalScrollBar().maximum() > 0
+        assert window.copy_button.mapTo(window, QPoint()) == action_position
+        assert window.conversation_title.mapTo(window, QPoint()) == title_position
+        assert window.selected_record["id"] == selected["id"]
+        assert window.conversation_list.currentRow() == 0
+        window.statistics_toggle.click()
+        app.processEvents()
+        assert window.statistics_detail.isVisible()
+        assert len(window.chart.days) == 14
+        window.statistics_toggle.click()
+        assert window.statistics_detail.isHidden()
+    finally:
+        window.close()
+        window.deleteLater()
+        app.sendPostedEvents(None, QEvent.Type.DeferredDelete)
+
+
 @pytest.mark.parametrize(
     "record",
     [

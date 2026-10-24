@@ -6,7 +6,7 @@ import math
 import sqlite3
 from pathlib import Path
 
-from PySide6.QtCore import QRectF, Qt, QUrl
+from PySide6.QtCore import QRect, QRectF, QSize, Qt, QUrl
 from PySide6.QtGui import QColor, QDesktopServices, QFont, QPainter, QPen
 from PySide6.QtWidgets import (
     QAbstractItemView,
@@ -20,9 +20,14 @@ from PySide6.QtWidgets import (
     QHBoxLayout,
     QHeaderView,
     QLabel,
+    QLayout,
     QPlainTextEdit,
     QPushButton,
     QScrollArea,
+    QSizePolicy,
+    QStyle,
+    QStyleOptionButton,
+    QStylePainter,
     QTableWidget,
     QTableWidgetItem,
     QToolTip,
@@ -42,6 +47,7 @@ from .analysis import (
 )
 from .categories import CODES
 from .categories import label as category_label
+from .macos_ui import install_macos_style, is_macos, tokens
 from .savings_qt import ElidedLabel, SavingsChart, compact_tokens, money_text
 
 PALETTE = (
@@ -55,6 +61,101 @@ PALETTE = (
     "#5E9C9A",
 )
 OTHER_COLOR = "#D8D2C6"
+_MAC_LIGHT_CHART = (
+    "#3876CA",
+    "#B78037",
+    "#399088",
+    "#AD6684",
+    "#738E3F",
+    "#8471B5",
+    "#A18B31",
+    "#4D9585",
+)
+_MAC_DARK_CHART = (
+    "#84B6FF",
+    "#E5B778",
+    "#8DD0C9",
+    "#E5A4BD",
+    "#BDD38C",
+    "#BAADF0",
+    "#EDD087",
+    "#92C9B6",
+)
+
+
+def chart_color(widget, color):
+    if not is_macos():
+        return QColor(color)
+    colors = tokens(widget)
+    if color in PALETTE:
+        palette = (
+            _MAC_DARK_CHART if QColor(colors["background"]).lightness() < 128 else _MAC_LIGHT_CHART
+        )
+        return QColor(palette[PALETTE.index(color)])
+    if color in (OTHER_COLOR, "#B9B0A2"):
+        return QColor(colors["secondary"])
+    return QColor(color)
+
+
+class _LegendDot(QWidget):
+    def __init__(self, color):
+        super().__init__()
+        self.color = color
+        self.setFixedSize(12, 12)
+
+    def paintEvent(self, event):
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+        painter.setPen(Qt.PenStyle.NoPen)
+        painter.setBrush(chart_color(self, self.color))
+        painter.drawEllipse(QRectF(2, 2, 8, 8))
+
+
+class _WrappingCheckBox(QCheckBox):
+    """Keep the checkbox's text and activation semantics while wrapping its label."""
+
+    def _text_left(self):
+        option = QStyleOptionButton()
+        self.initStyleOption(option)
+        return (
+            self.style()
+            .subElementRect(QStyle.SubElement.SE_CheckBoxIndicator, option, self)
+            .right()
+            + 8
+        )
+
+    def hasHeightForWidth(self):
+        return True
+
+    def heightForWidth(self, width):
+        text = self.fontMetrics().boundingRect(
+            QRect(0, 0, max(1, width - self._text_left() - 4), 10000),
+            Qt.TextFlag.TextWordWrap,
+            self.text(),
+        )
+        return max(30, text.height() + 12)
+
+    def sizeHint(self):
+        return QSize(520, self.heightForWidth(520))
+
+    def minimumSizeHint(self):
+        return QSize(120, self.heightForWidth(520))
+
+    def hitButton(self, point):
+        return self.rect().contains(point)
+
+    def paintEvent(self, event):
+        option = QStyleOptionButton()
+        self.initStyleOption(option)
+        option.text = ""
+        painter = QStylePainter(self)
+        painter.drawControl(QStyle.ControlElement.CE_CheckBox, option)
+        painter.setPen(QColor(tokens(self)["text" if self.isEnabled() else "muted"]))
+        painter.drawText(
+            self.rect().adjusted(self._text_left(), 0, -4, 0),
+            Qt.TextFlag.TextWordWrap | Qt.AlignmentFlag.AlignVCenter,
+            self.text(),
+        )
 
 
 def plain(text="", *, name=None, wrap=False):
@@ -91,7 +192,8 @@ class DonutChart(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.parts, self.center = [], ("", "")
-        self.setFixedSize(150, 150)
+        size = 168 if is_macos() else 150
+        self.setFixedSize(size, size)
         self.setMouseTracking(True)
 
     def set_parts(self, parts, value, caption):
@@ -112,32 +214,38 @@ class DonutChart(QWidget):
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
         ring, thickness = self.ring()
         total = sum(amount for _, amount, _ in self.parts)
+        colors = tokens(self) if is_macos() else None
         if total <= 0:
-            painter.setPen(QPen(QColor("#ECE6DB"), thickness))
+            painter.setPen(QPen(QColor(colors["border"] if colors else "#ECE6DB"), thickness))
             painter.drawEllipse(ring)
         else:
             start = 90 * 16
             for _name, amount, color in self.parts:
                 span = -round(360 * 16 * amount / total)
                 painter.setPen(
-                    QPen(QColor(color), thickness, Qt.PenStyle.SolidLine, Qt.PenCapStyle.FlatCap)
+                    QPen(
+                        chart_color(self, color),
+                        thickness,
+                        Qt.PenStyle.SolidLine,
+                        Qt.PenCapStyle.FlatCap,
+                    )
                 )
                 painter.drawArc(ring, start, span)
                 start += span
         value, caption = self.center
         font = QFont(self.font())
-        font.setPixelSize(17)
+        font.setPixelSize(20 if colors else 17)
         font.setWeight(QFont.Weight.DemiBold)
         painter.setFont(font)
-        painter.setPen(QColor("#2F2A26"))
+        painter.setPen(QColor(colors["text"] if colors else "#2F2A26"))
         middle = self.rect().center()
         painter.drawText(
             QRectF(0, middle.y() - 20, self.width(), 22), Qt.AlignmentFlag.AlignCenter, value
         )
-        font.setPixelSize(10)
+        font.setPixelSize(12 if colors else 10)
         font.setWeight(QFont.Weight.Normal)
         painter.setFont(font)
-        painter.setPen(QColor("#8A7F72"))
+        painter.setPen(QColor(colors["muted"] if colors else "#8A7F72"))
         painter.drawText(
             QRectF(0, middle.y() + 3, self.width(), 16), Qt.AlignmentFlag.AlignCenter, caption
         )
@@ -180,11 +288,14 @@ class BarList(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.rows = []
+        self.row_height = 38 if is_macos() else self.ROW
+        if is_macos():
+            self.setMouseTracking(True)
 
     def set_rows(self, rows):
         """rows: (label, amount, shown value, color)."""
         self.rows = list(rows)
-        self.setFixedHeight(max(1, len(self.rows)) * self.ROW + 4)
+        self.setFixedHeight(max(1, len(self.rows)) * self.row_height + 4)
         self.update()
 
     def paintEvent(self, event):
@@ -196,16 +307,21 @@ class BarList(QWidget):
         left = min(names + 10, int(self.width() * 0.42))
         right = values + 10
         peak = max((amount for _, amount, _, _ in self.rows), default=0) or 1
+        colors = tokens(self) if is_macos() else None
+        if colors:
+            left = max(1, self.width() - right - 8)
         for index, (name, amount, text, color) in enumerate(self.rows):
-            top = 2 + index * self.ROW
-            painter.setPen(QColor("#4E453D"))
+            top = 2 + index * self.row_height
+            painter.setPen(QColor(colors["text"] if colors else "#4E453D"))
             shown = metrics.elidedText(name, Qt.TextElideMode.ElideRight, left - 8)
             painter.drawText(
                 QRectF(0, top, left - 6, self.ROW - 4), Qt.AlignmentFlag.AlignVCenter, shown
             )
             track = QRectF(left, top + 6, max(1, self.width() - left - right), self.ROW - 14)
+            if colors:
+                track = QRectF(0, top + 25, self.width(), 5)
             painter.setPen(Qt.PenStyle.NoPen)
-            painter.setBrush(QColor("#F0ECE4"))
+            painter.setBrush(QColor(colors["border"] if colors else "#F0ECE4"))
             painter.drawRoundedRect(track, 4, 4)
             if amount > 0:
                 filled = QRectF(
@@ -214,14 +330,24 @@ class BarList(QWidget):
                     max(4.0, track.width() * amount / peak),
                     track.height(),
                 )
-                painter.setBrush(QColor(color))
+                painter.setBrush(chart_color(self, color))
                 painter.drawRoundedRect(filled, 4, 4)
-            painter.setPen(QColor("#6E655B"))
+            painter.setPen(QColor(colors["secondary"] if colors else "#6E655B"))
             painter.drawText(
                 QRectF(self.width() - right + 4, top, right - 4, self.ROW - 4),
                 Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignRight,
                 text,
             )
+
+    def mouseMoveEvent(self, event):
+        if not is_macos():
+            return super().mouseMoveEvent(event)
+        index = int((event.position().y() - 2) // self.row_height)
+        if 0 <= index < len(self.rows):
+            name, _, text, _ = self.rows[index]
+            QToolTip.showText(event.globalPosition().toPoint(), f"{name} · {text}", self)
+        else:
+            QToolTip.hideText()
 
 
 class Legend(QWidget):
@@ -245,11 +371,17 @@ class Legend(QWidget):
             line = QHBoxLayout(row)
             line.setContentsMargins(0, 0, 0, 0)
             line.setSpacing(6)
-            dot = plain("●")
-            dot.setStyleSheet(f"color: {color}; font-size: 12px;")
+            if is_macos():
+                dot = _LegendDot(color)
+            else:
+                dot = plain("●")
+                dot.setStyleSheet(f"color: {color}; font-size: 12px;")
             title = ElidedLabel(name, 11, "#4E453D")
             share = plain(f"{compact_tokens(amount)} · {amount / total:.0%}" if total else "—")
-            share.setStyleSheet("color: #8A7F72; font-size: 11px;")
+            if is_macos():
+                share.setObjectName("muted")
+            else:
+                share.setStyleSheet("color: #8A7F72; font-size: 11px;")
             line.addWidget(dot)
             line.addWidget(title, 1)
             line.addWidget(share)
@@ -356,10 +488,15 @@ class AnalysisPage(QWidget):
             self.table.horizontalHeader().setSectionResizeMode(
                 column, QHeaderView.ResizeMode.ResizeToContents
             )
-        self.table.setStyleSheet(
-            "QTableWidget { background: #FFFFFF; border: none; }"
-            "QHeaderView::section { background: #F6F2EA; border: none; padding: 6px; color: #6E655B; }"
-        )
+        if is_macos():
+            self.table.setAlternatingRowColors(True)
+            self.table.verticalHeader().setDefaultSectionSize(34)
+            self.table.setWordWrap(False)
+        else:
+            self.table.setStyleSheet(
+                "QTableWidget { background: #FFFFFF; border: none; }"
+                "QHeaderView::section { background: #F6F2EA; border: none; padding: 6px; color: #6E655B; }"
+            )
         box.addWidget(self.table)
         self.table_note = plain(name="muted", wrap=True)
         box.addWidget(self.table_note)
@@ -628,13 +765,33 @@ class FeedbackDialog(QDialog):
         self.message = parent.show_message
         self.overrides, self.status_spec = {}, None
         self.filename = feedback_filename(report["generated_utc"][:10])
-        self.setStyleSheet(parent.styleSheet())
-        self.resize(820, 720)
-        layout = QVBoxLayout(self)
-        layout.setContentsMargins(22, 18, 22, 16)
-        layout.setSpacing(10)
+        self._mac = is_macos()
+        if self._mac:
+            self.resize(900, 820)
+            self.setMinimumSize(720, 560)
+        else:
+            self.setStyleSheet(parent.styleSheet())
+            self.resize(820, 720)
+        outer = QVBoxLayout(self)
+        outer.setContentsMargins(22, 18, 22, 16)
+        outer.setSpacing(10)
         self.heading = plain(name="title")
-        layout.addWidget(self.heading)
+        outer.addWidget(self.heading)
+        if self._mac:
+            self.heading.setWordWrap(True)
+            self.content_scroll = QScrollArea()
+            self.content_scroll.setWidgetResizable(True)
+            self.content_scroll.setFrameShape(QFrame.Shape.NoFrame)
+            self.content_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+            body = QWidget()
+            layout = QVBoxLayout(body)
+            layout.setContentsMargins(0, 0, 8, 0)
+            layout.setSpacing(12)
+            layout.setSizeConstraint(QLayout.SizeConstraint.SetMinimumSize)
+            self.content_scroll.setWidget(body)
+            outer.addWidget(self.content_scroll, 1)
+        else:
+            layout = outer
         self.anonymity = notice()
         layout.addWidget(self.anonymity)
         self.explanation = plain(name="muted", wrap=True)
@@ -645,6 +802,10 @@ class FeedbackDialog(QDialog):
         self.table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
         self.table.setShowGrid(False)
         self.table.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        if self._mac:
+            self.table.setWordWrap(False)
+            self.table.setAlternatingRowColors(True)
+            self.table.verticalHeader().setDefaultSectionSize(40)
         self.table.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeMode.Stretch)
         self.table.horizontalHeader().setSectionResizeMode(
             1, QHeaderView.ResizeMode.ResizeToContents
@@ -656,20 +817,32 @@ class FeedbackDialog(QDialog):
         self.comment_title = plain(name="section")
         layout.addWidget(self.comment_title)
         self.comment = QPlainTextEdit()
-        self.comment.setMaximumHeight(80)
+        if self._mac:
+            self.comment.setMinimumHeight(90)
+            self.comment.setMaximumHeight(120)
+        else:
+            self.comment.setMaximumHeight(80)
         self.comment.textChanged.connect(self.update_preview)
         layout.addWidget(self.comment)
         self.preview_title = plain(name="section")
         layout.addWidget(self.preview_title)
         self.preview = QPlainTextEdit()
         self.preview.setReadOnly(True)
+        if self._mac:
+            self.preview.setMinimumHeight(180)
         layout.addWidget(self.preview, 1)
-        self.confirm = QCheckBox()
+        self.confirm = _WrappingCheckBox() if self._mac else QCheckBox()
+        if self._mac:
+            self.confirm.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
         self.confirm.toggled.connect(self.update_buttons)
-        layout.addWidget(self.confirm)
+        outer.addWidget(self.confirm)
         actions = QHBoxLayout()
         self.status = plain(name="muted", wrap=True)
-        actions.addWidget(self.status, 1)
+        if self._mac:
+            outer.addWidget(self.status)
+            self.status.hide()
+        else:
+            actions.addWidget(self.status, 1)
         self.copy_button = QPushButton()
         self.copy_button.clicked.connect(self.copy)
         self.save_button = QPushButton()
@@ -681,7 +854,10 @@ class FeedbackDialog(QDialog):
         self.close_button.clicked.connect(self.reject)
         for button in (self.copy_button, self.save_button, self.submit_button, self.close_button):
             actions.addWidget(button)
-        layout.addLayout(actions)
+            if self._mac and button is self.save_button:
+                actions.addStretch()
+        outer.addLayout(actions)
+        install_macos_style(self)
         self.populate()
         self.retranslate()
         self.language.changed.connect(self.retranslate)
@@ -692,6 +868,8 @@ class FeedbackDialog(QDialog):
     def set_status(self, zh, en, **values):
         self.status_spec = (zh, en, values)
         self.status.setText(self.t(zh, en, **values))
+        if self._mac:
+            self.status.setVisible(bool(self.status.text()))
 
     def populate(self):
         rows = self.rows = self.report["conversations"][:MAX_CONVERSATIONS]
@@ -704,6 +882,9 @@ class FeedbackDialog(QDialog):
             )
             self.table.setItem(index, 0, item)
             combo = QComboBox()
+            if self._mac:
+                combo.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToContents)
+                combo.setMinimumHeight(34)
             for code in CODES:
                 combo.addItem(category_label(code, self.language), code)
             combo.setCurrentIndex(CODES.index(row["category"]))
@@ -715,7 +896,7 @@ class FeedbackDialog(QDialog):
             self.combos.append(combo)
         self.table.setFixedHeight(
             min(
-                220,
+                260 if self._mac else 220,
                 self.table.horizontalHeader().sizeHint().height()
                 + sum(self.table.rowHeight(i) for i in range(len(rows)))
                 + 4,
@@ -771,6 +952,17 @@ class FeedbackDialog(QDialog):
                 "The report and the pull request are public and show your GitHub account.",
             )
         )
+        if self._mac:
+            self.explanation.setText(
+                t(
+                    "先检查下方完整报告。自动报告将对话替换为工作类型和编号，只保留数字，不含对话名称、文件夹、任务、正文或 ID；分类可在表格中修改。"
+                    "点击“在 GitHub 提交”会打开浏览器：较短报告会随链接发送给 GitHub，较长报告会先复制到剪贴板供你粘贴。"
+                    "在网页确认后才会创建公开的报告和 Pull Request，并显示你的 GitHub 账号。",
+                    "Review the complete report below. The generated report replaces conversations with a kind of work and a number, keeping counts without names, folders, tasks, content or IDs. You can correct categories in the table. "
+                    "Clicking Submit on GitHub opens your browser: a shorter report is sent to GitHub in the link, while a longer report is copied for you to paste. "
+                    "Confirming on the webpage creates the public report and pull request under your GitHub account.",
+                )
+            )
         self.table.setHorizontalHeaderLabels(
             [
                 t("对话（只在本机显示）", "Conversation (shown here only)"),
@@ -804,6 +996,8 @@ class FeedbackDialog(QDialog):
         if self.status_spec:
             zh, en, values = self.status_spec
             self.status.setText(t(zh, en, **values))
+        if self._mac:
+            self.confirm.updateGeometry()
         self.update_preview()
         self.update_buttons()
 
@@ -839,12 +1033,24 @@ class FeedbackDialog(QDialog):
                 "The report is long and was copied; paste it into the GitHub page that opens, then submit.",
             )
         else:
-            self.set_status(
-                "已在浏览器打开 GitHub。确认内容后点“Propose new file”，再创建 Pull Request。",
-                "GitHub is open in your browser. Check the content, choose “Propose new file”, then create the pull request.",
-            )
+            if self._mac:
+                self.set_status(
+                    "已将预览报告随链接发送给 GitHub 并打开网页。检查内容后点“Propose new file”，再创建公开的 Pull Request。",
+                    "The preview report was sent to GitHub in the link and its webpage is open. Check the content, choose “Propose new file”, then create the public pull request.",
+                )
+            else:
+                self.set_status(
+                    "已在浏览器打开 GitHub。确认内容后点“Propose new file”，再创建 Pull Request。",
+                    "GitHub is open in your browser. Check the content, choose “Propose new file”, then create the pull request.",
+                )
         QDesktopServices.openUrl(QUrl(url))
-        self.message(
-            "已打开 GitHub 反馈页面；在网页确认后才会提交。",
-            "Opened the GitHub feedback page; nothing is submitted until you confirm there.",
-        )
+        if self._mac:
+            self.message(
+                "已打开 GitHub 反馈页面；在网页确认后创建公开的反馈 Pull Request。",
+                "Opened the GitHub feedback page; confirm there to create the public feedback pull request.",
+            )
+        else:
+            self.message(
+                "已打开 GitHub 反馈页面；在网页确认后才会提交。",
+                "Opened the GitHub feedback page; nothing is submitted until you confirm there.",
+            )

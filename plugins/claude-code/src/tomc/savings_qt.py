@@ -8,6 +8,7 @@ from PySide6.QtCore import QRectF, Qt
 from PySide6.QtGui import QColor, QPainter
 from PySide6.QtWidgets import QFrame, QLabel, QSizePolicy, QToolTip, QWidget
 
+from .macos_ui import is_macos, text_style, tokens
 from .ui_language import ui_font
 
 
@@ -72,6 +73,8 @@ class ElidedLabel(QLabel):
         self.setStyleSheet(
             f"color: {color}; font-size: {size}px; font-weight: {600 if bold else 400};"
         )
+        if is_macos():
+            text_style(self, size, color, bold)
         self.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Fixed)
         self.setMinimumWidth(1)
         self.color = QColor(color)
@@ -79,7 +82,10 @@ class ElidedLabel(QLabel):
     def paintEvent(self, event):
         painter = QPainter(self)
         painter.setFont(self.font())
-        painter.setPen(self.color)
+        colors = tokens(self) if is_macos() else None
+        painter.setPen(
+            QColor(colors.get(self.property("tomcTone"), colors["text"])) if colors else self.color
+        )
         text = self.fontMetrics().elidedText(self.text(), Qt.TextElideMode.ElideRight, self.width())
         painter.drawText(self.rect(), int(self.alignment() | Qt.AlignmentFlag.AlignVCenter), text)
 
@@ -128,16 +134,21 @@ class SavingsChart(QWidget):
         painter.setPen(Qt.PenStyle.NoPen)
         floor = self.height() - 1
         peak = max([day["tokens_saved"] for day in self.days] + [1])
+        colors = tokens(self) if is_macos() else None
         for index, day in enumerate(self.days):
             left, width = self.geometry_for(index)
             value = max(0, day["tokens_saved"])
             current = self.start is None or day["day"] >= self.start
             if value:
                 height = max(3.0, (floor - 2) * value / peak)
-                painter.setBrush(QColor("#507461" if current else "#C9D6CB"))
+                painter.setBrush(
+                    QColor(colors["accent" if current else "selection"])
+                    if colors
+                    else QColor("#507461" if current else "#C9D6CB")
+                )
                 painter.drawRoundedRect(QRectF(left, floor - height, width, height), 2, 2)
             else:
-                painter.setBrush(QColor("#E5DFD4"))
+                painter.setBrush(QColor(colors["border"] if colors else "#E5DFD4"))
                 painter.drawRect(QRectF(left, floor - 1, width, 1))
 
     def mouseMoveEvent(self, event):

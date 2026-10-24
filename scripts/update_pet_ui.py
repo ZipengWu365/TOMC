@@ -14,6 +14,7 @@ from install_context_workspace import FileChange, UpdatePlan, _read_current, _sa
 
 MODULES = (
     "ui_language.py",
+    "macos_ui.py",
     "usage_widget_qt.py",
     "context_library_qt.py",
     "context_library.py",
