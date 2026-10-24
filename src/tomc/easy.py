@@ -5,10 +5,13 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass
 
+from .adaptive import AdaptiveRetrievalStrategy, adaptive_selection
 from .compiler import compile_memory
 from .input import parse_history
 from .ledger import normalize
+from .routing import hybrid_route
 from .schemas import CompilationResult
+from .strategies.typed import TOMCStrategy
 from .tokenization import get_counter
 
 
@@ -48,7 +51,9 @@ def default_budget(history_tokens: int) -> int:
     )
 
 
-def prepare_context(history: object, task: str, budget: int | None = None) -> PreparedContext:
+def prepare_context(
+    history: object, task: str, budget: int | None = None, *, adaptive: bool = False
+) -> PreparedContext:
     """Keep a fitting history intact; otherwise use existing hybrid routing offline.
 
     Budget covers memory only, using the lexical counter. Without a budget, 80%
@@ -71,7 +76,20 @@ def prepare_context(history: object, task: str, budget: int | None = None) -> Pr
     if budget is None:
         budget = default_budget(history_tokens)
     fits = history_tokens <= budget
-    result = compile_memory(parsed, task, budget, "raw" if fits else "hybrid")
+    strategy = "raw" if fits else "hybrid"
+    route_reason = None
+    if adaptive and not fits:
+        # Raw evidence may stop below the budget when the task's evidence is unambiguous;
+        # typed records compile exactly as before.
+        route, route_reason = hybrid_route(text, task)
+        strategy = (
+            AdaptiveRetrievalStrategy()
+            if route == "rag"
+            else TOMCStrategy(True, raw_selector=adaptive_selection)
+        )
+    result = compile_memory(parsed, task, budget, strategy)
+    if route_reason and not isinstance(strategy, str):
+        result.diagnostics["route_reason"] = route_reason
     if fits:
         note = "This history fits. Kept the complete input; no compression was needed."
     elif result.compiled_memory:
