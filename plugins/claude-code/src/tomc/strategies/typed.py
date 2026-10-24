@@ -16,9 +16,15 @@ from .baselines import rank_bm25
 class TOMCStrategy:
     """Compile normalized operations; optionally reserve 58% for source text."""
 
-    def __init__(self, raw_fallback: bool = False) -> None:
-        """Choose compiler-only or the reference 0.42 compiled-fraction layout."""
+    def __init__(self, raw_fallback: bool = False, raw_selector=None) -> None:
+        """Choose compiler-only or the reference 0.42 compiled-fraction layout.
+
+        ``raw_selector(units, query, budget, counter)`` may return the source IDs to keep
+        as raw evidence, or None to fill the remaining budget as before. The method name
+        stays the same; diagnostics report whether the selector shrank the evidence.
+        """
         self.raw = raw_fallback
+        self.raw_selector = raw_selector
         self.name = "tomc_raw" if raw_fallback else "tomc"
 
     def compress(
@@ -45,11 +51,23 @@ class TOMCStrategy:
         support = {s for r in ledger if r.included for s in r.sources}
         raw_text = ""
         raw_ids: set[str] = set()
+        selection = {}
         if self.raw or not rows:
             # Share unused compiled capacity; exact final counting includes separators.
             remaining = max(0, budget - counter.count(compiled) - (1 if compiled else 0))
-            ranked = rank_bm25(units, query)
-            _, raw_ids = pack_rows(raw_rows(ranked), remaining, counter)
+            chosen = None
+            if self.raw_selector is not None:
+                chosen, reason = self.raw_selector(units, query, remaining, counter)
+                selection = {
+                    "adaptive": "filled" if chosen is None else "shrunk",
+                    "adaptive_reason": reason,
+                }
+            if chosen is None:
+                ranked = rank_bm25(units, query)
+                _, raw_ids = pack_rows(raw_rows(ranked), remaining, counter)
+            else:
+                raw_ids = chosen
+                warnings.append("Adaptive lexical selection kept less than the budget allows.")
             raw_text, raw_ids = pack_rows(
                 raw_rows([u for u in units if u.source_id in raw_ids]), remaining, counter
             )
@@ -82,5 +100,6 @@ class TOMCStrategy:
                 "count_scope": "all_content_lines",
                 "kernel": "paper-reference",
                 "rows_before_packing": len(rows),
+                **selection,
             },
         )

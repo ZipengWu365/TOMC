@@ -475,6 +475,16 @@
       "sha256": "9e2feec6832b3c38931ae927095f3fca5186076bcbca045b520fa5c6530d15e7"
     },
     {
+      "path": "benchmarks/adaptive/run.py",
+      "bytes": 4253,
+      "sha256": "164b1f8179933c1746ac43ec874f344ef702ab4e9bec7d76814f43a5aa90e238"
+    },
+    {
+      "path": "benchmarks/adaptive/suite.py",
+      "bytes": 12494,
+      "sha256": "47715d3212de63ae572e0e821324a21e532d3123407df487f4d279d24ae57a34"
+    },
+    {
       "path": "benchmarks/aggregate_results/beam_clusters.csv",
       "bytes": 12235,
       "sha256": "bd6e9b423d7d60732452e2c5989f9a24d4032b0f457a0cd9980107451f6764de"
@@ -676,8 +686,8 @@
     },
     {
       "path": "docs/api_reference.md",
-      "bytes": 12008,
-      "sha256": "a2082a0f7800289f0f2aebd58bc86f0c1432b702c64a1fa055357a85aba1f318"
+      "bytes": 13373,
+      "sha256": "fd5f82bc0d24dda8e8c5bf08ad1aa551b28a8b078c57c2db83b1e0a13ea68233"
     },
     {
       "path": "docs/architecture.md",
@@ -1595,6 +1605,11 @@
       "sha256": "93157149885cd631214ce67f6fba8d621ed2b0a5d78698689e9f8fe5aa96fc75"
     },
     {
+      "path": "plugins/claude-code/src/tomc/adaptive.py",
+      "bytes": 11796,
+      "sha256": "446280aeeeb7766e1394ca70954809e022b37278958e15853a7b16316ea46f20"
+    },
+    {
       "path": "plugins/claude-code/src/tomc/analysis.py",
       "bytes": 14690,
       "sha256": "ee82ac3dac9896c340561c10f8e5785dfd2f45ca24ded7de4e19380440985077"
@@ -1611,8 +1626,8 @@
     },
     {
       "path": "plugins/claude-code/src/tomc/anthropic_request.py",
-      "bytes": 27505,
-      "sha256": "42a1e7768444ffb4786591327340eb63933552939cb27a7117e699f699e4a680"
+      "bytes": 27612,
+      "sha256": "1194574b81389a9a4405a42cae798843abc9829ad35359493b648df09e709b13"
     },
     {
       "path": "plugins/claude-code/src/tomc/automatic_chat.py",
@@ -1716,8 +1731,8 @@
     },
     {
       "path": "plugins/claude-code/src/tomc/easy.py",
-      "bytes": 3469,
-      "sha256": "eefa58f5da40748e06ef08aeeb2f02d7a25afe1a80e985c82304c1344c8272d3"
+      "bytes": 5049,
+      "sha256": "16deb44c527438c8f7b6c640750ef52e8ccd7cd0fe5409fb1978e83cb7b13272"
     },
     {
       "path": "plugins/claude-code/src/tomc/gateway_protocol.py",
@@ -1728,6 +1743,11 @@
       "path": "plugins/claude-code/src/tomc/impact_story.py",
       "bytes": 4145,
       "sha256": "6f2f64d7e3f1ed513a5f34fc707d5daf41f17bc17ecfce8d601ef7b84c460f53"
+    },
+    {
+      "path": "plugins/claude-code/src/tomc/incremental.py",
+      "bytes": 5431,
+      "sha256": "dcf2a3d471cdf75bcdeda41e10b238f1b71d3fafbca2deb425392daded02a1f7"
     },
     {
       "path": "plugins/claude-code/src/tomc/input.py",
@@ -1751,8 +1771,8 @@
     },
     {
       "path": "plugins/claude-code/src/tomc/mcp_server.py",
-      "bytes": 14481,
-      "sha256": "7a3bb86595299ea463240fc42d5319ecda173ea7d9a50e903b23e5b3047e63ca"
+      "bytes": 14684,
+      "sha256": "6e25e9f66ce1c62faaf03951bd0c2a5a4a866a5c74806d350a9bd6b829d14183"
     },
     {
       "path": "plugins/claude-code/src/tomc/model_detection.py",
@@ -1826,8 +1846,8 @@
     },
     {
       "path": "plugins/claude-code/src/tomc/responses_request.py",
-      "bytes": 19474,
-      "sha256": "67b49a515e12a7d0a2069517fa543c9aa9d0e9b31eab34f89f6306452a25a307"
+      "bytes": 19581,
+      "sha256": "32eedeaa789fe1ea817e12bd8ba97abaf14218f24908eba9e8447fa236bf06aa"
     },
     {
       "path": "plugins/claude-code/src/tomc/routing.py",
@@ -1866,8 +1886,8 @@
     },
     {
       "path": "plugins/claude-code/src/tomc/store.py",
-      "bytes": 4483,
-      "sha256": "567621d1988f21f93f72e5614a2e31138dbbc67ea2e5b3812222e47434578248"
+      "bytes": 4499,
+      "sha256": "ec7a4000dd3223aaea09166786745f0bbf6c39a9d8b3f309457d9506bc6230d5"
     },
     {
       "path": "plugins/claude-code/src/tomc/strategies/__init__.py",
@@ -1891,8 +1911,8 @@
     },
     {
       "path": "plugins/claude-code/src/tomc/strategies/typed.py",
-      "bytes": 3958,
-      "sha256": "af1f4e9f64551f93336cca3ccf570de7a5377231003077d8859f1e172963b6ad"
+      "bytes": 4856,
+      "sha256": "173d6bc28b48852d624cccdcbe77ce35f7c7c022030421a97fc5ac9071a8f9b0"
     },
     {
       "path": "plugins/claude-code/src/tomc/tokenization.py",
@@ -2440,6 +2460,11 @@
       "sha256": "93157149885cd631214ce67f6fba8d621ed2b0a5d78698689e9f8fe5aa96fc75"
     },
     {
+      "path": "src/tomc/adaptive.py",
+      "bytes": 11796,
+      "sha256": "446280aeeeb7766e1394ca70954809e022b37278958e15853a7b16316ea46f20"
+    },
+    {
       "path": "src/tomc/analysis.py",
       "bytes": 14690,
       "sha256": "ee82ac3dac9896c340561c10f8e5785dfd2f45ca24ded7de4e19380440985077"
@@ -2456,8 +2481,8 @@
     },
     {
       "path": "src/tomc/anthropic_request.py",
-      "bytes": 27505,
-      "sha256": "42a1e7768444ffb4786591327340eb63933552939cb27a7117e699f699e4a680"
+      "bytes": 27612,
+      "sha256": "1194574b81389a9a4405a42cae798843abc9829ad35359493b648df09e709b13"
     },
     {
       "path": "src/tomc/automatic_chat.py",
@@ -2606,8 +2631,8 @@
     },
     {
       "path": "src/tomc/easy.py",
-      "bytes": 3469,
-      "sha256": "eefa58f5da40748e06ef08aeeb2f02d7a25afe1a80e985c82304c1344c8272d3"
+      "bytes": 5049,
+      "sha256": "16deb44c527438c8f7b6c640750ef52e8ccd7cd0fe5409fb1978e83cb7b13272"
     },
     {
       "path": "src/tomc/gateway_protocol.py",
@@ -2618,6 +2643,11 @@
       "path": "src/tomc/impact_story.py",
       "bytes": 4145,
       "sha256": "6f2f64d7e3f1ed513a5f34fc707d5daf41f17bc17ecfce8d601ef7b84c460f53"
+    },
+    {
+      "path": "src/tomc/incremental.py",
+      "bytes": 5431,
+      "sha256": "dcf2a3d471cdf75bcdeda41e10b238f1b71d3fafbca2deb425392daded02a1f7"
     },
     {
       "path": "src/tomc/input.py",
@@ -2641,8 +2671,8 @@
     },
     {
       "path": "src/tomc/mcp_server.py",
-      "bytes": 14481,
-      "sha256": "7a3bb86595299ea463240fc42d5319ecda173ea7d9a50e903b23e5b3047e63ca"
+      "bytes": 14684,
+      "sha256": "6e25e9f66ce1c62faaf03951bd0c2a5a4a866a5c74806d350a9bd6b829d14183"
     },
     {
       "path": "src/tomc/model_detection.py",
@@ -2716,8 +2746,8 @@
     },
     {
       "path": "src/tomc/responses_request.py",
-      "bytes": 19474,
-      "sha256": "67b49a515e12a7d0a2069517fa543c9aa9d0e9b31eab34f89f6306452a25a307"
+      "bytes": 19581,
+      "sha256": "32eedeaa789fe1ea817e12bd8ba97abaf14218f24908eba9e8447fa236bf06aa"
     },
     {
       "path": "src/tomc/routing.py",
@@ -2756,8 +2786,8 @@
     },
     {
       "path": "src/tomc/store.py",
-      "bytes": 4483,
-      "sha256": "567621d1988f21f93f72e5614a2e31138dbbc67ea2e5b3812222e47434578248"
+      "bytes": 4499,
+      "sha256": "ec7a4000dd3223aaea09166786745f0bbf6c39a9d8b3f309457d9506bc6230d5"
     },
     {
       "path": "src/tomc/strategies/__init__.py",
@@ -2781,8 +2811,8 @@
     },
     {
       "path": "src/tomc/strategies/typed.py",
-      "bytes": 3958,
-      "sha256": "af1f4e9f64551f93336cca3ccf570de7a5377231003077d8859f1e172963b6ad"
+      "bytes": 4856,
+      "sha256": "173d6bc28b48852d624cccdcbe77ce35f7c7c022030421a97fc5ac9071a8f9b0"
     },
     {
       "path": "src/tomc/tokenization.py",
@@ -2830,6 +2860,11 @@
       "sha256": "7f8720085ad8a012b32a024c168c6a62244062b2cf2fbca11fff648cee88188b"
     },
     {
+      "path": "tests/test_adaptive.py",
+      "bytes": 6776,
+      "sha256": "11ade47c69e67f63efd34eb72144c2fdfe7f34084ed3f41d3a930a666f710ffc"
+    },
+    {
       "path": "tests/test_analysis.py",
       "bytes": 10025,
       "sha256": "2212d1b0b7335e619422a075a17bae9651cba261ba2d3a7bccdf228ad34ae922"
@@ -2856,8 +2891,8 @@
     },
     {
       "path": "tests/test_anthropic_request.py",
-      "bytes": 31925,
-      "sha256": "fb3852e92bd27a091512246f3b37c3e4e460120842457f656e515f1b8a725d25"
+      "bytes": 32423,
+      "sha256": "fa98aa10f30d5ff500e7c8575bef4077357f965eb8bea56b7e6ca1ff3caf8392"
     },
     {
       "path": "tests/test_api_message_metrics.py",
@@ -2923,6 +2958,11 @@
       "path": "tests/test_hf_staging.py",
       "bytes": 2638,
       "sha256": "c9d18fae41f055811612dd1683ec2449259b9cbc3c9db8503234b2a6e5b9d1df"
+    },
+    {
+      "path": "tests/test_incremental.py",
+      "bytes": 3518,
+      "sha256": "f65a3efe1b55188a19183c6529e1f8875a0b6e46e109d07a9557e39b0ba22c21"
     },
     {
       "path": "tests/test_install_context_workspace.py",
@@ -3046,8 +3086,8 @@
     },
     {
       "path": "tests/test_responses_request.py",
-      "bytes": 21806,
-      "sha256": "a63f5bf5cef4d96d44a366aeb70820e9e81ae03d954e8d30dc50825bd83826bd"
+      "bytes": 22263,
+      "sha256": "fc0d14b8f787cc9610cc0b82e5b8fa4dd4a69aba434f844cd98b76babc6f803b"
     },
     {
       "path": "tests/test_savings.py",
@@ -3110,7 +3150,7 @@
       "sha256": "be8dbb0aa75e27d1625255b99019c1b078833d1afc864951da7d6de1c4b70807"
     }
   ],
-  "total_bytes": 147246296,
+  "total_bytes": 147315933,
   "self_excluded": [
     "PUBLIC_RELEASE_MANIFEST.json",
     "SHA256SUMS"

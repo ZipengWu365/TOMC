@@ -3,12 +3,16 @@
 from __future__ import annotations
 
 import math
+import re
 from dataclasses import dataclass
 
+from .adaptive import AdaptiveRetrievalStrategy, adaptive_selection
 from .compiler import compile_memory
 from .input import parse_history
 from .ledger import normalize
+from .routing import hybrid_route
 from .schemas import CompilationResult
+from .strategies.typed import TOMCStrategy
 from .tokenization import get_counter
 
 
@@ -48,7 +52,23 @@ def default_budget(history_tokens: int) -> int:
     )
 
 
-def prepare_context(history: object, task: str, budget: int | None = None) -> PreparedContext:
+_SPEAKER = re.compile(
+    r"^\s*(?:\[role=)?(user|assistant|human|ai|system|tool|claude|codex|chatgpt|gpt)\s*[:\]：]",
+    re.I | re.M,
+)
+
+
+def is_conversation(parsed: object) -> bool:
+    """A chat history: messages from more than one role, or a transcript with speakers."""
+    if isinstance(parsed, str):
+        return len({m.lower() for m in _SPEAKER.findall(parsed)}) >= 2
+    roles = {getattr(m, "role", None) for m in parsed}
+    return len(parsed) > 1 and (len(roles) > 1 or bool(roles & {"assistant", "tool"}))
+
+
+def prepare_context(
+    history: object, task: str, budget: int | None = None, *, adaptive: bool | None = None
+) -> PreparedContext:
     """Keep a fitting history intact; otherwise use existing hybrid routing offline.
 
     Budget covers memory only, using the lexical counter. Without a budget, 80%
@@ -56,6 +76,10 @@ def prepare_context(history: object, task: str, budget: int | None = None) -> Pr
     of a million or more (at least 1,024), so short histories stay intact. Task
     and prompt framing add overhead. No reader is called and no persistent memory
     is written.
+
+    ``adaptive`` may keep less than the budget when the task's evidence is
+    unambiguous. By default it applies to notes and documents; conversation
+    histories keep the full-budget selection used for long-context compression.
     """
     if not isinstance(task, str) or not task.strip():
         raise ValueError("Describe what you want the model to do next.")
@@ -64,6 +88,8 @@ def prepare_context(history: object, task: str, budget: int | None = None) -> Pr
     ):
         raise ValueError("Memory budget must be a positive integer.")
     parsed = parse_history(history)
+    if adaptive is None:
+        adaptive = not is_conversation(parsed)
     text, units = normalize(parsed)
     if not units:
         raise ValueError("Paste a history or load an example first.")
@@ -71,7 +97,20 @@ def prepare_context(history: object, task: str, budget: int | None = None) -> Pr
     if budget is None:
         budget = default_budget(history_tokens)
     fits = history_tokens <= budget
-    result = compile_memory(parsed, task, budget, "raw" if fits else "hybrid")
+    strategy = "raw" if fits else "hybrid"
+    route_reason = None
+    if adaptive and not fits:
+        # Raw evidence may stop below the budget when the task's evidence is unambiguous;
+        # typed records compile exactly as before.
+        route, route_reason = hybrid_route(text, task)
+        strategy = (
+            AdaptiveRetrievalStrategy()
+            if route == "rag"
+            else TOMCStrategy(True, raw_selector=adaptive_selection)
+        )
+    result = compile_memory(parsed, task, budget, strategy)
+    if route_reason and not isinstance(strategy, str):
+        result.diagnostics["route_reason"] = route_reason
     if fits:
         note = "This history fits. Kept the complete input; no compression was needed."
     elif result.compiled_memory:
