@@ -2,6 +2,7 @@
 
 import importlib.util
 import json
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -124,30 +125,37 @@ def test_missing_existing_tomc_entry_is_skipped_without_duplicate_server(tmp_pat
     assert (home / ".claude.json").read_bytes() == original
 
 
-def test_legacy_pet_update_can_import_new_mac_module_on_windows(tmp_path):
+def test_legacy_pet_update_can_import_analysis_and_mac_modules_on_windows(tmp_path):
     pytest.importorskip("PySide6")
     home, runtime = _fixture(tmp_path, claude=False)
     pet = home / ".codex/tomc/pet-current/src/tomc"
-    (pet / "__init__.py").write_text("", encoding="utf-8")
     package = runtime / "src/tomc"
-    mac_source = _SCRIPT.parents[1] / "src/tomc/macos_ui.py"
-    (package / "macos_ui.py").write_bytes(mac_source.read_bytes())
-    (package / "usage_widget_qt.py").write_text(
-        "from .macos_ui import install_macos_style, is_macos\n"
-        "assert not is_macos()\ninstall_macos_style(object())\n",
-        encoding="utf-8",
-    )
-    assert not (pet / "macos_ui.py").exists()
+    source = _SCRIPT.parents[1] / "src/tomc"
+    # Model a complete previous installation which lacks the new UI dependencies.
+    for target in (package, pet):
+        shutil.copytree(
+            source, target, dirs_exist_ok=True, ignore=shutil.ignore_patterns("__pycache__")
+        )
+    added = ("analysis_qt.py", "analysis.py", "categories.py", "macos_ui.py")
+    for name in added:
+        (pet / name).unlink()
+    # An older savings module cannot provide the new report's per-request fields.
+    (pet / "savings.py").write_text("# previous savings module\n", encoding="utf-8")
     installer.install(installer.plan_update(home, runtime))
-    assert (pet / "macos_ui.py").read_bytes() == mac_source.read_bytes()
+    for name in (*added, "savings.py"):
+        assert (pet / name).read_bytes() == (source / name).read_bytes()
     result = subprocess.run(
         [
             sys.executable,
             "-I",
+            "-B",
             "-c",
             "import sys; import PySide6.QtCore, PySide6.QtGui, PySide6.QtWidgets; "
             "sys.path.insert(0, sys.argv[1]); sys.platform = 'win32'; "
-            "import tomc.usage_widget_qt",
+            "import tomc.analysis_qt, tomc.context_library_qt; "
+            "from tomc.macos_ui import install_macos_style, is_macos; "
+            "assert not is_macos(); install_macos_style(object()); "
+            "assert tomc.analysis_qt.__file__.startswith(sys.argv[1])",
             str(pet.parent),
         ],
         capture_output=True,

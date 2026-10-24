@@ -137,8 +137,8 @@ def request_savings(path, *, catalog=None, reference=None, detected=None):
         columns = {row[1] for row in db.execute("PRAGMA table_info(tomc_request_activity)")}
         model = "a.model" if "model" in columns else "NULL"
         rows = db.execute(
-            f"SELECT e.request_id,e.input_tokens,e.memory_tokens,a.host,a.session_id,{model} "
-            "FROM context_usage_events e JOIN tomc_request_activity a "
+            f"SELECT e.request_id,e.input_tokens,e.memory_tokens,a.host,a.session_id,{model},"
+            "substr(e.recorded_at,1,10) FROM context_usage_events e JOIN tomc_request_activity a "
             "ON a.request_id=e.request_id WHERE e.usable=1"
         ).fetchall()
     mode = (reference or {}).get("mode")
@@ -146,12 +146,14 @@ def request_savings(path, *, catalog=None, reference=None, detected=None):
         catalog, reference, detected, mode if mode in ("input", "cached") else "input"
     )
     result = {}
-    for request_id, before, after, host, session_id, requested in rows:
+    for request_id, before, after, host, session_id, requested, day in rows:
         priced, _basis = price(requested, host, before)
         saved = before - after
         result[request_id] = {
             "host": host,
             "session_id": session_id,
+            "day": day,
+            "input_tokens": before,
             "tokens_saved": saved,
             "money": saved * priced["rate"] / 1_000_000 if priced else None,
             "model": priced["label"] if priced else None,

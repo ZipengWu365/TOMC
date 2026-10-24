@@ -22,6 +22,10 @@ from pathlib import Path
 PET_MODULES = (
     "usage_widget_qt.py",
     "context_library_qt.py",
+    "analysis_qt.py",
+    "analysis.py",
+    "categories.py",
+    "savings.py",
     "context_library.py",
     "session_store.py",
     "integration_status.py",

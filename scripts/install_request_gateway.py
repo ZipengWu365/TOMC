@@ -27,6 +27,10 @@ from install_context_workspace import (
 PET_MODULES = (
     "usage_widget_qt.py",
     "context_library_qt.py",
+    "analysis_qt.py",
+    "analysis.py",
+    "categories.py",
+    "savings.py",
     "usage.py",
     "request_activity.py",
     "integration_status.py",

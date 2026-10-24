@@ -31,8 +31,8 @@
     },
     {
       "path": ".github/workflows/ci.yml",
-      "bytes": 2211,
-      "sha256": "df1ae44ee9336902a705edd278d95546e877ccbabd94070e4aaf800f16cc1ebb"
+      "bytes": 2311,
+      "sha256": "c3443d64ef305a1aa83be9dfa1fc76779bbad10a02a802157c8a210b832d3f10"
     },
     {
       "path": ".github/workflows/traffic.yml",
@@ -686,8 +686,8 @@
     },
     {
       "path": "docs/TOMC_ACCEPTANCE_20261023_ZH.md",
-      "bytes": 16054,
-      "sha256": "c5730bdaf2d3efe47c1a19c1f3084c189aaa4fea9aa23d5ae289adef1771a912"
+      "bytes": 18795,
+      "sha256": "ab55fa9a5e94949898e585d3c0f4c7ba42db5dcf7cd05817c4723e1d13a77b4f"
     },
     {
       "path": "docs/TOMC_CONTEXT_OWNERSHIP_20261023_ZH.md",
@@ -696,8 +696,8 @@
     },
     {
       "path": "docs/TOMC_DEPLOY_ROLLBACK_20261023_ZH.md",
-      "bytes": 10157,
-      "sha256": "13eebe460567d8a22f1d9d1307e94eecb583fbff30c3e5a7613ca07561189ea4"
+      "bytes": 11323,
+      "sha256": "433e93508197f71ec5ecc697191057af931e2aa79dfa7bb2b0f2b48d2dbdc903"
     },
     {
       "path": "docs/TOMC_DEVELOPER_HANDOFF_20261023_ZH.md",
@@ -1098,6 +1098,11 @@
       "path": "examples/snapshot.py",
       "bytes": 684,
       "sha256": "6c940fe2ab4f118377dfc75fba000c0941c42a7e3412e2c26081e589425c2796"
+    },
+    {
+      "path": "feedback/README.md",
+      "bytes": 2639,
+      "sha256": "98312aed6c220fd3adc4cfa1cfba296f593879fe0fce0c7a22add37d303a0c6e"
     },
     {
       "path": "launch/20261011/PUBLIC_COPY.md",
@@ -1660,6 +1665,16 @@
       "sha256": "8a8dfb08a66ba1460baaac83c2e84f5e415005e6bdbe9ef313e6f30856d2d423"
     },
     {
+      "path": "plugins/claude-code/src/tomc/analysis.py",
+      "bytes": 14690,
+      "sha256": "ee82ac3dac9896c340561c10f8e5785dfd2f45ca24ded7de4e19380440985077"
+    },
+    {
+      "path": "plugins/claude-code/src/tomc/analysis_qt.py",
+      "bytes": 41437,
+      "sha256": "9a72c5625341e26eb8105a288b957be406e908c1fa2019aedc03398b3555a8c9"
+    },
+    {
       "path": "plugins/claude-code/src/tomc/animation_receipts.py",
       "bytes": 4637,
       "sha256": "51f6576be34ba20cb12e38af699c1051bdd79ae45e792b9d2218d87aa47ae8ee"
@@ -1673,6 +1688,11 @@
       "path": "plugins/claude-code/src/tomc/automatic_chat.py",
       "bytes": 11398,
       "sha256": "6f581ecba91400e1f917c2734aa4310fc0d2a2d66f53b5cc15218156ff98460d"
+    },
+    {
+      "path": "plugins/claude-code/src/tomc/categories.py",
+      "bytes": 4664,
+      "sha256": "dd99e1c8a8737e3c75950d69a724faad690a653f90e023857d93b7acb01aa73a"
     },
     {
       "path": "plugins/claude-code/src/tomc/cli.py",
@@ -1691,8 +1711,8 @@
     },
     {
       "path": "plugins/claude-code/src/tomc/context_library_qt.py",
-      "bytes": 97999,
-      "sha256": "39b5805e0e9d2ca21848046ae658a8ef1b07ee84612ba291b1bda37c11e04b63"
+      "bytes": 99720,
+      "sha256": "81e1050c7dd0eca065ac020a0984ddf629605c6dcc2bd1f76b7fa16e81474422"
     },
     {
       "path": "plugins/claude-code/src/tomc/conversation_names.py",
@@ -1796,8 +1816,8 @@
     },
     {
       "path": "plugins/claude-code/src/tomc/macos_ui.py",
-      "bytes": 10033,
-      "sha256": "f565047f0331d2270e36f94a9d58d931ecad364b478a28aedac4c91ddc61aaea"
+      "bytes": 10147,
+      "sha256": "d69cada111d240ca5fb6d7c8b9626b1e5d2a3b743daeb9908e441914b9c18e32"
     },
     {
       "path": "plugins/claude-code/src/tomc/mcp_server.py",
@@ -1886,8 +1906,8 @@
     },
     {
       "path": "plugins/claude-code/src/tomc/savings.py",
-      "bytes": 12430,
-      "sha256": "d42bf1aad954899c65b2d813bead697812ca42866d471938af6257d1667931cc"
+      "bytes": 12522,
+      "sha256": "d2b38532fecb65d008b9b72cd2e15a43d4ca0911b6d98c49e6fd30a77c70ca7c"
     },
     {
       "path": "plugins/claude-code/src/tomc/savings_qt.py",
@@ -1966,8 +1986,8 @@
     },
     {
       "path": "plugins/claude-code/src/tomc/usage_widget_qt.py",
-      "bytes": 78525,
-      "sha256": "a4045db0af3647ae238969862dd336490d7cde046abdb849ffdd5304bf5bb88b"
+      "bytes": 79419,
+      "sha256": "deb990bf1ba8dbf76306e07ab4231ec22a7dfba9693d9d0dd721d1535b0a9fa5"
     },
     {
       "path": "plugins/claude-code/uv.lock",
@@ -2246,8 +2266,8 @@
     },
     {
       "path": "scripts/install_context_workspace.py",
-      "bytes": 13086,
-      "sha256": "2bcd89c47c34bac22aef215de9d9576bd413b24a090d123abcbecde25cf8c25c"
+      "bytes": 13166,
+      "sha256": "40fe161c303f4c868d75d03813a04d9eb545f9f7f53dad8b67f24ff4526b936a"
     },
     {
       "path": "scripts/install_current_pet.py",
@@ -2266,8 +2286,8 @@
     },
     {
       "path": "scripts/install_request_gateway.py",
-      "bytes": 8545,
-      "sha256": "21f2df0c117fa89cffb824a0a01f97a99a601181cff8ee096b9ea3b2a9f1d0e9"
+      "bytes": 8625,
+      "sha256": "a796a4a39f0d9927717b71178f92512cd680a0a842c74153373e40fa3891fea4"
     },
     {
       "path": "scripts/install_session_hooks.py",
@@ -2316,8 +2336,8 @@
     },
     {
       "path": "scripts/preview_context_library.py",
-      "bytes": 7847,
-      "sha256": "1ecfd7c8611d4c8ca56a6ea0a4d42c15d4e4f349b4fc1ef9300e137c448e6e30"
+      "bytes": 8096,
+      "sha256": "252ea7d1b384a249778fd9bded0f212e9ac57a17524b499c3b7f36f8d2bcd918"
     },
     {
       "path": "scripts/preview_pet_details.py",
@@ -2346,8 +2366,8 @@
     },
     {
       "path": "scripts/release_manifest.py",
-      "bytes": 2174,
-      "sha256": "c73376452deb17f15e8af9e90d7e070712a1b54c68af9d63ebf28eadcdad3a7c"
+      "bytes": 2375,
+      "sha256": "5369e3d470c6ede3d388576f8b5c870dcc4a7e5ee9e54dedea33cf901d56e2d4"
     },
     {
       "path": "scripts/render_readme_results.py",
@@ -2391,8 +2411,8 @@
     },
     {
       "path": "scripts/update_pet_ui.py",
-      "bytes": 2620,
-      "sha256": "bc09bf79125347e23a0810ae8dde1e48ec58cbe14bb3af87a3d33acda141e8af"
+      "bytes": 2701,
+      "sha256": "9bf44e5c366d5c7beeeff499367146615826b80f0a64ee130158bc3d2619542f"
     },
     {
       "path": "scripts/update_traffic.py",
@@ -2485,6 +2505,16 @@
       "sha256": "8a8dfb08a66ba1460baaac83c2e84f5e415005e6bdbe9ef313e6f30856d2d423"
     },
     {
+      "path": "src/tomc/analysis.py",
+      "bytes": 14690,
+      "sha256": "ee82ac3dac9896c340561c10f8e5785dfd2f45ca24ded7de4e19380440985077"
+    },
+    {
+      "path": "src/tomc/analysis_qt.py",
+      "bytes": 41437,
+      "sha256": "9a72c5625341e26eb8105a288b957be406e908c1fa2019aedc03398b3555a8c9"
+    },
+    {
       "path": "src/tomc/animation_receipts.py",
       "bytes": 4637,
       "sha256": "51f6576be34ba20cb12e38af699c1051bdd79ae45e792b9d2218d87aa47ae8ee"
@@ -2498,6 +2528,11 @@
       "path": "src/tomc/automatic_chat.py",
       "bytes": 11398,
       "sha256": "6f581ecba91400e1f917c2734aa4310fc0d2a2d66f53b5cc15218156ff98460d"
+    },
+    {
+      "path": "src/tomc/categories.py",
+      "bytes": 4664,
+      "sha256": "dd99e1c8a8737e3c75950d69a724faad690a653f90e023857d93b7acb01aa73a"
     },
     {
       "path": "src/tomc/cli.py",
@@ -2516,8 +2551,8 @@
     },
     {
       "path": "src/tomc/context_library_qt.py",
-      "bytes": 97999,
-      "sha256": "39b5805e0e9d2ca21848046ae658a8ef1b07ee84612ba291b1bda37c11e04b63"
+      "bytes": 99720,
+      "sha256": "81e1050c7dd0eca065ac020a0984ddf629605c6dcc2bd1f76b7fa16e81474422"
     },
     {
       "path": "src/tomc/conversation_names.py",
@@ -2666,8 +2701,8 @@
     },
     {
       "path": "src/tomc/macos_ui.py",
-      "bytes": 10033,
-      "sha256": "f565047f0331d2270e36f94a9d58d931ecad364b478a28aedac4c91ddc61aaea"
+      "bytes": 10147,
+      "sha256": "d69cada111d240ca5fb6d7c8b9626b1e5d2a3b743daeb9908e441914b9c18e32"
     },
     {
       "path": "src/tomc/mcp_server.py",
@@ -2756,8 +2791,8 @@
     },
     {
       "path": "src/tomc/savings.py",
-      "bytes": 12430,
-      "sha256": "d42bf1aad954899c65b2d813bead697812ca42866d471938af6257d1667931cc"
+      "bytes": 12522,
+      "sha256": "d2b38532fecb65d008b9b72cd2e15a43d4ca0911b6d98c49e6fd30a77c70ca7c"
     },
     {
       "path": "src/tomc/savings_qt.py",
@@ -2836,8 +2871,8 @@
     },
     {
       "path": "src/tomc/usage_widget_qt.py",
-      "bytes": 78525,
-      "sha256": "a4045db0af3647ae238969862dd336490d7cde046abdb849ffdd5304bf5bb88b"
+      "bytes": 79419,
+      "sha256": "deb990bf1ba8dbf76306e07ab4231ec22a7dfba9693d9d0dd721d1535b0a9fa5"
     },
     {
       "path": "tests/fixtures/pricing/anthropic.txt",
@@ -2858,6 +2893,21 @@
       "path": "tests/fixtures/pricing/openai.txt",
       "bytes": 2652,
       "sha256": "7f8720085ad8a012b32a024c168c6a62244062b2cf2fbca11fff648cee88188b"
+    },
+    {
+      "path": "tests/test_analysis.py",
+      "bytes": 10025,
+      "sha256": "2212d1b0b7335e619422a075a17bae9651cba261ba2d3a7bccdf228ad34ae922"
+    },
+    {
+      "path": "tests/test_analysis_macos_qt.py",
+      "bytes": 9219,
+      "sha256": "698ca37bed99af74053fe422403e8ec16d64e343c428bad8713828944dea49e5"
+    },
+    {
+      "path": "tests/test_analysis_qt.py",
+      "bytes": 8204,
+      "sha256": "ecd0ce1436f62ca363701168c37c61a8c861ddf0f83d7ecc61794116cf7f2235"
     },
     {
       "path": "tests/test_animation_receipts.py",
@@ -2883,6 +2933,11 @@
       "path": "tests/test_audit_session_gateway.py",
       "bytes": 6298,
       "sha256": "6aed7741abed3d8e7e60d37597933a5751d75e85745a71022adf77a683de3e2b"
+    },
+    {
+      "path": "tests/test_categories.py",
+      "bytes": 2044,
+      "sha256": "55edebbd387dd293ef1cd43cd599162c07b526fca84cf6cb439dbfa651078eae"
     },
     {
       "path": "tests/test_codex_bundle.py",
@@ -2936,8 +2991,8 @@
     },
     {
       "path": "tests/test_install_context_workspace.py",
-      "bytes": 10533,
-      "sha256": "604b4ece0cf7a1339d3ac19ea2fe7831cd13da5ca9490ec919127a446290a766"
+      "bytes": 10993,
+      "sha256": "cc38750d2aab4f548223dad9769ea0fed2558233fe14b017c63211bbd6f29371"
     },
     {
       "path": "tests/test_install_macos_pet.py",
@@ -2946,8 +3001,8 @@
     },
     {
       "path": "tests/test_install_request_gateway.py",
-      "bytes": 10607,
-      "sha256": "4b3f480eea3defdff8058b7e87152cd95fee8b0db4d4b5e194d0fc952c0bfcd1"
+      "bytes": 10713,
+      "sha256": "6feea0514ae7683e890d1acc5344410ef76ceb5472d91f1db3ef78a3c3f848a7"
     },
     {
       "path": "tests/test_integration_status.py",
@@ -3061,8 +3116,8 @@
     },
     {
       "path": "tests/test_savings_dashboard_qt.py",
-      "bytes": 15303,
-      "sha256": "35832d1a92b97c91eac3bce62822b7cc9b702bc504c77ab6d0399807046333ad"
+      "bytes": 16182,
+      "sha256": "f3ee3ee38f164d20fa0f4651bec80f46d42461ffe95bfebb434c609881a4a222"
     },
     {
       "path": "tests/test_session_hooks.py",
@@ -3090,6 +3145,11 @@
       "sha256": "e9f4f5ad146f9a4ce2e75e439b410a21b277a3b4c9848965098860502d029115"
     },
     {
+      "path": "tests/test_update_pet_ui.py",
+      "bytes": 2398,
+      "sha256": "613b362ec359942d31f207aa6176f746be47ec6975f5cfdc42ff4afb0aff421e"
+    },
+    {
       "path": "tests/test_usage.py",
       "bytes": 11070,
       "sha256": "ca2a17f6111512678f3c53356a8c94b53ac95575b2bb2815389486519f3ea9d8"
@@ -3110,10 +3170,11 @@
       "sha256": "be8dbb0aa75e27d1625255b99019c1b078833d1afc864951da7d6de1c4b70807"
     }
   ],
-  "total_bytes": 147165738,
+  "total_bytes": 147333634,
   "self_excluded": [
     "PUBLIC_RELEASE_MANIFEST.json",
     "SHA256SUMS"
   ],
+  "contributed_excluded": "feedback/reports/",
   "note": "Public content inventory for the owner-authorized research preview. Commit identity is external because embedding its own final SHA would be recursive."
 }

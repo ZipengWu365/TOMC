@@ -38,7 +38,8 @@ jobs:
             tests/test_context_library_qt.py tests/test_animation_receipts_qt.py \
             tests/test_pricing_language_qt.py tests/test_ui_language.py tests/test_macos_pet_window.py \
             tests/test_macos_ui.py tests/test_macos_functional_flow.py \
-            tests/test_install_context_workspace.py tests/test_install_request_gateway.py
+            tests/test_install_context_workspace.py tests/test_install_request_gateway.py tests/test_update_pet_ui.py \
+            tests/test_analysis_qt.py tests/test_analysis_macos_qt.py
       - name: Check packaged MCP runtime on macOS
         if: runner.os == 'macOS'
         run: |

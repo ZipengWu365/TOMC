@@ -163,7 +163,10 @@ class _Appearance(QObject):
         return False
 
     def apply(self, *_):
-        widget, c = self.widget, tokens(self.widget)
+        widget = self.widget
+        # Settle delayed child styling before installing the window's palette.
+        widget.ensurePolished()
+        c = tokens(widget)
         palette = QPalette(widget.palette())
         for role, key in (
             (QPalette.ColorRole.Window, "background"),
