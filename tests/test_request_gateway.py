@@ -698,7 +698,7 @@ def test_compiler_failure_preserves_original_and_does_not_claim_reduction(harnes
     def broken(*args, **kwargs):
         raise RuntimeError("fixture compiler failure")
 
-    monkeypatch.setattr(responses_request, "adapt_request", broken)
+    monkeypatch.setattr(responses_request, "_adapt", broken)
     original = json.dumps(payload(), indent=2).encode()
     assert harness.exchange(original)[0] == 200
     assert harness.received[0]["body"] == original
@@ -769,21 +769,23 @@ def test_context_length_comes_from_compiler_before_transport_not_whole_json(harn
     assert harness.gateway.activity.prepared_events() == prepared_events
 
 
-def test_claude_replay_does_not_claim_a_new_compiled_context_length(harness):
+def test_claude_replay_reports_the_old_history_it_stands_in_for(harness):
+    # A replayed compilation still shortens the request, so the cat shows it with
+    # the size of the old history that the stored memory replaces.
     original = payload("claude")
     harness.reply = response_body("claude")
     raw = json.dumps(original).encode()
     assert harness.exchange(raw, host="claude")[0] == 200
-    assert harness.gateway.activity.last()["context_input_tokens"] > 0
+    first = harness.gateway.activity.last()["context_input_tokens"]
+    assert first > 0
     assert harness.exchange(raw, host="claude")[0] == 200
     replay = harness.gateway.activity.last()
     assert replay["reason"] == "replayed_prefix"
-    assert replay["context_input_tokens"] is None
-    assert len(harness.gateway.activity.prepared_events()) == 1
-    # Preserve the existing request-level totals while identifying no new compilation.
+    assert replay["context_input_tokens"] == first
+    assert len(harness.gateway.activity.prepared_events()) == 2
     assert harness.gateway.usage.summary()["preparations"] == 2
-    assert harness.gateway.usage.summary()["last_preparation"]["context_input_tokens"] is None
-    assert harness.gateway.usage.recent_events()[-1]["context_input_tokens"] is None
+    assert harness.gateway.usage.summary()["last_preparation"]["context_input_tokens"] == first
+    assert harness.gateway.usage.recent_events()[-1]["context_input_tokens"] == first
 
 
 def test_usage_parser_preserves_unknown_and_handles_split_sse_without_output_retention():

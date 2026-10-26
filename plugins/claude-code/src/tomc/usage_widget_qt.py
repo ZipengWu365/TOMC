@@ -639,7 +639,7 @@ class Details(QWidget):
             self.basis.setText(
                 tr("按各模型缓存读取价", "At each model's cached-read price")
                 if cached
-                else tr("按各模型输入价", "At each model's input price")
+                else tr("按模型价，缓存按缓存价", "Model prices, cache-adjusted")
             )
         start = None
         if report["period"] != "all":
@@ -1419,12 +1419,12 @@ class Companion(QWidget):
             (tr("演示 · ", "Demo · ") if self.test_mode else "")
             + tr("自动请求", "Automatic request")
         )
-        self.number.setText(tr("检查 / 压缩中", "Preparing"))
+        self.number.setText(tr("检查中", "Checking"))
         count = (self.preparing_request or {}).get("active_count", 1)
         self.latest.setText(
-            tr("{count} 个请求正在准备", "Preparing {count} requests", count=count)
+            tr("正在检查 {count} 个请求", "Checking {count} requests", count=count)
             if count > 1
-            else tr("CPU 正在准备上下文", "Preparing on CPU")
+            else tr("看能否压缩这次请求", "Checking whether to compress")
         )
         self.layout_report(True)
 

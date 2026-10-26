@@ -3,7 +3,7 @@
 [中文速查](#chinese-quickstart) · [macOS details](macos_usage.md) · [Install the assistant plugins](assistant_plugin.md)
 
 The desktop companion is a small cat on your screen. It shows how many tokens TOMC has saved,
-what they are worth at each model's listed input price, and which conversations they came from.
+what they are worth at each model's price, and which conversations they came from.
 It also keeps the contexts TOMC prepared, organized by your original conversation names, so you can
 copy a continuation prompt for another assistant or move a context to another computer.
 
@@ -88,8 +88,15 @@ The cat grows through four stages with the length of the contexts it has compres
 Savings appear only for requests TOMC actually shortens. Codex and Claude Code manage much of their
 context themselves, short histories already fit, and some content formats are not supported yet;
 those requests pass through unchanged, and the analysis report shows how many of each there were.
-Long working sessions benefit most. Amounts are the tokens removed, valued at each model's listed
-input price.
+
+Codex and Claude Code bill the unchanged start of each request from a prompt cache at about a
+tenth of the normal input price. Rewriting old history while that cache is warm would make the
+provider re-read everything after it at full price, which costs more than compression saves. So
+the gateway compresses a Codex conversation only once its cache has gone cold (no request for six
+hours, or none recorded) and then keeps reusing the same compressed history, which stays cached;
+Claude Code conversations reuse theirs too. Expect occasional compressions, mostly when you return
+to a conversation after a break. Amounts are the tokens removed, valued at each model's input
+price, with the share the provider served from its cache valued at the cached price.
 
 ## Your data and privacy
 
@@ -122,7 +129,7 @@ under `%USERPROFILE%\.codex\tomc\archive\windows-install-*`.
 
 ## Chinese quickstart
 
-桌面小猫显示 TOMC 节省了多少 token、按各模型输入价值多少钱、来自哪些对话，并按原对话名整理压缩后的上下文，可以复制接续提示词交给别的 Agent，或导出到另一台电脑。Windows 上还可以开启自动请求处理：本机网关在请求发出前压缩 Codex 和 Claude Code 中符合条件的旧历史。macOS 暂不支持自动请求处理。
+桌面小猫显示 TOMC 节省了多少 token、按各模型价格值多少钱（模型缓存读取的部分按缓存价计算）、来自哪些对话，并按原对话名整理压缩后的上下文，可以复制接续提示词交给别的 Agent，或导出到另一台电脑。Windows 上还可以开启自动请求处理：本机网关在请求发出前压缩 Codex 和 Claude Code 中符合条件的旧历史。为了不让已缓存的请求变贵，Codex 对话只在缓存已经失效时（六小时没有请求，或没有记录）才压缩，之后一直复用同一份压缩结果。macOS 暂不支持自动请求处理。
 
 Windows 安装（需要 Python 3.10+ 和本仓库）：
 

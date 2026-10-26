@@ -117,6 +117,10 @@ class RequestActivity:
         if "model" not in columns:
             db.execute("ALTER TABLE tomc_request_activity ADD COLUMN model TEXT")
         db.execute(
+            "CREATE INDEX IF NOT EXISTS tomc_request_activity_session "
+            "ON tomc_request_activity(host,session_id,started_utc)"
+        )
+        db.execute(
             "CREATE INDEX IF NOT EXISTS tomc_request_activity_updated "
             "ON tomc_request_activity(updated_utc)"
         )
@@ -368,6 +372,22 @@ class RequestActivity:
                     (cutoff,),
                 ).fetchone()[0]
             return record
+
+    def idle_seconds(self, host, session_id):
+        """Seconds since this conversation's latest recorded request; None if none is recorded."""
+        if not session_id:
+            return None
+        with self._read() as db:
+            if not self._has(db):
+                return None
+            latest = db.execute(
+                "SELECT max(started_utc) FROM tomc_request_activity WHERE host=? AND session_id=?",
+                (host, session_id),
+            ).fetchone()[0]
+        if not latest:
+            return None
+        elapsed = datetime.now(timezone.utc) - datetime.fromisoformat(latest)
+        return max(0.0, elapsed.total_seconds())
 
     def last(self):
         with self._read() as db:

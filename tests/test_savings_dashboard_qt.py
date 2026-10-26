@@ -154,12 +154,12 @@ def test_dashboard_shows_tokens_money_and_each_model(app, tmp_path, monkeypatch)
         assert cells == [["gpt-6-astra", "40K", "$0.40"], ["Claude Opus 5.5", "10K", "$0.04"]]
         tip = rows[0].itemAt(0).widget().toolTip()
         assert "$10" in tip and "按请求记录的模型" in tip and "Codex" in tip
-        assert details.basis.text() == "按各模型输入价"
+        assert details.basis.text() == "按模型价，缓存按缓存价"
         assert details.stats.text() == "2 次压缩 · 平均每次节省 25,000 tokens"
         assert details.chart_today.text() == "今天 50K"
         pet.set_ui_language("en")
         assert details.caption.text() == "Tokens saved"
-        assert details.basis.text() == "At each model's input price"
+        assert details.basis.text() == "Model prices, cache-adjusted"
         assert not [text for text in texts(details) if re.search(r"[㐀-鿿]", text)]
     finally:
         close(app, pet)

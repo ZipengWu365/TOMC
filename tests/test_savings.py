@@ -6,7 +6,7 @@ import pytest
 
 from tomc.pricing_catalog import all_rates
 from tomc.request_activity import RequestActivity
-from tomc.savings import load_detected, model_rate, savings_report
+from tomc.savings import load_detected, model_rate, request_savings, savings_report
 from tomc.usage import UsageStore
 
 VERIFIED = "2026-10-18T00:00:00+00:00"
@@ -257,3 +257,27 @@ def test_detected_models_file(tmp_path):
     path.write_text("not json", encoding="utf-8")
     assert load_detected(path) == {}
     assert load_detected(tmp_path / "absent.json") == {}
+
+
+def test_tokens_the_provider_would_have_read_from_cache_save_only_the_cached_price(tmp_path):
+    path = tmp_path / "memory.sqlite3"
+    compiled(path, "warm", "codex", "gpt-6-astra", 100_000, 60_000)
+    compiled(path, "cold", "codex", "gpt-6-astra", 100_000, 60_000)
+    activity = RequestActivity(path)
+    # The provider served 90% of the warm request from cache and none of the cold one.
+    activity.finish(
+        "warm", state="forwarded", provider_input_tokens=80_000, provider_cached_tokens=72_000
+    )
+    activity.finish(
+        "cold", state="forwarded", provider_input_tokens=80_000, provider_cached_tokens=0
+    )
+    report = savings_report(path, "all", catalog=CATALOG, reference=REFERENCE, detected={})
+    # Warm: 40,000 at 0.9 x $1 + 0.1 x $10 = $1.90 per million; cold: 40,000 at $10.
+    assert report["money"] == pytest.approx(0.076 + 0.40)
+    per_request = request_savings(path, catalog=CATALOG, reference=REFERENCE, detected={})
+    assert per_request["warm"]["money"] == pytest.approx(0.076)
+    # Choosing cached-read pricing still values every saved token at the cached rate.
+    cached = savings_report(
+        path, "all", catalog=CATALOG, reference={**REFERENCE, "mode": "cached"}, detected={}
+    )
+    assert cached["money"] == pytest.approx(0.08)

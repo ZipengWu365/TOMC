@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 import sqlite3
 import uuid
 from contextlib import contextmanager
@@ -73,6 +74,19 @@ def _identifier(value):
 
 def _title(value):
     return _text(value, "title", 500, multiline=False).strip()
+
+
+# Blocks a host injects into the user's message, such as Claude Code's
+# <system-reminder>; a chat is named after the user's own words instead.
+_HOST_BLOCK = re.compile(
+    r"<(system-reminder|[a-z][a-z0-9_-]*context|command-[a-z-]+)(?:\s[^>]*)?>.*?</\1>", re.S
+)
+
+
+def _task_title(task):
+    lines = [line.strip() for line in _HOST_BLOCK.sub("", task).splitlines() if line.strip()]
+    first = lines[0] if lines else task.strip().splitlines()[0]
+    return _title(first[:160])
 
 
 def _validate(payload):
@@ -172,6 +186,9 @@ class ContextLibrary:
     def _record(row):
         payload, digest, title, host, session_id = row
         snapshot = json.loads(payload)
+        if title.startswith("<") and snapshot.get("task", "").strip():
+            # Saved before host blocks were skipped; renamed titles never start with a tag.
+            title = _task_title(snapshot["task"])
         return {
             **snapshot,
             "content_hash": digest,
@@ -236,7 +253,7 @@ class ContextLibrary:
             "compiler_version": __version__,
         }
         _validate(payload)
-        title = _title(task.strip().splitlines()[0][:160])
+        title = _task_title(task)
         digest = _hash(payload)
         with self._write() as db:
             if preparation_id is not None:

@@ -43,7 +43,7 @@
 
 当前是 **v0.2.1 预览版**。安装包见[发布页](https://github.com/ZipengWu365/TOMC/releases/tag/v0.2.1-preview.1)；早期安装包仍在[MIT 许可助手插件预览包](https://github.com/ZipengWu365/TOMC/tree/main/plugins/downloads)。尚无 PyPI 发布版或公开插件市场条目。
 
-**桌面小猫（测试版）。** 桌面上的小猫显示 TOMC 节省的 token、按各模型输入价值多少钱、来自哪些对话，并提供分析报告和上下文库。Windows 上还可以通过本机网关自动处理 Codex 和 Claude Code 的请求。[安装桌面小猫](docs/desktop_companion.md#chinese-quickstart)（Windows 和 macOS）。
+**桌面小猫（测试版）。** 桌面上的小猫显示 TOMC 节省的 token、按各模型价格值多少钱（缓存读取部分按缓存价）、来自哪些对话，并提供分析报告和上下文库。Windows 上还可以通过本机网关自动处理 Codex 和 Claude Code 的请求。[安装桌面小猫](docs/desktop_companion.md#chinese-quickstart)（Windows 和 macOS）。
 
 ### 视频介绍
 

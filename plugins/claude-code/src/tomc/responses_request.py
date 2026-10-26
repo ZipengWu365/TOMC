@@ -9,8 +9,11 @@ the complete request JSON, not provider token usage.
 from __future__ import annotations
 
 import copy
+import hashlib
 import json
 import re
+import threading
+from collections import OrderedDict
 from collections.abc import Mapping
 from typing import Any
 
@@ -179,15 +182,40 @@ def _host_context(item: Mapping[str, Any]) -> bool:
 
 
 def _agent_message(item: Mapping[str, Any]) -> str | None:
+    """Readable parts of an old message between Codex agents.
+
+    Encrypted parts are readable only by the model. Like old reasoning, they leave
+    with their compiled turn; the evidence notes how many were left out.
+    """
     if set(item) - _AGENT_MESSAGE_FIELDS:
         return None
     author, recipient = item.get("author"), item.get("recipient")
-    text = _text(item.get("content"))
-    if not isinstance(author, str) or not isinstance(recipient, str) or text is None:
+    content = item.get("content")
+    blocks = [content] if isinstance(content, str) else content
+    if (
+        not isinstance(author, str)
+        or not isinstance(recipient, str)
+        or not isinstance(blocks, list)
+    ):
         return None
-    return "HISTORICAL_AGENT_MESSAGE=" + _dump(
-        {"author": author, "recipient": recipient, "text": text}
-    )
+    texts, encrypted = [], 0
+    for block in blocks:
+        if (
+            isinstance(block, Mapping)
+            and block.get("type") == "encrypted_content"
+            and set(block) <= {"type", "encrypted_content"}
+            and isinstance(block.get("encrypted_content"), str)
+        ):
+            encrypted += 1
+            continue
+        text = _text([block] if isinstance(block, Mapping) else block)
+        if text is None:
+            return None
+        texts.append(text)
+    message = {"author": author, "recipient": recipient, "text": "\n".join(texts)}
+    if encrypted:
+        message["encrypted_parts_omitted"] = encrypted
+    return "HISTORICAL_AGENT_MESSAGE=" + _dump(message)
 
 
 def _tool_pairs(
@@ -338,10 +366,26 @@ def adapt_request(
     Host compaction turns, turns carrying opaque host compaction state and
     server-side/incremental history pass through (see ``classify_request``).
     """
+    return _adapt(
+        payload,
+        memory_budget=memory_budget,
+        recent_messages=recent_messages,
+        min_history_tokens=min_history_tokens,
+    )[0]
+
+
+def _adapt(
+    payload: dict[str, Any],
+    *,
+    memory_budget: int | None = None,
+    recent_messages: int = 6,
+    min_history_tokens: int = 4000,
+) -> tuple[AdaptedRequest, dict[str, Any] | None]:
+    """Adapt a request; also return the compiled layout so a thread can reuse it."""
     before = _COUNTER.count(_dump(payload))
 
-    def unchanged(reason: str) -> AdaptedRequest:
-        return AdaptedRequest(payload, False, reason, before, before)
+    def unchanged(reason: str) -> tuple[AdaptedRequest, None]:
+        return AdaptedRequest(payload, False, reason, before, before), None
 
     if (
         isinstance(recent_messages, bool)
@@ -494,12 +538,168 @@ def adapt_request(
     after = _COUNTER.count(_dump(candidate))
     if after >= before:
         return unchanged("no_request_size_reduction")
-    return AdaptedRequest(
-        candidate,
-        True,
-        "old_history_compiled_cache_may_change",
-        before,
-        after,
-        prepared,
-        task.strip(),
+    layout = {"selected": frozenset(selected), "first": first, "evidence": evidence}
+    return (
+        AdaptedRequest(
+            candidate,
+            True,
+            "old_history_compiled_cache_may_change",
+            before,
+            after,
+            prepared,
+            task.strip(),
+        ),
+        layout,
     )
+
+
+def _fingerprint(items: list[Any]) -> str:
+    return hashlib.sha256(_dump(items).encode("utf-8")).hexdigest()
+
+
+def _readable_tokens(items: list[Any]) -> int:
+    """Estimated readable text in items, ignoring images and opaque reasoning."""
+    total = 0
+    for item in items:
+        if not isinstance(item, Mapping):
+            continue
+        kind = item.get("type", "message")
+        if kind == "message":
+            text = _text(item.get("content"))
+        elif kind == "agent_message":
+            text = _agent_message(item)
+        elif kind in _OUTPUT_TYPES:
+            text = _text(item.get("output"))
+        elif kind in _CALL_TYPES:
+            text = item.get("arguments") or item.get("input")
+        else:
+            text = None
+        if isinstance(text, str):
+            total += _COUNTER.count(text)
+    return total
+
+
+# Codex keeps a thread's prompt cache for hours: in a week of local requests the
+# cached share of input stayed above 80% after up to six idle hours and fell to 16%
+# only after longer breaks. Cached input costs about a tenth of uncached input.
+CODEX_CACHE_COLD_AFTER = 6 * 3600
+
+
+class CodexAdapter:
+    """Compile a thread's old history only when its prompt cache is already cold.
+
+    Codex resends the whole thread on every request and the provider caches the
+    unchanged prefix. Rewriting old history while that cache is warm makes the
+    provider re-read everything after the rewrite at the uncached price, which
+    costs more than the compilation saves. So a thread is compiled only when no
+    request of it was seen for ``cold_after`` seconds, when none is recorded, or
+    when the host itself replaced its history. Afterwards it reuses the same
+    compiled message, byte for byte, so the rewritten prefix stays cached; it
+    compiles again only when the cache is cold and the readable history past the
+    reused part has grown by half the compiled history (at least
+    ``min_history_tokens``). Layouts live in this process; after a restart a
+    thread waits for its next cold start.
+    """
+
+    def __init__(self, limit: int = 64, cold_after: float = CODEX_CACHE_COLD_AFTER):
+        self.threads: OrderedDict[str, dict[str, Any]] = OrderedDict()
+        self.limit = limit
+        self.cold_after = cold_after
+        self.lock = threading.Lock()
+
+    def adapt(
+        self,
+        payload: dict[str, Any],
+        session_id: str | None = None,
+        *,
+        idle_seconds: float | None = None,
+        memory_budget: int | None = None,
+        recent_messages: int = 6,
+        min_history_tokens: int = 4000,
+    ) -> AdaptedRequest:
+        if not session_id:
+            before = _COUNTER.count(_dump(payload))
+            return AdaptedRequest(payload, False, "no_conversation_id", before, before)
+        cold = idle_seconds is None or idle_seconds >= self.cold_after
+        with self.lock:
+            stored = self.threads.get(session_id)
+        if stored is not None:
+            if self._matches(payload, stored):
+                replay = self._replay(payload, stored, min_history_tokens, keep=not cold)
+                if replay is not None:
+                    return replay
+            else:
+                # The host replaced its history, so the cached prefix is gone anyway.
+                cold = True
+        if not cold:
+            before = _COUNTER.count(_dump(payload))
+            return AdaptedRequest(payload, False, "provider_cache_warm", before, before)
+        result, layout = _adapt(
+            payload,
+            memory_budget=memory_budget,
+            recent_messages=recent_messages,
+            min_history_tokens=min_history_tokens,
+        )
+        if session_id and layout is not None:
+            items = payload["input"]
+            end = max(layout["selected"]) + 1
+            record = {
+                **layout,
+                "end": end,
+                "fingerprint": _fingerprint(items[:end]),
+                "context_tokens": result.context_tokens or 0,
+            }
+            with self.lock:
+                self.threads[session_id] = record
+                self.threads.move_to_end(session_id)
+                while len(self.threads) > self.limit:
+                    self.threads.popitem(last=False)
+        return result
+
+    @staticmethod
+    def _matches(payload, stored):
+        items = payload.get("input")
+        end = stored["end"]
+        return (
+            isinstance(items, list)
+            and len(items) > end
+            and _fingerprint(items[:end]) == stored["fingerprint"]
+        )
+
+    def _replay(self, payload, stored, min_history_tokens, *, keep=False):
+        """Reuse the stored layout; ``keep`` reuses it however much history has grown."""
+        items = payload["input"]
+        end = stored["end"]
+        users = [
+            i
+            for i, item in enumerate(items)
+            if isinstance(item, Mapping)
+            and _is_message(item)
+            and item.get("role") == "user"
+            and not _host_context(item)
+        ]
+        if not users or users[-1] < end:
+            return None
+        growth = _readable_tokens(items[end : users[-1]])
+        if not keep and growth > max(min_history_tokens, stored["context_tokens"] // 2):
+            return None
+        prefix = []
+        for index, item in enumerate(items[:end]):
+            if index == stored["first"]:
+                prefix.append(stored["evidence"])
+            if index not in stored["selected"]:
+                prefix.append(item)
+        candidate = copy.deepcopy(payload)
+        candidate["input"] = copy.deepcopy(prefix) + candidate["input"][end:]
+        before, after = _COUNTER.count(_dump(payload)), _COUNTER.count(_dump(candidate))
+        if after >= before:
+            return None
+        return AdaptedRequest(
+            candidate,
+            True,
+            "replayed_prefix",
+            before,
+            after,
+            task=_text(items[users[-1]].get("content")),
+            context_input_tokens=stored["context_tokens"],
+        )

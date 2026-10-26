@@ -382,3 +382,12 @@ def test_model_column_is_added_to_a_legacy_table_on_first_write_only(tmp_path):
     activity.start("new", "codex", "s")
     activity.finish("new", state="prepared", context_input_tokens=10, model="gpt-6-astra")
     assert activity.last()["model"] == "gpt-6-astra"
+
+
+def test_idle_seconds_measures_from_the_conversations_latest_request(tmp_path):
+    activity = RequestActivity(tmp_path / "memory.sqlite3")
+    assert activity.idle_seconds("codex", "thread") is None
+    activity.start("r1", "codex", "thread")
+    assert 0 <= activity.idle_seconds("codex", "thread") < 60
+    assert activity.idle_seconds("codex", "other") is None
+    assert activity.idle_seconds("claude", "thread") is None
