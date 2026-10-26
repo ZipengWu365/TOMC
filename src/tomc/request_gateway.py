@@ -183,6 +183,9 @@ class Gateway:
         from .anthropic_request import AnthropicAdapter
 
         self._claude = AnthropicAdapter(self.path)
+        from .responses_request import CodexAdapter
+
+        self._codex = CodexAdapter()
 
     def close(self):
         self.client.close()
@@ -233,6 +236,13 @@ class Gateway:
                     "host_compaction_request",
                     {**(detail or {}), "endpoint": "responses_compact"},
                 )
+        idle = None
+        if host == "codex" and session_id:
+            # Measured before this request is recorded: the gap since the previous one.
+            try:
+                idle = self.activity.idle_seconds(host, session_id)
+            except Exception:
+                idle = 0.0  # Unknown: treat the provider cache as warm.
         self._event("start", request_id, host, session_id)
         try:
             enabled = False
@@ -274,9 +284,7 @@ class Gateway:
                 lock = self._locks[hash((host, session_id)) % len(self._locks)]
                 with lock:
                     if host == "codex":
-                        from .responses_request import adapt_request
-
-                        plan = adapt_request(payload, **options)
+                        plan = self._codex.adapt(payload, session_id, idle_seconds=idle, **options)
                     else:
                         plan = self._claude.adapt(payload, headers, enabled=enabled, **options)
                 if plan is not None:
@@ -298,9 +306,7 @@ class Gateway:
             reason=reason,
             before_tokens=plan.before_tokens if plan else None,
             after_tokens=plan.after_tokens if plan else None,
-            context_input_tokens=plan.prepared.compilation.stats.input_tokens
-            if plan and plan.prepared is not None
-            else None,
+            context_input_tokens=plan.context_tokens if plan else None,
             detail=detail,
             model=payload.get("model") if payload is not None else None,
         )
@@ -329,9 +335,7 @@ class Gateway:
                     "usable": True,
                     "input_tokens": plan.before_tokens,
                     "memory_tokens": plan.after_tokens,
-                    "context_input_tokens": plan.prepared.compilation.stats.input_tokens
-                    if plan.prepared is not None
-                    else None,
+                    "context_input_tokens": plan.context_tokens,
                     "reduced_tokens": plan.before_tokens - plan.after_tokens,
                 }
             )

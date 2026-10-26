@@ -521,6 +521,11 @@ class AnthropicAdapter:
                             except (ValueError, TypeError):
                                 return unchanged("stored_prefix_unreadable")
                             anchor_count = 0
+                            stored = (
+                                prefix.get("context_input_tokens")
+                                if isinstance(prefix, dict)
+                                else None
+                            )
                             if isinstance(prefix, dict) and prefix.get("format") == 2:
                                 old_prompt_id = prefix.get("prompt_id")
                                 if (
@@ -546,6 +551,9 @@ class AnthropicAdapter:
                                 return unchanged("stored_prefix_unreadable")
                             candidate = copy.deepcopy(payload)
                             candidate["messages"] = prefix + candidate["messages"][count:]
+                            if isinstance(stored, bool) or not isinstance(stored, int):
+                                # Stored before sizes were kept: estimate from the replaced turns.
+                                stored = _COUNTER.count(_dump(messages[anchor_count:count]))
                             replay = AdaptedRequest(
                                 candidate,
                                 True,
@@ -556,6 +564,7 @@ class AnthropicAdapter:
                                 prefix_count=count,
                                 replacement_count=len(prefix),
                                 anchor_count=anchor_count,
+                                context_input_tokens=stored,
                             )
                         else:
                             # Host has replaced its history; never apply a stale
@@ -595,6 +604,7 @@ class AnthropicAdapter:
                                 anchor_count : result.replacement_count
                             ],
                             "prompt_id": prompt_id,
+                            "context_input_tokens": result.context_tokens,
                         }
                         db.execute(
                             "INSERT INTO tomc_anthropic_prefixes VALUES (?,?,?,?,?,?,?) "

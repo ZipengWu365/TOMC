@@ -5,6 +5,7 @@ import json
 
 import pytest
 
+import tomc.responses_request as rr
 from tomc.responses_request import adapt_request, classify_request, extract_session_id
 from tomc.tokenization import get_counter
 
@@ -222,22 +223,44 @@ def test_codex_reasoning_metadata_tool_namespace_and_agent_message_compile():
     assert result.payload["input"][-6:] == original["input"][-6:]
 
 
-def test_encrypted_agent_message_keeps_its_whole_turn_verbatim():
-    payload = request()
-    agent = {
+def encrypted_agent_message(text="Done."):
+    return {
         "type": "agent_message",
         "author": "/root/worker",
         "recipient": "/root",
         "content": [
-            {"type": "input_text", "text": "Done."},
-            {"type": "encrypted_content", "encrypted_content": "opaque"},
+            {"type": "input_text", "text": text},
+            {"type": "encrypted_content", "encrypted_content": "opaque-agent-cipher"},
         ],
+        "internal_chat_message_metadata_passthrough": {"k": 1},
     }
-    payload["input"].insert(5, agent)
-    original = copy.deepcopy(payload)
+
+
+def test_old_agent_message_compiles_its_text_and_leaves_encrypted_parts_behind():
+    # Codex multi-agent turns carry such a message in nearly every turn; keeping
+    # those turns verbatim left nothing to compress.
+    payload = request()
+    payload["input"].insert(5, encrypted_agent_message())
     result = adapt(payload)
     assert result.transformed
-    assert result.payload["input"][1:7] == original["input"][1:7]
+    assert "opaque-agent-cipher" not in json.dumps(result.payload)
+    assert not any(i.get("type") == "agent_message" for i in result.payload["input"])
+    evidence = rr._agent_message(encrypted_agent_message())
+    assert '"text":"Done."' in evidence and '"encrypted_parts_omitted":1' in evidence
+
+
+def test_agent_message_in_the_current_turns_stays_verbatim():
+    payload = request()
+    agent = encrypted_agent_message("Still working.")
+    payload["input"].insert(len(payload["input"]) - 1, agent)
+    result = adapt(payload)
+    assert agent in result.payload["input"]
+
+
+def test_agent_message_with_an_unknown_block_keeps_its_turn():
+    item = encrypted_agent_message()
+    item["content"].append({"type": "input_image", "image_url": "data:"})
+    assert rr._agent_message(item) is None
 
 
 def test_configuration_update_stays_in_place_while_its_turn_compiles():
@@ -589,3 +612,75 @@ def test_conversation_compression_keeps_the_full_budget_selection(monkeypatch):
     monkeypatch.setattr(module, "prepare_context", recording)
     assert adapt(request()).transformed
     assert calls and set(calls) == {False}
+
+
+def followed_by(payload, *turns):
+    grown = copy.deepcopy(payload)
+    for role, text in turns:
+        grown["input"].append(message(role, text))
+    return grown
+
+
+def test_a_thread_reuses_its_compiled_history_so_the_prefix_stays_cached():
+    adapter = rr.CodexAdapter()
+    first = adapter.adapt(request(), "thread", memory_budget=300, min_history_tokens=100)
+    assert first.transformed and first.reason == "old_history_compiled_cache_may_change"
+    end = adapter.threads["thread"]["end"]
+    kept = len(first.payload["input"]) - (len(request()["input"]) - end)
+    second_payload = followed_by(
+        request(), ("assistant", "It is teal."), ("user", "And the secondary color?")
+    )
+    second = adapter.adapt(second_payload, "thread", memory_budget=300, min_history_tokens=100)
+    assert second.reason == "replayed_prefix" and second.transformed
+    # Byte-identical rewritten prefix: the provider's cached copy stays valid.
+    assert second.payload["input"][:kept] == first.payload["input"][:kept]
+    assert second.after_tokens < second.before_tokens
+    assert second.context_tokens == first.context_tokens > 0
+
+
+def test_a_thread_compiles_again_once_enough_new_history_accumulates():
+    adapter = rr.CodexAdapter()
+    adapter.adapt(request(), "thread", memory_budget=300, min_history_tokens=100)
+    long_turn = "A new decision about the palette. " * 4000
+    grown = followed_by(request(), ("assistant", long_turn), ("user", "Summarize the palette."))
+    again = adapter.adapt(grown, "thread", memory_budget=300, min_history_tokens=100)
+    assert again.reason == "old_history_compiled_cache_may_change"
+
+
+def test_changed_earlier_history_is_never_replayed():
+    adapter = rr.CodexAdapter()
+    adapter.adapt(request(), "thread", memory_budget=300, min_history_tokens=100)
+    edited = request()
+    edited["input"][1] = message("user", "Record project 0. The primary color is red.")
+    result = adapter.adapt(edited, "thread", memory_budget=300, min_history_tokens=100)
+    assert result.reason != "replayed_prefix"
+    assert "red" in json.dumps(result.payload)
+
+
+def test_a_warm_thread_is_left_unchanged_until_its_cache_goes_cold():
+    adapter = rr.CodexAdapter()
+    warm = adapter.adapt(
+        request(), "thread", idle_seconds=60, memory_budget=300, min_history_tokens=100
+    )
+    assert not warm.transformed and warm.reason == "provider_cache_warm"
+    cold = adapter.adapt(
+        request(), "thread", idle_seconds=7 * 3600, memory_budget=300, min_history_tokens=100
+    )
+    assert cold.transformed
+
+
+def test_a_warm_thread_keeps_its_compiled_prefix_however_much_history_grows():
+    adapter = rr.CodexAdapter()
+    first = adapter.adapt(request(), "thread", memory_budget=300, min_history_tokens=100)
+    long_turn = "A new decision about the palette. " * 4000
+    grown = followed_by(request(), ("assistant", long_turn), ("user", "Summarize the palette."))
+    kept = adapter.adapt(
+        grown, "thread", idle_seconds=30, memory_budget=300, min_history_tokens=100
+    )
+    assert kept.reason == "replayed_prefix"
+    assert kept.payload["input"][0] == first.payload["input"][0]
+
+
+def test_requests_without_a_conversation_id_are_left_unchanged():
+    result = rr.CodexAdapter().adapt(request(), None, memory_budget=300, min_history_tokens=100)
+    assert not result.transformed and result.reason == "no_conversation_id"

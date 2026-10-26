@@ -3,7 +3,10 @@
 Reads the local statistics database only. A compiled request recorded by the
 gateway carries its model ID; older or tool-path preparations fall back to the
 host's detected default model, then to the reference model chosen in Pricing.
-Saved tokens are valued at the listed input (or cached-read) rate of that model.
+Saved tokens are valued at that model's listed input rate, except the share the
+provider served from its prompt cache for that request, which is valued at the
+cached-read rate: removing a token the provider would have read from cache saves
+only the cached price. Choosing the cached-read mode in Pricing values all at it.
 """
 
 from __future__ import annotations
@@ -96,7 +99,9 @@ def _pricer(catalog, reference, detected, mode):
     rates = list(all_rates(catalog))
     detected = load_detected() if detected is None else detected
     fallback = None
-    rate = (reference or {}).get("rate")
+    rate = (reference or {}).get(mode)
+    if isinstance(rate, bool) or not isinstance(rate, (int, float)):
+        rate = (reference or {}).get("rate")
     if isinstance(rate, (int, float)) and not isinstance(rate, bool) and math.isfinite(rate):
         fallback = {
             "model": reference.get("model") or "reference",
@@ -121,6 +126,22 @@ def _pricer(catalog, reference, detected, mode):
     return fallback, price
 
 
+def _blend(priced, cached, provider_input, provider_cached):
+    """Value saved tokens at the request's own mix of cached and uncached input."""
+    if (
+        not priced
+        or not cached
+        or isinstance(provider_input, bool)
+        or not isinstance(provider_input, int)
+        or provider_input <= 0
+        or isinstance(provider_cached, bool)
+        or not isinstance(provider_cached, int)
+    ):
+        return priced
+    share = min(1.0, max(0.0, provider_cached / provider_input))
+    return {**priced, "rate": share * cached["rate"] + (1 - share) * priced["rate"]}
+
+
 def request_savings(path, *, catalog=None, reference=None, detected=None):
     """Tokens and money each compiled request saved, keyed by request ID, with its session."""
     path = Path(path)
@@ -136,18 +157,25 @@ def request_savings(path, *, catalog=None, reference=None, detected=None):
             return {}
         columns = {row[1] for row in db.execute("PRAGMA table_info(tomc_request_activity)")}
         model = "a.model" if "model" in columns else "NULL"
+        usage = (
+            "a.provider_input_tokens,a.provider_cached_tokens"
+            if "provider_cached_tokens" in columns
+            else "NULL,NULL"
+        )
         rows = db.execute(
             f"SELECT e.request_id,e.input_tokens,e.memory_tokens,a.host,a.session_id,{model},"
-            "substr(e.recorded_at,1,10) FROM context_usage_events e JOIN tomc_request_activity a "
-            "ON a.request_id=e.request_id WHERE e.usable=1"
+            f"substr(e.recorded_at,1,10),{usage} FROM context_usage_events e "
+            "JOIN tomc_request_activity a ON a.request_id=e.request_id WHERE e.usable=1"
         ).fetchall()
     mode = (reference or {}).get("mode")
-    _, price = _pricer(
-        catalog, reference, detected, mode if mode in ("input", "cached") else "input"
-    )
+    mode = mode if mode in ("input", "cached") else "input"
+    _, price = _pricer(catalog, reference, detected, mode)
+    _, cached_price = _pricer(catalog, reference, detected, "cached")
     result = {}
-    for request_id, before, after, host, session_id, requested, day in rows:
+    for request_id, before, after, host, session_id, requested, day, used, cached in rows:
         priced, _basis = price(requested, host, before)
+        if mode == "input":
+            priced = _blend(priced, cached_price(requested, host, before)[0], used, cached)
         saved = before - after
         result[request_id] = {
             "host": host,
@@ -229,11 +257,17 @@ def savings_report(
             )
             host = "a.host" if joined else "NULL"
             model = "a.model" if "model" in columns else "NULL"
+            usage = (
+                "a.provider_input_tokens,a.provider_cached_tokens"
+                if "provider_cached_tokens" in columns
+                else "NULL,NULL"
+            )
             join = (
                 " LEFT JOIN tomc_request_activity a ON a.request_id=e.request_id" if joined else ""
             )
             events = db.execute(
-                f"SELECT substr(e.recorded_at,1,10),e.input_tokens,e.memory_tokens,{host},{model} "
+                f"SELECT substr(e.recorded_at,1,10),e.input_tokens,e.memory_tokens,{host},{model},"
+                f"{usage} "
                 f"FROM context_usage_events e{join} WHERE e.usable=1 "
                 "AND substr(e.recorded_at,1,10)<=? AND (? IS NULL OR substr(e.recorded_at,1,10)>=?)",
                 (str(today), start, start),
@@ -249,6 +283,7 @@ def savings_report(
             report["input_tokens"] += before
             report["output_tokens"] += after
     reference_price, price = _pricer(catalog, reference, detected, mode)
+    _, cached_price = _pricer(catalog, reference, detected, "cached")
     groups = {}
 
     def add(tokens, priced, basis, host):
@@ -277,10 +312,13 @@ def savings_report(
         return group
 
     seen = {}
-    for day, before, after, host, model in events:
+    for day, before, after, host, model, used, cached in events:
         saved = before - after
         seen[day] = seen.get(day, 0) + saved
-        add(saved, *price(model, host, before), host)["preparations"] += 1
+        priced, basis = price(model, host, before)
+        if mode == "input":
+            priced = _blend(priced, cached_price(model, host, before)[0], used, cached)
+        add(saved, priced, basis, host)["preparations"] += 1
     # Aggregates written before per-request events existed (or by an older writer).
     for day, (_calls, before, after) in in_period.items():
         missing = (before - after) - seen.get(day, 0)

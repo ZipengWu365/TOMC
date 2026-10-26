@@ -313,3 +313,22 @@ def test_core_new_tables_can_share_the_existing_database(tmp_path):
 def test_invalid_limit_is_rejected(tmp_path, invalid):
     with pytest.raises(ValueError):
         ContextLibrary(tmp_path / "memory.sqlite3").list(invalid)
+
+
+def test_titles_skip_blocks_the_host_injects_into_the_message(tmp_path):
+    library = ContextLibrary(tmp_path / "memory.sqlite3")
+    task = "<system-reminder>\nTool list changed.\n</system-reminder>\nFix the cat animation"
+    prepared = prepare_context("Earlier notes about the cat.", task, 64)
+    saved = library.save(prepared, task=task, source="automatic_request")
+    assert saved["title"] == "Fix the cat animation"
+    # A snapshot saved by an older version keeps its stored title but lists by the task.
+    with sqlite3.connect(tmp_path / "memory.sqlite3") as db:
+        db.execute("UPDATE tomc_context_snapshots SET title='<system-reminder>'")
+    assert library.list()[0]["title"] == "Fix the cat animation"
+    browser = (
+        '<in-app-browser-context source="tab">Docs page</in-app-browser-context>\nOpen the docs'
+    )
+    prepared = prepare_context("Earlier notes about the docs.", browser, 64)
+    assert (
+        library.save(prepared, task=browser, source="automatic_request")["title"] == "Open the docs"
+    )

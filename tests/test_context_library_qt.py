@@ -247,7 +247,7 @@ def test_request_preparation_animates_once_and_generation_is_not_compression(
     pet.request_activity.start("request-1", "codex", "a")
     pet.refresh()
     assert not calls and pet.preparing_request is not None
-    assert "压缩中" in pet.number.text()
+    assert "检查中" in pet.number.text()
     pet.request_activity.finish(
         "request-1",
         state="prepared",

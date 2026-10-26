@@ -215,6 +215,11 @@ def request_activity_text(record, language=None):
             "Original encoding and content retained",
         ),
         "history_below_threshold": ("短上下文无需压缩", "Short context needs no compression"),
+        "provider_cache_warm": (
+            "模型缓存仍有效，现在压缩反而更贵，暂不改动",
+            "Provider cache is warm; compressing now would cost more, so unchanged",
+        ),
+        "no_conversation_id": ("无法识别对话，保持原样", "Conversation not identified; unchanged"),
         "insufficient_old_history": ("没有足够的较早历史", "Not enough earlier history"),
         "protected_system_history": (
             "保留宿主系统指令与工具定义",
@@ -1466,7 +1471,7 @@ class ContextLibraryDialog(QDialog):
             self.basis.setText(
                 t("按各模型缓存读取价折算", "At each model's cached-read price")
                 if report["mode"] == "cached"
-                else t("按各模型输入价折算", "At each model's input price")
+                else t("按模型价折算，缓存按缓存价", "At model prices, cache-adjusted")
             )
             start = None
             if report["period"] != "all":

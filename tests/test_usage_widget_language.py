@@ -248,8 +248,8 @@ def test_request_and_missing_output_states_are_english(widget):
     widget.set_ui_language("en")
     widget.preparing_request = {"active_count": 2}
     widget.show_request_busy()
-    assert widget.number.text() == "Preparing"
-    assert widget.latest.text() == "Preparing 2 requests"
+    assert widget.number.text() == "Checking"
+    assert widget.latest.text() == "Checking 2 requests"
     widget.report_text({"usable": False})
     assert widget.number.text() == "No usable output"
     assert_english(widget)
