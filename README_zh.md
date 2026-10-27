@@ -19,6 +19,12 @@
 
 [TOMC Memory 官方 GitHub 主页](https://github.com/ZipengWu365/TOMC) · [插件下载](plugins/downloads) · [中文安装教程](#接入常用助手) · [English](README.md)
 
+<!-- community-entry:start -->
+**试用、评测与参与：** [首次使用反馈（中英文）](https://github.com/ZipengWu365/TOMC/issues/11) · [上下文压缩评测笔记](https://github.com/ZipengWu365/ZipengWu365/blob/main/notes/2026-10-27-context-compression-checklist.zh.md) · [贡献指南](CONTRIBUTING.md)
+
+关注 [Zipeng Wu](https://github.com/ZipengWu365)，了解时间序列研究软件与 AI 任务记忆的后续工作。Star 用于收藏 TOMC；项目通知可通过 Watch 设置。关注和 Star 都是自愿的，不影响获得帮助。
+<!-- community-entry:end -->
+
 ## TOMC 插件官网地址与下载
 
 **TOMC 插件官网地址：[github.com/ZipengWu365/TOMC](https://github.com/ZipengWu365/TOMC)。** 本 GitHub 仓库就是 TOMC Memory的官方主页，源码、插件下载和安装教程都在这里。
