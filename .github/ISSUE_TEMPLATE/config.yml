@@ -1,0 +1,11 @@
+blank_issues_enabled: true
+contact_links:
+  - name: First-run reports / 首次使用反馈
+    url: https://github.com/ZipengWu365/TOMC/issues/11
+    about: Report a successful or blocked install, save and recall test. English or Chinese is welcome.
+  - name: Installation and first-run guide
+    url: https://github.com/ZipengWu365/TOMC#first-run-tomc
+    about: Start with one synthetic note and inspect the actual tool results.
+  - name: Context-compression evaluation note
+    url: https://github.com/ZipengWu365/ZipengWu365/blob/main/notes/2026-10-27-context-compression-checklist.md
+    about: A checklist for constraints, task quality, tokens, latency and measured cost.

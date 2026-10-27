@@ -19,6 +19,12 @@
 
 [Official GitHub home](https://github.com/ZipengWu365/TOMC) · [Plugin downloads](plugins/downloads) · [Installation guide](#install-in-your-assistant)
 
+<!-- community-entry:start -->
+**Try, compare, contribute:** [First-run reports](https://github.com/ZipengWu365/TOMC/issues/11) · [Context-compression evaluation note](https://github.com/ZipengWu365/ZipengWu365/blob/main/notes/2026-10-27-context-compression-checklist.md) · [Contribution guide](CONTRIBUTING.md)
+
+Follow [Zipeng Wu](https://github.com/ZipengWu365) for work across time-series research software and AI task memory. Star this repository to save TOMC; use Watch settings for project notifications. Following or starring is optional and is never required for help.
+<!-- community-entry:end -->
+
 This is the official repository for **TOMC Memory**, with source code, plugin downloads and installation guides.
 
 [Inspect recorded examples](https://zipengwu.me/tomc/examples/) · [API, shared-memory and evaluation guides](https://zipengwu.me/tomc/guides/)

@@ -25,6 +25,11 @@
       "sha256": "40a60d69817bcc885e7f654fa2b74f5b91788a1405e6cbcf34f6ee4fd41b5c5a"
     },
     {
+      "path": ".github/ISSUE_TEMPLATE/config.yml",
+      "bytes": 678,
+      "sha256": "b4ce9f1865fc0d3203bcb29c46d49149202c39731b34718c4cb04c4dc9addf47"
+    },
+    {
       "path": ".github/ISSUE_TEMPLATE/use_case.yml",
       "bytes": 792,
       "sha256": "ceb259ddf589b8099f1af19a8ad43c431b9c86088ca691dbbf213c7f191e3589"
@@ -33,6 +38,11 @@
       "path": ".github/workflows/ci.yml",
       "bytes": 2311,
       "sha256": "c3443d64ef305a1aa83be9dfa1fc76779bbad10a02a802157c8a210b832d3f10"
+    },
+    {
+      "path": ".github/workflows/community-entrypoints.yml",
+      "bytes": 5945,
+      "sha256": "a537a014ef2965279c65c599dfffd8f9289ffa200750fcdc7c0d89bda1c8f861"
     },
     {
       "path": ".github/workflows/traffic.yml",
@@ -91,13 +101,13 @@
     },
     {
       "path": "README.md",
-      "bytes": 51172,
-      "sha256": "e45cde0c23e929be530a70598ab015f7f4a297cf47102b707a03098e50841051"
+      "bytes": 51781,
+      "sha256": "6b56baf964751e0d1962f0c80874898d70aed63862e07dbe7bfb42208db65bfa"
     },
     {
       "path": "README_zh.md",
-      "bytes": 46491,
-      "sha256": "950f4dd131617f16f204b01c9578e3e80722e9deb929e9bdf06a0ec930839590"
+      "bytes": 47083,
+      "sha256": "0dc82b926f7f3397f7fb0b31e8f6d63db5483c1aff5721bf6400ccfe166cfc7e"
     },
     {
       "path": "SECURITY.md",
@@ -3170,7 +3180,7 @@
       "sha256": "be8dbb0aa75e27d1625255b99019c1b078833d1afc864951da7d6de1c4b70807"
     }
   ],
-  "total_bytes": 147341407,
+  "total_bytes": 147349231,
   "self_excluded": [
     "PUBLIC_RELEASE_MANIFEST.json",
     "SHA256SUMS"
