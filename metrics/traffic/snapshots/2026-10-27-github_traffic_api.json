@@ -1,0 +1,81 @@
+{
+  "schema": "tomc-clone-snapshot-v1",
+  "repository": "ZipengWu365/TOMC",
+  "source": "github_traffic_api",
+  "observed_at": "2026-10-27T12:29:02+00:00",
+  "window": "last_14_days_at_fetch",
+  "count": 1787,
+  "uniques": 411,
+  "daily": [
+    {
+      "timestamp": "2026-10-13T00:00:00Z",
+      "count": 38,
+      "uniques": 21
+    },
+    {
+      "timestamp": "2026-10-14T00:00:00Z",
+      "count": 55,
+      "uniques": 17
+    },
+    {
+      "timestamp": "2026-10-15T00:00:00Z",
+      "count": 176,
+      "uniques": 47
+    },
+    {
+      "timestamp": "2026-10-16T00:00:00Z",
+      "count": 150,
+      "uniques": 62
+    },
+    {
+      "timestamp": "2026-10-17T00:00:00Z",
+      "count": 74,
+      "uniques": 42
+    },
+    {
+      "timestamp": "2026-10-18T00:00:00Z",
+      "count": 66,
+      "uniques": 34
+    },
+    {
+      "timestamp": "2026-10-19T00:00:00Z",
+      "count": 52,
+      "uniques": 24
+    },
+    {
+      "timestamp": "2026-10-20T00:00:00Z",
+      "count": 30,
+      "uniques": 16
+    },
+    {
+      "timestamp": "2026-10-21T00:00:00Z",
+      "count": 44,
+      "uniques": 22
+    },
+    {
+      "timestamp": "2026-10-22T00:00:00Z",
+      "count": 70,
+      "uniques": 28
+    },
+    {
+      "timestamp": "2026-10-23T00:00:00Z",
+      "count": 370,
+      "uniques": 56
+    },
+    {
+      "timestamp": "2026-10-24T00:00:00Z",
+      "count": 465,
+      "uniques": 65
+    },
+    {
+      "timestamp": "2026-10-25T00:00:00Z",
+      "count": 121,
+      "uniques": 46
+    },
+    {
+      "timestamp": "2026-10-26T00:00:00Z",
+      "count": 76,
+      "uniques": 36
+    }
+  ]
+}
