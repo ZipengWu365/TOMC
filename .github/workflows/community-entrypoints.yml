@@ -1,0 +1,108 @@
+name: Community entry points and manifest verification
+
+'on':
+  workflow_dispatch:
+  push:
+    branches: [main, community-entrypoints-20261027]
+    paths:
+      - .github/workflows/community-entrypoints.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: community-entrypoints-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  update:
+    if: github.repository == 'ZipengWu365/TOMC'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out the current branch
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 1
+      - name: Add community entry points without changing runtime code
+        shell: bash
+        run: |
+          python3 - <<'PYCODE'
+          from pathlib import Path
+
+          START = '<!-- community-entry:start -->'
+          END = '<!-- community-entry:end -->'
+
+          def insert_block(text, anchor, block):
+              section = START + '\n' + block.strip() + '\n' + END
+              if START in text or END in text:
+                  if text.count(START) != 1 or text.count(END) != 1:
+                      raise ValueError('Ambiguous existing community markers')
+                  left = text.index(START)
+                  right = text.index(END) + len(END)
+                  if right <= left:
+                      raise ValueError('Invalid community marker order')
+                  return text[:left] + section + text[right:]
+              if text.count(anchor) != 1:
+                  raise ValueError('Expected one README insertion anchor')
+              return text.replace(anchor, anchor + '\n\n' + section, 1)
+
+          EN_ANCHOR = '[Official GitHub home](https://github.com/ZipengWu365/TOMC) · [Plugin downloads](plugins/downloads) · [Installation guide](#install-in-your-assistant)'
+          ZH_ANCHOR = '[TOMC Memory 官方 GitHub 主页](https://github.com/ZipengWu365/TOMC) · [插件下载](plugins/downloads) · [中文安装教程](#接入常用助手) · [English](README.md)'
+          EN_BLOCK = """**Try, compare, contribute:** [First-run reports](https://github.com/ZipengWu365/TOMC/issues/11) · [Context-compression evaluation note](https://github.com/ZipengWu365/ZipengWu365/blob/main/notes/2026-10-27-context-compression-checklist.md) · [Contribution guide](CONTRIBUTING.md)
+
+          Follow [Zipeng Wu](https://github.com/ZipengWu365) for work across time-series research software and AI task memory. Star this repository to save TOMC; use Watch settings for project notifications. Following or starring is optional and is never required for help."""
+          ZH_BLOCK = """**试用、评测与参与：** [首次使用反馈（中英文）](https://github.com/ZipengWu365/TOMC/issues/11) · [上下文压缩评测笔记](https://github.com/ZipengWu365/ZipengWu365/blob/main/notes/2026-10-27-context-compression-checklist.zh.md) · [贡献指南](CONTRIBUTING.md)
+
+          关注 [Zipeng Wu](https://github.com/ZipengWu365)，了解时间序列研究软件与 AI 任务记忆的后续工作。Star 用于收藏 TOMC；项目通知可通过 Watch 设置。关注和 Star 都是自愿的，不影响获得帮助。"""
+          CONFIG = """blank_issues_enabled: true
+          contact_links:
+            - name: First-run reports / 首次使用反馈
+              url: https://github.com/ZipengWu365/TOMC/issues/11
+              about: Report a successful or blocked install, save and recall test. English or Chinese is welcome.
+            - name: Installation and first-run guide
+              url: https://github.com/ZipengWu365/TOMC#first-run-tomc
+              about: Start with one synthetic note and inspect the actual tool results.
+            - name: Context-compression evaluation note
+              url: https://github.com/ZipengWu365/ZipengWu365/blob/main/notes/2026-10-27-context-compression-checklist.md
+              about: A checklist for constraints, task quality, tokens, latency and measured cost.
+          """
+
+          def main():
+              changes = {}
+              for name, anchor, block in [('README.md', EN_ANCHOR, EN_BLOCK), ('README_zh.md', ZH_ANCHOR, ZH_BLOCK)]:
+                  path = Path(name)
+                  source = path.read_bytes().decode('utf-8')
+                  changes[path] = insert_block(source, anchor, block).encode('utf-8')
+              config = Path('.github/ISSUE_TEMPLATE/config.yml')
+              if config.exists() and config.read_bytes() != CONFIG.encode('utf-8'):
+                  raise ValueError('Existing issue chooser config differs; refusing to overwrite it')
+              changes[config] = CONFIG.encode('utf-8')
+              for path, content in changes.items():
+                  path.parent.mkdir(parents=True, exist_ok=True)
+                  path.write_bytes(content)
+              print('Prepared bilingual community entry points and issue chooser links.')
+
+          if __name__ == '__main__':
+              main()
+          PYCODE
+      - name: Regenerate and verify release inventory
+        run: |
+          python3 scripts/release_manifest.py
+          python3 scripts/release_manifest.py --check
+      - name: Commit only the verified documentation and inventory
+        env:
+          TARGET_BRANCH: ${{ github.ref_name }}
+        shell: bash
+        run: |
+          git add README.md README_zh.md .github/ISSUE_TEMPLATE/config.yml PUBLIC_RELEASE_MANIFEST.json SHA256SUMS
+          if git diff --cached --quiet; then
+            echo 'Community entry points and inventory are already current.'
+            exit 0
+          fi
+          git diff --cached --stat
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'Add bilingual community entry points and verify release inventory'
+          git push origin "HEAD:${TARGET_BRANCH}"
