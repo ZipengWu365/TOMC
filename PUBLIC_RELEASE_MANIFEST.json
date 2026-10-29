@@ -101,13 +101,13 @@
     },
     {
       "path": "README.md",
-      "bytes": 51781,
-      "sha256": "ebf69ff335315128f872bc27433c0ec3696f96f568f1cdabbd21acb73b01a7d5"
+      "bytes": 20994,
+      "sha256": "07ec7585203e546adf9b00556797c55935ff47faa61cd2ed0a46d77efeb07aa5"
     },
     {
       "path": "README_zh.md",
-      "bytes": 47083,
-      "sha256": "3314165ecbf881622bda0c847b33af5f9d4384264c8c71bcb4331caed5332586"
+      "bytes": 20478,
+      "sha256": "514ec60b04ed9e9ba2257ac40f65cedeefec389cd64355416837590ef1b0d887"
     },
     {
       "path": "SECURITY.md",
@@ -218,6 +218,41 @@
       "path": "assets/figure_data.json",
       "bytes": 4558,
       "sha256": "acde9f1e4ce0c9a0c0a5a2053232e91f156b813d66444b5c5bd8bf46eeecd679"
+    },
+    {
+      "path": "assets/homepage/README.md",
+      "bytes": 2063,
+      "sha256": "3de8a0840c1104d9099013d544e8243f48541068aa8249d17364e10ca8345edf"
+    },
+    {
+      "path": "assets/homepage/analysis-en.png",
+      "bytes": 133348,
+      "sha256": "fcdceb07a718966725fefe03f6ab67ac12857cd644fded26b538fb1aa42509aa"
+    },
+    {
+      "path": "assets/homepage/analysis-zh.png",
+      "bytes": 144213,
+      "sha256": "88fbe8ce7c3a6da9f3d56a1213f748a46ae1327643fcf587b19ede1094455091"
+    },
+    {
+      "path": "assets/homepage/cat-work-forms.gif",
+      "bytes": 1038656,
+      "sha256": "094c8c080da15935e2c1c4df3a93a7121dd0cf29d1d409cd75f11aa014c0712f"
+    },
+    {
+      "path": "assets/homepage/contexts-en.png",
+      "bytes": 162295,
+      "sha256": "7a0f2437958e74ce8fdb497a256f09637893eb1a7df3dc07e3799fb08130fd17"
+    },
+    {
+      "path": "assets/homepage/contexts-zh.png",
+      "bytes": 162789,
+      "sha256": "0d1e973f8154993cb5a7298216dfb2635ac47940a939c93da7161afc41bcf3fd"
+    },
+    {
+      "path": "assets/homepage/render-metadata.json",
+      "bytes": 651,
+      "sha256": "0012e68101dfce0c6614386d804587f0e35c596631865e7718d4f942b2a27d65"
     },
     {
       "path": "assets/paper_beam.png",
@@ -2205,6 +2240,11 @@
       "sha256": "7c7b984d43cad9e2ed29dcfcaa16bc521ccbdcfe9405f04a0aa10477930f3e3d"
     },
     {
+      "path": "scripts/check_homepage.py",
+      "bytes": 3553,
+      "sha256": "192bd5a4f3740f4f4c77dd3d84dfc785e0410bf7de7e2028d03fb981788c9e40"
+    },
+    {
       "path": "scripts/check_installed_usage.py",
       "bytes": 2799,
       "sha256": "36ab6c75c8e71e3802eeacfabbac55cbca2908a5906c974ff27f8dfbf874869e"
@@ -2358,6 +2398,11 @@
       "path": "scripts/release_manifest.py",
       "bytes": 2375,
       "sha256": "5369e3d470c6ede3d388576f8b5c870dcc4a7e5ee9e54dedea33cf901d56e2d4"
+    },
+    {
+      "path": "scripts/render_homepage_assets.py",
+      "bytes": 10008,
+      "sha256": "15275e76ba6074c8af88738d9bb1d8e3f1c55e95113da194b9f0611f442f0bad"
     },
     {
       "path": "scripts/render_readme_results.py",
@@ -3190,7 +3235,7 @@
       "sha256": "be8dbb0aa75e27d1625255b99019c1b078833d1afc864951da7d6de1c4b70807"
     }
   ],
-  "total_bytes": 147352511,
+  "total_bytes": 148952695,
   "self_excluded": [
     "PUBLIC_RELEASE_MANIFEST.json",
     "SHA256SUMS"
