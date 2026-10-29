@@ -1,0 +1,26 @@
+{
+  "data": "synthetic example projects",
+  "renderer": "production Qt widgets",
+  "model_calls": 0,
+  "desktop_capture": false,
+  "examples": [
+    {
+      "name": "Refactor the API",
+      "input_estimated_tokens": 1509,
+      "output_estimated_tokens": 45,
+      "counter": "regex-v1 (estimate)"
+    },
+    {
+      "name": "Plan the literature review",
+      "input_estimated_tokens": 1527,
+      "output_estimated_tokens": 799,
+      "counter": "regex-v1 (estimate)"
+    },
+    {
+      "name": "Draft the release notes",
+      "input_estimated_tokens": 1526,
+      "output_estimated_tokens": 29,
+      "counter": "regex-v1 (estimate)"
+    }
+  ]
+}
