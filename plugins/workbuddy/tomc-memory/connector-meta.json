@@ -1,0 +1,22 @@
+{
+  "name": "TOMC Memory",
+  "name_zh": "TOMC Memory · 省 token 小猫",
+  "name_en": "TOMC Memory · Your token-saving cat",
+  "description": "Prepare compact task context and carry project notes across agents, with an optional desktop cat to show your savings.",
+  "description_zh": "让猫猫帮你省 token：本地整理任务上下文，保存项目要求和待办，换 Code Agent、换电脑也能接着干。可选桌面小猫展示节省统计和任务笔记。",
+  "description_en": "Prepare compact task context and carry project notes across agents, with an optional desktop cat to show your savings.",
+  "source": "tomc-memory",
+  "type": "mcp",
+  "version": "0.2.1",
+  "minWorkbuddyVersion": "4.24.0",
+  "examples_zh": [
+    "用 TOMC 保存我提供的项目要求和待办，笔记命名为发布计划。",
+    "从 TOMC 的发布计划笔记中找回未完成事项，接着列出下一步。",
+    "把我提供的长会议记录整理成适合写行动清单的紧凑上下文。"
+  ],
+  "examples_en": [
+    "Save the project requirements and unfinished work I provided in a TOMC notebook named release-plan.",
+    "Recall unfinished work from the release-plan notebook and outline the next steps.",
+    "Prepare compact context from the meeting notes I provided for writing an action checklist."
+  ]
+}
