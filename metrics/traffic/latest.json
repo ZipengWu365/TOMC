@@ -2,16 +2,11 @@
   "schema": "tomc-clone-snapshot-v1",
   "repository": "ZipengWu365/TOMC",
   "source": "github_traffic_api",
-  "observed_at": "2026-10-28T13:16:04+00:00",
+  "observed_at": "2026-10-29T13:22:54+00:00",
   "window": "last_14_days_at_fetch",
-  "count": 1816,
-  "uniques": 422,
+  "count": 1803,
+  "uniques": 420,
   "daily": [
-    {
-      "timestamp": "2026-10-14T00:00:00Z",
-      "count": 55,
-      "uniques": 17
-    },
     {
       "timestamp": "2026-10-15T00:00:00Z",
       "count": 176,
@@ -76,6 +71,11 @@
       "timestamp": "2026-10-27T00:00:00Z",
       "count": 67,
       "uniques": 35
+    },
+    {
+      "timestamp": "2026-10-28T00:00:00Z",
+      "count": 42,
+      "uniques": 19
     }
   ]
 }
