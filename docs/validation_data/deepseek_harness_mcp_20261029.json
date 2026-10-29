@@ -1,0 +1,54 @@
+{
+  "schema": "tomc-dsh-mcp-validation-v1",
+  "timestamp_utc": "2026-10-29T20:54:33.824Z",
+  "platform": "win32",
+  "node": "v24.15.0",
+  "dsh": "0.2.1-rc.5",
+  "scope": "Real DSH ToolRuntime and official MCP client; no model inference in this test.",
+  "checks": [
+    {
+      "name": "DSH discovery of all ten TOMC tools",
+      "passed": true
+    },
+    {
+      "name": "Write via official DSH MCP bridge",
+      "passed": true,
+      "result": {
+        "name": "dsh-validation-lark",
+        "saved": true,
+        "entries": 1
+      }
+    },
+    {
+      "name": "Restart persistence and notebook isolation",
+      "passed": true,
+      "memory": "[role=user]\nProject Lark uses port 4317. Keep the public API unchanged. Pagination tests remain pending."
+    },
+    {
+      "name": "Separate synthetic external-history preparation",
+      "passed": true,
+      "input_estimated_tokens": 22516,
+      "memory_estimated_tokens": 495,
+      "budget": 512,
+      "memory": "[RAW u0] Turn 0: unrelated sensor 0 emitted routine heartbeat. No action is needed.\n[RAW u1] Turn 1: unrelated sensor 1 emitted routine heartbeat. No action is needed.\n[RAW u2] Turn 2: unrelated sensor 2 emitted routine heartbeat. No action is needed.\n[RAW u3] Turn 3: unrelated sensor 3 emitted routine heartbeat. No action is needed.\n[RAW u4] Turn 4: unrelated sensor 4 emitted routine heartbeat. No action is needed.\n[RAW u5] Turn 5: unrelated sensor 5 emitted routine heartbeat. No action is needed.\n[RAW u6] Turn 6: unrelated sensor 6 emitted routine heartbeat. No action is needed.\n[RAW u7] Turn 7: unrelated sensor 7 emitted routine heartbeat. No action is needed.\n[RAW u8] Turn 8: unrelated sensor 8 emitted routine heartbeat. No action is needed.\n[RAW u9] Turn 9: unrelated sensor 9 emitted routine heartbeat. No action is needed.\n[RAW u10] Turn 10: unrelated sensor 10 emitted routine heartbeat. No action is needed.\n[RAW u11] Turn 11: unrelated sensor 11 emitted routine heartbeat. No action is needed.\n[RAW u12] Turn 12: unrelated sensor 12 emitted routine heartbeat. No action is needed.\n[RAW u13] Turn 13: unrelated sensor 13 emitted routine heartbeat. No action is needed.\n[RAW u14] Turn 14: unrelated sensor 14 emitted routine heartbeat. No action is needed.\n[RAW u15] Turn 15: unrelated sensor 15 emitted routine heartbeat. No action is needed.\n[RAW u16] Turn 16: unrelated sensor 16 emitted routine heartbeat. No action is needed.\n[RAW u17] Turn 17: unrelated sensor 17 emitted routine heartbeat. No action is needed.\n[RAW u18] Turn 18: unrelated sensor 18 emitted routine heartbeat. No action is needed.\n[RAW u19] Turn 19: unrelated sensor 19 emitted routine heartbeat. No action is needed.\n[RAW u20] Turn 20: unrelated sensor 20 emitted routine heartbeat. No action is needed.\n[RAW u21] Turn 21: unrelated sensor 21 emitted routine heartbeat. No action is needed.\n[RAW u22] Turn 22: unrelated sensor 22 emitted routine heartbeat. No action is needed.\n[RAW u23] Turn 23: unrelated sensor 23 emitted routine heartbeat. No action is needed.\n[RAW u24] Turn 24: unrelated sensor 24 emitted routine heartbeat. No action is needed.\n[RAW u1500] Project Lark final decision: port 4317; public API unchanged; pagination tests pending."
+    },
+    {
+      "name": "Status through DSH bridge",
+      "passed": true,
+      "runtime_version": null
+    }
+  ],
+  "tools": [
+    "mcp__tomc__forget_memory",
+    "mcp__tomc__get_context",
+    "mcp__tomc__get_status",
+    "mcp__tomc__get_usage_stats",
+    "mcp__tomc__list_contexts",
+    "mcp__tomc__list_memories",
+    "mcp__tomc__make_handoff",
+    "mcp__tomc__prepare_context",
+    "mcp__tomc__recall_memory",
+    "mcp__tomc__remember_memory"
+  ],
+  "passed": true
+}

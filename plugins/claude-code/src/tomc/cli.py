@@ -53,7 +53,7 @@ def main(argv: list[str] | None = None) -> int:
     setup = commands.add_parser("setup", help="Print client configuration for this installation")
     setup.add_argument(
         "--client",
-        choices=("codex", "cursor", "trae", "workbuddy", "claude", "json"),
+        choices=("codex", "cursor", "trae", "workbuddy", "claude", "deepseek", "json"),
         default="json",
     )
     setup.add_argument("--store", type=Path)

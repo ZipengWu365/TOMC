@@ -131,6 +131,7 @@ python examples/api_context.py
 | Cursor | 生成安装链接，或[添加 MCP 配置](docs/cursor_trae_zh.md) | 本地 TOMC 运行环境；客户端工具调用尚未验证 |
 | TRAE（国际版 / 国内版） | [添加 TOMC 本地 MCP 服务](docs/cursor_trae_zh.md#trae) | 本地 TOMC 运行环境；客户端工具调用尚未验证 |
 | 腾讯 WorkBuddy | [配置 TOMC 本地 MCP 服务](docs/workbuddy_zh.md) | 本地 TOMC 运行环境；客户端工具调用尚未验证 |
+| DeepSeek Harness | [本地 MCP 安装与跨会话演示](docs/deepseek_harness_zh.md) | 安装 `.[mcp]` 的 Python、Node.js 和已配置模型的 DSH；非官方社区接入 |
 | Claude Desktop | [下载 `.mcpb` 扩展](https://github.com/ZipengWu365/TOMC/releases/download/v0.2.1-preview.1/tomc-memory-0.2.1.mcpb) | 支持 UV 扩展的新版 Claude Desktop；首次安装需要联网 |
 | Claude Code | `/plugin marketplace add ZipengWu365/TOMC`，再运行 `/plugin install tomc-memory@tomc`（[说明](docs/assistant_plugin_zh.md#claude-code)） | [`uv`](https://docs.astral.sh/uv/getting-started/installation/)；已在 Claude Code 的 VS Code 扩展中测试 |
 

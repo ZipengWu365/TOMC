@@ -135,6 +135,7 @@ This example prepares and counts context locally; it makes **no model call**. To
 | Cursor | Generate an installation link, or [add the MCP configuration](docs/cursor_trae.md) | Local TOMC runtime; client tool calls remain unverified |
 | TRAE (International / CN) | [Add TOMC as a local MCP server](docs/cursor_trae.md#trae) | Local TOMC runtime; client tool calls remain unverified |
 | Tencent WorkBuddy | [Configure TOMC through local MCP](docs/workbuddy.md) | Local TOMC runtime; client tool calls remain unverified |
+| DeepSeek Harness | [Local MCP installation and two-session demo](docs/deepseek_harness.md) | Python with `.[mcp]`, Node.js and a configured DSH model; unofficial community integration |
 | Claude Desktop | [Download the `.mcpb` extension](https://github.com/ZipengWu365/TOMC/releases/download/v0.2.1-preview.1/tomc-memory-0.2.1.mcpb) | Updated Claude Desktop with UV extension support; network access for the first install |
 | Claude Code | `/plugin marketplace add ZipengWu365/TOMC`, then `/plugin install tomc-memory@tomc` ([details](docs/assistant_plugin.md#claude-code)) | [`uv`](https://docs.astral.sh/uv/getting-started/installation/); tested with the Claude Code VS Code extension |
 

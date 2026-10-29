@@ -28,6 +28,9 @@ nav:
   - Cursor and TRAE setup (中文): cursor_trae_zh.md
   - Tencent WorkBuddy setup: workbuddy.md
   - Tencent WorkBuddy setup (中文): workbuddy_zh.md
+  - DeepSeek Harness setup: deepseek_harness.md
+  - DeepSeek Harness setup (中文): deepseek_harness_zh.md
+  - DeepSeek Harness validation: deepseek_harness_validation_20261029.md
   - Usage tips: usage_tips.md
   - Windows installation feedback: windows_installation_feedback.md
   - Codex input comparison: codex_retention_20261005.md

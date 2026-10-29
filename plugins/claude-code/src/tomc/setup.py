@@ -24,8 +24,33 @@ def client_config(client: str, store: Path | None = None) -> str:
     ]
     if client == "codex":
         return f"[mcp_servers.tomc]\ncommand = {json.dumps(command)}\nargs = {json.dumps(args)}\n"
+    if client == "deepseek":
+        # JSON is a YAML subset. DSH reads this as an additive Cordis overlay.
+        return (
+            json.dumps(
+                [
+                    {
+                        "insert": [
+                            {
+                                "id": "mcp-tomc",
+                                "name": "@deepseek-ai/dsh-mcp-client",
+                                "config": {
+                                    "serverName": "tomc",
+                                    "transport": "stdio",
+                                    "command": command,
+                                    "args": args,
+                                    "failOnStartupError": True,
+                                },
+                            }
+                        ]
+                    }
+                ],
+                indent=2,
+            )
+            + "\n"
+        )
     if client not in ("cursor", "trae", "workbuddy", "claude", "json"):
-        raise ValueError("Choose codex, cursor, trae, workbuddy, claude, or json.")
+        raise ValueError("Choose codex, cursor, trae, workbuddy, claude, deepseek, or json.")
     if client == "trae" and any(char.isspace() for char in command):
         raise ValueError(
             "TRAE requires a command path without spaces. Use a TOMC environment "

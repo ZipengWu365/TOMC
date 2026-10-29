@@ -101,13 +101,13 @@
     },
     {
       "path": "README.md",
-      "bytes": 51781,
-      "sha256": "ebf69ff335315128f872bc27433c0ec3696f96f568f1cdabbd21acb73b01a7d5"
+      "bytes": 51969,
+      "sha256": "6567d3982506a4c584030af8db180b8f6211ee8f78751bf98e5b2b5bf5d84ff7"
     },
     {
       "path": "README_zh.md",
-      "bytes": 47083,
-      "sha256": "3314165ecbf881622bda0c847b33af5f9d4384264c8c71bcb4331caed5332586"
+      "bytes": 47262,
+      "sha256": "c5e34ca2c2ac6aade57f9dd4deb74ece5cc6f439e0defd9eb69da2b6f529fa2d"
     },
     {
       "path": "SECURITY.md",
@@ -705,6 +705,21 @@
       "sha256": "da47eaf40676411f97e69d3d5e63c6fa216c217ecfc87ed371400962aec5b7ba"
     },
     {
+      "path": "docs/assets/deepseek-harness/20261029-checklist.png",
+      "bytes": 90150,
+      "sha256": "c4a669733c97715695b28b06c7e795b252b7322bb72fc8f36be886f6def31a8c"
+    },
+    {
+      "path": "docs/assets/deepseek-harness/20261029-recall.png",
+      "bytes": 72208,
+      "sha256": "5cbd712d75f69accb7397f197d9765b82fde810bc8a1b15b278ca60e6b5426da"
+    },
+    {
+      "path": "docs/assets/deepseek-harness/20261029-save.png",
+      "bytes": 63398,
+      "sha256": "6ec8c0ed5320fbbe42d1cdd9003828c39a105e92a5e4927a39a558d651c0f8a6"
+    },
+    {
       "path": "docs/assets/linux_demo_desktop_20261002.png",
       "bytes": 220151,
       "sha256": "f23d5de08376120b1b1ad8e1bacae29c706e3b8d35ab3fb33d8821e3080c6b75"
@@ -803,6 +818,21 @@
       "path": "docs/data_and_license.md",
       "bytes": 3999,
       "sha256": "bd92aaf687b8d91a25ba48496f48212bda63c52ed51520e4e5799632b0d23f4d"
+    },
+    {
+      "path": "docs/deepseek_harness.md",
+      "bytes": 6044,
+      "sha256": "3bbcbc605b7149d4f361fdd50c7ab9c6006d691db1bbec45df133107a42b6b5f"
+    },
+    {
+      "path": "docs/deepseek_harness_validation_20261029.md",
+      "bytes": 4974,
+      "sha256": "fe317aab7f3fade9397f8e2d240e4d0270e9f16e4bb796c7f10e1e345379bb0e"
+    },
+    {
+      "path": "docs/deepseek_harness_zh.md",
+      "bytes": 4183,
+      "sha256": "f93a2055b45182a84422888d1b579ba59623e59e60e5f87c275a3a65874ef981"
     },
     {
       "path": "docs/desktop_companion.md",
@@ -973,6 +1003,16 @@
       "path": "docs/validation_data/cross_client_memory_20261008.json",
       "bytes": 4051,
       "sha256": "ecc8b0984d257902fd6359759a2cd60a0d234533b4762773eca4f9a02d69fa62"
+    },
+    {
+      "path": "docs/validation_data/deepseek_harness_live_20261029.json",
+      "bytes": 8195,
+      "sha256": "d750ca02860ce21d727c62018737ebdd2e8c4f49b4cf33f83baf6eb32badd301"
+    },
+    {
+      "path": "docs/validation_data/deepseek_harness_mcp_20261029.json",
+      "bytes": 3721,
+      "sha256": "b046f20335d69f190def989c13b0f8199dfa1385df09d8322f5e3e857c255128"
     },
     {
       "path": "docs/validation_data/windows_codex_foreground_20261005.json",
@@ -1556,8 +1596,8 @@
     },
     {
       "path": "mkdocs.yml",
-      "bytes": 2233,
-      "sha256": "d3dcef2ad2b1416837879e92629552dee89ce71c1e1ffe59bc6baa0197b1188c"
+      "bytes": 2414,
+      "sha256": "6241163d864d6f89387bb7cb4c27a083cd03647f4a8d6033b327c16758c3422e"
     },
     {
       "path": "plugins/claude-code/.claude-plugin/plugin.json",
@@ -1676,8 +1716,8 @@
     },
     {
       "path": "plugins/claude-code/src/tomc/cli.py",
-      "bytes": 5617,
-      "sha256": "9c56f76f84305cbd8b57fb0e7a02ac7ad83b497572779f13ec727005a018bfc1"
+      "bytes": 5629,
+      "sha256": "d6eba4cfd9e05f360945864ef7cee59688e19ed350d92bf1f269f7496e26bd1d"
     },
     {
       "path": "plugins/claude-code/src/tomc/compiler.py",
@@ -1916,8 +1956,8 @@
     },
     {
       "path": "plugins/claude-code/src/tomc/setup.py",
-      "bytes": 2011,
-      "sha256": "493fe462250a317c93df636ce359aa72dc779e6dcae4c02fbe0e4747f6a0933b"
+      "bytes": 2928,
+      "sha256": "3ea8713053cc4e9d0302d84fef21649ff225e5200bc453113a31456113ba989e"
     },
     {
       "path": "plugins/claude-code/src/tomc/store.py",
@@ -2380,6 +2420,11 @@
       "sha256": "5fdc8bfc63658e8a615a9fdcc47f481d7b2e237adf435ca06bb48245f151695f"
     },
     {
+      "path": "scripts/setup_deepseek.py",
+      "bytes": 973,
+      "sha256": "9b38b997238de22581c0ce436cda71c4b7a10495ae99e91f42f44ddb8342fad6"
+    },
+    {
       "path": "scripts/stage_hf.py",
       "bytes": 6406,
       "sha256": "ae8003afa20423fd54cf93e2667ef28c2696b555c3a9f7494544381582d673b8"
@@ -2428,6 +2473,11 @@
       "path": "scripts/validate_codex_global.py",
       "bytes": 7187,
       "sha256": "60c04906ec431e5b57ed4812b621343f3701698eca1f3f00bf136ded425da470"
+    },
+    {
+      "path": "scripts/validate_deepseek_mcp.mjs",
+      "bytes": 5193,
+      "sha256": "2a304cb1aeed7ddc244047ce38ba531119b88120abf01a7df72f0791e23f710a"
     },
     {
       "path": "scripts/validate_pet_desktop.py",
@@ -2531,8 +2581,8 @@
     },
     {
       "path": "src/tomc/cli.py",
-      "bytes": 5617,
-      "sha256": "9c56f76f84305cbd8b57fb0e7a02ac7ad83b497572779f13ec727005a018bfc1"
+      "bytes": 5629,
+      "sha256": "d6eba4cfd9e05f360945864ef7cee59688e19ed350d92bf1f269f7496e26bd1d"
     },
     {
       "path": "src/tomc/compiler.py",
@@ -2816,8 +2866,8 @@
     },
     {
       "path": "src/tomc/setup.py",
-      "bytes": 2011,
-      "sha256": "493fe462250a317c93df636ce359aa72dc779e6dcae4c02fbe0e4747f6a0933b"
+      "bytes": 2928,
+      "sha256": "3ea8713053cc4e9d0302d84fef21649ff225e5200bc453113a31456113ba989e"
     },
     {
       "path": "src/tomc/store.py",
@@ -2978,6 +3028,11 @@
       "path": "tests/test_cost_estimate.py",
       "bytes": 3163,
       "sha256": "702446290cfa74b6fd3f784cadffb573ac64a1c213da41ab37d5a75997f1a4ca"
+    },
+    {
+      "path": "tests/test_deepseek_setup.py",
+      "bytes": 1021,
+      "sha256": "bb252111667471c6d320545fe8582d74ad5af71315533a0af88da466e6a6b11c"
     },
     {
       "path": "tests/test_delivery.py",
@@ -3190,7 +3245,7 @@
       "sha256": "be8dbb0aa75e27d1625255b99019c1b078833d1afc864951da7d6de1c4b70807"
     }
   ],
-  "total_bytes": 147352511,
+  "total_bytes": 147614977,
   "self_excluded": [
     "PUBLIC_RELEASE_MANIFEST.json",
     "SHA256SUMS"

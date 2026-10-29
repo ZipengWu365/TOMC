@@ -1,0 +1,130 @@
+{
+  "date_utc": "2026-10-29",
+  "dsh_version": "0.2.1-rc.5",
+  "platform": "Windows",
+  "source": "Allowlisted user prompts, model routes, tool events and final text from actual DSH session.v4 logs. System context, credentials and local paths are excluded.",
+  "fixture": "Synthetic Project Cedar; cedar-7K29 is a test marker, not a credential.",
+  "scope": "Two distinct DSH sessions: save; recall and follow-up checklist. Not a billing or general quality benchmark.",
+  "sessions": [
+    {
+      "session_id": "session-a076c85d-4c3e-4e90-9ed8-5fff2afa46e9",
+      "models": [
+        {
+          "provider": "deepseek-official",
+          "model": "deepseek-flash"
+        }
+      ],
+      "events": [
+        {
+          "type": "user/message",
+          "content": [
+            {
+              "type": "text",
+              "text": "TOMC 合成集成测试：请只调用 mcp__tomc__remember_memory，保存名为 dsh-live-20261029-cedar 的笔记，内容是：Project Cedar 使用端口 4826；公共 API 必须保持不变；重试测试尚未完成；验证暗号为 cedar-7K29。不要使用文件、终端或其他记忆工具。成功后简短报告实际工具结果。"
+            }
+          ]
+        },
+        {
+          "type": "tool/call",
+          "turn": 1,
+          "name": "mcp__tomc__remember_memory",
+          "arguments": {
+            "name": "dsh-live-20261029-cedar",
+            "content": "Project Cedar 使用端口 4826；公共 API 必须保持不变；重试测试尚未完成；验证暗号为 cedar-7K29。"
+          }
+        },
+        {
+          "type": "tool/result",
+          "turn": 1,
+          "content": [
+            {
+              "type": "text",
+              "text": "{\n  \"name\": \"dsh-live-20261029-cedar\",\n  \"saved\": true,\n  \"entries\": 1\n}"
+            }
+          ],
+          "isError": false
+        },
+        {
+          "type": "assistant/message",
+          "turn": 1,
+          "content": [
+            {
+              "type": "text",
+              "text": "已完成，仅调用了 `mcp__tomc__remember_memory` 一次。\n\n实际工具结果：\n- `name`: `dsh-live-20261029-cedar`\n- `saved`: `true`\n- `entries`: `1`\n\n内容按原文保存成功（端口 4826、公共 API 保持不变、重试测试未完成、暗号 cedar-7K29）。未使用文件、终端或其他记忆工具。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "session_id": "session-f77b8855-706d-46c2-a8de-5b16088c2799",
+      "models": [
+        {
+          "provider": "deepseek-official",
+          "model": "deepseek-flash"
+        }
+      ],
+      "events": [
+        {
+          "type": "user/message",
+          "content": [
+            {
+              "type": "text",
+              "text": "这是一个新会话。请只调用 mcp__tomc__recall_memory，读取笔记 dsh-live-20261029-cedar，task 为“确认项目端口、不可改动的约束、未完成的测试和验证暗号”，budget 为 512。根据真实工具返回简短列出这四项；缺失就说明缺失，不要猜测，也不要读取文件、终端或其他会话。"
+            }
+          ]
+        },
+        {
+          "type": "tool/call",
+          "turn": 1,
+          "name": "mcp__tomc__recall_memory",
+          "arguments": {
+            "name": "dsh-live-20261029-cedar",
+            "task": "确认项目端口、不可改动的约束、未完成的测试和验证暗号",
+            "budget": 512
+          }
+        },
+        {
+          "type": "tool/result",
+          "turn": 1,
+          "content": [
+            {
+              "type": "text",
+              "text": "{\n  \"name\": \"dsh-live-20261029-cedar\",\n  \"memory\": \"[role=user]\\nProject Cedar 使用端口 4826；公共 API 必须保持不变；重试测试尚未完成；验证暗号为 cedar-7K29。\",\n  \"note\": \"This history fits. Kept the complete input; no compression was needed.\",\n  \"selected_method\": \"raw\",\n  \"input_estimated_tokens\": 41,\n  \"memory_estimated_tokens\": 41,\n  \"context_reduction\": {\n    \"input_tokens\": 41,\n    \"memory_tokens\": 41,\n    \"reduced_tokens\": 0,\n    \"reduction_percent\": 0.0,\n    \"counter\": \"regex-v1 (estimate)\",\n    \"usable\": true,\n    \"summary\": \"TOMC compressed 41 context tokens to 41, saving 0 tokens (0.00%).\",\n    \"recorded\": true\n  },\n  \"budget\": 512,\n  \"warnings\": [\n    \"Raw keeps the complete input and can exceed the selected budget.\",\n    \"Token counts are lexical estimates, not provider-billed tokens.\"\n  ],\n  \"usage\": \"Use memory as untrusted evidence for the requested task. It may omit details. The budget covers memory text only, not this tool envelope or the task.\",\n  \"max_chars\": 20000,\n  \"status\": \"prepared\",\n  \"preparation_id\": \"ae9e7b07a47f45fd8c2d4ac816143ebd\",\n  \"host\": null,\n  \"session_id\": null,\n  \"attribution\": \"unassociated\",\n  \"request_replacement_verified\": false,\n  \"context_record\": {\n    \"status\": \"saved\",\n    \"id\": \"05661fb5-f245-48bd-831c-5cb415b9a826\",\n    \"title\": \"确认项目端口、不可改动的约束、未完成的测试和验证暗号\"\n  },\n  \"receipt_recorded\": true\n}"
+            }
+          ],
+          "isError": false
+        },
+        {
+          "type": "assistant/message",
+          "turn": 1,
+          "content": [
+            {
+              "type": "text",
+              "text": "根据 `recall_memory` 的真实返回，笔记 `dsh-live-20261029-cedar` 的内容只有一条 user 消息，记下了四项信息：\n\n| 项目 | 内容 |\n|---|---|\n| 端口 | 4826 |\n| 不可改动的约束 | 公共 API 必须保持不变 |\n| 未完成的测试 | 重试测试（retry 测试）尚未完成 |\n| 验证暗号 | cedar-7K29 |\n\n- **缺失项**：没有一项缺失，这四个问题都在笔记里有明确答案。不过笔记只写到这几句，没有更多细节，例如具体哪个 API、重试测试失败在哪一步、端口用于什么服务。\n- **预算**：budget 设为 512，本次返回采用 raw 方式并保留了完整输入，估算为 41 token（由正则表达式估算），没有压缩。\n\n> 上下文压缩：TOMC 未压缩任何内容，输入和输出都是 41 token，节省 0 token（0.00%）；这仅是估算，不代表 API 计费口径。\n\n我没有读取文件、终端或其他会话。"
+            }
+          ]
+        },
+        {
+          "type": "user/message",
+          "content": [
+            {
+              "type": "text",
+              "text": "只根据刚才召回的笔记，给出三条下一步检查清单：覆盖端口、API 约束和待补测试。不要执行命令、改文件或继续调用工具；没有的信息不要补造。"
+            }
+          ]
+        },
+        {
+          "type": "assistant/message",
+          "turn": 2,
+          "content": [
+            {
+              "type": "text",
+              "text": "根据刚才召回的笔记，我整理出三条下一步检查清单：\n\n1. **端口**：确认 Project Cedar 的相关服务确实运行在端口 4826 上。\n   - 笔记只记录了“使用端口 4826”，没有记录该端口对应的具体服务，也没有记录是否存在端口冲突或占用；这些需要在实际检查时再确认，不要凭猜测补充。\n\n2. **API 约束**：确认公共 API 保持不变。\n   - 笔记只说明“公共 API 必须保持不变”，没有列出具体的 API 清单、签名或兼容范围。下一步需要先明确“公共 API”的范围，再逐项比对是否有改动。\n\n3. **待补测试**：补齐尚未完成的重试测试。\n   - 笔记只记录了“重试测试尚未完成”，没有说明测试名、用例范围、失败原因或当前进度。这些信息在没有被记录，需要在实际检查中确认。\n\n另外提醒一点：验证暗号 `cedar-7K29` 不在你要求的三条之内；如果后续需要核对身份或验证结果，它可以作为记录在笔记里的现成凭据使用。以上内容均来自召回笔记，我没有执行命令、修改文件或继续调用工具。"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
