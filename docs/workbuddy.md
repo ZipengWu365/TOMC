@@ -2,7 +2,9 @@
 
 [中文](workbuddy_zh.md) · [Assistant setup](assistant_setup.md) · [Validation record](validation.md)
 
-This guide provides manual local MCP configuration for Tencent WorkBuddy. **WorkBuddy GUI installation and model-selected TOMC tool calls remain unverified.** Earlier TOMC backend checks retain their own scope. TOMC has no Tencent official marketplace listing or endorsement, and this update adds no client test.
+TOMC has been tested in **WorkBuddy 5.8.2 with Fast (GLM-5.3-Flash)** on Windows: all ten tools connected, the model saved a notebook, recalled all four facts in a new task, and produced a release checklist. [Live test and screenshots](workbuddy_validation_20261029.md).
+
+A portable [MCP + Skill connector package](../plugins/workbuddy/tomc-memory/README.md) is also available. The instructions below describe the local-checkout alternative.
 
 ## Use the locked runtime
 

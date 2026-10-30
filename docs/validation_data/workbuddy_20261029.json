@@ -1,0 +1,56 @@
+{
+  "date_utc": "2026-10-29",
+  "client": "WorkBuddy",
+  "client_version": "5.8.2",
+  "platform": "Windows",
+  "displayed_model": "Fast (GLM-5.3-Flash)",
+  "runtime_commit": "3951794d19c9c6d22920997434aa44c54b76abf9",
+  "tools_enabled": 10,
+  "notebook": "tomc-workbuddy-live-20261029",
+  "facts": {
+    "owner": "Mira",
+    "release": "2026-11-18",
+    "storage": "SQLite",
+    "unfinished": "PDF export"
+  },
+  "fresh_task_facts_correct": 4,
+  "fresh_task_facts_total": 4,
+  "fresh_prompt_included_answers": false,
+  "release_checklist_completed": true,
+  "client_displayed_completion_seconds": [
+    27,
+    25,
+    6
+  ],
+  "entries": [
+    {
+      "id": 1,
+      "name": "tomc-workbuddy-live-20261029",
+      "payload": "[{\"content\": \"雪松项目负责人是 Mira；发布日期为 2026-11-18；采用 SQLite 存储；PDF 导出尚未完成。\", \"role\": \"user\"}]",
+      "created": "2026-10-29T23:56:45.680Z"
+    }
+  ],
+  "preparation_receipts": [
+    {
+      "id": "20b7fe3509a84c9d9c1c9b5798f0f541",
+      "created_utc": "2026-10-29T23:58:02.725840+00:00",
+      "status": "prepared",
+      "host": null,
+      "session_id": null,
+      "snapshot_id": "cda3b012-369c-42d5-a11f-688113c9783e",
+      "input_tokens": 40,
+      "output_tokens": 40,
+      "counter": "regex-v1 (estimate)"
+    }
+  ],
+  "estimated_context_tokens": {
+    "input": 40,
+    "output": 40
+  },
+  "screenshots": [
+    "assets/workbuddy/workbuddy-tools.png",
+    "assets/workbuddy/workbuddy-save.png",
+    "assets/workbuddy/workbuddy-recall.png",
+    "assets/workbuddy/workbuddy-checklist.png"
+  ]
+}

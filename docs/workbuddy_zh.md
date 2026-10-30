@@ -2,7 +2,9 @@
 
 [English](workbuddy.md) · [助手接入指南](assistant_setup.md) · [验证记录](validation.md)
 
-本文提供腾讯 WorkBuddy 的本地 MCP 手动配置。**WorkBuddy 图形界面安装及模型实际调用 TOMC 工具仍未验证**；此前 TOMC 后端检查保留各自范围。TOMC 尚未上架腾讯官方市场，也不代表获得腾讯背书。本次更新没有新增客户端实测。
+已在 Windows 的 **WorkBuddy 5.8.2、Fast (GLM-5.3-Flash)** 中完成实测：十项工具连接成功，模型保存笔记后，在新任务中正确召回全部四项事实，并继续生成发布行动清单。[实测记录与截图](workbuddy_validation_20261029.md)。
+
+另提供可移植的 [MCP + Skill 连接器包](../plugins/workbuddy/tomc-memory/README.md)。下文介绍使用本地源码目录的配置方式。
 
 ## 使用锁定运行环境
 

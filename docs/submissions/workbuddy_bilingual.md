@@ -16,7 +16,7 @@
 2. **换 Code Agent 继续：** 保存项目要求、决定和待办，在连接同一记忆库的 Agent 之间接着做。目前提供 **Codex、Claude Code、Cursor、TRAE、腾讯 WorkBuddy、Claude Desktop 和 DeepSeek Harness** 的接入方式。
 3. **换电脑接着用：** 导出任务笔记，带到另一台电脑继续，不用重新交代背景。
 
-我们已经做了 Codex 和 Claude Code 的实际模型测试。其中，Codex 的九份合成项目历史测试中，完整请求输入平均减少 **29.7%**，压缩前后均答对 **45/45** 个问题。现在也已在 **DeepSeek Harness** 中跑通保存笔记、新会话召回和继续任务。[实测记录](https://github.com/ZipengWu365/TOMC/blob/main/docs/validation.md)
+我们已经做了 Codex 和 Claude Code 的实际模型测试。其中，Codex 的九份合成项目历史测试中，完整请求输入平均减少 **29.7%**，压缩前后均答对 **45/45** 个问题。现在也已在 **DeepSeek Harness 和 WorkBuddy** 中跑通保存笔记、新会话召回和继续任务。WorkBuddy 使用 **GLM-5.3-Flash**，新任务正确召回 **4/4 项项目事实**，并据此生成发布行动清单。[实测记录](https://github.com/ZipengWu365/TOMC/blob/main/docs/validation.md)
 
 也有朋友把 TOMC 用在小红书内容、视频制作和科研 PPT 中。根据他提交的实测报告，小红书项目的总模型 tokens 减少 **5.16%**，科研 PPT 及修改任务减少 **16.84%**。[朋友的使用案例](https://github.com/ZipengWu365/TOMC/blob/main/casestudy/README.md)
 
@@ -52,7 +52,7 @@ I turned this research into **TOMC Memory**, an open-source tool with three prac
 2. **Switch code agents:** Save project requirements, decisions, and unfinished work so another agent connected to the same memory database can continue. Integration options are available for **Codex, Claude Code, Cursor, TRAE, Tencent WorkBuddy, Claude Desktop, and DeepSeek Harness**.
 3. **Switch computers:** Export your task notes and bring them to another computer without explaining the project from scratch.
 
-We have run real-model tests in Codex and Claude Code. In the Codex test across nine synthetic project histories, complete request input decreased by **29.7%** on average, while both the full-history and compressed conditions answered **45/45 questions correctly**. We have also tested saving notes, recalling them in a fresh session, and continuing a task in **DeepSeek Harness**. [Test records](https://github.com/ZipengWu365/TOMC/blob/main/docs/validation.md)
+We have run real-model tests in Codex and Claude Code. In the Codex test across nine synthetic project histories, complete request input decreased by **29.7%** on average, while both the full-history and compressed conditions answered **45/45 questions correctly**. We have also tested saving notes, recalling them in a fresh session, and continuing a task in **DeepSeek Harness and WorkBuddy**. With **GLM-5.3-Flash in WorkBuddy**, a new task recalled **4/4 project facts correctly** and used them to produce a release checklist. [Test records](https://github.com/ZipengWu365/TOMC/blob/main/docs/validation.md)
 
 A friend has also used TOMC for social content, video production, and research slides. His contributed report records **5.16% fewer total model tokens** for a Xiaohongshu content project and **16.84% fewer** for research slides and revisions. [Community case studies](https://github.com/ZipengWu365/TOMC/blob/main/casestudy/README.md)
 
@@ -68,3 +68,16 @@ TOMC is listed on multiple MCP platforms, including **[Odel](https://odel.app/mo
 
 *Unofficial, open-source community plugin.*
 
+
+
+---
+
+### WorkBuddy 实测截图 / Live WorkBuddy screenshots
+
+![保存任务笔记 / Save a task note](../assets/workbuddy/workbuddy-save.png)
+
+![新任务召回 / Recall in a new task](../assets/workbuddy/workbuddy-recall.png)
+
+![继续任务 / Continue the task](../assets/workbuddy/workbuddy-checklist.png)
+
+[完整实测记录 / Full validation record](../workbuddy_validation_20261029.md)

@@ -2,6 +2,10 @@
 
 These entries record checks performed on the stated revisions. They distinguish local software checks from benchmark reruns, hosted checks and human usability testing.
 
+## WorkBuddy live model validation — 2026-10-29
+
+WorkBuddy 5.8.2 on Windows, using Fast (GLM-5.3-Flash), discovered all ten TOMC tools, saved a synthetic notebook, recalled four of four facts in a fresh task, and continued with a release checklist. The isolated database and receipt match the UI. [Full record and screenshots](workbuddy_validation_20261029.md). This supersedes the client-test status in the dated October 12 configuration preview below.
+
 ## Model-aware API request planning and lexical packing — 2026-10-12
 
 Added a locally cached 34-model official-document snapshot, opt-in synchronous Chat Completions request wrapper, one/two-request refresh and native cooldown, and one-shot 50%/90% backoff heuristics. Real host events must be forwarded by a trusted outer integration; enabled flags are not actual compaction. MCP does not install an interceptor.
