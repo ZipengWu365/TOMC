@@ -7,7 +7,7 @@
     </tr>
   </table>
 <!-- traffic-status:start -->
-  <p>累计克隆 · 自 2026-10-02 起记录 · 更新于 2026-10-30 UTC。 <a href="docs/traffic_metrics.md">统计口径与更新</a></p>
+  <p>累计克隆 · 自 2026-10-02 起记录 · 更新于 2026-10-31 UTC。 <a href="docs/traffic_metrics.md">统计口径与更新</a></p>
 <!-- traffic-status:end -->
   <p><strong>TOMC 帮上忙了？点一下右上角 ⭐ Star，支持我们继续更新。</strong></p>
   <h1>TOMC Memory</h1>
