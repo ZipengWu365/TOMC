@@ -464,6 +464,17 @@ def test_chat_parallel_results_stay_with_their_call(tmp_path):
     assert out[carrier]["tool_call_id"] == "c0b" and _groups(out)[1] is None
 
 
+def test_chat_accepts_empty_sdk_response_fields(tmp_path):
+    payload = _chat_loop(12)
+    for m in payload["messages"]:
+        if m["role"] == "assistant":
+            m.update(refusal=None, annotations=None, audio=None, function_call=None)
+    adapter = ChatCompletionsAdapter(tmp_path / "s.sqlite3")
+    assert adapter.adapt(payload, CHAT, now=0.0, **CODEX_OPTIONS).transformed
+    payload["messages"][2]["function_call"] = {"name": "bash", "arguments": "{}"}
+    assert _groups(payload["messages"])[1] == "unsupported_message_fields"
+
+
 def test_chat_without_session_header_or_when_disabled_is_untouched(tmp_path):
     adapter = ChatCompletionsAdapter(tmp_path / "s.sqlite3")
     payload = _chat_loop(12)

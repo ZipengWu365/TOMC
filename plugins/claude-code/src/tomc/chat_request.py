@@ -48,6 +48,11 @@ _NOTICE = (
 _MESSAGE_FIELDS = {"role", "content", "name", "tool_calls", "tool_call_id", "reasoning_content"}
 
 
+def _known_fields(message: dict[str, Any]) -> bool:
+    # SDK dumps carry empty response fields (refusal, annotations, audio, function_call).
+    return all(k in _MESSAGE_FIELDS or v in (None, [], "") for k, v in message.items())
+
+
 def _dump(value: Any) -> str:
     return json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
 
@@ -74,7 +79,7 @@ def _groups(messages: list[dict[str, Any]]) -> tuple[list[tuple[int, int]], str 
     """(assistant index, last result index) per tool-calling assistant; validates pairing."""
     groups, pending, start = [], set(), None
     for index, message in enumerate(messages):
-        if not isinstance(message, dict) or set(message) - _MESSAGE_FIELDS:
+        if not isinstance(message, dict) or not _known_fields(message):
             return [], "unsupported_message_fields"
         role = message.get("role")
         if role == "tool":
