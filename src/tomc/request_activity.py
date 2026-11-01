@@ -30,6 +30,12 @@ DETAIL_KEYS = {
     "compaction_trigger_item",
     "agent",
     "endpoint",
+    # Compaction-policy estimates (input-price token units), never content.
+    "policy",
+    "policy_gain",
+    "policy_cost",
+    "policy_remaining",
+    "policy_warm",
 }
 _DETAIL_CODE = re.compile(r"[A-Za-z0-9_.:-]{1,40}\Z")
 # A request's declared model ID, e.g. gpt-6-astra or claude-opus-5-5[1m]; it prices savings.

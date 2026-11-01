@@ -21,6 +21,7 @@ from urllib.parse import unquote, urlsplit
 import httpx
 
 from .anthropic_request import is_main_request
+from .compaction_policy import observe_usage
 from .context_library import ContextLibrary
 from .request_activity import RequestActivity
 from .session_store import SessionStore
@@ -182,8 +183,10 @@ class Gateway:
         )
         self._locks = [threading.Lock() for _ in range(64)]
         from .anthropic_request import AnthropicAdapter
+        from .responses_request import ResponsesAdapter
 
         self._claude = AnthropicAdapter(self.path)
+        self._codex = ResponsesAdapter(self.path)
 
     def close(self):
         self.client.close()
@@ -275,20 +278,40 @@ class Gateway:
                         "memory_budget",
                         "recent_messages",
                         "min_history_tokens",
+                        "policy",
+                        "margin",
+                        "window_pressure",
+                        "remaining_prior",
+                        "turn_memory_ratio",
                         *(
-                            ("turn_trigger_tokens", "turn_memory_ratio", "turn_regrow_tokens")
+                            ("turn_trigger_tokens", "turn_regrow_tokens")
                             if host == "claude"
                             else ()
                         ),
                     )
                     if key in options
                 }
+                # By default compile only when the expected saving covers the cache rewrite.
+                policy = options.setdefault("policy", "dynamic")
                 lock = self._locks[hash((host, session_id)) % len(self._locks)]
                 with lock:
-                    if host == "codex":
+                    if host == "codex" and policy == "dynamic":
+                        ratio = options.pop("turn_memory_ratio", None)
+                        options.pop("policy")
+                        if ratio is not None:
+                            options["memory_ratio"] = ratio
+                        plan = self._codex.adapt(payload, headers, enabled=enabled, **options)
+                    elif host == "codex":
                         from .responses_request import adapt_request
 
-                        plan = adapt_request(payload, **options)
+                        plan = adapt_request(
+                            payload,
+                            **{
+                                k: v
+                                for k, v in options.items()
+                                if k in ("memory_budget", "recent_messages", "min_history_tokens")
+                            },
+                        )
                     else:
                         plan = self._claude.adapt(payload, headers, enabled=enabled, **options)
                 if plan is not None:
@@ -313,7 +336,7 @@ class Gateway:
             context_input_tokens=plan.prepared.compilation.stats.input_tokens
             if plan and plan.prepared is not None
             else None,
-            detail=detail,
+            detail={**(detail or {}), **(plan.policy or {})} if plan else detail,
             model=payload.get("model") if payload is not None else None,
         )
         return request_id, session_id, plan, body, changed
@@ -325,6 +348,24 @@ class Gateway:
             provider_input_tokens=metrics.input_tokens,
             provider_cached_tokens=metrics.cached_tokens,
         )
+        try:
+            self._record_saving(request_id, host, session_id, plan, metrics)
+        finally:
+            if plan and session_id and metrics.completed and not metrics.failed:
+                try:
+                    # Feeds cache-warmth and token-ratio estimates for the next decision.
+                    observe_usage(
+                        self.path,
+                        host,
+                        session_id,
+                        sent_tokens=plan.after_tokens,
+                        provider_input=metrics.input_tokens,
+                        provider_cached=metrics.cached_tokens,
+                    )
+                except (OSError, ValueError, sqlite3.Error):
+                    pass
+
+    def _record_saving(self, request_id, host, session_id, plan, metrics):
         if (
             not plan
             or not plan.transformed

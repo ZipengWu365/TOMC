@@ -45,6 +45,8 @@ nav:
   - Model context limits: model_context_limits_20261012.md
   - Context ownership: context_ownership.md
   - Context ownership (中文): context_ownership_zh.md
+  - Gateway compaction policy: compaction_policy.md
+  - Gateway compaction policy (中文): compaction_policy_zh.md
   - API: api_reference.md
   - Architecture: architecture.md
   - LLMLingua comparison: comparison_with_llmlingua.md

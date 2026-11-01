@@ -156,7 +156,10 @@ class ObservedHandler(Handler):
         try:
             return super().handle_one_request()
         finally:
-            self.server.request_done.set()
+            # A keep-alive loop also returns here on the closed connection's EOF;
+            # only a request that was read may signal completion.
+            if getattr(self, "raw_requestline", b""):
+                self.server.request_done.set()
 
 
 class Harness:
@@ -364,7 +367,8 @@ def test_chunked_request_body_is_reassembled_and_forwarded_once(harness):
 @pytest.mark.parametrize(
     "kind,reason",
     [
-        ("turn", "old_history_compiled_cache_may_change"),
+        # A new session's cache is cold, so the dynamic policy compiles at once.
+        ("turn", "segment_compiled_cold_cache"),
         ("prewarm", "auxiliary_request"),
         ("memory", "auxiliary_request"),
         ("compaction", "host_compaction_request"),
@@ -717,6 +721,7 @@ def test_compiler_failure_preserves_original_and_does_not_claim_reduction(harnes
         raise RuntimeError("fixture compiler failure")
 
     monkeypatch.setattr(responses_request, "adapt_request", broken)
+    monkeypatch.setattr(responses_request, "prepare_context", broken)
     original = json.dumps(payload(), indent=2).encode()
     assert harness.exchange(original)[0] == 200
     assert harness.received[0]["body"] == original
