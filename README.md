@@ -1,20 +1,42 @@
 <div align="center">
-  <table width="100%" role="presentation">
-    <tr>
-      <td width="30%" align="center" valign="middle"><a href="https://github.com/ZipengWu365/TOMC/stargazers"><img src="assets/star-us-monospace.svg" alt="Star us on GitHub" width="85%"></a></td>
-      <td width="40%" align="center" valign="middle"><img src="assets/tomc_logo_20261002.png" alt="TOMC Memory" width="100%"></td>
-      <td width="30%" align="center" valign="middle"><a href="https://github.com/ZipengWu365/TOMC/stargazers"><img src="assets/traffic/stars.svg" alt="GitHub Stars" width="42%"></a> <a href="docs/traffic_metrics.md"><img src="assets/traffic/clones-total.svg" alt="Cumulative recorded clones" width="56%"></a></td>
-    </tr>
-  </table>
+  <p><img src="assets/tomc_logo_20261002.png" alt="TOMC Memory" width="300"></p>
+  <h1>TOMC Memory</h1>
+  <p><strong>Registered in the official MCP Registry · Listed on 8 third-party AI &amp; MCP platforms</strong><br><sub>As of November 2026</sub></p>
+  <p>
+    <a href="https://registry.modelcontextprotocol.io/?q=io.github.ZipengWu365%2Ftomc-memory">🏅 MCP Official Registry</a> &ensp;·&ensp;
+    <a href="https://mcprush.com/">🏅 MCPRush</a> &ensp;·&ensp;
+    <a href="https://www.mcpharbor.app/tools/zipengwu365-tomc/">🏅 MCP Harbor</a>
+    <br>
+    <a href="https://protocolprobe.com/mcp/servers/io.github.ZipengWu365/tomc-memory">🏅 ProtocolProbe</a> &ensp;·&ensp;
+    <a href="https://spacering.net/harness/">🏅 SpaceRing Harness</a> &ensp;·&ensp;
+    <a href="https://odel.app/modules/zipengwu365/tomc-memory">🏅 Odel</a>
+    <br>
+    <a href="https://skillsllm.com/skill/tomc">🏅 SkillsLLM</a> &ensp;·&ensp;
+    <a href="https://augmentclaude.com/s/tomc-memory-zipengwu365">🏅 AugmentClaude</a> &ensp;·&ensp;
+    <a href="https://mcpservers.org/">🏅 mcpservers.org</a>
+  </p>
+  <p>Find TOMC on <a href="https://mcprush.com/">MCPRush</a>, a marketplace with <strong>110,000+ MCP servers and agent skills</strong>.</p>
+  <h3>Context compression and task memory for Codex / Claude Code / Cursor / TRAE / WorkBuddy</h3>
+  <p><strong>Compress and compile long histories, and recall saved task notes on CPU.</strong></p>
+  <p>
+    <a href="#use-before-your-api-call"><strong>Use with your API</strong></a> &ensp;·&ensp;
+    <a href="#install-in-your-assistant"><strong>Install TOMC Memory</strong></a> &ensp;·&ensp;
+    <a href="#switch-assistants"><strong>Switch assistants</strong></a>
+    <br>
+    <a href="#try-the-demo">See the demo</a> &ensp;·&ensp;
+    <a href="#paper-explained">Paper explained</a> &ensp;·&ensp;
+    <a href="#same-reader-baseline-memory-vs-tomc-memory">Paper results</a>
+  </p>
+  <p><strong>English</strong> | <a href="README_zh.md">简体中文</a></p>
+  <p><strong>CPU preparation</strong> · No training or extra model service · Plain-text output · Research preview</p>
+  <p>
+    <a href="https://github.com/ZipengWu365/TOMC/stargazers"><img src="assets/traffic/stars.svg" alt="GitHub Stars"></a>
+    <a href="docs/traffic_metrics.md"><img src="assets/traffic/clones-total.svg" alt="Cumulative recorded clones"></a>
+  </p>
 <!-- traffic-status:start -->
   <p>Cumulative clones · recorded since 2026-10-02 · updated 2026-11-01 UTC. <a href="docs/traffic_metrics.md">Method and updates</a></p>
 <!-- traffic-status:end -->
-  <p><strong>Found TOMC useful? Click ⭐ Star at the top right to support the project.</strong></p>
-  <h1>TOMC Memory</h1>
-  <h3>Context compression and task memory for Codex / Claude Code / Cursor / TRAE / WorkBuddy</h3>
-  <p><strong>Compress and compile long histories, and recall saved task notes on CPU.</strong></p>
-  <p><a href="#use-before-your-api-call"><strong>Use with your API</strong></a> · <a href="#install-in-your-assistant">Install TOMC Memory</a> · <a href="#switch-assistants">Switch assistants</a> · <a href="#try-the-demo">See the demo</a> · <a href="#paper-explained">Paper explained</a> · <a href="#same-reader-baseline-memory-vs-tomc-memory">Paper results</a> · <strong>English</strong> | <a href="README_zh.md">简体中文</a></p>
-  <p><strong>CPU preparation</strong> · No training or extra model service · Plain-text output · Research preview</p>
+  <p>Found TOMC useful? <a href="https://github.com/ZipengWu365/TOMC/stargazers">⭐ Star the project</a>.</p>
 </div>
 
 [Official GitHub home](https://github.com/ZipengWu365/TOMC) · [Plugin downloads](plugins/downloads) · [Installation guide](#install-in-your-assistant)
