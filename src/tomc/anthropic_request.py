@@ -23,6 +23,7 @@ from .compaction_policy import (
     decide,
     expected_remaining,
     load_stats,
+    objective_prices,
     prices_for,
     save_stats,
     session_lengths,
@@ -748,6 +749,7 @@ class AnthropicAdapter:
         margin: float = 0.5,
         window_pressure: float = 0.8,
         remaining_prior: float = 0.5,
+        objective: str = "cost",
         now: float | None = None,
     ) -> AdaptedRequest:
         """Rewrite one main-loop request, keeping replayed prefixes byte-stable.
@@ -887,6 +889,7 @@ class AnthropicAdapter:
                             margin=margin,
                             window_pressure=window_pressure,
                             remaining_prior=remaining_prior,
+                            objective=objective,
                             now=time.time() if now is None else now,
                         )
                     # Within one long tool turn, keep replaying the frozen prefix so
@@ -990,6 +993,7 @@ class AnthropicAdapter:
         margin: float,
         window_pressure: float,
         remaining_prior: float,
+        objective: str,
         now: float,
     ) -> AdaptedRequest:
         """Replay the frozen prefix; extend it with one new segment when it pays.
@@ -1063,7 +1067,9 @@ class AnthropicAdapter:
         common = dict(
             kept=_COUNTER.count(_dump({**base, "messages": msgs[:carrier]})),
             previous=previous,
-            prices=prices_for("anthropic", model, long_ttl=stats.ttl >= 3600),
+            prices=objective_prices(
+                prices_for("anthropic", model, long_ttl=stats.ttl >= 3600), objective
+            ),
             warm=warm,
             remaining=expected_remaining(
                 stats.requests,

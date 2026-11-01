@@ -83,6 +83,18 @@ def prices_for(provider: str, model: str | None, *, long_ttl: bool = False) -> P
     return Prices(*rates, "default:" + key)
 
 
+# objective="tokens": every input token counts the same, cached or not. Use it when the
+# binding limit is tokens (token quotas, tokens-per-minute limits, subscription usage),
+# not the provider bill.
+TOKEN_PRICES = Prices(1.0, 1.0, 1.0, "objective:tokens")
+
+
+def objective_prices(prices: Prices, objective: str) -> Prices:
+    if objective not in ("cost", "tokens"):
+        raise ValueError("objective must be 'cost' or 'tokens'")
+    return prices if objective == "cost" else TOKEN_PRICES
+
+
 @dataclass
 class SessionStats:
     """Per-session counters persisted by an adapter; numbers and hashes only."""

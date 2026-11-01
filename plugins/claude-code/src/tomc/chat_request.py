@@ -26,6 +26,7 @@ from .compaction_policy import (
     decide,
     expected_remaining,
     load_stats,
+    objective_prices,
     prices_for,
     save_stats,
     session_lengths,
@@ -189,6 +190,7 @@ class ChatCompletionsAdapter:
         margin: float = 0.5,
         window_pressure: float = 0.8,
         remaining_prior: float = 0.5,
+        objective: str = "cost",
         now: float | None = None,
     ) -> AdaptedRequest:
         now = time.time() if now is None else now
@@ -223,6 +225,7 @@ class ChatCompletionsAdapter:
                         margin=margin,
                         window_pressure=window_pressure,
                         remaining_prior=remaining_prior,
+                        objective=objective,
                         now=now,
                     )
             finally:
@@ -246,6 +249,7 @@ class ChatCompletionsAdapter:
         margin,
         window_pressure,
         remaining_prior,
+        objective,
         now,
     ):
         db.execute(
@@ -344,7 +348,7 @@ class ChatCompletionsAdapter:
         common = dict(
             kept=_COUNTER.count(_dump({**base, "messages": msgs[:carrier]})),
             previous=previous,
-            prices=prices_for("openai", model),
+            prices=objective_prices(prices_for("openai", model), objective),
             warm=warm,
             remaining=expected_remaining(
                 stats.requests, session_lengths(db, "openai", session_id), prior=remaining_prior

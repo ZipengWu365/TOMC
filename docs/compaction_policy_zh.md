@@ -67,6 +67,7 @@
 | 键 | 默认值 | 含义 |
 |---|---|---|
 | `policy` | `dynamic` | `dynamic` 或 `legacy` |
+| `objective` | `cost` | `cost` 按账单计（缓存读取按折扣价）；`tokens` 每个输入 token 一样算，适合有 token 配额、每分钟 token 限额或订阅用量限制的情况 |
 | `margin` | `0.5` | 净节省至少要达到有风险成本的多少倍 |
 | `window_pressure` | `0.8` | 达到窗口的这个比例时强制压缩 |
 | `remaining_prior` | `0.5` | 没有历史会话时，按"已跑请求数 × 该值"估计剩余请求 |

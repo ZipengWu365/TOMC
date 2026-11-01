@@ -67,6 +67,7 @@ These keys go in the gateway config (`compression`, or per route):
 | Key | Default | Meaning |
 |---|---|---|
 | `policy` | `dynamic` | `dynamic` or `legacy` |
+| `objective` | `cost` | `cost` weighs the provider bill (cached reads at their discount); `tokens` counts every input token equally, for token quotas, tokens-per-minute limits and subscription usage |
 | `margin` | `0.5` | Required net saving relative to the cost at risk |
 | `window_pressure` | `0.8` | Window fraction that forces compilation |
 | `remaining_prior` | `0.5` | Remaining requests per request so far, before history exists |

@@ -470,3 +470,24 @@ def test_chat_without_session_header_or_when_disabled_is_untouched(tmp_path):
     assert adapter.adapt(payload, {}, now=0.0).reason == "identity_unavailable"
     off = adapter.adapt(payload, CHAT, enabled=False, now=0.0, **CODEX_OPTIONS)
     assert not off.transformed and off.payload == payload
+
+
+def test_token_objective_compiles_where_the_cost_objective_declines():
+    from tomc.compaction_policy import objective_prices
+
+    numbers = dict(
+        before=21280, after=19377, kept=15500, previous=20804, warm=True, remaining=4.5, ratio=1.37
+    )
+    assert not decide(prices=objective_prices(SONNET_1H, "cost"), **numbers).apply
+    tokens = decide(prices=objective_prices(SONNET_1H, "tokens"), **numbers)
+    assert tokens.apply and tokens.reason == "profitable"
+    with pytest.raises(ValueError):
+        objective_prices(SONNET_1H, "speed")
+
+
+def test_codex_token_objective_compiles_a_warm_segment(tmp_path):
+    adapter = ResponsesAdapter(tmp_path / "s.sqlite3")
+    adapter.adapt(_codex_loop(1), CODEX, now=0.0, objective="tokens", **CODEX_OPTIONS)
+    warm = adapter.adapt(_codex_loop(12), CODEX, now=10.0, objective="tokens", **CODEX_OPTIONS)
+    assert warm.transformed and warm.reason == "segment_compiled_profitable"
+    assert warm.policy["policy_warm"]

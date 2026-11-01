@@ -290,6 +290,7 @@ class Gateway:
                         "margin",
                         "window_pressure",
                         "remaining_prior",
+                        "objective",
                         "turn_memory_ratio",
                         *(
                             ("turn_trigger_tokens", "turn_regrow_tokens")
