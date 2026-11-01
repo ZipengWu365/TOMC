@@ -290,7 +290,7 @@ from tomc.responses_request import ResponsesAdapter, _tool_pairs  # noqa: E402
 CODEX = {"thread-id": "thread-d"}
 
 
-def _codex_loop(groups, *, parallel=False):
+def _codex_loop(groups, *, parallel=False, custom=False):
     items = [
         {
             "type": "message",
@@ -333,6 +333,15 @@ def _codex_loop(groups, *, parallel=False):
             }
             for c in calls
         ]
+    if custom:  # Codex 0.164: custom tools whose outputs are lists of text blocks.
+        for item in items:
+            if item["type"] == "function_call":
+                item.update(type="custom_tool_call", input=item.pop("arguments"))
+            elif item["type"] == "function_call_output":
+                item.update(
+                    type="custom_tool_call_output",
+                    output=[{"type": "input_text", "text": item["output"]}],
+                )
     return {
         "model": "gpt-6.1-sol",
         "store": False,
@@ -377,3 +386,14 @@ def test_codex_parallel_outputs_are_never_split_from_their_calls(tmp_path):
     carrier = next(i for i, item in enumerate(out) if "<tomc_history>" in str(item))
     assert out[carrier]["call_id"] == "c0b"
     assert _tool_pairs(out)[2] is None and not _tool_pairs(out)[1]
+
+
+def test_codex_custom_tool_list_output_is_a_carrier(tmp_path):
+    adapter = ResponsesAdapter(tmp_path / "s.sqlite3")
+    payload = _codex_loop(12, custom=True)
+    result = adapter.adapt(payload, CODEX, now=0.0, **CODEX_OPTIONS)
+    assert result.transformed
+    carrier = result.payload["input"][5]["output"]
+    assert carrier[0] == payload["input"][5]["output"][0]
+    assert carrier[-1]["type"] == "input_text" and "<tomc_history>" in carrier[-1]["text"]
+    assert _tool_pairs(result.payload["input"])[2] is None

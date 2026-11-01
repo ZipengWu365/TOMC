@@ -542,10 +542,14 @@ def _current_task(items: list[dict[str, Any]]) -> tuple[int, str] | None:
 
 
 def _carrier_ok(items: list[dict[str, Any]], index: int, pairs: list[tuple[int, int]]) -> bool:
-    """A string tool output or a plain user message, not inside a parallel call group."""
+    """A readable tool output or a plain user message, not inside a parallel call group.
+
+    Codex 0.164 sends ``custom_tool_call_output`` with a list of text blocks;
+    plain function outputs may be strings.
+    """
     item = items[index]
     if item.get("type") in _OUTPUT_TYPES:
-        if not isinstance(item.get("output"), str):
+        if _text(item.get("output")) is None:
             return False
     elif not (
         _is_message(item)
@@ -816,7 +820,7 @@ class ResponsesAdapter:
                 None,
             )
         else:
-            # The first string tool output keeps the first step raw; a chat
+            # The first readable tool output keeps the first step raw; a chat
             # without tools anchors on its first user message instead.
             carrier = next(
                 (
@@ -878,8 +882,11 @@ class ResponsesAdapter:
         candidate = copy.deepcopy(base)
         target = candidate["input"][carrier]
         block = _SEGMENT_NOTICE + memory + "\n</tomc_history>"
-        if target.get("type") in _OUTPUT_TYPES:
+        if target.get("type") in _OUTPUT_TYPES and isinstance(target["output"], str):
             target["output"] += "\n\n" + block
+        elif target.get("type") in _OUTPUT_TYPES:
+            kind = target["output"][0]["type"] if target["output"] else "input_text"
+            target["output"].append({"type": kind, "text": block})
         else:
             if isinstance(target["content"], str):
                 target["content"] = [{"type": "input_text", "text": target["content"]}]
