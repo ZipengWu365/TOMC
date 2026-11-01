@@ -21,6 +21,7 @@ from urllib.parse import unquote, urlsplit
 import httpx
 
 from .anthropic_request import is_main_request
+from .compaction_policy import observe_usage
 from .context_library import ContextLibrary
 from .request_activity import RequestActivity
 from .session_store import SessionStore
@@ -73,7 +74,7 @@ class ResponseMetrics:
         usage = response.get("usage", item.get("usage"))
         if not isinstance(usage, dict):
             return
-        value = usage.get("input_tokens")
+        value = usage.get("input_tokens", usage.get("prompt_tokens"))  # Chat Completions
         if isinstance(value, int) and value >= 0:
             # Anthropic input_tokens excludes cache creation/read input.
             for key in ("cache_creation_input_tokens", "cache_read_input_tokens"):
@@ -83,7 +84,7 @@ class ResponseMetrics:
             self.input_tokens = max(value, self.input_tokens or 0)
         cached = usage.get("cache_read_input_tokens")
         if cached is None:
-            details = usage.get("input_tokens_details") or {}
+            details = usage.get("input_tokens_details") or usage.get("prompt_tokens_details") or {}
             cached = details.get("cached_tokens") if isinstance(details, dict) else None
         if isinstance(cached, int) and cached >= 0:
             self.cached_tokens = max(cached, self.cached_tokens or 0)
@@ -160,7 +161,7 @@ class Gateway:
         self.library = ContextLibrary(self.path)
         self.routes = config["routes"]
         for name, route in self.routes.items():
-            if name not in {"codex", "claude"}:
+            if name not in {"codex", "claude", "openai"}:
                 raise ValueError("Unsupported gateway route")
             url = urlsplit(route["upstream"])
             if (
@@ -182,8 +183,12 @@ class Gateway:
         )
         self._locks = [threading.Lock() for _ in range(64)]
         from .anthropic_request import AnthropicAdapter
+        from .chat_request import ChatCompletionsAdapter
+        from .responses_request import ResponsesAdapter
 
         self._claude = AnthropicAdapter(self.path)
+        self._codex = ResponsesAdapter(self.path)
+        self._openai = ChatCompletionsAdapter(self.path)
 
     def close(self):
         self.client.close()
@@ -207,6 +212,7 @@ class Gateway:
             (host == "codex" and endpoint.endswith("/responses"))
             or compact_endpoint
             or (host == "claude" and endpoint.endswith("/messages"))
+            or (host == "openai" and endpoint.endswith("/chat/completions"))
         )
         if not target:
             return None, session_id, plan, body, changed
@@ -220,15 +226,20 @@ class Gateway:
             reason = "unsupported_request_encoding_or_json"
         native = None
         if payload is not None:
-            if host == "codex":
-                from .responses_request import classify_request, extract_session_id
+            if host == "openai":
+                from .chat_request import extract_session_id as chat_session
+
+                session_id = chat_session(headers)
             else:
-                from .anthropic_request import classify_request, extract_session_id
-            session_id = extract_session_id(payload, headers)
-            try:
-                native, detail = classify_request(payload, headers)
-            except Exception:
-                native, detail = None, None  # Classification only labels; it never blocks.
+                if host == "codex":
+                    from .responses_request import classify_request, extract_session_id
+                else:
+                    from .anthropic_request import classify_request, extract_session_id
+                session_id = extract_session_id(payload, headers)
+                try:
+                    native, detail = classify_request(payload, headers)
+                except Exception:
+                    native, detail = None, None  # Classification only labels; it never blocks.
             if compact_endpoint:
                 native, detail = (
                     "host_compaction_request",
@@ -242,7 +253,7 @@ class Gateway:
                     host,
                     session_id,
                     event="model_request",
-                    activate=host == "codex"
+                    activate=host in ("codex", "openai")
                     or host == "claude"
                     and payload is not None
                     and is_main_request(payload, headers),
@@ -256,7 +267,7 @@ class Gateway:
                 reason = native
             elif host == "claude" and not is_main_request(payload, headers):
                 reason = "non_main_request"
-            elif host == "codex" and not enabled:
+            elif host in ("codex", "openai") and not enabled:
                 reason = (
                     "session_disabled" if self.sessions.settings()["enabled"] else "global_disabled"
                 )
@@ -275,20 +286,44 @@ class Gateway:
                         "memory_budget",
                         "recent_messages",
                         "min_history_tokens",
+                        "policy",
+                        "margin",
+                        "window_pressure",
+                        "remaining_prior",
+                        "objective",
+                        "turn_memory_ratio",
                         *(
-                            ("turn_trigger_tokens", "turn_memory_ratio", "turn_regrow_tokens")
+                            ("turn_trigger_tokens", "turn_regrow_tokens")
                             if host == "claude"
                             else ()
                         ),
                     )
                     if key in options
                 }
+                # By default compile only when the expected saving covers the cache rewrite.
+                policy = options.setdefault("policy", "dynamic")
                 lock = self._locks[hash((host, session_id)) % len(self._locks)]
                 with lock:
-                    if host == "codex":
+                    if host in ("codex", "openai") and policy == "dynamic":
+                        ratio = options.pop("turn_memory_ratio", None)
+                        options.pop("policy")
+                        if ratio is not None:
+                            options["memory_ratio"] = ratio
+                        adapter = self._codex if host == "codex" else self._openai
+                        plan = adapter.adapt(payload, headers, enabled=enabled, **options)
+                    elif host == "openai":
+                        plan = None  # Chat Completions is only adapted by the dynamic policy.
+                    elif host == "codex":
                         from .responses_request import adapt_request
 
-                        plan = adapt_request(payload, **options)
+                        plan = adapt_request(
+                            payload,
+                            **{
+                                k: v
+                                for k, v in options.items()
+                                if k in ("memory_budget", "recent_messages", "min_history_tokens")
+                            },
+                        )
                     else:
                         plan = self._claude.adapt(payload, headers, enabled=enabled, **options)
                 if plan is not None:
@@ -313,7 +348,7 @@ class Gateway:
             context_input_tokens=plan.prepared.compilation.stats.input_tokens
             if plan and plan.prepared is not None
             else None,
-            detail=detail,
+            detail={**(detail or {}), **(plan.policy or {})} if plan else detail,
             model=payload.get("model") if payload is not None else None,
         )
         return request_id, session_id, plan, body, changed
@@ -325,6 +360,24 @@ class Gateway:
             provider_input_tokens=metrics.input_tokens,
             provider_cached_tokens=metrics.cached_tokens,
         )
+        try:
+            self._record_saving(request_id, host, session_id, plan, metrics)
+        finally:
+            if plan and session_id and metrics.completed and not metrics.failed:
+                try:
+                    # Feeds cache-warmth and token-ratio estimates for the next decision.
+                    observe_usage(
+                        self.path,
+                        host,
+                        session_id,
+                        sent_tokens=plan.after_tokens,
+                        provider_input=metrics.input_tokens,
+                        provider_cached=metrics.cached_tokens,
+                    )
+                except (OSError, ValueError, sqlite3.Error):
+                    pass
+
+    def _record_saving(self, request_id, host, session_id, plan, metrics):
         if (
             not plan
             or not plan.transformed
@@ -461,7 +514,11 @@ class Handler(BaseHTTPRequestHandler):
             request_id, session_id, plan, body, changed = gateway.prepare(
                 host, suffix, headers, raw
             )
-        excluded = HOP | {x.strip() for x in headers.get("connection", "").lower().split(",")}
+        excluded = (
+            HOP
+            | {x.strip() for x in headers.get("connection", "").lower().split(",")}
+            | {"x-tomc-session-id"}  # The gateway's own conversation label stays local.
+        )
         outgoing = {k: v for k, v in headers.items() if k not in excluded}
         if changed:
             outgoing.pop("content-encoding", None)

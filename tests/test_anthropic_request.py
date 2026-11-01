@@ -811,7 +811,12 @@ def _single_prompt_agent_loop(groups=12):
                 "role": "assistant",
                 "content": [
                     {"type": "thinking", "thinking": f"step {i}", "signature": f"sig-{i}"},
-                    {"type": "tool_use", "id": f"t{i}", "name": "lookup", "input": {"path": f"f{i}"}},
+                    {
+                        "type": "tool_use",
+                        "id": f"t{i}",
+                        "name": "lookup",
+                        "input": {"path": f"f{i}"},
+                    },
                 ],
             },
             {
@@ -840,9 +845,7 @@ def test_current_turn_compilation_is_off_by_default():
 def test_current_turn_compiles_early_tool_groups_and_keeps_anchor_and_signed_tail():
     payload = _single_prompt_agent_loop()
     original = copy.deepcopy(payload)
-    result = adapt_request(
-        payload, recent_messages=4, min_history_tokens=20, turn_trigger_tokens=0
-    )
+    result = adapt_request(payload, recent_messages=4, min_history_tokens=20, turn_trigger_tokens=0)
     assert result.transformed and result.reason == "current_turn_tool_history_compiled"
     assert payload == original
     out = result.payload["messages"]
@@ -870,8 +873,7 @@ def test_current_turn_middle_ends_before_an_unknown_system_message():
     payload = _single_prompt_agent_loop()
     unknown = {"role": "system", "content": "Opaque control.", "future_field": 1}
     payload["messages"].insert(12, unknown)
-    result = adapt_request(payload, recent_messages=4, min_history_tokens=20,
-                           turn_trigger_tokens=0)
+    result = adapt_request(payload, recent_messages=4, min_history_tokens=20, turn_trigger_tokens=0)
     assert result.transformed and result.prefix_count == 12
     out = result.payload["messages"]
     assert out[4] == unknown and out[5]["role"] == "assistant"
@@ -886,8 +888,7 @@ def test_current_turn_compiles_per_step_host_notes_and_keeps_directives():
         payload["messages"].insert(i, {"role": "system", "content": f"USD budget: ${i}/$10"})
     payload["messages"].insert(10, directive)  # between a completed group and the next note
     original = copy.deepcopy(payload)
-    result = adapt_request(payload, recent_messages=4, min_history_tokens=20,
-                           turn_trigger_tokens=0)
+    result = adapt_request(payload, recent_messages=4, min_history_tokens=20, turn_trigger_tokens=0)
     assert result.transformed
     out = result.payload["messages"]
     assert out[:3] == original["messages"][:3]
@@ -895,33 +896,39 @@ def test_current_turn_compiles_per_step_host_notes_and_keeps_directives():
     assert out[4] == directive
     # The tail keeps its latest note directly before its assistant step.
     assert out[5]["role"] == "system" and out[6]["role"] == "assistant"
-    assert out[5:] == original["messages"][result.prefix_count:]
+    assert out[5:] == original["messages"][result.prefix_count :]
     assert result.replacement_count == 5
     _system_follows_assistant(out)
 
 
 def test_current_turn_respects_trigger_size_and_ratio_validation():
     payload = _single_prompt_agent_loop()
-    small = adapt_request(payload, recent_messages=4, min_history_tokens=20,
-                          turn_trigger_tokens=10**9)
+    small = adapt_request(
+        payload, recent_messages=4, min_history_tokens=20, turn_trigger_tokens=10**9
+    )
     assert not small.transformed
-    bad = adapt_request(payload, recent_messages=4, min_history_tokens=20,
-                        turn_trigger_tokens=0, turn_memory_ratio=1.5)
+    bad = adapt_request(
+        payload,
+        recent_messages=4,
+        min_history_tokens=20,
+        turn_trigger_tokens=0,
+        turn_memory_ratio=1.5,
+    )
     assert not bad.transformed and bad.reason == "invalid_adapter_options"
 
 
 def test_current_turn_with_pending_tool_call_is_untouched():
     payload = _single_prompt_agent_loop()
     payload["messages"].pop()
-    result = adapt_request(payload, recent_messages=4, min_history_tokens=20,
-                           turn_trigger_tokens=0)
+    result = adapt_request(payload, recent_messages=4, min_history_tokens=20, turn_trigger_tokens=0)
     assert not result.transformed and result.reason == "incomplete_tool_pairing"
 
 
 def test_stateful_current_turn_replays_then_regrows_forward(tmp_path):
     adapter = AnthropicAdapter(tmp_path / "s.sqlite3")
-    options = dict(recent_messages=4, min_history_tokens=20, turn_trigger_tokens=0,
-                   turn_regrow_tokens=10**9)
+    options = dict(
+        recent_messages=4, min_history_tokens=20, turn_trigger_tokens=0, turn_regrow_tokens=10**9
+    )
     payload = _single_prompt_agent_loop(12)
     first = adapter.adapt(payload, HEADERS, **options)
     assert first.transformed and first.prefix_count == 22

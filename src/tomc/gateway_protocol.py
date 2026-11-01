@@ -21,3 +21,5 @@ class AdaptedRequest:
     prefix_count: int | None = None
     replacement_count: int | None = None
     anchor_count: int | None = None
+    # Numeric compaction-policy facts for activity records (see compaction_policy).
+    policy: dict[str, Any] | None = None
