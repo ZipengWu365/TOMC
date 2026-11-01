@@ -2,7 +2,7 @@
 
 [中文](compaction_policy_zh.md) · [Context ownership](context_ownership.md) · [Prompt cache](prompt_cache_20261017.md)
 
-The request gateway rewrites a request only when doing so is expected to cost less than sending it unchanged. This is the default `policy="dynamic"` for both the Claude and the Codex routes. `policy="legacy"` keeps the earlier behaviour: the gateway compiles whenever the size options allow.
+The request gateway rewrites a request only when doing so is expected to cost less than sending it unchanged. This is the default `policy="dynamic"` for the Claude, Codex and OpenAI-compatible Chat Completions (`openai`) routes. `policy="legacy"` keeps the earlier behaviour: the gateway compiles whenever the size options allow.
 
 ## Why compilation can lose money
 
@@ -55,6 +55,8 @@ Both routes keep the rewritten prefix in the gateway's local store and replay it
 **Host notes.** Per-step system notes from the host, such as working-directory updates or progress nudges, are compiled as labelled host data. A directive-only control (empty content with `output_config`) is kept. Any other system message ends the segment before it. Every remaining system message still precedes an assistant message.
 
 **Codex.** Reasoning items are dropped together with the call group they precede. Calls, including parallel calls, are never separated from their outputs. Instructions, host context, settings and compaction state end the segment.
+
+**Chat Completions (`openai` route).** Any OpenAI-compatible `/chat/completions` upstream. The client names its conversation with an `x-tomc-session-id` header, which is never forwarded; without it requests pass through. Assistant `tool_calls` stay with all of their `tool` results, and memory is appended to a tool result.
 
 **What stays raw.** The latest user prompt and the recent tail are always sent unchanged.
 

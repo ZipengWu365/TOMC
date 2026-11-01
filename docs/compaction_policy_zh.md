@@ -2,7 +2,7 @@
 
 [English](compaction_policy.md) · [上下文归属](context_ownership_zh.md) · [提示词缓存](prompt_cache_20261017_zh.md)
 
-请求网关只有在预计"改写后比原样发送更便宜"时，才会改写请求。Claude 和 Codex 两条路由的默认策略都是 `policy="dynamic"`。`policy="legacy"` 保留旧行为：只要大小条件满足就压缩。
+请求网关只有在预计"改写后比原样发送更便宜"时，才会改写请求。Claude、Codex 和 OpenAI 兼容的 Chat Completions（`openai`）三条路由的默认策略都是 `policy="dynamic"`。`policy="legacy"` 保留旧行为：只要大小条件满足就压缩。
 
 ## 为什么压缩可能亏钱
 
@@ -55,6 +55,8 @@
 **宿主的系统提示：** 宿主每一步插入的系统提示（比如工作目录更新、进度提醒）会作为标注过的宿主数据一起压缩。只带 `output_config`、内容为空的控制消息原样保留。其他系统消息会让分段在它之前结束。所有留下来的系统消息后面仍然紧跟一条 assistant 消息。
 
 **Codex：** reasoning 项和它后面的那组调用一起删掉。调用和它的输出（包括并行调用）不会被拆开。遇到指令、宿主上下文、设置项或压缩状态，分段就在它之前结束。
+
+**Chat Completions（`openai` 路由）：** 适用于任何 OpenAI 兼容的 `/chat/completions` 上游。客户端用 `x-tomc-session-id` 请求头标明会话，这个头不会转发给上游；没有这个头的请求原样放行。assistant 的 `tool_calls` 和它对应的所有 `tool` 结果不会被拆开，记忆附加在一条工具结果里。
 
 **始终原样发送的部分：** 最新的用户问题和最近几条消息。
 

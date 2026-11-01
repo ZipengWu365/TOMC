@@ -397,3 +397,76 @@ def test_codex_custom_tool_list_output_is_a_carrier(tmp_path):
     assert carrier[0] == payload["input"][5]["output"][0]
     assert carrier[-1]["type"] == "input_text" and "<tomc_history>" in carrier[-1]["text"]
     assert _tool_pairs(result.payload["input"])[2] is None
+
+
+# ---- dynamic Chat Completions adapter (openai route) ---------------------------
+
+from tomc.chat_request import ChatCompletionsAdapter, _groups  # noqa: E402
+
+CHAT = {"x-tomc-session-id": "mini-d"}
+
+
+def _chat_loop(groups, *, parallel=False):
+    messages = [
+        {"role": "system", "content": "You can run bash."},
+        {"role": "user", "content": "Please solve this issue: fix the capacity test."},
+    ]
+    for i in range(groups):
+        ids = [f"c{i}a", f"c{i}b"] if parallel else [f"c{i}a"]
+        messages.append(
+            {
+                "role": "assistant",
+                "content": f"Step {i}.",
+                "tool_calls": [
+                    {
+                        "id": c,
+                        "type": "function",
+                        "function": {
+                            "name": "bash",
+                            "arguments": json.dumps({"command": f"cat {c}"}),
+                        },
+                    }
+                    for c in ids
+                ],
+            }
+        )
+        messages += [
+            {
+                "role": "tool",
+                "tool_call_id": c,
+                "content": "\n".join(f"file {c} line {j}: capacity {j}" for j in range(60)),
+            }
+            for c in ids
+        ]
+    return {"model": "dots3-note-prev", "messages": messages, "tools": [{"type": "function"}]}
+
+
+def test_chat_cold_cache_compiles_then_replays_byte_stable(tmp_path):
+    adapter = ChatCompletionsAdapter(tmp_path / "s.sqlite3")
+    payload = _chat_loop(12)
+    result = adapter.adapt(payload, CHAT, now=0.0, **CODEX_OPTIONS)
+    assert result.transformed and result.reason == "segment_compiled_cold_cache"
+    out = result.payload["messages"]
+    assert out[:3] == payload["messages"][:3]
+    assert "<tomc_history>" in out[3]["content"]
+    assert out[4:] == payload["messages"][result.prefix_count :]
+    assert _groups(out)[1] is None
+    replay = adapter.adapt(_chat_loop(13), CHAT, now=10.0, **CODEX_OPTIONS)
+    assert replay.reason == "replayed_prefix" and replay.payload["messages"][:4] == out[:4]
+
+
+def test_chat_parallel_results_stay_with_their_call(tmp_path):
+    adapter = ChatCompletionsAdapter(tmp_path / "s.sqlite3")
+    result = adapter.adapt(_chat_loop(10, parallel=True), CHAT, now=0.0, **CODEX_OPTIONS)
+    assert result.transformed
+    out = result.payload["messages"]
+    carrier = next(i for i, m in enumerate(out) if "<tomc_history>" in str(m.get("content")))
+    assert out[carrier]["tool_call_id"] == "c0b" and _groups(out)[1] is None
+
+
+def test_chat_without_session_header_or_when_disabled_is_untouched(tmp_path):
+    adapter = ChatCompletionsAdapter(tmp_path / "s.sqlite3")
+    payload = _chat_loop(12)
+    assert adapter.adapt(payload, {}, now=0.0).reason == "identity_unavailable"
+    off = adapter.adapt(payload, CHAT, enabled=False, now=0.0, **CODEX_OPTIONS)
+    assert not off.transformed and off.payload == payload
