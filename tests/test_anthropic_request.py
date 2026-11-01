@@ -860,18 +860,44 @@ def test_current_turn_compiles_early_tool_groups_and_keeps_anchor_and_signed_tai
     assert result.after_tokens < result.before_tokens
 
 
-def test_current_turn_middle_ends_before_a_system_message():
+def _system_follows_assistant(messages):
+    for i, message in enumerate(messages):
+        if message["role"] == "system" and message.get("content") not in ([], ""):
+            assert messages[i + 1]["role"] == "assistant"
+
+
+def test_current_turn_middle_ends_before_an_unknown_system_message():
     payload = _single_prompt_agent_loop()
-    payload["messages"].insert(12, {"role": "system", "content": "Mid-turn operator note."})
+    unknown = {"role": "system", "content": "Opaque control.", "future_field": 1}
+    payload["messages"].insert(12, unknown)
     result = adapt_request(payload, recent_messages=4, min_history_tokens=20,
                            turn_trigger_tokens=0)
     assert result.transformed and result.prefix_count == 12
     out = result.payload["messages"]
-    assert out[4] == {"role": "system", "content": "Mid-turn operator note."}
-    assert out[5]["role"] == "assistant"
-    for i, message in enumerate(out):
-        if message["role"] == "system":
-            assert out[i + 1]["role"] == "assistant"
+    assert out[4] == unknown and out[5]["role"] == "assistant"
+    _system_follows_assistant(out)
+
+
+def test_current_turn_compiles_per_step_host_notes_and_keeps_directives():
+    payload = _single_prompt_agent_loop()
+    directive = {"role": "system", "content": [], "output_config": {"effort": "high"}}
+    # Claude Code inserts a note before each assistant step (budget, cwd update, nudge).
+    for i in range(len(payload["messages"]) - 2, 3, -2):
+        payload["messages"].insert(i, {"role": "system", "content": f"USD budget: ${i}/$10"})
+    payload["messages"].insert(10, directive)  # between a completed group and the next note
+    original = copy.deepcopy(payload)
+    result = adapt_request(payload, recent_messages=4, min_history_tokens=20,
+                           turn_trigger_tokens=0)
+    assert result.transformed
+    out = result.payload["messages"]
+    assert out[:3] == original["messages"][:3]
+    assert "HOST_SYSTEM_NOTE" in out[3]["content"][-1]["text"]
+    assert out[4] == directive
+    # The tail keeps its latest note directly before its assistant step.
+    assert out[5]["role"] == "system" and out[6]["role"] == "assistant"
+    assert out[5:] == original["messages"][result.prefix_count:]
+    assert result.replacement_count == 5
+    _system_follows_assistant(out)
 
 
 def test_current_turn_respects_trigger_size_and_ratio_validation():

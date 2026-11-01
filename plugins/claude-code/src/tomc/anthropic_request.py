@@ -150,6 +150,21 @@ def _simple_system(message: Mapping[str, Any]) -> bool:
     )
 
 
+def _host_note(message: Mapping[str, Any]) -> bool:
+    """A plain-text system note with no other fields (budget, cwd update, nudge)."""
+    return set(message) <= {"role", "content"} and bool(_text(message.get("content")))
+
+
+def _directive_only(message: Mapping[str, Any]) -> bool:
+    """The API's directive-only system form: empty content with ``output_config``."""
+    return (
+        message.get("role") == "system"
+        and _simple_system(message)
+        and message.get("content") in ([], "")
+        and message.get("output_config") is not None
+    )
+
+
 def _validate_messages(messages: Any) -> str | None:
     if not isinstance(messages, list) or not messages:
         return "missing_messages"
@@ -345,8 +360,15 @@ def _adapt_current_turn(
     pairs; its thinking blocks are dropped with it, as with completed old
     turns. The memory is appended as a text block to the first group's
     tool_result message, so every system message still precedes an assistant
-    message as the Messages API requires. A system message inside the middle
-    ends it. Returns ``None`` when no eligible middle exists.
+    message as the Messages API requires.
+
+    Hosts insert per-step system notes during a tool loop (Claude Code: budget
+    status, working-directory updates, progress nudges). A plain-text note in
+    the middle is compiled with it as labelled host data; a directive-only
+    control (empty content with ``output_config``), valid at any position, is
+    kept after the memory; any other system message ends the middle. Notes
+    directly before the tail stay with it. Returns ``None`` when no eligible
+    middle exists.
     """
     messages = payload["messages"]
     turn = _turn(messages)
@@ -365,11 +387,31 @@ def _adapt_current_turn(
     cut = len(messages) - recent_messages
     while cut > start and messages[cut]["role"] != "assistant":
         cut -= 1
-    cut = next((i for i in range(start, cut) if messages[i]["role"] == "system"), cut)
+    while cut - 1 > start and messages[cut - 1]["role"] == "system":
+        cut -= 1
+    cut = next(
+        (
+            i
+            for i in range(start, cut)
+            if messages[i]["role"] == "system"
+            and not _host_note(messages[i])
+            and not _directive_only(messages[i])
+        ),
+        cut,
+    )
     if cut <= start:
         return None
     middle = messages[start:cut]
-    history = _history(middle)
+    controls = [copy.deepcopy(m) for m in middle if _directive_only(m)]
+    history = _history(
+        [
+            {"role": "user", "content": "HOST_SYSTEM_NOTE: " + _text(m["content"])}
+            if m["role"] == "system"
+            else m
+            for m in middle
+            if not _directive_only(m)
+        ]
+    )
     tokens = _COUNTER.count(_dump(history))
     if tokens < min_history_tokens:
         return None
@@ -398,6 +440,7 @@ def _adapt_current_turn(
     candidate["messages"] = [
         *candidate["messages"][: first + 1],
         carrier,
+        *controls,
         *candidate["messages"][cut:],
     ]
     after = _COUNTER.count(_dump(candidate))
@@ -412,7 +455,7 @@ def _adapt_current_turn(
         prepared,
         task,
         prefix_count=cut,
-        replacement_count=first + 2,
+        replacement_count=first + 2 + len(controls),
         anchor_count=first + 1,
     )
 
