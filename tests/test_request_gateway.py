@@ -203,6 +203,7 @@ class Harness:
             "x-claude-code-request-class": "main",
         }
         request_headers.update(headers or {})
+        request_headers = {k: v for k, v in request_headers.items() if v is not None}
         target = path or f"/{host}/v1/{'responses' if host == 'codex' else 'messages'}"
         try:
             client.request(
@@ -474,6 +475,23 @@ def test_claude_host_compaction_and_side_requests_are_labelled(harness, headers,
     last = harness.gateway.activity.last()
     assert last["reason"] == reason and last["protocol_detail"] == detail
     assert b"fixture-agent" not in harness.gateway.path.read_bytes()
+
+
+@pytest.mark.parametrize("tools,rewritten", [([{"name": "Read"}], True), (None, False)])
+def test_claude_headless_request_without_class_header_is_main_only_with_tools(
+    harness, tools, rewritten
+):
+    # Headless Claude Code (-p, stream-json, SDK) sends no x-claude-code-request-class.
+    original = payload("claude")
+    if tools:
+        original["tools"] = tools
+    raw = json.dumps(original).encode()
+    harness.reply = response_body("claude")
+    headers = {"x-claude-code-request-class": None, "x-claude-code-session-id": "fixture-session"}
+    assert harness.exchange(raw, host="claude", headers=headers)[0] == 200
+    assert (harness.received[-1]["body"] != raw) is rewritten
+    last = harness.gateway.activity.last()
+    assert (last["reason"] == "non_main_request") is not rewritten
 
 
 def test_claude_native_reset_reaches_stateful_adapter_and_removes_previous_mapping(harness):

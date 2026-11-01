@@ -20,6 +20,7 @@ from urllib.parse import unquote, urlsplit
 
 import httpx
 
+from .anthropic_request import is_main_request
 from .context_library import ContextLibrary
 from .request_activity import RequestActivity
 from .session_store import SessionStore
@@ -242,7 +243,9 @@ class Gateway:
                     session_id,
                     event="model_request",
                     activate=host == "codex"
-                    or headers.get("x-claude-code-request-class") == "main",
+                    or host == "claude"
+                    and payload is not None
+                    and is_main_request(payload, headers),
                 )
                 enabled = self.sessions.effective_enabled(host, session_id)
             if payload is None:
@@ -251,7 +254,7 @@ class Gateway:
                 reason = "identity_unavailable"
             elif host == "claude" and native == "host_compaction_request":
                 reason = native
-            elif host == "claude" and headers.get("x-claude-code-request-class") != "main":
+            elif host == "claude" and not is_main_request(payload, headers):
                 reason = "non_main_request"
             elif host == "codex" and not enabled:
                 reason = (
@@ -268,7 +271,16 @@ class Gateway:
                 }
                 options = {
                     key: options[key]
-                    for key in ("memory_budget", "recent_messages", "min_history_tokens")
+                    for key in (
+                        "memory_budget",
+                        "recent_messages",
+                        "min_history_tokens",
+                        *(
+                            ("turn_trigger_tokens", "turn_memory_ratio", "turn_regrow_tokens")
+                            if host == "claude"
+                            else ()
+                        ),
+                    )
                     if key in options
                 }
                 lock = self._locks[hash((host, session_id)) % len(self._locks)]
