@@ -40,6 +40,12 @@
   <p>Found TOMC useful? <a href="https://github.com/ZipengWu365/TOMC/stargazers">⭐ Star the project</a>.</p>
 </div>
 
+<a href="assets/context-city/tomc_context_city.png">
+  <img src="assets/context-city/tomc_context_city.png" alt="TOMC context engineering city: TOMC has the highest reported mean score among seven evaluated configurations in its BEAM 10M follow-up. A separate, unranked directory contains 31 projects, platform features and references." width="1280">
+</a>
+
+[Figure, score definitions and project links](docs/context_city.md) · [Vector graphic](assets/context-city/tomc_context_city.svg) · [PDF](assets/context-city/tomc_context_city.pdf)
+
 [Official GitHub home](https://github.com/ZipengWu365/TOMC) · [Plugin downloads](plugins/downloads) · [Installation guide](#install-in-your-assistant)
 
 <!-- community-entry:start -->

@@ -1,0 +1,10 @@
+rank,method,name,score,tomc_paired_score,organization
+1,tomc,TOMC Memory,41.233926859324676,,Free · MIT · CPU
+2,rag,BEAM-RAG,35.6837031326667,41.33712932447229,BEAM authors¹
+3,light,LIGHT,35.38686509145052,41.17959662127375,BEAM authors¹
+4,hybrid_brief_pro_auto_b8192,BRIEF-Pro,29.790728715728715,40.78239838864838,UCLA NLP
+5,longllmlingua_recovery_b8192,LongLLMLingua,27.024731824103686,41.37454301932945,Microsoft
+6,llmlingua2_hier64k_full_history_b8192_v1,"LLMLingua-2
+Hierarchical",26.698873999627768,41.29521366754407,Microsoft
+7,llmlingua2_full_history_b8192_v1,"LLMLingua-2
+Direct",22.58602693602694,41.434680134680136,Microsoft
