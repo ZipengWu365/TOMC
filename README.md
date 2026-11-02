@@ -23,6 +23,7 @@
     <a href="#install-in-your-assistant"><strong>Install TOMC Memory</strong></a> &ensp;·&ensp;
     <a href="#switch-assistants"><strong>Switch assistants</strong></a>
     <br>
+    <a href="#news">News</a> &ensp;·&ensp;
     <a href="#try-the-demo">See the demo</a> &ensp;·&ensp;
     <a href="#paper-explained">Paper explained</a> &ensp;·&ensp;
     <a href="#same-reader-baseline-memory-vs-tomc-memory">Paper results</a>
@@ -51,6 +52,44 @@ This is the official repository for **TOMC Memory**, with source code, plugin do
 
 [Inspect recorded examples](https://zipengwu.me/tomc/examples/) · [API, shared-memory and evaluation guides](https://zipengwu.me/tomc/guides/)
 
+<a id="news"></a>
+
+## 🔥 News
+
+November listing roundup and community milestones, updated November 3, 2026.
+
+- [2026/11/03] 🎬 **112,000 TikTok views and 1,000+ likes.** TOMC-related videos have accumulated
+  112,000 views and more than 1,000 likes since October 19, 2026. Thank you for watching and sharing!
+- [2026/11] 🏅 **Listed on MCPRush**, a marketplace with **110,000+ MCP servers and agent skills**
+  from **44,000+ creators**, supporting tool discovery, publishing and hosting.
+  [Explore MCPRush](https://mcprush.com/).
+- [2026/11] 🏅 **Listed on MCP Harbor**, which tracks **27,000+ MCP servers and clients**
+  with daily rankings by GitHub stars and growth, plus browsing by category and compatible client.
+  [TOMC listing](https://www.mcpharbor.app/tools/zipengwu365-tomc/) · [Directory](https://mcpharbor.app/).
+- [2026/11] 🏅 **Listed on SpaceRing Harness**, an AI marketplace with **25,000+ listings**
+  spanning skills, MCP servers, prompts and assistants, with support for connectors.
+  [Explore Harness](https://spacering.net/harness/).
+- [2026/11] 🏅 **Listed on Odel**, a composable MCP marketplace and gateway that brings tools
+  behind a single connection, with shared authentication and support for combining servers.
+  [TOMC listing](https://odel.app/modules/zipengwu365/tomc-memory) · [Platform](https://odel.app/).
+- [2026/11] 🏅 **Listed on AugmentClaude**, a Claude skills marketplace with **1,900+ skills**,
+  curated bundles, agents and MCP resources, plus installation guides for developers.
+  [TOMC listing](https://augmentclaude.com/s/tomc-memory-zipengwu365) · [Marketplace](https://augmentclaude.com/).
+- [2026/11] 🏅 **Approved and live on mcpservers.org.** TOMC Memory has been accepted into
+  its MCP server discovery directory, where developers browse tools by category and use case.
+  [Explore the directory](https://mcpservers.org/).
+- [2026/10/23] 🔎 **ProtocolProbe: 5/5 public-record checks met.** Its independent sandbox run
+  started the published TOMC package and read its inventory in read-only mode: **5 tools**,
+  0 resources and 0 prompts, without calling the tools.
+  [Dated record and test details](https://protocolprobe.com/mcp/servers/io.github.ZipengWu365/tomc-memory).
+- [2026/10/22] 🛡️ **SkillsLLM automated scan: PASSED.** The AI skills discovery platform's
+  published TOMC report records npm-audit and prompt-injection checks with no issues reported.
+  [Scan report and listing](https://skillsllm.com/skill/tomc).
+- [2026/10/15] 🏅 **Registered in the official MCP Registry.** TOMC Memory's first listed version
+  is published under `io.github.ZipengWu365/tomc-memory`, making it discoverable through the
+  protocol's official server registry.
+  [Registry entry](https://registry.modelcontextprotocol.io/?q=io.github.ZipengWu365%2Ftomc-memory).
+
 <a id="use-tomc"></a>
 
 ## Part 1 · Use TOMC Memory
@@ -67,7 +106,7 @@ Reuse saved task notes in a new chat with the same assistant or another assistan
   <img src="assets/plugin_usage_api_20261003.png" alt="Install TOMC in Codex, Cursor, Claude Desktop or Claude Code. Supply history, task and budget; TOMC prepares context for the same assistant." width="1280">
 </a>
 
-This is the **0.2.1** preview. Download 0.2.1 from the [release page](https://github.com/ZipengWu365/TOMC/releases/tag/v0.2.1-preview.1); earlier packages stay in the [MIT-licensed assistant downloads](https://github.com/ZipengWu365/TOMC/tree/main/plugins/downloads). There is no PyPI package or public marketplace listing.
+This is the **0.2.1** preview. Download 0.2.1 from the [release page](https://github.com/ZipengWu365/TOMC/releases/tag/v0.2.1-preview.1); earlier packages stay in the [MIT-licensed assistant downloads](https://github.com/ZipengWu365/TOMC/tree/main/plugins/downloads). There is no PyPI package. See [News](#news) for registry and marketplace listings.
 
 **Since the 0.2.0 MCP runtime, successful preparation and recall save the prepared context and task locally by default.** Turn off context recording in the TOMC panel to stop future body storage; existing snapshots remain until deleted. The ten tools include four new read-only tools: `get_status`, `list_contexts`, `get_context` and `make_handoff`. Old statistics containing only numbers cannot reconstruct earlier chat content.
 
