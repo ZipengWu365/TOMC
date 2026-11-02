@@ -101,8 +101,8 @@
     },
     {
       "path": "README.md",
-      "bytes": 51969,
-      "sha256": "9e25390bdeba478d5ed39f7dd15b63132b0589a9b0f0316d29b9ae9da49d2c41"
+      "bytes": 56318,
+      "sha256": "81cae1dbb3c01183f5e1b501f9ee2fe89bd293c3470a481d38de3a9844577246"
     },
     {
       "path": "README_zh.md",
@@ -203,6 +203,31 @@
       "path": "assets/beam_table/beam_quality.tex",
       "bytes": 11089,
       "sha256": "cd5f1a48fa104a57c1c23c231c075ab667fd1ba9c80dec994cfe124c89710fdc"
+    },
+    {
+      "path": "assets/context-city/city_scores.csv",
+      "bytes": 640,
+      "sha256": "cda284d35674cf648e3c5ebf4ce9b3f749eb203fa925a41416c4e84be8d5a859"
+    },
+    {
+      "path": "assets/context-city/city_sources.json",
+      "bytes": 26801,
+      "sha256": "9d4c78639081c771666643873cc6d2f09291d10bd18d52cb395ed9a6bcd689bc"
+    },
+    {
+      "path": "assets/context-city/tomc_context_city.pdf",
+      "bytes": 311743,
+      "sha256": "323d6d44a7d460bc02a6df29994417bec0cdc4aa03e1dd907ba54b2686811f7a"
+    },
+    {
+      "path": "assets/context-city/tomc_context_city.png",
+      "bytes": 1172927,
+      "sha256": "0b19760deaeb89f00f3b12e9bd38fdcde0348d65c32ad3b14d41f6005487605a"
+    },
+    {
+      "path": "assets/context-city/tomc_context_city.svg",
+      "bytes": 490192,
+      "sha256": "4f8e7d472290fa6ddc0da6bb26262d207cb1e1ad7368f28a9f14eb61825bccc0"
     },
     {
       "path": "assets/demo_desktop.png",
@@ -793,6 +818,11 @@
       "path": "docs/comparison_with_llmlingua.md",
       "bytes": 4986,
       "sha256": "6ea00626854b23c3cde909c9ab1b1481bfa5135de29a9b012c5359a39de2812a"
+    },
+    {
+      "path": "docs/context_city.md",
+      "bytes": 5829,
+      "sha256": "a91136359e1d3e3396eb22cb2c0e67cc497ccaf8b26ff8225d6f00e7a22f05da"
     },
     {
       "path": "docs/context_ownership.md",
@@ -3265,7 +3295,7 @@
       "sha256": "be8dbb0aa75e27d1625255b99019c1b078833d1afc864951da7d6de1c4b70807"
     }
   ],
-  "total_bytes": 147621531,
+  "total_bytes": 149634012,
   "self_excluded": [
     "PUBLIC_RELEASE_MANIFEST.json",
     "SHA256SUMS"
