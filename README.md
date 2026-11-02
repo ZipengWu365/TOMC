@@ -34,7 +34,7 @@
     <a href="docs/traffic_metrics.md"><img src="assets/traffic/clones-total.svg" alt="Cumulative recorded clones"></a>
   </p>
 <!-- traffic-status:start -->
-  <p>Cumulative clones · recorded since 2026-10-02 · updated 2026-11-01 UTC. <a href="docs/traffic_metrics.md">Method and updates</a></p>
+  <p>Cumulative clones · recorded since 2026-10-02 · updated 2026-11-02 UTC. <a href="docs/traffic_metrics.md">Method and updates</a></p>
 <!-- traffic-status:end -->
   <p>Found TOMC useful? <a href="https://github.com/ZipengWu365/TOMC/stargazers">⭐ Star the project</a>.</p>
 </div>
