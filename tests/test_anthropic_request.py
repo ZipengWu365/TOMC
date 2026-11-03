@@ -5,7 +5,12 @@ import json
 
 import pytest
 
-from tomc.anthropic_request import AnthropicAdapter, adapt_request, extract_session_id
+from tomc.anthropic_request import (
+    AnthropicAdapter,
+    adapt_request,
+    extract_session_id,
+    is_main_request,
+)
 from tomc.tokenization import get_counter
 
 
@@ -792,3 +797,150 @@ def test_conversation_compression_keeps_the_full_budget_selection(monkeypatch):
     monkeypatch.setattr(module, "prepare_context", recording)
     assert adapt_request(_request(), memory_budget=500, min_history_tokens=20).transformed
     assert calls and set(calls) == {False}
+
+
+def _single_prompt_agent_loop(groups=12):
+    """One user task, a host system control, then a long signed tool loop (headless agent)."""
+    messages = [
+        {"role": "user", "content": [{"type": "text", "text": "Fix the failing capacity test."}]},
+        {"role": "system", "content": "Operator note."},
+    ]
+    for i in range(groups):
+        messages += [
+            {
+                "role": "assistant",
+                "content": [
+                    {"type": "thinking", "thinking": f"step {i}", "signature": f"sig-{i}"},
+                    {"type": "tool_use", "id": f"t{i}", "name": "lookup", "input": {"path": f"f{i}"}},
+                ],
+            },
+            {
+                "role": "user",
+                "content": [
+                    {
+                        "type": "tool_result",
+                        "tool_use_id": f"t{i}",
+                        "content": "\n".join(f"file {i} line {j}: capacity {j}" for j in range(60)),
+                    }
+                ],
+            },
+        ]
+    payload = _request()
+    payload["messages"] = messages
+    return payload
+
+
+def test_current_turn_compilation_is_off_by_default():
+    payload = _single_prompt_agent_loop()
+    result = adapt_request(payload, recent_messages=4, min_history_tokens=20)
+    assert not result.transformed
+    assert result.payload == payload
+
+
+def test_current_turn_compiles_early_tool_groups_and_keeps_anchor_and_signed_tail():
+    payload = _single_prompt_agent_loop()
+    original = copy.deepcopy(payload)
+    result = adapt_request(
+        payload, recent_messages=4, min_history_tokens=20, turn_trigger_tokens=0
+    )
+    assert result.transformed and result.reason == "current_turn_tool_history_compiled"
+    assert payload == original
+    out = result.payload["messages"]
+    # Prompt, system control and first tool group stay; the system still precedes an assistant.
+    assert out[:3] == original["messages"][:3]
+    assert out[1]["role"] == "system" and out[2]["role"] == "assistant"
+    carrier = out[3]["content"]
+    assert carrier[:-1] == original["messages"][3]["content"]
+    assert carrier[-1]["type"] == "text" and "<tomc_history>" in carrier[-1]["text"]
+    assert out[4:] == original["messages"][-4:]
+    assert out[4]["role"] == "assistant"
+    assert '"sig-1"' not in json.dumps(out) and '"sig-11"' in json.dumps(out)
+    assert (result.anchor_count, result.replacement_count, result.prefix_count) == (3, 4, 22)
+    assert result.task == "Fix the failing capacity test."
+    assert result.after_tokens < result.before_tokens
+
+
+def _system_follows_assistant(messages):
+    for i, message in enumerate(messages):
+        if message["role"] == "system" and message.get("content") not in ([], ""):
+            assert messages[i + 1]["role"] == "assistant"
+
+
+def test_current_turn_middle_ends_before_an_unknown_system_message():
+    payload = _single_prompt_agent_loop()
+    unknown = {"role": "system", "content": "Opaque control.", "future_field": 1}
+    payload["messages"].insert(12, unknown)
+    result = adapt_request(payload, recent_messages=4, min_history_tokens=20,
+                           turn_trigger_tokens=0)
+    assert result.transformed and result.prefix_count == 12
+    out = result.payload["messages"]
+    assert out[4] == unknown and out[5]["role"] == "assistant"
+    _system_follows_assistant(out)
+
+
+def test_current_turn_compiles_per_step_host_notes_and_keeps_directives():
+    payload = _single_prompt_agent_loop()
+    directive = {"role": "system", "content": [], "output_config": {"effort": "high"}}
+    # Claude Code inserts a note before each assistant step (budget, cwd update, nudge).
+    for i in range(len(payload["messages"]) - 2, 3, -2):
+        payload["messages"].insert(i, {"role": "system", "content": f"USD budget: ${i}/$10"})
+    payload["messages"].insert(10, directive)  # between a completed group and the next note
+    original = copy.deepcopy(payload)
+    result = adapt_request(payload, recent_messages=4, min_history_tokens=20,
+                           turn_trigger_tokens=0)
+    assert result.transformed
+    out = result.payload["messages"]
+    assert out[:3] == original["messages"][:3]
+    assert "HOST_SYSTEM_NOTE" in out[3]["content"][-1]["text"]
+    assert out[4] == directive
+    # The tail keeps its latest note directly before its assistant step.
+    assert out[5]["role"] == "system" and out[6]["role"] == "assistant"
+    assert out[5:] == original["messages"][result.prefix_count:]
+    assert result.replacement_count == 5
+    _system_follows_assistant(out)
+
+
+def test_current_turn_respects_trigger_size_and_ratio_validation():
+    payload = _single_prompt_agent_loop()
+    small = adapt_request(payload, recent_messages=4, min_history_tokens=20,
+                          turn_trigger_tokens=10**9)
+    assert not small.transformed
+    bad = adapt_request(payload, recent_messages=4, min_history_tokens=20,
+                        turn_trigger_tokens=0, turn_memory_ratio=1.5)
+    assert not bad.transformed and bad.reason == "invalid_adapter_options"
+
+
+def test_current_turn_with_pending_tool_call_is_untouched():
+    payload = _single_prompt_agent_loop()
+    payload["messages"].pop()
+    result = adapt_request(payload, recent_messages=4, min_history_tokens=20,
+                           turn_trigger_tokens=0)
+    assert not result.transformed and result.reason == "incomplete_tool_pairing"
+
+
+def test_stateful_current_turn_replays_then_regrows_forward(tmp_path):
+    adapter = AnthropicAdapter(tmp_path / "s.sqlite3")
+    options = dict(recent_messages=4, min_history_tokens=20, turn_trigger_tokens=0,
+                   turn_regrow_tokens=10**9)
+    payload = _single_prompt_agent_loop(12)
+    first = adapter.adapt(payload, HEADERS, **options)
+    assert first.transformed and first.prefix_count == 22
+    grown = _single_prompt_agent_loop(16)
+    replay = adapter.adapt(grown, HEADERS, **options)
+    assert replay.reason == "replayed_prefix"
+    assert replay.payload["messages"][:4] == first.payload["messages"][:4]
+    assert replay.payload["messages"][4:] == grown["messages"][22:]
+    regrown = adapter.adapt(grown, HEADERS, **{**options, "turn_regrow_tokens": 1})
+    assert regrown.reason == "current_turn_tool_history_compiled"
+    assert regrown.prefix_count == 30
+    assert regrown.payload["messages"][4:] == grown["messages"][30:]
+
+
+def test_headless_main_request_is_recognised_by_shape():
+    tools = {"tools": [{"name": "Read"}]}
+    assert is_main_request(tools, {"x-claude-code-request-class": "main"})
+    assert not is_main_request(tools, {"x-claude-code-request-class": "background"})
+    assert is_main_request(tools, {"x-claude-code-session-id": "s"})
+    assert not is_main_request({"tools": []}, {"x-claude-code-session-id": "s"})
+    assert not is_main_request(tools, {"x-claude-code-agent-id": "a"})
+    assert not is_main_request(tools, {"x-claude-code-compaction": "auto"})
