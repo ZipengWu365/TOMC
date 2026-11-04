@@ -4,7 +4,10 @@ import csv
 import hashlib
 import importlib.util
 import json
+import subprocess
 from pathlib import Path
+
+import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -75,8 +78,126 @@ def test_security_scanner_exemptions_are_exact():
     assert scan.inspect_blob(
         b"Bearer fixture-only-never-a-real-token " + b"Bearer " + b"c" * 30, "mixed"
     )
-    # There is no size exemption: any blob over 5 MB still fails.
+    # The default/current-file check never applies historical size exceptions.
     assert scan.inspect_blob(b"x" * 5_000_001, "large") == ["large: file larger than 5 MB"]
+
+
+def _historical_scan_fixture(
+    tmp_path,
+    monkeypatch,
+    data,
+    *,
+    listed=True,
+    keep_current=False,
+    baseline_bytes=None,
+    legacy_path="legacy.bin",
+):
+    """Use real Git objects so removed history is tested independently of HEAD."""
+    root = tmp_path / "repo"
+    root.mkdir()
+
+    def git(*args):
+        return subprocess.run(
+            ["git", *args], cwd=root, check=True, capture_output=True, text=True
+        ).stdout.strip()
+
+    git("init", "-q")
+    git("config", "user.name", "Scanner Fixture")
+    git("config", "user.email", "scanner-fixture@example.invalid")
+    legacy = root / legacy_path
+    legacy.parent.mkdir(parents=True, exist_ok=True)
+    legacy.write_bytes(data)
+    git("add", legacy_path)
+    git("commit", "-qm", "Historical fixture")
+    oid = git("rev-parse", "HEAD:" + legacy_path)
+    if not keep_current:
+        legacy.unlink()
+    record = {
+        "oid": oid,
+        "bytes": len(data) if baseline_bytes is None else baseline_bytes,
+        "path": legacy_path,
+        "reason": "Constructed historical regression fixture",
+    }
+    baseline = root / "scripts/security_history_size_baseline.json"
+    baseline.parent.mkdir()
+    baseline.write_text(
+        json.dumps({"schema_version": 1, "historical_large_blobs": [record] if listed else []}),
+        encoding="utf-8",
+    )
+    git("add", "-A")
+    git("commit", "-qm", "Record exact fixture baseline")
+    spec = importlib.util.spec_from_file_location("scan_fixture", ROOT / "scripts/security_scan.py")
+    scanner = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(scanner)
+    monkeypatch.setattr(scanner, "ROOT", root)
+    return scanner, oid
+
+
+def test_security_scanner_accepts_only_audited_removed_large_history(tmp_path, monkeypatch, capsys):
+    scanner, oid = _historical_scan_fixture(tmp_path, monkeypatch, b"x" * 5_000_001)
+    result = scanner.scan()
+    assert result["status"] == "pass"
+    assert result["findings"] == []
+    assert [row["oid"] for row in result["history_size_baseline_used"]] == [oid]
+    assert json.loads(capsys.readouterr().out)["status"] == "pass"
+
+
+def test_security_scanner_still_rejects_current_large_baseline_content(
+    tmp_path, monkeypatch, capsys
+):
+    scanner, _ = _historical_scan_fixture(
+        tmp_path, monkeypatch, b"x" * 5_000_001, keep_current=True
+    )
+    with pytest.raises(SystemExit, match="1"):
+        scanner.scan()
+    result = json.loads(capsys.readouterr().out)
+    assert "legacy.bin: file larger than 5 MB" in result["findings"]
+
+
+def test_security_scanner_still_rejects_credentials_in_audited_history(
+    tmp_path, monkeypatch, capsys
+):
+    credential = b"gh" + b"p_" + b"A" * 36
+    scanner, oid = _historical_scan_fixture(
+        tmp_path, monkeypatch, b"x" * 5_000_001 + b"\n" + credential
+    )
+    with pytest.raises(SystemExit, match="1"):
+        scanner.scan()
+    output = capsys.readouterr().out
+    assert credential.decode() not in output
+    result = json.loads(output)
+    assert f"history:{oid[:12]}: credential_token" in result["findings"]
+    assert [row["oid"] for row in result["history_size_baseline_used"]] == [oid]
+
+
+def test_security_scanner_still_rejects_excluded_names_in_audited_history(
+    tmp_path, monkeypatch, capsys
+):
+    scanner, oid = _historical_scan_fixture(
+        tmp_path, monkeypatch, b"x" * 5_000_001, legacy_path="FormalMATH/legacy.bin"
+    )
+    with pytest.raises(SystemExit, match="1"):
+        scanner.scan()
+    result = json.loads(capsys.readouterr().out)
+    assert f"history:{oid[:12]}: excluded artifact" in result["findings"]
+
+
+@pytest.mark.parametrize("listed,baseline_bytes", [(False, None), (True, 5_000_002)])
+def test_security_scanner_rejects_unlisted_or_size_mismatched_large_history(
+    tmp_path, monkeypatch, capsys, listed, baseline_bytes
+):
+    scanner, oid = _historical_scan_fixture(
+        tmp_path,
+        monkeypatch,
+        b"x" * 5_000_001,
+        listed=listed,
+        baseline_bytes=baseline_bytes,
+    )
+    with pytest.raises(SystemExit, match="1"):
+        scanner.scan()
+    result = json.loads(capsys.readouterr().out)
+    assert f"history:{oid[:12]}: file larger than 5 MB" in result["findings"]
+    assert result["history_size_baseline_used"] == []
 
 
 def test_current_paper_snapshot_and_generated_reports():

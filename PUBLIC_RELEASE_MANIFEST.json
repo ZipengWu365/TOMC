@@ -101,18 +101,18 @@
     },
     {
       "path": "README.md",
-      "bytes": 51969,
-      "sha256": "3953af3520720641a1e2864561fa0703acc5b61a6c8d99d650413bb0fb21f168"
+      "bytes": 55021,
+      "sha256": "153f2be8ecf259f43c5fecb6596f61c932d4290d1d0248cdbd79061da40717a9"
     },
     {
       "path": "README_zh.md",
-      "bytes": 47262,
-      "sha256": "2cea806a762ec9bf499d08373e17c32f0e2cbfd1cff78ffe22e7d37142d7cd1a"
+      "bytes": 48823,
+      "sha256": "e6d0e93cb41b561bb1b6e9c969db97fae90b5f74d4f399bb8184cc45bb858392"
     },
     {
       "path": "SECURITY.md",
-      "bytes": 2165,
-      "sha256": "ef5c7b1d5575a22519bb810272e2bfc4887406dfb45dbbb7a70f52b8961d2dd3"
+      "bytes": 2596,
+      "sha256": "b7f039ebcff563569e599ddf4bd41d8fb9501d83665f27b881b8f7ce3118b818"
     },
     {
       "path": "THIRD_PARTY_LOCK.json",
@@ -203,6 +203,31 @@
       "path": "assets/beam_table/beam_quality.tex",
       "bytes": 11089,
       "sha256": "cd5f1a48fa104a57c1c23c231c075ab667fd1ba9c80dec994cfe124c89710fdc"
+    },
+    {
+      "path": "assets/context-city/city_scores.csv",
+      "bytes": 640,
+      "sha256": "cda284d35674cf648e3c5ebf4ce9b3f749eb203fa925a41416c4e84be8d5a859"
+    },
+    {
+      "path": "assets/context-city/city_sources.json",
+      "bytes": 26801,
+      "sha256": "9d4c78639081c771666643873cc6d2f09291d10bd18d52cb395ed9a6bcd689bc"
+    },
+    {
+      "path": "assets/context-city/tomc_context_city.pdf",
+      "bytes": 311743,
+      "sha256": "323d6d44a7d460bc02a6df29994417bec0cdc4aa03e1dd907ba54b2686811f7a"
+    },
+    {
+      "path": "assets/context-city/tomc_context_city.png",
+      "bytes": 1172927,
+      "sha256": "0b19760deaeb89f00f3b12e9bd38fdcde0348d65c32ad3b14d41f6005487605a"
+    },
+    {
+      "path": "assets/context-city/tomc_context_city.svg",
+      "bytes": 490192,
+      "sha256": "4f8e7d472290fa6ddc0da6bb26262d207cb1e1ad7368f28a9f14eb61825bccc0"
     },
     {
       "path": "assets/demo_desktop.png",
@@ -795,6 +820,11 @@
       "sha256": "6ea00626854b23c3cde909c9ab1b1481bfa5135de29a9b012c5359a39de2812a"
     },
     {
+      "path": "docs/context_city.md",
+      "bytes": 6550,
+      "sha256": "ce20c001652c5a70752f3a691e1ff2f0942e61b64c6d7318ceee83d5dbb61ef5"
+    },
+    {
       "path": "docs/context_ownership.md",
       "bytes": 6116,
       "sha256": "b8e58f4c1d6bbf26773a39c1f7614dc4aa3066d78244fe80c514f28f1898e151"
@@ -868,6 +898,11 @@
       "path": "docs/linux_validation_20261002.json",
       "bytes": 6479,
       "sha256": "75515dcb91b17e9aa9c3269b543a7f4ca1ab2fbd24b65c4c13907b324d587d1c"
+    },
+    {
+      "path": "docs/listings_verification.md",
+      "bytes": 5386,
+      "sha256": "c9767c260b54c8e70712165afc6f60e4d7b1d9f3457efb05306b53b3198e0167"
     },
     {
       "path": "docs/macos_usage.md",
@@ -1621,8 +1656,8 @@
     },
     {
       "path": "mkdocs.yml",
-      "bytes": 2414,
-      "sha256": "6241163d864d6f89387bb7cb4c27a083cd03647f4a8d6033b327c16758c3422e"
+      "bytes": 2526,
+      "sha256": "e9596d328c69830ac16311565d8c2f42c693389c06d20544a3bcf1eff5c24ca0"
     },
     {
       "path": "plugins/claude-code/.claude-plugin/plugin.json",
@@ -2440,9 +2475,14 @@
       "sha256": "f6447781da2f22f99bdbd952c9039c1b857c2a8284b003fd994bd78a781f3da9"
     },
     {
+      "path": "scripts/security_history_size_baseline.json",
+      "bytes": 698,
+      "sha256": "ffe142d17a4ded0166c491ea1a3accfeb5932f5c2eaeb26e372ca51a72a0f14b"
+    },
+    {
       "path": "scripts/security_scan.py",
-      "bytes": 4403,
-      "sha256": "5fdc8bfc63658e8a615a9fdcc47f481d7b2e237adf435ca06bb48245f151695f"
+      "bytes": 6448,
+      "sha256": "21d00392629815b5458f21885a981cf5b53df06cf11cef0902dde1170848de63"
     },
     {
       "path": "scripts/setup_deepseek.py",
@@ -3186,8 +3226,8 @@
     },
     {
       "path": "tests/test_release.py",
-      "bytes": 5595,
-      "sha256": "2d2d6ce681848f1f3ef6e3e6c7806066ec51e6b90a89f458e86b80a6640d49cd"
+      "bytes": 9895,
+      "sha256": "fbb6d86375791acb22f30e5a103a4cb807c506b4bb601432f98b794cdf3771d9"
     },
     {
       "path": "tests/test_request_activity.py",
@@ -3270,7 +3310,7 @@
       "sha256": "be8dbb0aa75e27d1625255b99019c1b078833d1afc864951da7d6de1c4b70807"
     }
   ],
-  "total_bytes": 147623170,
+  "total_bytes": 149649608,
   "self_excluded": [
     "PUBLIC_RELEASE_MANIFEST.json",
     "SHA256SUMS"

@@ -11,6 +11,7 @@
 <!-- traffic-status:end -->
   <p><strong>TOMC 帮上忙了？点一下右上角 ⭐ Star，支持我们继续更新。</strong></p>
   <h1>TOMC Memory</h1>
+  <p><strong>官方 MCP Registry 条目 · 8 个第三方目录收录</strong><br><sub>核对日期：2026 年 11 月 4 日</sub> · <a href="docs/listings_verification.md">条目来源与核对范围</a></p>
   <h3>面向 Codex / Claude Code / Cursor / TRAE / WorkBuddy 的上下文压缩与任务记忆插件</h3>
   <p><strong>在 CPU 上压缩编译长历史，取回已保存的任务笔记。</strong></p>
   <p><a href="#接在你的-api-调用之前"><strong>接入 API</strong></a> · <a href="#接入常用助手">安装 TOMC Memory</a> · <a href="#switch-assistants">换助手继续</a> · <a href="#试用演示">查看 Demo</a> · <a href="#paper-explained">论文详解</a> · <a href="#同一个模型基线记忆与-tomc-记忆">论文结果</a> · <a href="README.md">English</a> | <strong>简体中文</strong></p>
@@ -31,6 +32,15 @@
 
 下载安装请先查看[接入常用助手](#接入常用助手)，按你的客户端选择 Codex 插件、Claude Code 插件，或 Cursor、TRAE、腾讯 WorkBuddy、Claude Desktop 的 MCP 接入方式。安装包在[插件下载目录](plugins/downloads)，使用方法见[中文使用技巧](docs/usage_tips_zh.md)。
 
+<a id="news"></a>
+
+## 项目动态
+
+- [2026/11/04] **已核实目录条目。** 官方 MCP Registry 和 8 个第三方目录均有 TOMC 专属条目。部分条目由目录自动导入、尚未人工审核，部分仍对应较早的 v0.1.1 Registry 安装包。目录收录不代表平台背书。[逐项来源与核对范围](docs/listings_verification.md)。
+- [2026/10/23] **ProtocolProbe 的 5/5 项适用公开记录检查通过。** 另一项当时的运行记录针对 v0.1.1 启动包并只读获取清单：5 个工具、0 个资源、0 个提示词，没有调用工具。此记录不证明当前运行时的行为或安全性。[当时记录](https://protocolprobe.com/mcp/servers/io.github.ZipengWu365/tomc-memory)。
+- [2026/10/22] **SkillsLLM 自动扫描标记为 PASSED。** 记录显示执行了 npm-audit 和提示词注入检查，没有报告问题；未执行 `pip-audit`，不能视为对 Python 依赖或当前版本的完整审计。[扫描记录](https://skillsllm.com/skill/tomc)。
+- [2026/10/15] **发布到官方 MCP Registry。** 标识为 `io.github.ZipengWu365/tomc-memory`；11 月 4 日核对时，Registry 最新版本为 v0.1.1。[Registry 条目](https://registry.modelcontextprotocol.io/?q=io.github.ZipengWu365%2Ftomc-memory)。
+
 <a id="use-tomc"></a>
 
 ## 第一部分：使用 TOMC Memory
@@ -47,7 +57,7 @@
   <img src="assets/plugin_usage_api_20261003.png" alt="在 Codex、Cursor、Claude Desktop 或 Claude Code 中安装 TOMC，传入历史、任务和预算；TOMC 准备上下文，再交给原来的助手。" width="1280">
 </a>
 
-当前是 **v0.2.1 预览版**。安装包见[发布页](https://github.com/ZipengWu365/TOMC/releases/tag/v0.2.1-preview.1)；早期安装包仍在[MIT 许可助手插件预览包](https://github.com/ZipengWu365/TOMC/tree/main/plugins/downloads)。尚无 PyPI 发布版或公开插件市场条目。
+当前是 **v0.2.1 预览版**。安装包见[发布页](https://github.com/ZipengWu365/TOMC/releases/tag/v0.2.1-preview.1)；早期安装包仍在[MIT 许可助手插件预览包](https://github.com/ZipengWu365/TOMC/tree/main/plugins/downloads)。尚无 PyPI 发布版。Registry 与目录收录见[项目动态](#news)；安装请以当前 GitHub 发布包和安装教程为准。
 
 **桌面小猫（测试版）。** 桌面上的小猫显示 TOMC 节省的 token、按各模型输入价值多少钱、来自哪些对话，并提供分析报告和上下文库。Windows 上还可以通过本机网关自动处理 Codex 和 Claude Code 的请求。[安装桌面小猫](docs/desktop_companion.md#chinese-quickstart)（Windows 和 macOS）。
 

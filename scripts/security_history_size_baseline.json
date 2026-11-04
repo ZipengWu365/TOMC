@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "policy": "Only exact audited historical Git object IDs and byte counts may exceed the size limit. Current files, credential patterns and excluded names are never exempt.",
+  "historical_large_blobs": [
+    {
+      "oid": "1c72789e50e03d3b663fda34a25c5280fb1c16e8",
+      "bytes": 6231307,
+      "path": "docs/assets/workbuddy/cat-four-forms.gif",
+      "reviewed_on": "2026-11-04",
+      "reason": "WorkBuddy animation reachable through other remote branches fetched by CI, but absent from the main and PR 26 release ancestry. Only this exact historical object's size is accepted; credentials, excluded names and current release files remain fully checked."
+    }
+  ]
+}
