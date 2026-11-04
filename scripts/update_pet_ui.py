@@ -18,6 +18,7 @@ MODULES = (
     "usage_widget_qt.py",
     "context_library_qt.py",
     "context_library.py",
+    "privacy.py",
     "pricing_qt.py",
     "oasis_qt.py",
     "cost_estimate.py",

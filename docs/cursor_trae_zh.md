@@ -2,18 +2,17 @@
 
 [English](cursor_trae.md) · [助手接入指南](assistant_setup.md) · [验证记录](validation.md)
 
-两个客户端均可按各自文档配置 TOMC 本地 stdio MCP 服务。此前检查覆盖 TOMC 后端及 Cursor 配置生成；**Cursor 和 TRAE 的图形界面安装、模型实际调用工具仍未验证**。本次更新提供配置说明，没有新增客户端实测。
+两个客户端均可按各自文档配置 TOMC 本地 stdio MCP 服务。目前的检查覆盖 TOMC 服务本身和配置生成。**Cursor 和 TRAE 的安装与工具调用还没在真机上验证。**
+
+最快的办法：在装好 `.[mcp]` 的源码环境里（Python 3.10 或更新）运行 `python -m tomc setup --client cursor --write`（TRAE 用 `--client trae --write --config <文件>`），再运行 `python -m tomc doctor`。`--write` 会先备份原文件，保留其他服务，重复运行也安全。下面的手动方法使用锁定运行环境，不需要自己准备 Python 环境。
 
 ## 使用锁定运行环境
 
 安装 [UV](https://docs.astral.sh/uv/getting-started/installation/)，确保 `uv` 在 PATH 中，再克隆公开 TOMC 仓库：
 
 ```bash
-git clone https://github.com/ZipengWu365/TOMC.git && printf '\n%s\n%s\n' \
-  '如果 TOMC 对你有帮助，欢迎 Star 支持（自愿）：' 'https://github.com/ZipengWu365/TOMC'
+git clone https://github.com/ZipengWu365/TOMC.git
 ```
-
-上面的 Bash / Git Bash 命令会在克隆成功后显示一次自愿 Star 邀请。直接使用普通 `git clone` 不会显示；克隆完成不代表已经安装。
 
 `plugins/claude-code` 目录包含共用的 TOMC 源码、`pyproject.toml`、`uv.lock` 和 `src/server.py`。它也可作为本地 MCP 服务注册到其他客户端；此方法不需要安装 Claude Code，也不需要额外模型 API Key。首次启动时，UV 可能下载兼容的 Python 和锁定依赖。
 
@@ -27,15 +26,15 @@ uv sync --locked --directory "/absolute/path/to/TOMC/plugins/claude-code"
 
 ## Cursor
 
-把 `mcpServers.tomc` 合并到项目的 `.cursor/mcp.json` 或个人 `~/.cursor/mcp.json`，保留原有服务。重启 Cursor，在 **Customize → MCPs** 检查 `tomc` 及其五个工具。[官方 MCP 配置文档](https://cursor.com/docs/mcp)。
+把 `mcpServers.tomc` 合并到项目的 `.cursor/mcp.json` 或个人 `~/.cursor/mcp.json`，保留原有服务。重启 Cursor，在 **Customize → MCPs** 检查 `tomc` 及其十二个工具，然后说 **试一下 TOMC Memory**。[官方 MCP 配置文档](https://cursor.com/docs/mcp)。
 
-如果已用当前 TOMC 源码安装带 `.[mcp]` 的 Python 环境，也可执行 `python -m tomc setup --client cursor --link`，生成 [Add to Cursor 链接](https://cursor.com/docs/mcp/install-links)。链接只注册已有环境，不会替另一台电脑安装 TOMC 或依赖。
+如果已用 TOMC 源码安装带 `.[mcp]` 的 Python 环境，`python -m tomc setup --client cursor --write` 会把条目（含 `"type": "stdio"`）合并进 `~/.cursor/mcp.json`；`python -m tomc setup --client cursor --link` 则生成 [Add to Cursor 链接](https://cursor.com/docs/mcp/install-links)。两者都只注册已有环境，不会替另一台电脑安装 TOMC 或依赖。
 
 ## TRAE
 
 国际版打开 **Settings → MCP**；若显示本地/云端选项，选择本地，然后用手动 JSON 配置添加模板。项目配置放在 `.trae/mcp.json`，须先在 Settings → MCP 中启用项目级 MCP。保留其他服务条目。官方参考：[国际版手动与项目配置说明](https://docs.trae.ai/ide/add-mcp-servers?_lang=en)、[中文配置说明](https://docs.trae.cn/ide_add-mcp-servers)。不同版本或地区的菜单文字可能不同。
 
-如果已从当前源码安装 `.[mcp]`，可执行 `python -m tomc setup --client trae`，打印使用当前 Python 绝对路径的备选 JSON 配置。`trae` 别名是当前源码新增的入口，旧 ZIP/MCPB 预览包可能不包含它。若命令尚不支持该选项，请更新源码仓库或使用上面的 UV 模板。Python 可执行文件路径含空格时，与 TRAE 文档中的命令限制冲突；改用 PATH 中的 `uv` 和上述模板。`--link` 仍仅支持 Cursor。
+如果已从源码安装 `.[mcp]`，可执行 `python -m tomc setup --client trae`，打印使用当前 Python 绝对路径的备选 JSON 配置；`python -m tomc setup --client trae --write --config <文件路径>` 会先备份，再合并进 TRAE 的设置文件或项目 `.trae/mcp.json`。若命令尚不支持该选项，请更新源码仓库或使用上面的 UV 模板。Python 可执行文件路径含空格时，与 TRAE 文档中的命令限制冲突；改用 PATH 中的 `uv` 和上述模板。`--link` 仍仅支持 Cursor。
 
 ## 记忆本与反馈
 
@@ -47,6 +46,6 @@ uv sync --locked --directory "/absolute/path/to/TOMC/plugins/claude-code"
 }
 ```
 
-使用同一路径的客户端可共用显式保存的笔记。TOMC 不会收集其他聊天，也不提供云同步。五个工具为 `prepare_context`、`remember_memory`、`recall_memory`、`list_memories`、`forget_memory`；保存和删除须明确提出。返回内容进入宿主助手的上下文，遵循其数据政策。工具调用不会删除宿主已有的聊天历史。
+使用同一路径的客户端可共用显式保存的笔记。TOMC 不会收集其他聊天，也不提供云同步。0.3.0 共十二个工具：`try_tomc`、`prepare_context`、`remember_memory`、`recall_memory`、`list_memories`、`forget_memory`、`erase_all_memory`、`get_status`、`get_usage_stats`、`list_contexts`、`get_context`、`make_handoff`。只有你要求时才保存笔记；`prepare_context` 和 `recall_memory` 的结果默认不保存，要保存得运行 `tomc settings --save-mcp-results on`。删除单本用 `forget_memory`，全部清空用 `erase_all_memory` 或 `tomc erase-all --yes`。返回内容进入宿主助手的上下文，遵循其数据政策。工具调用不会删除宿主已有的聊天历史。
 
 欢迎通过 [GitHub Issues](https://github.com/ZipengWu365/TOMC/issues)反馈安装情况，请提供客户端及地区版本、版本号、操作系统、配置方式和报错。不要附 API Key、私人历史或记忆本内容。

@@ -1,4 +1,4 @@
-"""Offline memory workbench for local use and private Hugging Face Spaces."""
+"""Offline memory workbench for local use (a Hugging Face Space can also host it)."""
 
 from __future__ import annotations
 

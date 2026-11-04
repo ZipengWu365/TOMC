@@ -80,6 +80,8 @@ async def check(bundle: Path, uv: str) -> dict:
                 "list_contexts",
                 "get_context",
                 "make_handoff",
+                "try_tomc",
+                "erase_all_memory",
             }
             await call(
                 client,

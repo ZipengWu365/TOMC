@@ -52,17 +52,17 @@ def test_cli_cursor_link(tmp_path, capsys):
     assert not store.exists()
 
 
-@pytest.mark.parametrize("client", ["claude", "json", "cursor"])
+@pytest.mark.parametrize("client", ["claude", "claude-desktop", "json", "cursor"])
 def test_existing_json_setup_is_unchanged(client, tmp_path, capsys):
     store = tmp_path / "memory.sqlite3"
-    expected = {
-        "mcpServers": {
-            "tomc": {
-                "command": os.path.abspath(sys.executable),
-                "args": ["-m", "tomc", "mcp", "--store", str(store)],
-            }
-        }
+    server = {
+        "command": os.path.abspath(sys.executable),
+        "args": ["-m", "tomc", "mcp", "--store", str(store)],
     }
+    if client == "cursor":
+        # Cursor's documented manual configuration names the transport.
+        server = {"type": "stdio", **server}
+    expected = {"mcpServers": {"tomc": server}}
     assert main(["setup", "--client", client, "--store", str(store)]) == 0
     captured = capsys.readouterr()
     assert captured.out == json.dumps(expected, indent=2) + "\n"

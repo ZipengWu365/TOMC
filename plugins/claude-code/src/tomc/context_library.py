@@ -7,10 +7,12 @@ import json
 import sqlite3
 import uuid
 from contextlib import contextmanager
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from .easy import PreparedContext
+from .privacy import connect, erase_all, redact, vacuum
+from .session_store import preference
 
 FORMAT_VERSION = 1
 MAX_TEXT_CHARS = 2_000_000
@@ -110,6 +112,30 @@ def _unique_object(pairs):
     return result
 
 
+def startup_cleanup(path) -> None:
+    """At process start: owner-only file, retention limit, one-time redaction of old rows.
+
+    Best effort; a busy or unreadable database never stops the caller.
+    """
+    from .anthropic_request import AnthropicAdapter
+    from .privacy import tighten_permissions
+
+    path = Path(path)
+    tighten_permissions(path)
+    if not path.exists():
+        return
+    try:
+        library = ContextLibrary(path)
+        with library._read() as db:
+            days = preference(db, "retention_days")
+        library.prune(days)  # Vacuums the file itself when it deletes.
+        library.redact_saved()
+        if AnthropicAdapter(path).prune(days):
+            vacuum(path)
+    except (OSError, ValueError, sqlite3.Error):
+        pass
+
+
 class ContextLibrary:
     """Store only prepared memory, never the compiler's full input or audit trail."""
 
@@ -148,8 +174,7 @@ class ContextLibrary:
 
     @contextmanager
     def _write(self):
-        self.path.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
-        db = sqlite3.connect(self.path, timeout=30)
+        db = connect(self.path, timeout=30)
         try:
             with db:
                 db.execute("BEGIN IMMEDIATE")
@@ -201,10 +226,14 @@ class ContextLibrary:
         session_id=None,
         preparation_id=None,
     ) -> dict:
-        """Save a usable result; explicit preparation IDs make retries idempotent."""
+        """Save a usable result; explicit preparation IDs make retries idempotent.
+
+        Common credential patterns in the memory and task are replaced with a
+        marker first, and snapshots older than the retention limit are removed.
+        """
         from . import __version__
 
-        memory = _text(prepared.compilation.compiled_memory, "memory")
+        memory = _text(redact(prepared.compilation.compiled_memory), "memory")
         if task is None:
             prefix = f"MEMORY\n{memory}\n\nTASK\n"
             if (
@@ -215,7 +244,7 @@ class ContextLibrary:
             ):
                 raise ValueError("Supply task explicitly when prepared messages have been changed.")
             task = prepared.messages[-1]["content"][len(prefix) :]
-        task = _text(task, "task")
+        task = _text(redact(task), "task")
         host = _optional(host, "host")
         session_id = _optional(session_id, "session_id")
         stats = prepared.compilation.stats
@@ -253,6 +282,7 @@ class ContextLibrary:
                             "This preparation ID already belongs to a different snapshot."
                         )
                     return self._record(existing)
+            self._prune(db, preference(db, "retention_days"))
             db.execute(
                 "INSERT INTO tomc_context_snapshots VALUES (?,?,?,?,?,?,?,?)",
                 (
@@ -267,6 +297,97 @@ class ContextLibrary:
                 ),
             )
             return self._record(self._row(db, payload["id"]))
+
+    @staticmethod
+    def _prune(db, days) -> int:
+        cutoff = (datetime.now(timezone.utc) - timedelta(days=days)).isoformat()
+        deleted = db.execute(
+            # Imported bundles were chosen by the user and carry no local
+            # attribution (host, session and preparation are all NULL); keep them.
+            "DELETE FROM tomc_context_snapshots WHERE created_utc<? AND NOT "
+            "(host IS NULL AND session_id IS NULL AND preparation_id IS NULL)",
+            (cutoff,),
+        ).rowcount
+        if deleted:
+            db.execute(
+                "DELETE FROM tomc_snapshot_conversations WHERE snapshot_id NOT IN "
+                "(SELECT id FROM tomc_context_snapshots)"
+            )
+        return deleted
+
+    def prune(self, days=None) -> int:
+        """Delete saved snapshots older than the retention limit (imports are kept).
+
+        ``days`` defaults to the user's retention setting (30 days unless changed).
+        """
+        if not self.path.exists():
+            return 0
+        with self._write() as db:
+            deleted = self._prune(
+                db, days if days is not None else preference(db, "retention_days")
+            )
+        if deleted:
+            vacuum(self.path)
+        return deleted
+
+    def redact_saved(self) -> int:
+        """Once per database, redact snapshots saved before redaction existed."""
+        if not self.path.exists():
+            return 0
+        changed = 0
+        with self._write() as db:
+            db.execute(
+                "CREATE TABLE IF NOT EXISTS tomc_preferences ("
+                "name TEXT PRIMARY KEY, value INTEGER NOT NULL)"
+            )
+            if db.execute(
+                "SELECT 1 FROM tomc_preferences WHERE name='snapshots_redacted' AND value=1"
+            ).fetchone():
+                return 0
+            rows = db.execute("SELECT id,payload,title FROM tomc_context_snapshots").fetchall()
+            for snapshot_id, stored, title in rows:
+                payload = json.loads(stored)
+                cleaned = {
+                    **payload,
+                    "memory": redact(payload["memory"]),
+                    "task": redact(payload["task"]),
+                }
+                if cleaned != payload or redact(title) != title:
+                    db.execute(
+                        "UPDATE tomc_context_snapshots SET payload=?,content_hash=?,title=? "
+                        "WHERE id=?",
+                        (_canonical(cleaned), _hash(cleaned), redact(title), snapshot_id),
+                    )
+                    changed += 1
+            db.execute("INSERT OR REPLACE INTO tomc_preferences VALUES ('snapshots_redacted',1)")
+        if changed:
+            vacuum(self.path)
+        return changed
+
+    def delete_notebook(self, notebook_name) -> int:
+        """Delete every snapshot prepared from one named notebook."""
+        with self._read() as db:
+            if not self._has(db):
+                return 0
+            rows = db.execute("SELECT id,payload FROM tomc_context_snapshots").fetchall()
+        doomed = [
+            snapshot_id
+            for snapshot_id, payload in rows
+            if json.loads(payload).get("notebook_name") == notebook_name
+        ]
+        if not doomed:
+            return 0
+        with self._write() as db:
+            for snapshot_id in doomed:
+                db.execute(
+                    "DELETE FROM tomc_snapshot_conversations WHERE snapshot_id=?", (snapshot_id,)
+                )
+                db.execute("DELETE FROM tomc_context_snapshots WHERE id=?", (snapshot_id,))
+        return len(doomed)
+
+    def erase_all(self) -> dict:
+        """Delete all saved conversation data in this database file, then VACUUM it."""
+        return erase_all(self.path)
 
     def list(self, limit=100) -> list[dict]:
         if isinstance(limit, bool) or not isinstance(limit, int) or not 1 <= limit <= 10000:

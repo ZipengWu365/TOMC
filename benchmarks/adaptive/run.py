@@ -1,8 +1,12 @@
 """Compare budget-filling and adaptive selection on the deterministic fact-recall suite.
 
 Usage: python benchmarks/adaptive/run.py [--budgets 4096 default] [--json out.json]
+       python benchmarks/adaptive/run.py --check            # also compare with expected.json
+       python benchmarks/adaptive/run.py --write-expected   # rewrite expected.json
 Offline and deterministic: no model calls. A regression is any fact that filling the
-budget recalls and adaptive selection misses; the suite is meant to have none.
+budget recalls and adaptive selection misses; the suite is meant to have none. The exit code
+is 1 when there is a regression, or with --check when any row's recall, token count or route
+differs from the saved expected.json (default budgets only).
 """
 
 from __future__ import annotations
@@ -23,6 +27,7 @@ from suite import all_cases  # noqa: E402
 from tomc.easy import prepare_context  # noqa: E402
 from tomc.tokenization import get_counter  # noqa: E402
 
+EXPECTED = Path(__file__).resolve().parent / "expected.json"
 ADAPTIVE = "adaptive" in inspect.signature(prepare_context).parameters
 
 
@@ -99,10 +104,21 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--budgets", nargs="+", default=["4096", "default"])
     parser.add_argument("--json", type=Path)
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument("--check", action="store_true", help="compare rows with expected.json")
+    mode.add_argument("--write-expected", action="store_true", help="rewrite expected.json")
     args = parser.parse_args()
     budgets = [None if b == "default" else int(b) for b in args.budgets]
     rows = run(budgets)
     regressions = summarize(rows)
     if args.json:
         args.json.write_text(json.dumps(rows, indent=1), encoding="utf-8")
-    raise SystemExit(1 if regressions else 0)
+    if args.write_expected:
+        EXPECTED.write_text(
+            "[\n" + ",\n".join(json.dumps(r) for r in rows) + "\n]\n", encoding="utf-8"
+        )
+    drift = False
+    if args.check:
+        drift = json.loads(EXPECTED.read_text(encoding="utf-8")) != json.loads(json.dumps(rows))
+        print("rows differ from expected.json" if drift else "rows match expected.json")
+    raise SystemExit(1 if regressions or drift else 0)

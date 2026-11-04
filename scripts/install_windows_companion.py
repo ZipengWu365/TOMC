@@ -5,12 +5,15 @@ creates the companion's own Python environment, copies this checkout's TOMC
 source into it, adds Start menu and sign-in shortcuts and starts the cat.
 --gateway also sets up the local request gateway and points Codex and/or
 Claude Code at it, keeping exact-byte backups. --uninstall RECEIPT undoes an
-installation. Saved contexts and statistics in ~/.tomc are never removed.
+installation; running it again is harmless. --restore-direct points Codex and
+Claude Code back at their providers when TOMC Memory is not running. Saved
+contexts and statistics in ~/.tomc are never removed by these commands.
 """
 
 from __future__ import annotations
 
 import argparse
+import importlib.util
 import json
 import os
 import re
@@ -33,6 +36,16 @@ UPSTREAMS = {
 }
 RECENT_MESSAGES = {"codex": 6, "claude": 1}
 CAT_SHORTCUT, MENU_SHORTCUT, GATEWAY_SHORTCUT = "TOMC Cat.lnk", "TOMC.lnk", "TOMC Gateway.lnk"
+DIRECT_SHORTCUT = "TOMC Memory - Restore direct connection.lnk"
+
+
+def source_module(name, folder="src/tomc"):
+    """Load one standard-library-only file from this checkout without importing TOMC."""
+    path = ROOT / folder / f"{name}.py"
+    spec = importlib.util.spec_from_file_location(f"tomc_companion_{name}", path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
 
 
 def version():
@@ -446,6 +459,17 @@ def install_gateway(layout, receipt, *, hosts, port, start_after=True):
         runtime,
         "Start the local TOMC request gateway at Windows sign-in.",
     )
+    # One click restores the direct connection, also when the gateway is stopped.
+    direct = layout.programs / DIRECT_SHORTCUT
+    direct.parent.mkdir(parents=True, exist_ok=True)
+    receipt.keep(direct)
+    write_shortcut(
+        direct,
+        python,
+        f'"{runtime / "src" / "tomc" / "direct_connection.py"}"',
+        runtime,
+        "Point Codex and Claude Code back at their providers without TOMC Memory.",
+    )
     receipt.save()
     if not start_after:
         return gateway
@@ -464,6 +488,37 @@ def install_gateway(layout, receipt, *, hosts, port, start_after=True):
 # Uninstall ----------------------------------------------------------------------
 
 
+def restore_hosts(layout, gateway):
+    """Undo the gateway activation; falls back to this Python if the gateway's is broken."""
+    runtime = Path(gateway["runtime"])
+    try:
+        run(
+            [
+                runtime / ".venv/Scripts/python.exe",
+                ROOT / "scripts/install_request_gateway.py",
+                "--home",
+                layout.home,
+                "--restore",
+                gateway["activation"],
+            ]
+        )
+        return "host settings"
+    except (RuntimeError, OSError):
+        pass
+    sys.path.insert(0, str(ROOT / "scripts"))
+    try:
+        source_module("install_request_gateway", "scripts").restore(
+            layout.home, gateway["activation"]
+        )
+        return "host settings"
+    except (OSError, ValueError, KeyError):
+        # Last resort: remove only the gateway endpoints; other files stay for review.
+        source_module("direct_connection").restore_direct(layout.home)
+        return "host settings (endpoints only)"
+    finally:
+        sys.path.remove(str(ROOT / "scripts"))
+
+
 def uninstall(layout, receipt_path):
     receipt_path = Path(receipt_path).resolve()
     if not receipt_path.is_relative_to(layout.base / "archive"):
@@ -471,27 +526,21 @@ def uninstall(layout, receipt_path):
     data = json.loads(receipt_path.read_text(encoding="utf-8"))
     if data.get("kind") != "tomc-windows-install":
         raise ValueError("This is not a TOMC Windows installation receipt.")
-    report = {"restored": [], "removed": [], "stopped": []}
+    if data.get("status") == "uninstalled":
+        return {"status": "already_restored", "data_kept": str(layout.home / ".tomc")}
+    report = {"status": "uninstalled", "restored": [], "removed": [], "stopped": []}
     gateway = data.get("gateway")
     if gateway:
         runtime = Path(gateway["runtime"])
         if gateway.get("activation"):
-            run(
-                [
-                    runtime / ".venv/Scripts/python.exe",
-                    ROOT / "scripts/install_request_gateway.py",
-                    "--home",
-                    layout.home,
-                    "--restore",
-                    gateway["activation"],
-                ]
-            )
-            report["restored"].append("host settings")
+            report["restored"].append(restore_hosts(layout, gateway))
         report["stopped"] += stop_processes(runtime)
     report["stopped"] += stop_processes(layout.launcher)
     time.sleep(1)
     for path, backup in reversed(list(data["replaced"].items())):
         path, backup = Path(path), Path(backup)
+        if not backup.exists():
+            continue  # Already moved back by an earlier, interrupted uninstall.
         if path.is_dir():
             shutil.rmtree(path)
         elif path.exists():
@@ -511,6 +560,8 @@ def uninstall(layout, receipt_path):
         shutil.rmtree(gateway["runtime"], ignore_errors=True)
         report["removed"].append(gateway["runtime"])
     report["data_kept"] = str(layout.home / ".tomc")
+    data["status"] = "uninstalled"
+    receipt_path.write_text(json.dumps(data, indent=2), encoding="utf-8")
     return report
 
 
@@ -529,6 +580,11 @@ def main(argv=None):
     parser.add_argument("--port", type=int, default=PORT)
     parser.add_argument("--no-start", action="store_true", help="install without starting anything")
     parser.add_argument("--uninstall", type=Path, metavar="RECEIPT")
+    parser.add_argument(
+        "--restore-direct",
+        action="store_true",
+        help="point Codex and Claude Code back at their providers (works with TOMC stopped)",
+    )
     # Folders below are for tests and unusual setups; the defaults are the real ones.
     parser.add_argument("--home", type=Path, default=Path.home(), help=argparse.SUPPRESS)
     parser.add_argument("--startup", type=Path, help=argparse.SUPPRESS)
@@ -538,6 +594,9 @@ def main(argv=None):
         parser.error("This installer is for Windows; on macOS use scripts/install_macos_pet.py.")
     if sys.version_info < (3, 10):
         parser.error("Python 3.10 or newer is required.")
+    if args.restore_direct:
+        print(json.dumps(source_module("direct_connection").restore_direct(args.home), indent=2))
+        return 0
     layout = Layout(
         args.home,
         args.startup or known_folder("Startup"),
@@ -548,7 +607,16 @@ def main(argv=None):
             print(json.dumps(uninstall(layout, args.uninstall), indent=2))
         except (RuntimeError, ValueError, OSError) as error:
             # Host settings are restored first, so a gateway they still name keeps serving them.
-            print(json.dumps({"status": "stopped", "reason": str(error)}, indent=2))
+            print(
+                json.dumps(
+                    {
+                        "status": "failed",
+                        "reason": str(error),
+                        "next": f"python {Path(__file__).name} --restore-direct",
+                    },
+                    indent=2,
+                )
+            )
             return 2
         return 0
     actions = plan(layout, gateway=args.gateway, hosts=tuple(args.hosts), port=args.port)
@@ -589,6 +657,8 @@ def main(argv=None):
     result = {"status": "installed", "receipt": str(receipt.path), "version": version()}
     if args.gateway:
         result["next"] = "Quit and reopen Codex and Claude Code so new requests go through TOMC."
+        result["restore_direct"] = str(layout.programs / DIRECT_SHORTCUT)
+        result["privacy_notice"] = source_module("privacy").PRIVACY_NOTICE
     print(json.dumps(result, indent=2))
     return 0
 

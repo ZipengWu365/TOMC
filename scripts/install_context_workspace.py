@@ -35,6 +35,7 @@ PET_MODULES = (
     "savings.py",
     "context_library.py",
     "session_store.py",
+    "privacy.py",
     "integration_status.py",
     "ui_language.py",
     "macos_ui.py",
@@ -193,8 +194,12 @@ def plan_update(home: Path | str, runtime: Path | str) -> UpdatePlan:
 
 
 def _atomic_write(path, contents):
-    """Replace one file atomically using a flushed temporary sibling."""
+    """Replace one file atomically using a flushed temporary sibling.
+
+    An existing file keeps its permissions; a new file is owner-only.
+    """
     temporary = None
+    mode = stat.S_IMODE(path.stat().st_mode) if path.is_file() else None
     try:
         with tempfile.NamedTemporaryFile(
             prefix=f".{path.name}.", suffix=".tmp", dir=path.parent, delete=False
@@ -203,6 +208,8 @@ def _atomic_write(path, contents):
             stream.write(contents)
             stream.flush()
             os.fsync(stream.fileno())
+        if mode is not None:
+            os.chmod(temporary, mode)
         os.replace(temporary, path)
         temporary = None
     finally:
@@ -220,14 +227,17 @@ def install(plan: UpdatePlan) -> dict:
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
     relative_archive = f".codex/tomc/archive/session-update-{stamp}-{uuid.uuid4().hex[:8]}"
     archive = _safe_target(plan.home, relative_archive)
-    archive.mkdir(parents=True, exist_ok=False)
+    archive.mkdir(parents=True, exist_ok=False, mode=0o700)
     details = []
     for change in plan.changes:
         backup_name = f"files/{change.relative}" if change.before is not None else None
         if backup_name is not None:
             backup = _safe_target(plan.home, f"{relative_archive}/{backup_name}")
-            backup.parent.mkdir(parents=True, exist_ok=True)
-            with backup.open("xb") as stream:
+            backup.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+            # Settings backups can contain tokens from the host's env section: owner-only.
+            flags = os.O_CREAT | os.O_EXCL | os.O_WRONLY | getattr(os, "O_BINARY", 0)
+            descriptor = os.open(backup, flags, 0o600)
+            with os.fdopen(descriptor, "wb") as stream:
                 stream.write(change.before)
                 stream.flush()
                 os.fsync(stream.fileno())

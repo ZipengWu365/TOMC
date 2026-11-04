@@ -1800,6 +1800,21 @@ class Companion(QWidget):
         QApplication.instance().quit()
 
 
+def show_privacy_notice(widget, path):
+    """Explain once, in plain words, what TOMC Memory sees and keeps on this computer."""
+    from .privacy import take_privacy_notice
+
+    text = take_privacy_notice(Path(path).parent, widget.language.code)
+    if text is None:
+        return None
+    box = QMessageBox(QMessageBox.Icon.Information, "TOMC Memory", text, parent=None)
+    box.setModal(False)
+    box.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
+    box.show()
+    widget.privacy_notice = box
+    return box
+
+
 def run(path, test_mode=False, state_file=None, host="codex"):
     app = QApplication(sys.argv[:1])
     load_preview_fonts()
@@ -1817,6 +1832,8 @@ def run(path, test_mode=False, state_file=None, host="codex"):
     )
     widget.set_host(host)
     widget.show()
+    if not test_mode:
+        QTimer.singleShot(600, lambda: show_privacy_notice(widget, path))
     if sys.platform == "darwin":
         # Explicit launch should reveal the pet; background refreshes never take focus.
         widget.raise_()

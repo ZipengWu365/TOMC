@@ -1,6 +1,6 @@
 # Validation record
 
-These entries record checks performed on the stated revisions. They distinguish local software checks from benchmark reruns, hosted checks and human usability testing.
+These entries record checks performed on the stated revisions. They distinguish local software checks from benchmark reruns, hosted checks and human usability testing. Each entry describes the version named in it. No model-based entry was rerun on 0.3.0; tool counts, defaults and "private" or Space status are as they were on that date. The current version's behaviour is described in the [installation guide](assistant_plugin.md) and the [0.3.0 release notes](release_notes_0.3.0.md).
 
 ## Model-aware API request planning and lexical packing — 2026-10-12
 
@@ -211,6 +211,8 @@ The same three histories and five questions were rerun as API-style requests wit
 Keeping 40% or more matched the full history at every length while cutting cost by 39–59%. At 10–20%, every wrong answer was again a value set by an earlier update of the same field; some of these values also appeared in distractors. The required share depends on how much of the history the task needs and on whether updates can be compiled into state records, so these thresholds apply to this synthetic task; they come from single runs.
 
 ### Default budget: keep about 80%
+
+*Historical rule. The current default keeps 80% only up to about 10,000 estimated tokens and less for longer histories (60% at a million). The advice to answer directly under about 10,000 tokens was removed from the MCP instructions in 0.3.0.*
 
 From this revision, `prepare_context`, `recall_memory` and the CLI keep about 80% of the history's lexical-estimate tokens when no budget is given (at least 1,024, so short histories stay intact), and the MCP instructions advise answering directly for histories under about 10,000 tokens. To choose the default, the realistic task was repeated with three generator seeds at each length (nine histories). Budgets of 50%, 60% and 70% were set explicitly; the 80% row used the new default without a budget argument. These API-style runs used Claude Code 2.1.288 and Claude Opus 5.5:
 

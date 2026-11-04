@@ -8,6 +8,9 @@ from collections.abc import Mapping, Sequence
 
 from .schemas import Message
 
+# A single line that opens a message envelope: an error is clearer than a silent text import.
+_ENVELOPE = re.compile(r'^\s*(?:\{\s*"(?:messages|role|content)"|\[\s*\{\s*"(?:role|content)")')
+
 
 def parse_history(value: object) -> str | list[Message]:
     """Accept common text-message envelopes; reject unsupported blocks without dropping them.
@@ -21,9 +24,25 @@ def parse_history(value: object) -> str | list[Message]:
             return value
         try:
             value = json.loads(value)
-        except json.JSONDecodeError:
-            # JSONL: each nonempty line must be a complete message object.
-            value = [json.loads(line) for line in value.splitlines() if line.strip()]
+        except json.JSONDecodeError as error:
+            lines = [line for line in value.splitlines() if line.strip()]
+            if len(lines) == 1:
+                if _ENVELOPE.match(value):
+                    raise ValueError(
+                        f"This looks like JSON messages but is not valid JSON ({error.msg} at "
+                        f"line {error.lineno}, column {error.colno}). Fix the JSON, or paste "
+                        "the conversation as plain text."
+                    ) from None
+                return value
+            # JSONL: each nonempty line is a complete message object. Anything else, such
+            # as notes that begin with a JSON line, is plain text.
+            try:
+                items = [json.loads(line) for line in lines]
+            except json.JSONDecodeError:
+                return value
+            if not all(isinstance(i, Mapping) and ("content" in i or "role" in i) for i in items):
+                return value
+            value = items
     if isinstance(value, Mapping):
         if "messages" in value:
             value = value["messages"]

@@ -58,7 +58,7 @@
 
 ## 怎么选预算
 
-40% 产生了本次测试中最小的请求；60% 给证据留下更多空间。可以用自己的任务，将这两个选项与完整历史比较。默认值仍为 80%。按[Python 示例与 MCP 说明](usage_tips_zh.md#choose-budget)设置绝对预算，再检查保留的证据与回答。
+40% 产生了本次测试中最小的请求；60% 给证据留下更多空间。可以用自己的任务，将这两个选项与完整历史比较。本次测试（preview.4）时默认值是固定的 80%；现在的默认值是约 1 万估算 token 以内保留 80%，越长保留越少，到 100 万降到 60%。按[Python 示例与 MCP 说明](usage_tips_zh.md#choose-budget)设置绝对预算，再检查保留的证据与回答。
 
 [Claude Code 结果](validation.md#claude-code-windows-validation)使用 Claude Opus 5.5，且请求工作流不同。其默认设置约 20% 的输入减少不能替代本次 Codex 结果。
 

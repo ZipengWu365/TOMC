@@ -2,18 +2,17 @@
 
 [中文](workbuddy_zh.md) · [Assistant setup](assistant_setup.md) · [Validation record](validation.md)
 
-This guide provides manual local MCP configuration for Tencent WorkBuddy. **WorkBuddy GUI installation and model-selected TOMC tool calls remain unverified.** Earlier TOMC backend checks retain their own scope. TOMC has no Tencent official marketplace listing or endorsement, and this update adds no client test.
+This guide provides manual local MCP configuration for Tencent WorkBuddy. **WorkBuddy installation and TOMC tool calls have not yet been verified on a real machine.** Earlier TOMC server checks keep their own scope. TOMC has no Tencent official marketplace listing or endorsement.
+
+The quickest route, from a checkout with `.[mcp]` installed (Python 3.10 or newer), is `python -m tomc setup --client workbuddy --write`, then `python -m tomc doctor`. The manual route below uses the locked runtime.
 
 ## Use the locked runtime
 
 Install [UV](https://docs.astral.sh/uv/getting-started/installation/) and make `uv` available on PATH, then clone the public repository:
 
 ```bash
-git clone https://github.com/ZipengWu365/TOMC.git && printf '\n%s\n%s\n' \
-  'If TOMC helps with your work, consider a Star on GitHub (optional):' 'https://github.com/ZipengWu365/TOMC'
+git clone https://github.com/ZipengWu365/TOMC.git
 ```
-
-The Bash / Git Bash command above prints an optional Star invitation after a successful clone. Plain `git clone` does not show it; cloning alone does not install TOMC.
 
 The repository's `plugins/claude-code` directory contains the shared TOMC source, `pyproject.toml`, `uv.lock` and `src/server.py`. WorkBuddy can launch that runtime as a local stdio server; installing Claude Code is unnecessary. First startup can download compatible Python and locked dependencies through UV. TOMC itself needs no extra model API key or GPU.
 
@@ -36,11 +35,11 @@ Open the sidebar **插件 → MCP 服务器 → 配置 MCP** (Plugins → MCP se
 
 Here `~` means your home directory. After saving, inspect the server status; the guide uses green for a successful connection and red for a configuration or launch error. The template explicitly selects `stdio`, supported in the [official connector reference](https://open.workbuddy.cn/docs/connector).
 
-As an alternative, install `.[mcp]` from current TOMC source and run `python -m tomc setup --client workbuddy`. This prints configuration for that Python environment; it does not edit WorkBuddy settings. Add `--store /absolute/path/to/tomc-memory.sqlite3` to select a database. The `workbuddy` alias is a current-source addition; older ZIP/MCPB previews may not contain it. Update the source or use the UV template. `--link` remains Cursor-only.
+As an alternative, install `.[mcp]` from TOMC source and run `python -m tomc setup --client workbuddy --write`. It merges the entry for that Python environment into `~/.workbuddy/mcp.json` after saving a timestamped backup, keeps other servers and changes nothing when run again; add `--config <project>/.workbuddy/mcp.json` for a project file. Without `--write` it only prints the configuration. Add `--store /absolute/path/to/tomc-memory.sqlite3` to select a database. `--link` remains Cursor-only. After restarting WorkBuddy, check for twelve tools and say **Try TOMC Memory**.
 
 ## Tools, storage and feedback
 
-`prepare_context` prepares supplied history without saving it. The optional notebook tools are `remember_memory`, `recall_memory`, `list_memories` and `forget_memory`. Save only explicitly authorized text and delete only the requested notebook.
+0.3.0 has twelve tools. `try_tomc` runs a built-in sample. `prepare_context` prepares supplied history; neither it nor `recall_memory` saves its result unless you run `tomc settings --save-mcp-results on`. The notebook tools are `remember_memory`, `recall_memory`, `list_memories` and `forget_memory`; `erase_all_memory` deletes everything after confirmation. The status and library tools are `get_status`, `get_usage_stats`, `list_contexts`, `get_context` and `make_handoff`. Save only explicitly authorized text and delete only the requested notebook.
 
 Notebooks default to plaintext SQLite at `~/.tomc/memory.sqlite3`. For the UV template, merge this field alongside `command` and `args` to choose a different file:
 

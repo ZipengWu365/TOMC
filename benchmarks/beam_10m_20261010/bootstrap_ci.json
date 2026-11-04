@@ -1,0 +1,187 @@
+{
+ "source": "benchmarks/beam_10m_20261010/paired_scores_10m.csv",
+ "method": "session (cluster) bootstrap of the mean paired score difference, TOMC minus baseline, on the 0-100 scale; valid pairs only; 10 sessions resampled with replacement; 10000 resamples; seed 2026102901 re-seeded per cell; 95% percentile interval",
+ "cells": [
+  {
+   "reader": "GPT-5.1",
+   "baseline": "LLMLingua-2-D",
+   "sessions": 10,
+   "valid_pairs": 200,
+   "difference": 17.2081,
+   "ci_low": 11.5736,
+   "ci_high": 22.3385,
+   "excludes_zero": true
+  },
+  {
+   "reader": "GPT-5.1",
+   "baseline": "LongLLMLingua",
+   "sessions": 10,
+   "valid_pairs": 200,
+   "difference": 16.8865,
+   "ci_low": 14.0806,
+   "ci_high": 19.2341,
+   "excludes_zero": true
+  },
+  {
+   "reader": "GPT-5.1",
+   "baseline": "BRIEF-Pro",
+   "sessions": 10,
+   "valid_pairs": 200,
+   "difference": 11.3313,
+   "ci_low": 4.3791,
+   "ci_high": 18.5563,
+   "excludes_zero": true
+  },
+  {
+   "reader": "GPT-5.1",
+   "baseline": "LLMLingua-2-H",
+   "sessions": 10,
+   "valid_pairs": 200,
+   "difference": 13.7727,
+   "ci_low": 9.1944,
+   "ci_high": 18.7887,
+   "excludes_zero": true
+  },
+  {
+   "reader": "GPT-5.1",
+   "baseline": "BEAM-RAG",
+   "sessions": 10,
+   "valid_pairs": 200,
+   "difference": 7.4958,
+   "ci_low": 0.6667,
+   "ci_high": 13.6851,
+   "excludes_zero": true
+  },
+  {
+   "reader": "GPT-5.1",
+   "baseline": "LIGHT",
+   "sessions": 10,
+   "valid_pairs": 200,
+   "difference": 9.4868,
+   "ci_low": 4.2196,
+   "ci_high": 15.2396,
+   "excludes_zero": true
+  },
+  {
+   "reader": "Rednote preview",
+   "baseline": "LLMLingua-2-D",
+   "sessions": 10,
+   "valid_pairs": 200,
+   "difference": 17.489,
+   "ci_low": 12.6163,
+   "ci_high": 22.4374,
+   "excludes_zero": true
+  },
+  {
+   "reader": "Rednote preview",
+   "baseline": "LongLLMLingua",
+   "sessions": 10,
+   "valid_pairs": 199,
+   "difference": 12.1324,
+   "ci_low": 6.611,
+   "ci_high": 17.6954,
+   "excludes_zero": true
+  },
+  {
+   "reader": "Rednote preview",
+   "baseline": "BRIEF-Pro",
+   "sessions": 10,
+   "valid_pairs": 200,
+   "difference": 9.5393,
+   "ci_low": 3.4181,
+   "ci_high": 15.6434,
+   "excludes_zero": true
+  },
+  {
+   "reader": "Rednote preview",
+   "baseline": "LLMLingua-2-H",
+   "sessions": 10,
+   "valid_pairs": 199,
+   "difference": 10.9982,
+   "ci_low": 6.7119,
+   "ci_high": 15.2446,
+   "excludes_zero": true
+  },
+  {
+   "reader": "Rednote preview",
+   "baseline": "BEAM-RAG",
+   "sessions": 10,
+   "valid_pairs": 199,
+   "difference": 2.3732,
+   "ci_low": -3.8368,
+   "ci_high": 8.4534,
+   "excludes_zero": false
+  },
+  {
+   "reader": "Rednote preview",
+   "baseline": "LIGHT",
+   "sessions": 10,
+   "valid_pairs": 200,
+   "difference": 4.7939,
+   "ci_low": -3.3105,
+   "ci_high": 12.7127,
+   "excludes_zero": false
+  },
+  {
+   "reader": "DeepSeek 4.1 Flash",
+   "baseline": "LLMLingua-2-D",
+   "sessions": 10,
+   "valid_pairs": 200,
+   "difference": 21.8489,
+   "ci_low": 15.6625,
+   "ci_high": 27.7686,
+   "excludes_zero": true
+  },
+  {
+   "reader": "DeepSeek 4.1 Flash",
+   "baseline": "LongLLMLingua",
+   "sessions": 10,
+   "valid_pairs": 200,
+   "difference": 14.0306,
+   "ci_low": 6.3681,
+   "ci_high": 21.7792,
+   "excludes_zero": true
+  },
+  {
+   "reader": "DeepSeek 4.1 Flash",
+   "baseline": "BRIEF-Pro",
+   "sessions": 10,
+   "valid_pairs": 200,
+   "difference": 12.1044,
+   "ci_low": 5.2022,
+   "ci_high": 19.0875,
+   "excludes_zero": true
+  },
+  {
+   "reader": "DeepSeek 4.1 Flash",
+   "baseline": "LLMLingua-2-H",
+   "sessions": 10,
+   "valid_pairs": 200,
+   "difference": 19.0181,
+   "ci_low": 14.0208,
+   "ci_high": 24.0708,
+   "excludes_zero": true
+  },
+  {
+   "reader": "DeepSeek 4.1 Flash",
+   "baseline": "BEAM-RAG",
+   "sessions": 10,
+   "valid_pairs": 200,
+   "difference": 7.0913,
+   "ci_low": 1.2167,
+   "ci_high": 12.861,
+   "excludes_zero": true
+  },
+  {
+   "reader": "DeepSeek 4.1 Flash",
+   "baseline": "LIGHT",
+   "sessions": 10,
+   "valid_pairs": 199,
+   "difference": 3.0974,
+   "ci_low": -3.7225,
+   "ci_high": 10.4028,
+   "excludes_zero": false
+  }
+ ],
+ "cells_excluding_zero": 15
+}

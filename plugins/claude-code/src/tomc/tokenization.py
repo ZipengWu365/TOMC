@@ -5,7 +5,16 @@ from __future__ import annotations
 import re
 from typing import Protocol
 
-_TOKEN = re.compile(r"[\u3400-\u9fff]|[^\W_]+(?:_[^\W_]+)*|[^\w\s]|_", re.UNICODE)
+# CJK ideographs, Japanese kana and Korean Hangul count one token per character, as
+# words in these scripts are not separated by spaces.
+_PER_CHARACTER = (
+    "\u1100-\u11ff\u3040-\u30ff\u3130-\u318f\u31f0-\u31ff\u3400-\u9fff"
+    "\uac00-\ud7af\uf900-\ufaff\uff66-\uff9f"
+)
+_TOKEN = re.compile(
+    rf"[{_PER_CHARACTER}]|[^\W_{_PER_CHARACTER}]+(?:_[^\W_{_PER_CHARACTER}]+)*|[^\w\s]|_",
+    re.UNICODE,
+)
 
 
 class TokenCounter(Protocol):
@@ -24,13 +33,13 @@ class TokenCounter(Protocol):
 
 
 class RegexCounter:
-    """Zero-dependency lexical estimate with individual CJK characters."""
+    """Zero-dependency lexical estimate with individual CJK, kana and Hangul characters."""
 
     name = "regex-v1 (estimate)"
     estimated = True
 
     def count(self, text: str) -> int:
-        """Count words, punctuation, and CJK characters."""
+        """Count words, punctuation, and CJK, kana and Hangul characters."""
         return sum(1 for _ in _TOKEN.finditer(text))
 
     def truncate(self, text: str, budget: int, *, tail: bool = False) -> str:

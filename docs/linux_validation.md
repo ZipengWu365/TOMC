@@ -35,7 +35,7 @@ The browser and native CLI were exercised on Linux. Claude/Cursor GUI installati
 
 ## Install the demo on Linux
 
-Repository access is required while it is private. Install [UV](https://docs.astral.sh/uv/getting-started/installation/), then run:
+The repository was private during this check and is now public. Install [UV](https://docs.astral.sh/uv/getting-started/installation/), then run:
 
 ```bash
 git clone https://github.com/ZipengWu365/TOMC.git

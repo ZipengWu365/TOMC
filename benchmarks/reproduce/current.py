@@ -1,11 +1,18 @@
-"""Verify and render the current manuscript's aggregate evidence without model calls."""
+"""Verify and render the current manuscript's aggregate evidence without model calls.
+
+Usage:
+    python benchmarks/reproduce/current.py           # verify, then rewrite RESULTS.md and paper_results.md
+    python benchmarks/reproduce/current.py --check   # verify and compare; writes nothing
+"""
 
 from __future__ import annotations
 
+import argparse
 import csv
 import hashlib
 import json
 import math
+import sys
 from pathlib import Path
 from statistics import mean
 
@@ -407,9 +414,27 @@ def render_report():
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
+    parser.add_argument(
+        "--check", action="store_true", help="compare with the tracked reports; write nothing"
+    )
+    args = parser.parse_args()
     report = render_report()
-    (ROOT / "benchmarks/RESULTS.md").write_text(report, encoding="utf-8", newline="\n")
-    (ROOT / "docs/paper_results.md").write_text(report, encoding="utf-8", newline="\n")
+    targets = (ROOT / "benchmarks/RESULTS.md", ROOT / "docs/paper_results.md")
+    if args.check:
+        stale = [
+            p.relative_to(ROOT).as_posix()
+            for p in targets
+            if p.read_text(encoding="utf-8") != report
+        ]
+        if stale:
+            sys.exit("Paper snapshot report differs from: " + ", ".join(stale))
+        print(
+            "Verified current paper snapshot; RESULTS.md and paper_results.md match. No API calls."
+        )
+        raise SystemExit(0)
+    for path in targets:
+        path.write_text(report, encoding="utf-8", newline="\n")
     print(
         "Verified current paper snapshot; rebuilt current BEAM, RULER and resource report. No API calls."
     )

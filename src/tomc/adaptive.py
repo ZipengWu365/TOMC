@@ -6,7 +6,9 @@ separated group. Otherwise the ordinary budget-filling retrieval runs unchanged,
 an uncertain case keeps exactly what it kept before. Kept lines bring their
 headings, the neighbours of wrapped sentences and the few lines that share their
 rare names or values (the next step of a two-step question), and a small floor of
-further high-scoring lines is added as a margin.
+further lines is added as a margin: the next best matches, then the most recent lines,
+so a correction that shares no word with the task ("Ops raised it to 250/min today.")
+is not dropped.
 """
 
 from __future__ import annotations
@@ -18,7 +20,8 @@ from collections import Counter
 from .ledger import pack_rows, raw_rows
 from .schemas import Source
 from .strategies.base import StrategyOutput
-from .strategies.baselines import RetrievalStrategy
+from .strategies.baselines import RECENT_SHARE, RetrievalStrategy
+from .strategies.latest import changes_later
 from .tokenization import TokenCounter
 
 _WORD = re.compile(r"[㐀-鿿]|[a-zA-Z0-9_]+")
@@ -224,14 +227,31 @@ def adaptive_selection(
     extra = measure(linked) if linked else 0
     if size + extra > MAX_CORE_SHARE * budget:
         return None, "The matching evidence is too large to shrink safely."
+    # Later lines announcing a change ("Ops raised it to 250/min today.") may share no
+    # word with the task; the most recent ones after the evidence come along.
+    reserve = int(RECENT_SHARE * budget)
+    for unit in changes_later(units, max(u.order for u in units if u.source_id in core)):
+        cost = counter.count(f"[RAW {unit.source_id}] {unit.text}")
+        if unit.source_id in kept or cost > reserve:
+            continue
+        kept.add(unit.source_id)
+        size += cost
+        reserve -= cost
     floor = min(budget, max(FLOOR, int(FLOOR_SHARE * budget)))
-    for score, unit, _ in sorted(scored, key=lambda x: (-x[0], x[1].order)):
-        if size >= floor or score <= 0:
+    # Matching lines first (the later one on a tie), then the most recent lines.
+    matching = [
+        u for score, u, _ in sorted(scored, key=lambda x: (-x[0], -x[1].order)) if score > 0
+    ]
+    for unit in matching + units[::-1]:
+        if size >= floor:
             break
         if unit.source_id in kept:
             continue
+        cost = counter.count(f"[RAW {unit.source_id}] {unit.text}")
+        if size + cost + extra > budget:
+            continue
         kept.add(unit.source_id)
-        size += counter.count(f"[RAW {unit.source_id}] {unit.text}")
+        size += cost
     if size + extra > budget:
         return None, "The matching evidence and its linked lines do not fit the budget."
     reason = f"Kept {len(core)} strongly matching lines with their context"

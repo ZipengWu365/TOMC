@@ -1,18 +1,20 @@
-"""Activate an already validated independent TOMC gateway, with exact-byte rollback.
+"""Activate an already validated independent TOMC Memory gateway, with exact-byte backups.
 
 No authentication, models, approval settings or plugin caches are changed. The
 service runtime and hidden Startup shortcut must already exist before activation.
 Preview is the default. Activation verifies a live loopback health endpoint.
+--restore RECEIPT undoes an activation; --restore-direct removes only the gateway
+endpoints from Codex and Claude Code settings and works without TOMC Memory running.
 """
 
 from __future__ import annotations
 
 import argparse
+import importlib.util
 import json
 from pathlib import Path
 from urllib.request import ProxyHandler, build_opener
 
-import tomlkit
 from install_context_workspace import (
     FileChange,
     UpdatePlan,
@@ -36,6 +38,7 @@ PET_MODULES = (
     "integration_status.py",
     "context_library.py",
     "session_store.py",
+    "privacy.py",
     "ui_language.py",
     "macos_ui.py",
     "pricing_qt.py",
@@ -46,6 +49,19 @@ PET_MODULES = (
     "usage_widget.py",
     "quota.py",
 )
+
+
+def _load_source_module(name):
+    """Load a standard-library-only module from src/tomc without importing the package."""
+    path = Path(__file__).resolve().parents[1] / "src/tomc" / f"{name}.py"
+    spec = importlib.util.spec_from_file_location(f"tomc_installer_{name}", path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+direct = _load_source_module("direct_connection")
+PRIVACY_NOTICE = _load_source_module("privacy").PRIVACY_NOTICE
 
 
 def check_health(port):
@@ -71,6 +87,8 @@ def plan_activation(home, runtime, port=43187, *, hosts=("codex", "claude")):
             changes.append(FileChange(relative, previous, data))
 
     if "codex" in hosts:
+        import tomlkit  # Only activation needs it; restore runs on the standard library.
+
         relative = ".codex/config.toml"
         before = _read_current(_safe_target(home, relative))
         if before is None:
@@ -143,7 +161,13 @@ def plan_activation(home, runtime, port=43187, *, hosts=("codex", "claude")):
 
 
 def restore(home, receipt_path):
-    """Restore only untouched installed files; never overwrite subsequent user edits."""
+    """Undo one activation without overwriting later edits; safe to run again.
+
+    A file that still holds the installed bytes returns to its exact backup. Once
+    the host has edited its settings file (for example Codex trusting a new
+    project), only the keys TOMC Memory wrote are removed and the edits stay.
+    Any other file changed since installation is left alone and reported.
+    """
     home, receipt_path = Path(home).resolve(), Path(receipt_path).resolve()
     archive_root = _safe_target(home, ".codex/tomc/archive")
     if not receipt_path.is_relative_to(archive_root):
@@ -152,9 +176,6 @@ def restore(home, receipt_path):
     plans = []
     for entry in receipt["changes"]:
         target = _safe_target(home, entry["target"])
-        current = _read_current(target)
-        if _digest(current) != entry["after_sha256"]:
-            raise ValueError("An installed file has changed; automatic rollback refused")
         backup = entry.get("backup")
         original = None
         if backup:
@@ -164,15 +185,34 @@ def restore(home, receipt_path):
             original = backup_path.read_bytes()
         if _digest(original) != entry["before_sha256"]:
             raise ValueError("Backup integrity check failed")
-        plans.append((target, original, entry["after_sha256"]))
-    for target, original, expected in reversed(plans):
-        if _digest(_read_current(target)) != expected:
-            raise ValueError("An installed file changed during rollback; remaining writes refused")
+        plans.append((entry, target, original))
+    restored, kept = [], []
+    for entry, target, original in reversed(plans):
+        relative = entry["target"]
+        digest = _digest(_read_current(target))
+        if relative in direct.HOST_SETTINGS and digest != entry["after_sha256"]:
+            outcome = direct.restore_file(target, relative, original)
+            if outcome.startswith(("restored", "removed")):
+                restored.append(relative)
+            elif outcome == "unreadable_left_unchanged":
+                kept.append(relative)
+            continue
+        if digest == entry["before_sha256"]:
+            continue  # Already restored.
+        if digest != entry["after_sha256"]:
+            kept.append(relative)  # Changed since installation; never overwritten.
+            continue
         if original is None:
             target.unlink()
         else:
             _atomic_write(target, original)
-    return {"status": "restored", "files": len(plans)}
+        restored.append(relative)
+    return {
+        "status": "restored" if restored else "already_restored",
+        "files": len(restored),
+        "restored": restored,
+        "left_unchanged": kept,
+    }
 
 
 def main(argv=None):
@@ -184,8 +224,16 @@ def main(argv=None):
         "--hosts", nargs="+", choices=["codex", "claude"], default=["codex", "claude"]
     )
     parser.add_argument("--activate", action="store_true")
-    parser.add_argument("--restore", type=Path)
+    parser.add_argument("--restore", type=Path, metavar="RECEIPT")
+    parser.add_argument(
+        "--restore-direct",
+        action="store_true",
+        help="point Codex and Claude Code back at their providers; needs no receipt",
+    )
     args = parser.parse_args(argv)
+    if args.restore_direct:
+        print(json.dumps(direct.restore_direct(args.home)))
+        return 0
     if args.restore:
         print(json.dumps(restore(args.home, args.restore)))
         return 0
@@ -198,6 +246,7 @@ def main(argv=None):
                 "mode": "activate" if args.activate else "preview",
                 "files": [c.relative for c in plan.changes],
                 "notes": plan.notes,
+                "privacy_notice": PRIVACY_NOTICE,
             },
             indent=2,
         )

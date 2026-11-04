@@ -31,7 +31,7 @@ def manifest() -> dict:
         "schema": "tomc-public-release-v1",
         "visibility": "public",
         "public_release_authorized": True,
-        "version": "0.1.0",
+        "version": "0.3.0",
         "files": entries,
         "total_bytes": sum(x["bytes"] for x in entries),
         "self_excluded": sorted(SELF),

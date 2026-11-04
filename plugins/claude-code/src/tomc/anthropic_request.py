@@ -2,7 +2,8 @@
 
 The caller owns transport, session authorization and request-class filtering.
 No credentials, network calls or transcript files are used here. The stateful
-adapter stores compiled prefixes and original-prefix hashes for exact replay.
+adapter keeps compiled prefixes and original-prefix hashes for exact replay, in
+memory, and on disk (redacted, time-limited) only while context recording is on.
 Counts cover serialized request JSON and are estimates, not billable usage.
 """
 
@@ -13,12 +14,15 @@ import hashlib
 import json
 import re
 import sqlite3
+import threading
 from collections.abc import Mapping
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
 from .easy import prepare_context
 from .gateway_protocol import AdaptedRequest
+from .privacy import DEFAULT_RETENTION_DAYS, connect, redact, redact_value
 from .tokenization import get_counter
 
 _SESSION = re.compile(r"[A-Za-z0-9][A-Za-z0-9._:-]{0,255}\Z")
@@ -430,16 +434,27 @@ def _has_thinking(value: Any) -> bool:
 
 
 class AnthropicAdapter:
-    """Persist exact compiled prefixes so subsequent thinking sees the same input.
+    """Keep exact compiled prefixes so subsequent thinking sees the same input.
 
-    Only the compiled prefix and hashes/counts of original data are persisted.
-    A stopped adapter keeps replaying an established prefix while later signed
+    Only the compiled prefix and hashes/counts of original data are kept. A
+    stopped adapter keeps replaying an established prefix while later signed
     thinking still depends on it. This compatibility replay is not new
-    compilation, and must also survive a gateway restart.
+    compilation.
+
+    The exact prefix lives in this process's memory. With context recording on,
+    a copy with common secrets redacted is also saved, so replay survives a
+    gateway restart, and it is deleted after the retention limit. With
+    recording off nothing about the conversation is written to disk: replay then
+    lasts only as long as this process.
     """
+
+    MEMORY_SESSIONS = 256
 
     def __init__(self, path: Path | str):
         self.path = Path(path)
+        self._memory: dict[str, tuple] = {}
+        self._lock = threading.Lock()
+        self._generation: int | None = None
 
     @staticmethod
     def _schema(db: sqlite3.Connection) -> None:
@@ -450,6 +465,113 @@ class AnthropicAdapter:
             "turn_index INTEGER NOT NULL, turn_hash TEXT NOT NULL, "
             "task TEXT NOT NULL)"
         )
+        # A separate table, so older gateways that insert seven values keep working.
+        db.execute(
+            "CREATE TABLE IF NOT EXISTS tomc_anthropic_prefix_times ("
+            "session_id TEXT PRIMARY KEY, saved_utc TEXT NOT NULL)"
+        )
+
+    @staticmethod
+    def _redacted(row: tuple) -> tuple:
+        prefix_hash, count, replacement, turn_index, turn_hash, task = row
+        try:
+            replacement = _dump(redact_value(json.loads(replacement)))
+        except (ValueError, TypeError):
+            replacement = redact(replacement)
+        return prefix_hash, count, replacement, turn_index, turn_hash, redact(task)
+
+    @staticmethod
+    def _prune(db: sqlite3.Connection, days: int) -> int:
+        """Redact and date rows saved before this version, then drop expired rows."""
+        now = datetime.now(timezone.utc)
+        legacy = db.execute(
+            "SELECT session_id,prefix_hash,prefix_count,replacement_json,turn_index,turn_hash,"
+            "task FROM tomc_anthropic_prefixes WHERE session_id NOT IN "
+            "(SELECT session_id FROM tomc_anthropic_prefix_times)"
+        ).fetchall()
+        for session_id, *row in legacy:
+            AnthropicAdapter._write_row(db, session_id, AnthropicAdapter._redacted(tuple(row)), now)
+        cutoff = (now - timedelta(days=days)).isoformat()
+        expired = [
+            row[0]
+            for row in db.execute(
+                "SELECT session_id FROM tomc_anthropic_prefix_times WHERE saved_utc<?", (cutoff,)
+            )
+        ]
+        for session_id in expired:
+            AnthropicAdapter._delete_row(db, session_id)
+        return len(expired)
+
+    @staticmethod
+    def _write_row(db: sqlite3.Connection, session_id: str, row: tuple, now=None) -> None:
+        db.execute(
+            "INSERT INTO tomc_anthropic_prefixes VALUES (?,?,?,?,?,?,?) "
+            "ON CONFLICT(session_id) DO UPDATE SET prefix_hash=excluded.prefix_hash, "
+            "prefix_count=excluded.prefix_count,replacement_json=excluded.replacement_json, "
+            "turn_index=excluded.turn_index,turn_hash=excluded.turn_hash,task=excluded.task",
+            (session_id, *row),
+        )
+        db.execute(
+            "INSERT OR REPLACE INTO tomc_anthropic_prefix_times VALUES (?,?)",
+            (session_id, (now or datetime.now(timezone.utc)).isoformat()),
+        )
+
+    @staticmethod
+    def _delete_row(db: sqlite3.Connection, session_id: str) -> None:
+        db.execute("DELETE FROM tomc_anthropic_prefixes WHERE session_id=?", (session_id,))
+        db.execute("DELETE FROM tomc_anthropic_prefix_times WHERE session_id=?", (session_id,))
+
+    def prune(self, days: int = DEFAULT_RETENTION_DAYS) -> int:
+        """Apply the retention limit to saved replay data; returns deleted sessions."""
+        if not self.path.exists():
+            return 0
+        db = connect(self.path)
+        try:
+            with db:
+                db.execute("BEGIN IMMEDIATE")
+                self._schema(db)
+                return self._prune(db, days)
+        finally:
+            db.close()
+
+    def _remember(self, session_id: str, row: tuple | None) -> None:
+        with self._lock:
+            self._memory.pop(session_id, None)
+            if row is not None:
+                self._memory[session_id] = row
+                while len(self._memory) > self.MEMORY_SESSIONS:
+                    self._memory.pop(next(iter(self._memory)))
+
+    def _move_to_memory(self, session_id: str) -> None:
+        """Recording is off: keep a saved row only in memory and delete it from disk."""
+        if not self.path.exists():
+            return
+        try:
+            db = connect(self.path)
+            try:
+                with db:
+                    db.execute("BEGIN IMMEDIATE")
+                    if not db.execute(
+                        "SELECT 1 FROM sqlite_master WHERE name='tomc_anthropic_prefixes'"
+                    ).fetchone():
+                        return
+                    self._schema(db)
+                    row = db.execute(
+                        "SELECT prefix_hash,prefix_count,replacement_json,turn_index,turn_hash,"
+                        "task FROM tomc_anthropic_prefixes WHERE session_id=?",
+                        (session_id,),
+                    ).fetchone()
+                    if row is None:
+                        return
+                    with self._lock:
+                        known = session_id in self._memory
+                    if not known:
+                        self._remember(session_id, tuple(row))
+                    self._delete_row(db, session_id)
+            finally:
+                db.close()
+        except (OSError, sqlite3.Error):
+            pass  # Replay then uses only what this process already holds.
 
     def adapt(
         self,
@@ -457,6 +579,9 @@ class AnthropicAdapter:
         headers: Mapping[str, Any],
         *,
         enabled: bool = True,
+        record: bool = True,
+        retention_days: int = DEFAULT_RETENTION_DAYS,
+        erase_generation: int | None = None,
         memory_budget: int | None = None,
         recent_messages: int = 6,
         min_history_tokens: int = 4000,
@@ -466,6 +591,11 @@ class AnthropicAdapter:
         def unchanged(reason: str) -> AdaptedRequest:
             return AdaptedRequest(payload, False, reason, before, before)
 
+        if erase_generation is not None:
+            with self._lock:
+                if self._generation is not None and erase_generation != self._generation:
+                    self._memory.clear()  # Another process erased all saved data.
+                self._generation = erase_generation
         session_id = extract_session_id(payload, headers)
         if session_id is None:
             return unchanged("unassociated_session")
@@ -491,133 +621,186 @@ class AnthropicAdapter:
         turn = _turn(messages)
         if turn is None:
             return unchanged("no_current_user_task")
+        if not record:
+            self._move_to_memory(session_id)
+            return self._adapt(
+                None,
+                session_id,
+                payload,
+                messages,
+                turn,
+                prompt_id,
+                lowered,
+                unchanged,
+                before,
+                enabled=enabled,
+                retention_days=retention_days,
+                memory_budget=memory_budget,
+                recent_messages=recent_messages,
+                min_history_tokens=min_history_tokens,
+            )
         # Commit the mapping before forwarding. If persistence fails, the caller
         # must not send a rewrite that it cannot reproduce after a restart.
         try:
-            self.path.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
-            db = sqlite3.connect(self.path, timeout=30)
+            db = connect(self.path)
             try:
                 with db:
                     db.execute("BEGIN IMMEDIATE")
                     self._schema(db)
-                    if lowered.get("x-claude-code-context-compacted"):
-                        db.execute(
-                            "DELETE FROM tomc_anthropic_prefixes WHERE session_id=?", (session_id,)
-                        )
-                        return unchanged("native_compaction_reset")
-                    row = db.execute(
-                        "SELECT prefix_hash,prefix_count,replacement_json,turn_index,turn_hash,task "
-                        "FROM tomc_anthropic_prefixes WHERE session_id=?",
-                        (session_id,),
-                    ).fetchone()
-                    replay = None
-                    same_turn = False
-                    if row:
-                        prefix_hash, count, replacement, old_index, old_turn, task = row
-                        same_turn = turn == (old_index, old_turn)
-                        if count <= len(messages) and _fingerprint(messages[:count]) == prefix_hash:
-                            try:
-                                prefix = json.loads(replacement)
-                            except (ValueError, TypeError):
-                                return unchanged("stored_prefix_unreadable")
-                            anchor_count = 0
-                            if isinstance(prefix, dict) and prefix.get("format") == 2:
-                                old_prompt_id = prefix.get("prompt_id")
-                                if (
-                                    prompt_id
-                                    and isinstance(old_prompt_id, str)
-                                    and _PROMPT.fullmatch(old_prompt_id)
-                                ):
-                                    # The host can augment the current user block
-                                    # during tools. Its documented prompt ID is
-                                    # stable through that complete prompt loop.
-                                    same_turn = prompt_id == old_prompt_id.lower()
-                                anchor_count = prefix.get("anchor_count")
-                                compiled_messages = prefix.get("compiled_messages")
-                                if (
-                                    isinstance(anchor_count, bool)
-                                    or not isinstance(anchor_count, int)
-                                    or not 0 <= anchor_count < count
-                                    or not isinstance(compiled_messages, list)
-                                ):
-                                    return unchanged("stored_prefix_unreadable")
-                                prefix = copy.deepcopy(messages[:anchor_count]) + compiled_messages
-                            if not isinstance(prefix, list):
-                                return unchanged("stored_prefix_unreadable")
-                            candidate = copy.deepcopy(payload)
-                            candidate["messages"] = prefix + candidate["messages"][count:]
-                            replay = AdaptedRequest(
-                                candidate,
-                                True,
-                                "replayed_prefix" if enabled else "disabled_compatible_replay",
-                                before,
-                                _COUNTER.count(_dump(candidate)),
-                                task=task,
-                                prefix_count=count,
-                                replacement_count=len(prefix),
-                                anchor_count=anchor_count,
-                            )
-                        else:
-                            # Host has replaced its history; never apply a stale
-                            # positional mapping to different evidence.
-                            return unchanged("original_prefix_changed")
-                    if replay is not None and same_turn:
-                        return replay
-                    if not enabled:
-                        if replay is not None and _has_thinking(messages[row[1] :]):
-                            # New user turns can still contain signed blocks from
-                            # the previous compiled turn. Restoring the original
-                            # prefix would invalidate those blocks too.
-                            replay.reason = "disabled_compatible_replay"
-                            return replay
-                        db.execute(
-                            "DELETE FROM tomc_anthropic_prefixes WHERE session_id=?", (session_id,)
-                        )
-                        return unchanged("session_disabled")
-                    result = adapt_request(
+                    return self._adapt(
+                        db,
+                        session_id,
                         payload,
+                        messages,
+                        turn,
+                        prompt_id,
+                        lowered,
+                        unchanged,
+                        before,
+                        enabled=enabled,
+                        retention_days=retention_days,
                         memory_budget=memory_budget,
                         recent_messages=recent_messages,
                         min_history_tokens=min_history_tokens,
                     )
-                    if result.transformed:
-                        count = result.prefix_count
-                        anchor_count = result.anchor_count or 0
-                        if replay is not None and _has_thinking(messages[row[1] : anchor_count]):
-                            # This new raw anchor would restore original history
-                            # under thinking produced against our prior rewrite.
-                            # Retain that established mapping instead.
-                            return replay
-                        replacement = {
-                            "format": 2,
-                            "anchor_count": anchor_count,
-                            "compiled_messages": result.payload["messages"][
-                                anchor_count : result.replacement_count
-                            ],
-                            "prompt_id": prompt_id,
-                        }
-                        db.execute(
-                            "INSERT INTO tomc_anthropic_prefixes VALUES (?,?,?,?,?,?,?) "
-                            "ON CONFLICT(session_id) DO UPDATE SET prefix_hash=excluded.prefix_hash, "
-                            "prefix_count=excluded.prefix_count,replacement_json=excluded.replacement_json, "
-                            "turn_index=excluded.turn_index,turn_hash=excluded.turn_hash,task=excluded.task",
-                            (
-                                session_id,
-                                _fingerprint(messages[:count]),
-                                count,
-                                _dump(replacement),
-                                turn[0],
-                                turn[1],
-                                result.task or "",
-                            ),
-                        )
-                        return result
-                    # No new safe cut exists. Continue the established prefix
-                    # rather than restore raw history underneath new thinking.
-                    if replay is not None:
-                        return replay
-                    return result
             finally:
                 db.close()
         except (OSError, sqlite3.Error):
             return unchanged("prefix_store_unavailable")
+
+    def _adapt(
+        self,
+        db,
+        session_id,
+        payload,
+        messages,
+        turn,
+        prompt_id,
+        lowered,
+        unchanged,
+        before,
+        *,
+        enabled,
+        retention_days,
+        memory_budget,
+        recent_messages,
+        min_history_tokens,
+    ) -> AdaptedRequest:
+        def drop():
+            self._remember(session_id, None)
+            if db is not None:
+                self._delete_row(db, session_id)
+
+        if lowered.get("x-claude-code-context-compacted"):
+            drop()
+            return unchanged("native_compaction_reset")
+        with self._lock:
+            row = self._memory.get(session_id)
+        if row is None and db is not None:
+            row = db.execute(
+                "SELECT prefix_hash,prefix_count,replacement_json,turn_index,turn_hash,task "
+                "FROM tomc_anthropic_prefixes WHERE session_id=?",
+                (session_id,),
+            ).fetchone()
+        replay = None
+        same_turn = False
+        if row:
+            prefix_hash, count, replacement, old_index, old_turn, task = row
+            same_turn = turn == (old_index, old_turn)
+            if count <= len(messages) and _fingerprint(messages[:count]) == prefix_hash:
+                try:
+                    prefix = json.loads(replacement)
+                except (ValueError, TypeError):
+                    return unchanged("stored_prefix_unreadable")
+                anchor_count = 0
+                if isinstance(prefix, dict) and prefix.get("format") == 2:
+                    old_prompt_id = prefix.get("prompt_id")
+                    if (
+                        prompt_id
+                        and isinstance(old_prompt_id, str)
+                        and _PROMPT.fullmatch(old_prompt_id)
+                    ):
+                        # The host can augment the current user block
+                        # during tools. Its documented prompt ID is
+                        # stable through that complete prompt loop.
+                        same_turn = prompt_id == old_prompt_id.lower()
+                    anchor_count = prefix.get("anchor_count")
+                    compiled_messages = prefix.get("compiled_messages")
+                    if (
+                        isinstance(anchor_count, bool)
+                        or not isinstance(anchor_count, int)
+                        or not 0 <= anchor_count < count
+                        or not isinstance(compiled_messages, list)
+                    ):
+                        return unchanged("stored_prefix_unreadable")
+                    prefix = copy.deepcopy(messages[:anchor_count]) + compiled_messages
+                if not isinstance(prefix, list):
+                    return unchanged("stored_prefix_unreadable")
+                candidate = copy.deepcopy(payload)
+                candidate["messages"] = prefix + candidate["messages"][count:]
+                replay = AdaptedRequest(
+                    candidate,
+                    True,
+                    "replayed_prefix" if enabled else "disabled_compatible_replay",
+                    before,
+                    _COUNTER.count(_dump(candidate)),
+                    task=task,
+                    prefix_count=count,
+                    replacement_count=len(prefix),
+                    anchor_count=anchor_count,
+                )
+            else:
+                # Host has replaced its history; never apply a stale
+                # positional mapping to different evidence.
+                return unchanged("original_prefix_changed")
+        if replay is not None and same_turn:
+            return replay
+        if not enabled:
+            if replay is not None and _has_thinking(messages[row[1] :]):
+                # New user turns can still contain signed blocks from
+                # the previous compiled turn. Restoring the original
+                # prefix would invalidate those blocks too.
+                replay.reason = "disabled_compatible_replay"
+                return replay
+            drop()
+            return unchanged("session_disabled")
+        result = adapt_request(
+            payload,
+            memory_budget=memory_budget,
+            recent_messages=recent_messages,
+            min_history_tokens=min_history_tokens,
+        )
+        if result.transformed:
+            count = result.prefix_count
+            anchor_count = result.anchor_count or 0
+            if replay is not None and _has_thinking(messages[row[1] : anchor_count]):
+                # This new raw anchor would restore original history
+                # under thinking produced against our prior rewrite.
+                # Retain that established mapping instead.
+                return replay
+            replacement = {
+                "format": 2,
+                "anchor_count": anchor_count,
+                "compiled_messages": result.payload["messages"][
+                    anchor_count : result.replacement_count
+                ],
+                "prompt_id": prompt_id,
+            }
+            stored = (
+                _fingerprint(messages[:count]),
+                count,
+                _dump(replacement),
+                turn[0],
+                turn[1],
+                result.task or "",
+            )
+            if db is not None:
+                self._prune(db, retention_days)
+                self._write_row(db, session_id, self._redacted(stored))
+            self._remember(session_id, stored)
+            return result
+        # No new safe cut exists. Continue the established prefix
+        # rather than restore raw history underneath new thinking.
+        if replay is not None:
+            return replay
+        return result

@@ -4,6 +4,7 @@ import importlib.util
 import json
 import os
 import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -44,6 +45,10 @@ def installer(tmp_path, monkeypatch):
         return subprocess.CompletedProcess(command, 0, stdout="supported", stderr="")
 
     monkeypatch.setattr(module.subprocess, "run", run)
+    # The post-install server check starts the configured server; fake executables cannot.
+    monkeypatch.setattr(
+        module, "list_server_tools", lambda command, **_: calls.append(["verify", *command]) or []
+    )
     return module, package, uv, codex, calls
 
 
@@ -72,17 +77,21 @@ def test_explicit_tools_install_without_path_and_preserve_unicode_arguments(inst
         "mcpServers"
     ]["tomc"]
     assert server["command"] == str(uv)
+    # Pinned to the Python the documented installer command uses, so uv downloads one.
     assert server["args"] == [
         "run",
         "--locked",
+        "--python",
+        "3.12",
         "--directory",
         str(package / "plugins/tomc-memory"),
         "src/server.py",
     ]
     assert server["env"] == {"TOMC_MEMORY_PATH": str(store)}
-    assert calls[-2:] == [
+    assert calls[-3:] == [
         [str(codex), "plugin", "marketplace", "add", str(package)],
         [str(codex), "plugin", "add", "tomc-memory@tomc-local"],
+        ["verify", str(uv), *server["args"]],
     ]
     assert not store.exists()
 
@@ -119,8 +128,78 @@ def test_missing_uv_explains_installation_and_path_option(installer, capsys):
     assert module.main(["--codex", str(codex)]) == 1
     output = capsys.readouterr().out
     assert "--uv" in output and "docs.astral.sh/uv/getting-started/installation/" in output
+    # Copy-paste commands, including mirrors for mainland China.
+    assert "-m pip install --user uv -i https://pypi.tuna.tsinghua.edu.cn/simple" in output
+    assert "UV_DEFAULT_INDEX" in output and "UV_PYTHON_INSTALL_MIRROR" in output
+    assert "-m uv run --no-project --python 3.12 install.py" in output
+    # Not the unrelated Codex hint when only uv is missing.
+    assert "Codex CLI" not in output
     assert not (package / "plugins/tomc-memory/mcp.json").exists()
     assert not calls
+
+
+def test_all_missing_prerequisites_are_reported_together(installer, capsys):
+    module, package, _, _, calls = installer
+    assert module.main([]) == 1
+    output = capsys.readouterr().out
+    assert "Fix these first" in output
+    assert "UV executable not found" in output and "Codex CLI executable not found" in output
+    assert not calls and not (package / "plugins/tomc-memory/mcp.json").exists()
+
+
+def test_uv_started_through_python_module_is_found_from_its_environment(
+    installer, monkeypatch, tmp_path
+):
+    # `python3 -m uv run install.py` (uv installed with pip --user) leaves uv off PATH.
+    module, package, uv, codex, _ = installer
+    monkeypatch.setenv("UV", str(uv))
+    assert module.main(["--codex", str(codex)]) == 0
+    server = json.loads((package / "plugins/tomc-memory/mcp.json").read_text(encoding="utf-8"))
+    assert server["mcpServers"]["tomc"]["command"] == str(uv)
+
+
+def test_failed_server_check_is_reported_with_mirror_hints(installer, monkeypatch, capsys):
+    module, _, uv, codex, _ = installer
+
+    def fails(command, **_):
+        raise RuntimeError("could not download Python")
+
+    monkeypatch.setattr(module, "list_server_tools", fails)
+    assert module.main(["--uv", str(uv), "--codex", str(codex)]) == 1
+    output = capsys.readouterr().out
+    assert "✗ The TOMC Memory server did not start: could not download Python" in output
+    assert "UV_PYTHON_INSTALL_MIRROR" in output
+    assert "consider a Star on GitHub" not in output
+
+
+def test_successful_install_checks_the_server_and_names_the_first_prompt(
+    installer, monkeypatch, capsys
+):
+    module, _, uv, codex, calls = installer
+    monkeypatch.setattr(module, "list_server_tools", lambda command, **_: ["try_tomc"] * 12)
+    assert module.main(["--uv", str(uv), "--codex", str(codex)]) == 0
+    output = capsys.readouterr().out
+    assert "✓ The TOMC Memory server started with 12 tools." in output
+    assert "Try TOMC Memory" in output and "试一下 TOMC Memory" in output
+
+
+def test_no_verify_skips_the_server_check(installer):
+    module, _, uv, codex, calls = installer
+    assert module.main(["--no-verify", "--uv", str(uv), "--codex", str(codex)]) == 0
+    assert not any(command[0] == "verify" for command in calls)
+
+
+def test_server_check_lists_tools_of_a_real_server(tmp_path, monkeypatch):
+    pytest.importorskip("mcp")
+    spec = importlib.util.spec_from_file_location(
+        "tomc_installer_real", ROOT / "plugins/codex/install.py"
+    )
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    monkeypatch.setenv("HOME", str(tmp_path))
+    tools = module.list_server_tools([sys.executable, "-m", "tomc", "mcp"], timeout=60)
+    assert "try_tomc" in tools and "prepare_context" in tools
+    assert not (tmp_path / ".tomc").exists()  # The check uses a throwaway database.
 
 
 @pytest.mark.skipif(os.name == "nt", reason="POSIX executable permission bit")

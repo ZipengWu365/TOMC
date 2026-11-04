@@ -51,6 +51,7 @@ def test_external_history_survives_mcp_desktop_and_portable_handoff(
     )
     sessions = SessionStore(database)
     library = ContextLibrary(database)
+    sessions.update_settings(save_mcp_results=True)  # This user opted in to saving results.
     assert sessions.active()["event"] == "SessionStart"
     assert sessions.effective_enabled(host, session_id)
 
@@ -102,9 +103,10 @@ def test_external_history_survives_mcp_desktop_and_portable_handoff(
                     prepared = json.loads(result.content[0].text)
                     assert prepared["status"] == "prepared"
                     assert prepared["context_record"]["status"] == "saved"
-                    assert prepared["input_estimated_tokens"] > prepared["memory_estimated_tokens"]
-                    assert prepared["memory_estimated_tokens"] <= 500
-                    assert not prepared["request_replacement_verified"]
+                    details = prepared["details"]
+                    assert details["input_estimated_tokens"] > details["memory_estimated_tokens"]
+                    assert details["memory_estimated_tokens"] <= 500
+                    assert not details["request_replacement_verified"]
                 sessions.update_settings(enabled=False)
                 paused = await prepare(history)
                 assert json.loads(paused.content[0].text)["status"] == "paused"

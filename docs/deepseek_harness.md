@@ -93,9 +93,10 @@ demo note, explicitly ask to forget only `dsh-demo`.
 
 - Named notebook writes are explicit. TOMC does not automatically collect the
   entire DSH chat or inspect your other chats.
-- Successful preparation and recall save prepared context and task text locally
-  by default in TOMC 0.2.1. Context recording can be disabled in TOMC's controls;
-  existing snapshots remain until deleted. Inspect `get_status` before use.
+- TOMC 0.2.1, used in the tested setup, saved prepared context and task text
+  locally by default. From 0.3.0 these results are saved only after
+  `tomc settings --save-mcp-results on`; saved contexts are redacted and deleted
+  after 30 days. Inspect `get_status` before use.
 - TOMC's processing is local. Tool results selected for the conversation are
   visible to the DSH model provider, just like other model context.
 - Token estimates refer to prepared memory, not full API billing. Short inputs

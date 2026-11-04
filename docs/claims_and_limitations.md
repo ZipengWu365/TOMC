@@ -1,13 +1,18 @@
 # Results and limitations
 
-The current snapshot was exported on 2026-09-28 from manuscript commit `7399657`. [Paper results](paper_results.md) contains the complete tables and source references.
+The paper snapshot (100K–1M) was exported on 2026-09-28 from manuscript commit `7399657`. The 10M tier was added afterwards, on 2026-10-10, with a different (pairwise) scoring protocol; it is not part of the paper snapshot. [Paper results](paper_results.md) contains the paper snapshot's tables and source references; [Evidence](evidence.md) lists every headline number with its source and conditions.
+
+These BEAM scores are means from our own setup: an 800-question subset (not the full 2,000-question benchmark), an 8,192-token memory cap, our own judge prompts and protocols. They can only be compared between the baseline and TOMC within one cell. Do not compare them with BEAM numbers published by other projects.
 
 ## What the experiments show
 
 | Evidence | Finding | Conditions |
 |---|---|---|
-| BEAM answer quality | Higher TOMC means in all 18 overall and all 36 long-history comparisons at 500K/1M | Three readers, six evaluated baseline configurations; these are mean comparisons |
-| BEAM reader input | Overall savings of 34.77% vs LIGHT and 34.35% vs LLMLingua-2-H | Equal mean of reader-wise ratios on matched valid questions |
+| BEAM answer quality (paper snapshot, 100K–1M) | Higher TOMC means in all 36 long-history comparisons at 500K/1M; 17 of 18 at 100K | Three readers, six evaluated baseline configurations; means only, no significance test |
+| BEAM answer quality (10M follow-up, 2026-10-10) | Higher TOMC means in all 18 comparisons at 10M | 200 questions from 10 sessions, 3,596 of 3,600 pairs valid; anonymous position-balanced pairwise judging; means only |
+| BEAM answer quality (including the 10M follow-up, 100K–10M) | Higher TOMC means in all 54 comparisons at 500K, 1M and 10M, and all 18 overall comparisons | Overall pools different protocols and dates; descriptive summary |
+| BEAM reader input (paper snapshot, 100K–1M) | Overall savings of 34.77% vs LIGHT and 34.35% vs LLMLingua-2-H | Equal mean of reader-wise ratios on matched valid questions |
+| BEAM reader input (including the 10M follow-up, 100K–10M) | Overall savings of 36.57% vs LIGHT and 37.38% vs LLMLingua-2-H; TOMC uses more input than BRIEF-Pro (+280.37%) and BEAM-RAG (+8.79%) | Same method; the 10M rows are recomputed from per-question scores by `scripts/make_beam_table.py --check` |
 | Ten BEAM abilities | Higher TOMC means than BEAM-RAG and LIGHT for temporal reasoning, extraction, contradiction resolution, multi-session reasoning and event ordering | Three-way common valid set; equal mean of 500K/1M ability scores |
 | Construction | 4.21 s/call on CPU, no auxiliary neural inference; 3.75 GiB peak process RSS | Six replays; imports, input loading and tokenizer warm-up excluded |
 | Repaired NIAH pair | Mean F1 of 87.28 with extra source and 82.26 without it; removal saves about 43%–44% input | Separate batch with byte-identical compiled records |
@@ -39,7 +44,7 @@ BEAM-RAG is the evaluated BGE single-route dense-retrieval configuration with pa
 
 - At 100K, Flash's mean scores are 61.01 for LIGHT and 58.21 for TOMC. On the common long-history ability set, TOMC trails both controls on instruction following, BEAM-RAG on abstention and LIGHT on summarization.
 - Direct LLMLingua-2 has 200 empty memories at 1M, already empty before its guard. Their scores remain included. The low input reflects this unresolved failure, rather than effective compression.
-- The BEAM compilation ablation changes mean quality by +1.20 points for GPT-5.1, −0.91 for Rednote and +3.01 for Flash. These protocol-matched results use separate dated batches. Temporal reasoning improves for all three, while event ordering declines for all three.
+- The BEAM compilation ablation changes mean quality by +1.20 points for GPT-5.1, −0.91 for Rednote and +3.01 for Flash (relative +2.2%, −1.8% and +6.0%; +2.1% on average across readers). The compiled records add little on average: most of TOMC's lead over the baselines is already there without them, so it comes from source selection and routing. These protocol-matched results use separate dated batches, and the ablation covers 100K–1M only. Temporal reasoning improves for all three readers, while event ordering declines for all three. The 10M ablation was still running as of 2026-10-10 and has not been published.
 - Archived NIAH packing removed compiled blocks from the full condition as well as the source-removal condition. The full condition's 88.30 mean F1 therefore reflects retained source text; the removal's zero is a packing failure. The repaired pair is a separate batch. Flash's 100→99 repaired gap comes from one prespecified non-needle sample; both conditions score 100 on the other 99.
 - Full-history VT replay reaches 100% recall with or without candidate rows. Compilation from selected evidence alone reaches about 20.4–20.6%, exposing missing dependencies.
 - On QA2, raw text from the same selected evidence outperforms records alone and records plus raw for all three readers. Full TOMC scores 40.85 versus Query's 47.49; removing extra source lowers mean F1 to 8.44.

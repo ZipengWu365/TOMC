@@ -8,6 +8,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from .easy import PreparedContext
+from .privacy import ensure_private_file
 
 SCOPE = (
     "Estimated context-text reduction per preparation, not API usage or billed savings. "
@@ -113,6 +114,7 @@ class UsageStore:
             report["input_tokens"] if usable else 0,
             report["memory_tokens"] if usable else 0,
         )
+        ensure_private_file(self.path)
         with closing(sqlite3.connect(self.path, timeout=10)) as db, db:
             db.execute("BEGIN IMMEDIATE")
             self._schema(db)

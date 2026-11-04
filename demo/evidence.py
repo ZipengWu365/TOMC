@@ -28,10 +28,12 @@ def build_research():
         "These tables contain the paper's recorded measurements."
     )
     gr.Markdown(
-        "### BEAM: quality and reader input\n\n"
+        "### BEAM: quality and reader input (paper snapshot, 100K–1M)\n\n"
         "TOMC has higher quality means in all **36 long-history comparisons (500K/1M)**. "
         "Overall reader-input savings average **34.77% vs LIGHT** and **34.35% vs "
-        "hierarchical LLMLingua-2**. These are mean scores and reader-input measurements from the evaluated configurations."
+        "hierarchical LLMLingua-2**. These are mean scores and reader-input measurements from "
+        "the evaluated configurations. The later 10M follow-up is not included here; these "
+        "scores are not comparable with other projects' BEAM numbers."
     )
     tier = gr.Radio(
         TIERS, value="Overall", label="Original history length", elem_id="evidence-tier"

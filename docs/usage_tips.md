@@ -1,6 +1,6 @@
 # TOMC usage tips
 
-Start with the next question, rather than asking TOMC to shorten everything. The plugin prepares context for that task; your usual model answers it. You can use `prepare_context` without saving a notebook.
+Start with the next question, rather than asking TOMC to shorten everything. The plugin prepares context for that task; your usual model answers it. You can use `prepare_context` without saving a notebook. To see it work first, say **Try TOMC Memory** (or run `tomc try`); it uses a built-in sample and saves nothing.
 
 [Install the plugin](assistant_plugin.md) · [Python API](api_reference.md) · [中文使用技巧](usage_tips_zh.md)
 
@@ -66,7 +66,7 @@ In an assistant, copy the prepared prompt from the demo into a new chat, then co
 
 ## 4. Choose a budget by inspecting omissions
 
-Without `budget`, TOMC keeps about 80% of the history's lexical-estimate tokens (at least 1,024); in the [Claude Code trial](validation.md#claude-code-windows-validation) this default answered every test question like the full history with about 20% less input. An explicit budget sets memory text under the lexical estimate. It does not cap the whole model request. The task, application instructions and provider framing add overhead.
+Without `budget`, TOMC keeps 80% of the history's lexical-estimate tokens up to about 10,000, sliding down to 60% at a million (about 70% at 100,000); at least 1,024. In the [Claude Code trial](validation.md#claude-code-windows-validation) (2026-10-02, when the default was a fixed 80%; nine synthetic histories) that default answered every test question like the full history with about 20% less input. An explicit budget sets memory text under the lexical estimate. It does not cap the whole model request. The task, application instructions and provider framing add overhead.
 
 The [Windows Codex comparison](codex_retention_20261005.md) tested the same nine synthetic histories with full history, 40%, 60% and default 80% history budgets. All four conditions answered 45/45 questions correctly. Mean paired request-input reductions were 29.7%, 19.5% and 9.2%. A 40% budget is the smaller option tested here; 60% leaves more room for evidence, and 80% remains the default. Check these choices on your own tasks before relying on the smaller budget. This trial used source selection for ordinary prose, rather than compiled operation records.
 
@@ -81,7 +81,7 @@ prepared = prepare_context(history, task, budget=int(history_tokens * 0.60))
 # Use 0.40 to try the smaller tested budget.
 ```
 
-Both preparation calls run on CPU; neither makes an LLM call. The MCP tool also takes an absolute `budget`, with no `retention_ratio` argument. Read `input_estimated_tokens` from its default preparation result, multiply by 0.40 or 0.60, round down to an integer, and pass that value as `budget`. To keep the default, omit `budget`; it uses `max(1024, ceil(history_estimate × 0.8))`.
+Both preparation calls run on CPU; neither makes an LLM call. The MCP tool also takes an absolute `budget`, with no `retention_ratio` argument. Read `details.input_estimated_tokens` from its default preparation result, multiply by 0.40 or 0.60, round down to an integer, and pass that value as `budget`. To keep the default, omit `budget`; it keeps 80% up to about 10,000 estimated tokens, sliding to 60% at a million, and at least 1,024.
 
 Prepare the same task with a generous budget first, inspect the retained facts, then lower the budget while checking what disappears. Whole records must fit. If the memory is empty, increase the budget before handing it to a model. If important evidence is absent, provide the original passage or use a larger budget.
 
@@ -125,9 +125,9 @@ Try this handoff after confirming the shared file:
 | Add a confirmed correction | “Append this confirmed update to api-refactor with remember_memory: framework = FastAPI. Preserve the earlier history; this is the latest confirmed framework.” |
 | Delete | “Use TOMC's forget_memory to delete the exact notebook api-refactor.” |
 
-`remember_memory` appends; it does not edit an individual old entry. Supply corrected values and their order explicitly, and check the next recall. `forget_memory` deletes the entire named notebook and cannot undo that deletion through the tool. To replace a notebook completely, keep the wanted source material, explicitly request deletion of that name, then save the replacement.
+`remember_memory` appends; it does not edit an individual old entry. Supply corrected values and their order explicitly, and check the next recall. `forget_memory` deletes the entire named notebook, plus the contexts prepared from it, and cannot undo that deletion through the tool. To replace a notebook completely, keep the wanted source material, explicitly request deletion of that name, then save the replacement.
 
-Notebooks store submitted text as plaintext. Clients using the same database share them, and uninstalling the plugin does not delete that database. Use direct `prepare_context` when you only want a one-time preparation.
+Notebooks store submitted text as plaintext in an owner-only file. Clients using the same database share them, and uninstalling the plugin does not delete that database; `tomc erase-all --yes` deletes everything. Use direct `prepare_context` when you only want a one-time preparation; in 0.3.0 its result is not saved unless you turn on `tomc settings --save-mcp-results on`.
 
 If one assistant cannot find the notebook, call `list_memories` in both clients and check their active server and database paths. A matching notebook name alone does not mean the file is shared. The [Windows MCP check](validation.md#cross-assistant-notebooks) verified bidirectional reads, updates, restarts and concurrent appends in an isolated database.
 
@@ -137,7 +137,7 @@ Only explicitly supplied notes are shared. This does not synchronize complete na
 
 Compare original and prepared requests with the same model, task, application instructions and preparation budget. Count all text you actually send, including the task and memory framing. Keep the model's answer settings the same when comparing answers.
 
-The tool's `input_estimated_tokens` and `memory_estimated_tokens` cover history/memory under a lexical estimate. They do not include the complete host request. For a repeatable local example, run:
+The tool's `details.input_estimated_tokens` and `details.memory_estimated_tokens` (0.3.0 moved them under `details`) cover history/memory under a lexical estimate. They do not include the complete host request. For a repeatable local example, run:
 
 ```bash
 python examples/api_context.py

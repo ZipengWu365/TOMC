@@ -5,12 +5,11 @@
 Clone the repository, then install the demo with Python 3.10–3.13. CI covers Python 3.10 and 3.12.
 
 ```bash
-git clone https://github.com/ZipengWu365/TOMC.git && printf '\n%s\n%s\n' \
-  'If TOMC helps with your work, consider a Star on GitHub (optional):' 'https://github.com/ZipengWu365/TOMC'
+git clone https://github.com/ZipengWu365/TOMC.git
 cd TOMC
 ```
 
-The Bash / Git Bash command above prints an optional Star invitation after a successful clone. Plain `git clone` does not show it; cloning alone does not install TOMC.
+On macOS, check `python3 --version` first: the system Python 3.9 cannot run TOMC. With [UV installed](https://docs.astral.sh/uv/getting-started/installation/) you can skip the environment steps below and start the demo with `uv run --python 3.12 --extra demo python -m demo.app`. Mainland China mirrors for pip and uv are listed in the [README](https://github.com/ZipengWu365/TOMC#mainland-china-network).
 
 Create and activate an environment on Linux/macOS. The Linux-tested path uses [UV](https://docs.astral.sh/uv/getting-started/installation/) and includes pip:
 
@@ -35,7 +34,7 @@ python -m pip install -e '.[demo]'
 python -m demo.app
 ```
 
-Open [the local demo](http://127.0.0.1:7860). This installs from the checkout; there is no published PyPI package. Installation downloads dependencies, but default context preparation needs no model, API key or network request.
+Open [the local demo](http://127.0.0.1:7860) and select **Use now**. This installs from the checkout; there is no published PyPI package. Installation downloads dependencies, but default context preparation needs no model, API key or network request. There is no hosted demo: the earlier Hugging Face Space was removed on 2026-10-10.
 
 For the compiler alone, install with `python -m pip install -e .`. Core and MCP require Python 3.10+. Fresh Linux installation and interactive checks are recorded in [Linux validation](linux_validation.md).
 
@@ -81,4 +80,16 @@ tomc compile demo/examples/preferences.json --query "What are the current prefer
   --strategy tomc_raw --budget 320 --output outputs/memory.json
 ```
 
-For local persistence across chats, follow [assistant setup](assistant_setup.md). MCP saves text explicitly passed to its tools; it does not read your other conversations.
+## Token counts
+
+The demo reports a **lexical estimate** by default. Its memory count excludes the task, chat framing, model output and the inspector. Optional `tiktoken:cl100k_base` counts that encoding; provider billing may differ. `retention_ratio` means output/input and `compression_ratio` means input/output. Any prices shown come from rates you enter. The default demo makes no model call.
+
+## Practical tips
+
+- Start with **Try demo** and its **Small request** example. For ordinary prose, try **Balanced** or **More detail** and inspect the kept sources before lowering the budget.
+- Send the prepared messages **instead of** the original history in your next API request. For manual use, paste the prompt into a **new chat**; adding it to a long existing chat keeps that chat's earlier input.
+- Keep task questions specific. Check state records and source text, especially after changing the history or memory size.
+
+## Keep notes across chats
+
+For local persistence across chats, install the MCP server ([install guide](assistant_plugin.md)). `remember_memory` saves the notes you pass to it; `prepare_context` and `recall_memory` results are saved only if you turn that on (`tomc settings --save-mcp-results on`). TOMC does not read your other conversations.

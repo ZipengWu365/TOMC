@@ -58,7 +58,7 @@ def build_bundle(destination: Path, root: Path = ROOT) -> dict:
         "sha256": hashlib.sha256(output.read_bytes()).hexdigest(),
         "files": len(entries),
         "runtime": "MCPB 0.4 UV; first installation downloads Python and dependencies",
-        "status": "private installation candidate; desktop GUI acceptance pending",
+        "status": "public research preview; Claude Desktop GUI installation not yet checked",
     }
     (destination / (output.name + ".sha256")).write_text(
         f"{receipt['sha256']}  {output.name}\n", encoding="utf-8", newline="\n"

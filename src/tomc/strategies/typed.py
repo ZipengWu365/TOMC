@@ -10,7 +10,8 @@ from ..routing import task_route
 from ..schemas import LedgerRecord, Source
 from ..tokenization import TokenCounter
 from .base import StrategyOutput
-from .baselines import rank_bm25
+from .baselines import rank_with_recency
+from .latest import UNCAPPED, StateLines, identity, refine_records
 
 
 class TOMCStrategy:
@@ -34,20 +35,52 @@ class TOMCStrategy:
         route = task_route(query)
         cfg = ref.TOMCConfig(token_counter=counter.count)
         sources = [ref.SourceUnit(u.source_id, u.order, u.text) for u in units]
-        records = ref.compile_records(route, sources, query, cfg)
+        # The kernel compiles every key; the adapter then keeps the task's keys first.
+        uncapped = replace(cfg, max_state_rows=UNCAPPED, max_count_rows=UNCAPPED)
+        parser = StateLines(units)
+        records = ref.compile_records(route, sources, query, uncapped, parser=parser)
+        refined = refine_records(route, records, units, query, parser, cfg)
+        records = [r for r, _ in refined]
         warnings = [
-            "The default parser recognizes key = value, B copies A, and x -[rel]-> y. "
+            "The default parser recognizes key = value and key: value lines (also in lists, "
+            "after a label such as Update:, or several separated by ;), B copies A, and "
+            "x -[rel]-> y, outside code blocks. "
             "Unstructured prose is preserved as evidence, not inferred state."
         ]
         if route == ref.Route.COUNT:
             warnings.append(
-                "Counts use all nonempty content lines and the paper's English lexical tokenizer."
+                "Counts use all nonempty content lines and the paper's English lexical tokenizer; "
+                "Chinese terms named in the task are counted as exact substrings."
             )
-        ledger = [LedgerRecord(r.record_type, r.key, r.value, r.sources) for r in records]
-        rows = [(str(i), r.render()) for i, r in enumerate(records)]
+        by_id = {u.source_id: u for u in units}
+        ledger = [
+            LedgerRecord(
+                r.record_type,
+                r.key,
+                r.value,
+                (*r.sources, *later),
+                basis="later_line_may_change" if later else "normalized_operation",
+            )
+            for r, later in refined
+        ]
+        # A doubtful value travels with the later line that put it in doubt.
+        rows = [
+            (str(i), "\n".join([r.render(), *(f"[RAW {s}] {by_id[s].text}" for s in later)]))
+            for i, (r, later) in enumerate(refined)
+        ]
         compiled_budget = int(0.42 * budget) if self.raw and rows else budget
         compiled, kept = pack_rows(rows, compiled_budget, counter)
+        if route == ref.Route.STATE:
+            # Packing follows the task's priority; the reader sees the kernel's order by key.
+            listed = sorted(range(len(rows)), key=lambda i: identity(records[i].key))
+            compiled = "\n".join(rows[i][1] for i in listed if str(i) in kept)
         ledger = [replace(r, included=str(i) in kept) for i, r in enumerate(ledger)]
+        shown = {s for i, (_, later) in enumerate(refined) if str(i) in kept for s in later}
+        if shown:
+            warnings.append(
+                "A later line may have changed some values; they are marked STATE? (or PATH?) "
+                "and followed by that line. Check it before relying on the value."
+            )
         support = {s for r in ledger if r.included for s in r.sources}
         raw_text = ""
         raw_ids: set[str] = set()
@@ -63,10 +96,16 @@ class TOMCStrategy:
                     "adaptive_reason": reason,
                 }
             if chosen is None:
-                ranked = rank_bm25(units, query)
-                _, raw_ids = pack_rows(raw_rows(ranked), remaining, counter)
+                # Current-value and count tasks prefer the later line on a tie.
+                later_first = route in (ref.Route.STATE, ref.Route.COUNT)
+                ranked = rank_with_recency(
+                    units, query, remaining, counter, later_first=later_first
+                )
+                _, raw_ids = pack_rows(
+                    raw_rows([u for u in ranked if u.source_id not in shown]), remaining, counter
+                )
             else:
-                raw_ids = chosen
+                raw_ids = chosen - shown
                 warnings.append("Adaptive lexical selection kept less than the budget allows.")
             raw_text, raw_ids = pack_rows(
                 raw_rows([u for u in units if u.source_id in raw_ids]), remaining, counter
@@ -79,8 +118,9 @@ class TOMCStrategy:
             text, _ = pack_rows(
                 [(str(i), s) for i, s in enumerate(text.splitlines())], budget, counter
             )
+            lines = text.splitlines()
             ledger = [
-                replace(r, included=r.included and records[i].render() in text.splitlines())
+                replace(r, included=r.included and records[i].render() in lines)
                 for i, r in enumerate(ledger)
             ]
             raw_ids = {
@@ -88,6 +128,8 @@ class TOMCStrategy:
             }
             raw_text = "\n".join(row for key, row in raw_rows(units) if key in raw_ids)
             support = {s for r in ledger if r.included for s in r.sources}
+        if route == ref.Route.STATE:
+            ledger.sort(key=lambda r: identity(r.key))
         return StrategyOutput(
             text,
             route.value,

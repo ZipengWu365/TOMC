@@ -4,8 +4,8 @@ build-backend = "hatchling.build"
 
 [project]
 name = "tomc-memory"
-version = "0.2.1"
-description = "CPU memory construction for your existing LLM API, with source-linked records"
+version = "0.3.0"
+description = "Keeps the latest version of facts that changed: CPU context preparation and task memory for MCP assistants and LLM APIs, with source-linked records"
 readme = "README.md"
 requires-python = ">=3.10"
 license = "MIT"
@@ -26,7 +26,7 @@ tomc = "tomc.cli:main"
 
 [project.urls]
 Repository = "https://github.com/ZipengWu365/TOMC"
-Demo = "https://github.com/ZipengWu365/TOMC#try-the-demo"
+Demo = "https://github.com/ZipengWu365/TOMC/blob/main/docs/quickstart.md"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/tomc"]

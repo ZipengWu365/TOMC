@@ -1,10 +1,10 @@
 {
   "manifest_version": "0.4",
   "name": "tomc-memory",
-  "display_name": "TOMC",
-  "version": "0.2.1",
-  "description": "Prepare external task evidence and optional notebooks; the host manages active-chat compaction.",
-  "long_description": "TOMC prepares supplied task evidence on CPU, with optional named notebooks and a local context library. Successful prepared context and its task are saved by default; local recording can be disabled independently of processing. The original input is not separately archived, but short inputs may remain intact in prepared context. Context snapshots support portable export and continuation prompts. Numeric context-reduction estimates are separate from saved text and are not API or billing savings. The host owns active-chat compaction; this MCP server does not replace the host's full request history. Optional metadata-only session hooks support default-on processing and persistent per-session pause; installation, host loading and hook trust are required. The first installation needs network access for the runtime and dependencies. Use get_status for configuration and get_usage_stats for context estimates.",
+  "display_name": "TOMC Memory",
+  "version": "0.3.0",
+  "description": "Keeps the latest version of facts that changed: prepares pasted history and saved notes for your next task, on CPU.",
+  "long_description": "TOMC prepares supplied task evidence on CPU, with optional named notebooks and a local context library. Prepared context is not saved unless you turn on saving MCP results (tomc settings --save-mcp-results on); saved contexts are redacted for common secrets and deleted after 30 days. Notes you save in a notebook stay on this computer until you forget or erase them. Context snapshots support portable export and continuation prompts. Numeric context-reduction estimates are separate from saved text and are not API or billing savings. The host owns active-chat compaction; this MCP server does not replace the host's full request history. Optional metadata-only session hooks support default-on processing and persistent per-session pause; installation, host loading and hook trust are required. The first installation needs network access for the runtime and dependencies. Say \"Try TOMC Memory\" to run a built-in sample. Use get_status for configuration and get_usage_stats for context estimates.",
   "author": {
     "name": "Zipeng Wu"
   },
@@ -29,8 +29,12 @@
   },
   "tools": [
     {
+      "name": "try_tomc",
+      "description": "Try TOMC Memory on a built-in sample; shows real before/after token estimates and saves nothing."
+    },
+    {
       "name": "prepare_context",
-      "description": "Prepare supplied history for the next task; save the prepared context when local recording is enabled. Budget covers estimated memory tokens."
+      "description": "Prepare supplied history for the next task; nothing is saved unless saving MCP results is on. Budget covers estimated memory tokens."
     },
     {
       "name": "remember_memory",
@@ -46,7 +50,7 @@
     },
     {
       "name": "forget_memory",
-      "description": "Delete a specified notebook when requested."
+      "description": "Delete a specified notebook, and the contexts prepared from it, when requested."
     },
     {
       "name": "get_usage_stats",
@@ -67,6 +71,10 @@
     {
       "name": "make_handoff",
       "description": "Build a self-contained continuation prompt; does not send it."
+    },
+    {
+      "name": "erase_all_memory",
+      "description": "Erase all TOMC Memory data on this computer, only when the user explicitly asks."
     }
   ],
   "compatibility": {

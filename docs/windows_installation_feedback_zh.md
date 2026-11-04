@@ -17,7 +17,7 @@
 | 回答 | 两段聊天均给出 `framework = FastAPI`、`backup_framework = Flask` |
 | 默认预算分支 | 实际 host 调用测得输入 1,534 个 lexical 估算 token，自动选择预算 1,228，返回 1,223 个 memory token |
 
-两次模型回合共调用 TOMC 四次。默认预算为 `max(1024, ceil(input_estimated_tokens × 0.8))`，不包含任务文本与工具封装。这是一个合成例子的功能验收，不是 API 账单节省测量，也不是通用质量保证。详见[本次验证记录](validation.md#windows-codex-preview4)及[去除个人信息的 preview.4 证据](validation_data/windows_codex_preview4_20261004.json)。
+两次模型回合共调用 TOMC 四次。当时（preview.4）的默认预算为 `max(1024, ceil(input_estimated_tokens × 0.8))`，不包含任务文本与工具封装。这是一个合成例子的功能验收，不是 API 账单节省测量，也不是通用质量保证。详见[本次验证记录](validation.md#windows-codex-preview4)及[去除个人信息的 preview.4 证据](validation_data/windows_codex_preview4_20261004.json)。
 
 存储测试实际使用默认 `~/.tomc/memory.sqlite3`。第一次保存前没有记忆本；模型保存了一个唯一命名的合成测试记忆本，完整 host 重启后取回成功，随后精确删除了它的一条记录。最终 host 列表及独立只读 SQLite 检查均确认零条目。该数据库元数据在测试中发生变化，它不是隔离测试库。安装后的配置和认证元数据保持不变；安装本身只加入 TOMC 插件与市场，保留其他插件设置。
 
@@ -46,7 +46,7 @@
 | Cursor | 安装 TOMC 的 `.[mcp]` 环境，生成链接，再在 Cursor 中确认 | 步骤最多。链接只注册已有环境，不能作为其他电脑的便携安装包。 |
 | Python 应用 | 从仓库安装包，在原模型调用前加入 `prepare_context` | 应用需要用准备后的 messages 替换原历史，并适配自己的 API 格式。 |
 
-仓库目前是私有的，下载需要访问权限或合作者直接分享文件。首次安装依赖需要联网。TOMC 准备上下文本身无需额外模型 key 或 GPU；助手仍使用自己的模型账户。
+收集这份反馈时（2026 年 10 月）仓库还是私有的；现在已经公开，任何人都可以下载安装包。首次安装依赖需要联网。TOMC 准备上下文本身无需额外模型 key 或 GPU；助手仍使用自己的模型账户。
 
 ## 哪些步骤成功了？
 

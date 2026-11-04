@@ -45,4 +45,4 @@ Suggested topics: `llm-memory`, `long-context`, `context-compression`, `llm`, `r
 - [ ] Fix and publish the smallest repeatable blocker. If a release breaks basic use, pause promotion and restore the previously tested revision through a new revert commit; do not rewrite user-visible history.
 - [ ] Share an update only when it contains a real fix, reproducible new example or new evidence.
 
-If traffic exceeds the Space's queue capacity, link the verified local run instructions, capture the failure without user payloads and pause additional promotion until service is usable. No paid scaling is authorized by this checklist.
+No hosted Space is deployed (the earlier one was removed on 2026-10-10). If one is deployed again and traffic exceeds its queue capacity, link the verified local run instructions, capture the failure without user payloads and pause additional promotion until service is usable. No paid scaling is authorized by this checklist.

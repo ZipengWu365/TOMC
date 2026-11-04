@@ -26,13 +26,13 @@ The [LLMLingua README](https://github.com/microsoft/LLMLingua) makes its API eas
 
 [Mem0](https://github.com/mem0ai/mem0) provides persistent memory with add/search operations. [Letta](https://github.com/letta-ai/letta) provides stateful agents and explicit memory management.
 
-TOMC's core compiles a supplied history without storing it. The optional MCP integration adds a small local SQLite notebook store. An application could place a compiler between its memory store and reader, but Mem0 and Letta integrations have not been implemented or benchmarked here.
+TOMC's core compiles a supplied history without storing it. The optional MCP integration adds a small local SQLite notebook store for notes you save; prepared results are not saved unless you turn that on. An application could place a compiler between its memory store and reader, but Mem0 and Letta integrations have not been implemented or benchmarked here.
 
 ## What the paper compares
 
 The paper evaluates LongLLMLingua, direct and hierarchical LLMLingua-2, BRIEF-Pro, BEAM-RAG and LIGHT with the same three readers. Each row pairs baseline-produced memory with TOMC-produced memory on matched questions.
 
-[Paper results](paper_results.md) reports each paired comparison and history length. Overall equal-reader input savings are 34.35% versus hierarchical LLMLingua-2 and 9.32% versus LongLLMLingua. Savings vary by length and baseline. Direct LLMLingua-2 produces 200 empty memories at 1M; its low input therefore does not establish effective compression.
+[Paper results](paper_results.md) reports each paired comparison and history length. In the paper snapshot (100K–1M), overall equal-reader input savings are 34.35% versus hierarchical LLMLingua-2 and 9.32% versus LongLLMLingua. Including the later 10M follow-up (100K–10M), they are 37.38% and 11.75%; see [Evidence](evidence.md#beam). Savings vary by length and baseline. Direct LLMLingua-2 produces 200 empty memories at 1M; its low input therefore does not establish effective compression.
 
 The results describe the archived evaluation configurations. The resource table includes a CUDA LLMLingua-2 implementation; it does not establish that LLMLingua-2 requires CUDA.
 

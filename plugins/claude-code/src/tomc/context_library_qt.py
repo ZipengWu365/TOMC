@@ -1002,6 +1002,9 @@ class ContextLibraryDialog(QDialog):
         )
         controls.addWidget(self.enabled)
         controls.addWidget(self.save_contexts)
+        self.erase_all_button = QPushButton()
+        self.erase_all_button.clicked.connect(self.erase_all)
+        controls.addWidget(self.erase_all_button)
         controls.addStretch()
         self.default_note = plain(name="muted")
         controls.addWidget(self.default_note)
@@ -1252,6 +1255,10 @@ class ContextLibraryDialog(QDialog):
         controls.addWidget(self.enabled)
         controls.addSpacing(20)
         controls.addWidget(self.save_contexts)
+        controls.addSpacing(20)
+        self.erase_all_button = QPushButton()
+        self.erase_all_button.clicked.connect(self.erase_all)
+        controls.addWidget(self.erase_all_button)
         controls.addStretch()
         self.default_note = plain(name="muted")
         controls.addWidget(self.default_note)
@@ -1373,6 +1380,14 @@ class ContextLibraryDialog(QDialog):
             t(
                 "只控制之后的正文保存；不删除已有记录，不关闭 TOMC 处理。",
                 "Controls future content storage. Existing records and TOMC processing are unaffected.",
+            )
+        )
+        self.erase_all_button.setText(t("清空全部记录…", "Erase all records…"))
+        self.erase_all_button.setToolTip(
+            t(
+                "删除本机保存的全部笔记本、上下文和对话记录；开关和数字统计保留。",
+                "Deletes all notebooks, contexts and conversation records saved on this computer. "
+                "Switches and numeric statistics stay.",
             )
         )
         self.default_note.setText(
@@ -2213,6 +2228,40 @@ class ContextLibraryDialog(QDialog):
             )
         except (OSError, sqlite3.Error, ValueError, KeyError) as exc:
             self.show_message("删除失败：{error}", "Delete failed: {error}", error=str(exc))
+
+    def erase_all(self, checked=False):
+        dialog = QMessageBox(self)
+        dialog.setIcon(QMessageBox.Icon.Warning)
+        dialog.setStandardButtons(
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.Cancel
+        )
+        dialog.setDefaultButton(QMessageBox.StandardButton.Cancel)
+        dialog.setWindowTitle(self.t("清空全部记录", "Erase all records"))
+        dialog.setText(
+            self.t(
+                "删除 TOMC Memory 在本机保存的全部笔记本、上下文和对话记录？此操作不能撤销。"
+                "开关、数字统计、宿主聊天和已导出的文件不受影响。",
+                "Delete all notebooks, contexts and conversation records TOMC Memory saved on "
+                "this computer? This cannot be undone. Switches, numeric statistics, host chats "
+                "and exported files stay.",
+            )
+        )
+        dialog.button(QMessageBox.StandardButton.Yes).setText(self.t("全部删除", "Erase all"))
+        dialog.button(QMessageBox.StandardButton.Cancel).setText(self.t("取消", "Cancel"))
+        try:
+            answer = dialog.exec()
+        finally:
+            dialog.deleteLater()
+        if answer != QMessageBox.StandardButton.Yes:
+            return
+        try:
+            self.library.erase_all()
+            self.selected_record = None
+            self.refresh()
+            self.show_message("已清空本机保存的全部记录。", "All saved records were erased.")
+        except (OSError, sqlite3.Error, ValueError) as exc:
+            self.show_message("清空失败：{error}", "Erase failed: {error}", error=str(exc))
+        self.changed.emit()
 
 
 def run(path):

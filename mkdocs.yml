@@ -1,5 +1,5 @@
 site_name: TOMC Memory
-site_description: TOMC Memory provides open-source context compression and task memory for Claude Code, Codex and LLM APIs.
+site_description: TOMC Memory keeps the latest version of facts that changed, and prepares smaller task context for Claude Code, Codex, other MCP clients and LLM APIs.
 docs_dir: docs
 site_dir: site
 # Design notes and the host validation record stay in the repository but are not
@@ -21,6 +21,10 @@ theme:
 nav:
   - Overview: index.md
   - Install TOMC Memory: assistant_plugin.md
+  - What changed in 0.3.0: release_notes_0.3.0.md
+  - What changed in 0.3.0 (中文): release_notes_0.3.0_zh.md
+  - Evidence and claims ledger: evidence.md
+  - Evidence and claims ledger (中文): evidence_zh.md
   - Desktop companion (beta): desktop_companion.md
   - macOS setup and tips: macos_usage.md
   - Manual MCP setup: assistant_setup.md
@@ -30,13 +34,10 @@ nav:
   - Tencent WorkBuddy setup (中文): workbuddy_zh.md
   - DeepSeek Harness setup: deepseek_harness.md
   - DeepSeek Harness setup (中文): deepseek_harness_zh.md
-  - DeepSeek Harness validation: deepseek_harness_validation_20261029.md
   - Usage tips: usage_tips.md
-  - Windows installation feedback: windows_installation_feedback.md
+  - See the demo: quickstart.md
   - Codex input comparison: codex_retention_20261005.md
   - Codex input comparison (中文): codex_retention_20261005_zh.md
-  - See the demo: quickstart.md
-  - Linux installation and feedback: linux_validation.md
   - Platform checks: platform_checks.md
   - Paper scope and sources: paper_scope.md
   - Reader models and agent hosts: readers_and_agents.md
@@ -51,8 +52,12 @@ nav:
   - Current paper results: paper_results.md
   - Claims and limitations: claims_and_limitations.md
   - Reproducibility: reproducibility.md
-  - Legacy compatibility: legacy_extensions.md
   - Data and licensing: data_and_license.md
-  - Space deployment: huggingface_space.md
-  - Repository traffic: traffic_metrics.md
   - Validation: validation.md
+  - Maintainers and dated records:
+      - DeepSeek Harness validation: deepseek_harness_validation_20261029.md
+      - Windows installation feedback: windows_installation_feedback.md
+      - Linux installation and feedback: linux_validation.md
+      - Legacy compatibility: legacy_extensions.md
+      - Space deployment (removed 2026-10-10): huggingface_space.md
+      - Repository traffic: traffic_metrics.md

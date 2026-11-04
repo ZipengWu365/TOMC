@@ -58,7 +58,7 @@ Answers were checked against the generator's current values, with normalized str
 
 ## Choose a budget
 
-40% produced the smallest tested requests; 60% leaves more room for evidence. Both are options to compare with full history on your own tasks. The default remains 80%. Use [the Python example and MCP instructions](usage_tips.md#choose-budget) to set an absolute budget, then inspect retained evidence and check the answer.
+40% produced the smallest tested requests; 60% leaves more room for evidence. Both are options to compare with full history on your own tasks. The default was a fixed 80% in this test (preview.4). The current default keeps 80% up to about 10,000 estimated tokens and less for longer histories, down to 60% at a million. Use [the Python example and MCP instructions](usage_tips.md#choose-budget) to set an absolute budget, then inspect retained evidence and check the answer.
 
 The [Claude Code results](validation.md#claude-code-windows-validation) used Claude Opus 5.5 and a separate request workflow. Its approximately 20% default-input reduction should not be substituted for the Codex result.
 

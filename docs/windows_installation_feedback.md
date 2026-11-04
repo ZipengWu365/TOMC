@@ -17,7 +17,7 @@ The actual desktop-bundled Codex CLI was 0.160.0. Its existing `gpt-6.1-sol` mod
 | Answers | Both chats returned `framework = FastAPI` and `backup_framework = Flask` |
 | Default-budget branch | An actual-host call measured 1,534 lexical-estimate input tokens, chose budget 1,228 and returned 1,223 memory tokens |
 
-The two model turns made four TOMC calls. The default budget is `max(1024, ceil(input_estimated_tokens × 0.8))`; task text and tool framing are outside it. This is a functional check of one synthetic example, not measured API-billed savings or a general quality guarantee. See the [dated validation](validation.md#windows-codex-preview4) and [sanitized preview.4 evidence](validation_data/windows_codex_preview4_20261004.json).
+The two model turns made four TOMC calls. The default budget at the time (preview.4) was `max(1024, ceil(input_estimated_tokens × 0.8))`; task text and tool framing are outside it. This is a functional check of one synthetic example, not measured API-billed savings or a general quality guarantee. See the [dated validation](validation.md#windows-codex-preview4) and [sanitized preview.4 evidence](validation_data/windows_codex_preview4_20261004.json).
 
 Storage was tested in the actual default `~/.tomc/memory.sqlite3` database. It contained no notebooks before the first save. The model saved one uniquely named synthetic notebook; recall after a complete host restart passed, and exact deletion removed its one entry. The final host list and an independent read-only SQLite check both showed zero entries. The database metadata changed during this test; it was not an isolated test database. Configuration after installation and authentication metadata stayed unchanged. Installation itself added TOMC's plugin and marketplace while preserving other plugin settings.
 
@@ -46,7 +46,7 @@ A separate [foreground tool check](validation_data/windows_codex_foreground_2026
 | Cursor | Install TOMC with `.[mcp]`, generate the installation link, then confirm it in Cursor | More steps than the packaged clients. The link registers an existing environment; it is not a portable installer. |
 | Python application | Install the repository package and call `prepare_context` before the existing model client | The application must replace the original history with the prepared messages, adapting them to its provider's format. |
 
-The repository is private, so downloads require access or a copy shared by a collaborator. First-time dependency installation needs network access. TOMC preparation needs no extra model key or GPU; the assistant still uses its own model account.
+When this feedback was collected (October 2026), the repository was private. It is now public, so anyone can download the packages. First-time dependency installation needs network access. TOMC preparation needs no extra model key or GPU; the assistant still uses its own model account.
 
 ## What passed?
 

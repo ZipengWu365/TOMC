@@ -144,7 +144,8 @@ def test_ui_empty_long_paragraph_gives_recovery_and_never_ready_status():
     pytest.importorskip("gradio")
     from demo.easy import prepare_view
 
-    paragraph = "会议记录：" + "入口在东侧；" * 1300 + "最终安排在B厅。"
+    # Without sentence punctuation the paragraph cannot be split into pieces that fit.
+    paragraph = "会议记录：" + "入口在东侧，" * 1300 + "最终安排在B厅"
     result = prepare_view(paragraph, "最终安排在哪个厅？", "More detail / 更多细节")
     assert result[0] == ""
     assert "Ready to copy" not in result[1]

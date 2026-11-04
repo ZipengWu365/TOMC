@@ -1,17 +1,18 @@
 {
   "name": "tomc-memory",
-  "version": "0.2.1",
-  "description": "External task evidence and optional local notebooks; the host manages active-chat compaction.",
+  "version": "0.3.0",
+  "description": "Keeps the latest version of facts that changed: prepares pasted history and saved local notes for the next task, on CPU. The host manages the active chat.",
   "mcpServers": "./mcp.json",
   "skills": "./skills/",
   "interface": {
-    "displayName": "TOMC",
-    "shortDescription": "Prepare external task context; keep active-chat compaction with the host.",
+    "displayName": "TOMC Memory",
+    "shortDescription": "When a fact changes, only the latest version comes back.",
     "developerName": "Zipeng Wu",
     "category": "Productivity",
     "defaultPrompt": [
-      "Use TOMC to prepare this separately supplied external history for my next task.",
-      "Recall api-refactor from TOMC for the next task."
+      "Try TOMC Memory",
+      "试一下 TOMC Memory",
+      "Use TOMC Memory to prepare this pasted history for my next task."
     ]
   }
 }

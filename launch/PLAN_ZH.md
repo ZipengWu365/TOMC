@@ -1,6 +1,6 @@
 # TOMC Demo：让用户看懂怎么接入、值得在哪里试
 
-更新：2026-10-01。当前 GitHub 和 Hugging Face Space 均为私有，发布稿见 [CONTENT_KIT.md](CONTENT_KIT.md)。本计划安排文案和演示准备；公开发布、联系试用者和发送帖子由作者另行决定。
+更新：2026-10-01。（历史记录：以下是 2026-10-01 时的状态。仓库现已公开，Space 已于 2026-10-10 删除。）当时 GitHub 和 Hugging Face Space 均为私有，发布稿见 [CONTENT_KIT.md](CONTENT_KIT.md)。本计划安排文案和演示准备；公开发布、联系试用者和发送帖子由作者另行决定。
 
 ## 1. 首页先回答用户的三个问题
 
@@ -60,7 +60,7 @@ response = client.chat.completions.create(model=model, messages=messages)
 
 分数范围为 0–100，每一对使用匹配的有效问题和评分设置。完整主表保留六种 baseline 和各自的配对数字；不同 baseline 行的 TOMC 绝对分数可能来自不同有效集和评分协议，不能横向排名。独立的编译消融使用 **Full TOMC / TOMC w/o compilation** 标签，移除 records/instructions，保留 source/routing。
 
-正文宣传保留三条实测结果：500K/1M 的 36 个 reader–baseline–长度比较中，TOMC 质量均值都更高；三个 reader 等权平均后，总体输入比 LIGHT 和分层 LLMLingua-2 分别少 34.77% 和 34.35%；CPU 构建阶段六次回放平均为 4.21 秒/次。质量均值与统计显著性分开，输入节省也要带上具体对照。
+正文宣传保留三条实测结果（论文快照，100K–1M；后来补充的 10M 不在其中）：500K/1M 的 36 个 reader–baseline–长度比较中，TOMC 质量均值都更高；三个 reader 等权平均后，总体输入比 LIGHT 和分层 LLMLingua-2 分别少 34.77% 和 34.35%；CPU 构建阶段六次回放平均为 4.21 秒/次。质量均值与统计显著性分开，输入节省也要带上具体对照。
 
 速度说明只比较相同的每次调用单位：BRIEF-Pro 为 47.94 秒/次，LongLLMLingua 为 72.07 秒/次，分别是 TOMC 阶段时间的 11.4 和 17.1 倍。BEAM-RAG 的 23.94 秒/会话、LLMLingua-2 的每会话时间、LIGHT 的 41.53 小时/600 条记忆批次保留原单位。TOMC 峰值 host RSS 为 3.75 GiB，观测 CUDA allocation 为零。这些是构建阶段测量，完整应用还包括 reader 调用。[完整结果](../benchmarks/RESULTS.md)
 

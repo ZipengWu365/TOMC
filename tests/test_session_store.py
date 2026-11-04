@@ -11,7 +11,12 @@ from tomc.session_store import SessionStore
 def test_reads_and_empty_settings_update_do_not_create_storage(tmp_path):
     path = tmp_path / "missing" / "memory.sqlite3"
     store = SessionStore(path)
-    assert store.settings() == {"enabled": True, "save_contexts": True}
+    assert store.settings() == {
+        "enabled": True,
+        "save_contexts": True,
+        "save_mcp_results": False,
+        "retention_days": 30,
+    }
     assert store.update_settings() == store.settings()
     assert store.list() == []
     assert store.active() is None
@@ -111,10 +116,58 @@ def test_direct_lookup_is_not_limited_to_visible_list(tmp_path):
 
 def test_global_settings_preserve_the_other_switch(tmp_path):
     store = SessionStore(tmp_path / "memory.sqlite3")
-    assert store.update_settings(save_contexts=False) == {"enabled": True, "save_contexts": False}
-    assert store.update_settings(enabled=False) == {"enabled": False, "save_contexts": False}
-    assert store.update_settings(save_contexts=True) == {"enabled": False, "save_contexts": True}
+    defaults = {"save_mcp_results": False, "retention_days": 30}
+    assert store.update_settings(save_contexts=False) == {
+        "enabled": True,
+        "save_contexts": False,
+        **defaults,
+    }
+    assert store.update_settings(enabled=False) == {
+        "enabled": False,
+        "save_contexts": False,
+        **defaults,
+    }
+    assert store.update_settings(save_contexts=True) == {
+        "enabled": False,
+        "save_contexts": True,
+        **defaults,
+    }
     assert SessionStore(store.path).settings() == store.settings()
+
+
+def test_mcp_saving_is_a_separate_default_off_switch_with_retention(tmp_path):
+    store = SessionStore(tmp_path / "memory.sqlite3")
+    assert store.update_settings(save_mcp_results=True, retention_days=7) == {
+        "enabled": True,
+        "save_contexts": True,
+        "save_mcp_results": True,
+        "retention_days": 7,
+    }
+    store.update_settings(save_contexts=False)
+    assert SessionStore(store.path).settings()["save_mcp_results"] is True
+    assert SessionStore(store.path).settings()["retention_days"] == 7
+    for bad in (0, 3651, True, "30"):
+        with pytest.raises(ValueError):
+            store.update_settings(retention_days=bad)
+    with pytest.raises(ValueError):
+        store.update_settings(save_mcp_results="yes")
+
+
+def test_older_two_column_switch_writers_still_work_after_new_preferences(tmp_path):
+    path = tmp_path / "memory.sqlite3"
+    SessionStore(path).update_settings(save_mcp_results=True)
+    with sqlite3.connect(path) as db:  # What TOMC Memory 0.2.x writes.
+        db.execute(
+            "INSERT INTO tomc_settings VALUES (1,?,?) ON CONFLICT(id) "
+            "DO UPDATE SET enabled=excluded.enabled,save_contexts=excluded.save_contexts",
+            (0, 0),
+        )
+    assert SessionStore(path).settings() == {
+        "enabled": False,
+        "save_contexts": False,
+        "save_mcp_results": True,
+        "retention_days": 30,
+    }
 
 
 def test_concurrent_writers_keep_all_sessions_and_monotonic_switches(tmp_path):

@@ -9,6 +9,8 @@ from contextlib import contextmanager
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
+from .privacy import connect
+
 STATES = {"preparing", "prepared", "forwarded", "passthrough", "failed"}
 SCOPE = (
     "Observed local-proxy request stages. Before/after are lexical estimates; provider usage "
@@ -141,8 +143,7 @@ class RequestActivity:
 
     @contextmanager
     def _write(self):
-        self.path.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
-        db = sqlite3.connect(self.path, timeout=10)
+        db = connect(self.path, timeout=10)
         db.row_factory = sqlite3.Row
         try:
             with db:

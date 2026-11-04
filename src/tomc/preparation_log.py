@@ -7,6 +7,8 @@ from contextlib import closing
 from datetime import datetime, timezone
 from pathlib import Path
 
+from .privacy import ensure_private_file
+
 
 class PreparationLog:
     """Append numeric receipts. A snapshot_id is historical and may have been deleted."""
@@ -26,6 +28,7 @@ class PreparationLog:
         output_tokens=None,
         counter=None,
     ):
+        ensure_private_file(self.path)
         with closing(sqlite3.connect(self.path, timeout=10)) as db, db:
             db.execute(
                 "CREATE TABLE IF NOT EXISTS preparation_receipts ("

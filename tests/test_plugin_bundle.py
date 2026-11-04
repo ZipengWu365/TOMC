@@ -21,6 +21,7 @@ def test_bundle_only_contains_runtime_source(tmp_path, monkeypatch):
         names = set(archive.namelist())
         assert {"uv.lock", "src/server.py", "src/tomc/_vendor/tomc2.py"} <= names
         assert "src/tomc/data/snapshot.json" in names
+        assert {"src/tomc/data/try_sample_en.json", "src/tomc/data/try_sample_zh.json"} <= names
         assert not any(".venv" in n or n.endswith(".sqlite3") or ".env" in n for n in names)
         assert not any(n.startswith(("demo/", "benchmarks/", "tests/")) for n in names)
         assert archive.read("src/tomc/compiler.py") == (ROOT / "src/tomc/compiler.py").read_bytes()

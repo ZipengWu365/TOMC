@@ -24,7 +24,7 @@ The tour starts with three operations: set `drink` to tea, copy it to `backup_dr
 
 The Python core has no runtime dependencies. The web demo also offers a paste-and-copy path. Its built-in parser handles explicit operations such as `key = value` and `B copies A`; free-form conversation needs the raw or retrieval paths, or a task-specific parser.
 
-Demo (runs locally): [TOMC Memory Workbench](https://github.com/ZipengWu365/TOMC#try-the-demo)
+Demo (runs locally): [TOMC Memory Workbench](https://github.com/ZipengWu365/TOMC/blob/main/docs/quickstart.md)
 
 ## 开发者发布稿 — 中文
 
@@ -34,7 +34,7 @@ Demo 从一个小例子开始：先设定 `drink = tea`，复制给 `backup_drin
 
 Python 核心包没有第三方运行依赖，网页也支持直接粘贴历史、复制准备好的上下文。目前内置解析器支持 `key = value`、`B copies A` 等显式操作；自由对话可走原文或检索路径，更复杂的状态抽取需要任务适配器。
 
-试用入口（本地运行）：[TOMC Memory Workbench](https://github.com/ZipengWu365/TOMC#try-the-demo)
+试用入口（本地运行）：[TOMC Memory Workbench](https://github.com/ZipengWu365/TOMC/blob/main/docs/quickstart.md)
 
 ## Developer code
 
@@ -84,7 +84,7 @@ The built-in parser expects explicit assignments, copies and edges. Its router a
 
 I'd like to see small examples where the retained memory misses something needed for the task. Please use synthetic input rather than private conversations.
 
-Demo (runs locally): [TOMC Memory Workbench](https://github.com/ZipengWu365/TOMC#try-the-demo)
+Demo (runs locally): [TOMC Memory Workbench](https://github.com/ZipengWu365/TOMC/blob/main/docs/quickstart.md)
 
 Check the [Show HN guidelines](https://news.ycombinator.com/showhn.html) before submitting.
 

@@ -1,6 +1,6 @@
 # TOMC 使用技巧
 
-先告诉 TOMC 下一步要解决什么，再让它准备上下文。插件负责准备与你的问题相关的内容，你原来使用的模型负责回答。直接调用 `prepare_context` 就可以使用，不需要先建 notebook。
+先告诉 TOMC 下一步要解决什么，再让它准备上下文。插件负责准备与你的问题相关的内容，你原来使用的模型负责回答。直接调用 `prepare_context` 就可以使用，不需要先建 notebook。想先看看效果，就说 **试一下 TOMC Memory**（或运行 `tomc try`），它用内置样例试跑，什么都不保存。
 
 [安装插件](assistant_plugin_zh.md) · [Python API](api_reference.md) · [English](usage_tips.md)
 
@@ -66,7 +66,7 @@ response = client.chat.completions.create(
 
 ## 4. 根据遗漏的内容调整预算
 
-不传 `budget` 时，TOMC 保留历史词法估计长度的约 80%（至少 1,024）；在 [Claude Code 实测](validation.md#claude-code-windows-validation)中，这个默认值的答案与完整历史全部一致，输入约减少 20%。显式传入的预算限制的是词法估计下的 memory 文本，不是整个模型请求。任务、应用指令和提供商封装还会增加输入。
+不传 `budget` 时，约 1 万词法估算 token 以内的历史保留 80%，越长保留越少，到 100 万降到 60%（10 万时约 70%），至少 1,024。在 [Claude Code 实测](validation.md#claude-code-windows-validation)中（2026-10-02，当时默认值是固定的 80%；9 份合成历史），这个默认值的答案与完整历史全部一致，输入约减少 20%。显式传入的预算限制的是词法估计下的 memory 文本，不是整个模型请求。任务、应用指令和提供商封装还会增加输入。
 
 [Windows Codex 对比](codex_retention_20261005_zh.md)在同样九份合成历史上测试了完整历史、40%、60% 和默认 80% 历史预算。四种条件均为 45/45，请求输入的平均配对减少分别为 29.7%、19.5%、9.2%。40% 是这次测试中更小的选项；60% 给证据留下更多空间，80% 仍是默认值。采用较小预算前，先用自己的任务检查。这次普通叙述历史使用原文选择，没有生成操作记录。
 
@@ -81,7 +81,7 @@ prepared = prepare_context(history, task, budget=int(history_tokens * 0.60))
 # 将 0.60 换成 0.40，可试本次测试中更小的预算。
 ```
 
-两次准备都在 CPU 上完成，不调用 LLM。MCP 工具同样接受绝对 `budget`，没有 `retention_ratio` 参数。先从默认准备结果读取 `input_estimated_tokens`，乘以 0.40 或 0.60，向下取整，再把这个整数作为 `budget` 传入。使用默认值时省略 `budget`；其公式为 `max(1024, ceil(history_estimate × 0.8))`。
+两次准备都在 CPU 上完成，不调用 LLM。MCP 工具同样接受绝对 `budget`，没有 `retention_ratio` 参数。先从默认准备结果读取 `details.input_estimated_tokens`，乘以 0.40 或 0.60，向下取整，再把这个整数作为 `budget` 传入。使用默认值时省略 `budget`：约 1 万估算 token 以内保留 80%，越长保留越少，到 100 万降到 60%，最少 1,024。
 
 先为同一个任务准备一份预算较宽松的结果，检查保留了哪些事实，再降低预算，观察哪些内容消失。记录需要完整放入预算；如果 memory 为空，先增加预算再交给模型。如果缺少重要证据，可以增加预算，或者直接补上所需原文。
 
@@ -125,9 +125,9 @@ TOMC 从 `u0` 开始分配源编号，对应第一条非空行。历史原文里
 | 补充已确认的纠正 | “请用 remember_memory 向 api-refactor 追加这条已确认更新：framework = FastAPI。保留之前的历史，这是最新确认的框架。” |
 | 删除 | “请用 TOMC 的 forget_memory 删除名称恰好为 api-refactor 的 notebook。” |
 
-`remember_memory` 是追加，不会编辑某条旧记录。把已纠正的值和顺序说清楚，并检查下一次 recall。`forget_memory` 删除整个指定 notebook，工具不能撤销删除。如果要完全重建，先保留需要的原文，明确要求删除该名称，再保存替换内容。
+`remember_memory` 是追加，不会编辑某条旧记录。把已纠正的值和顺序说清楚，并检查下一次 recall。`forget_memory` 删除整个指定 notebook，以及由它准备出的上下文，工具不能撤销删除。如果要完全重建，先保留需要的原文，明确要求删除该名称，再保存替换内容。
 
-notebook 以明文保存传给工具的内容。使用同一数据库的客户端会共享它，卸载插件不会删除数据库。只想临时准备一次上下文时，直接使用 `prepare_context`。
+notebook 以明文保存传给工具的内容，文件只有你自己能读。使用同一数据库的客户端会共享它，卸载插件不会删除数据库；`tomc erase-all --yes` 会全部清空。只想临时准备一次上下文时，直接使用 `prepare_context`；0.3.0 中它的结果默认不保存，运行 `tomc settings --save-mcp-results on` 后才保存。
 
 如果一个助手找不到记忆本，先在两边调用 `list_memories`，核对正在使用的服务和数据库路径。同名记忆本不代表两边打开了同一个文件。[Windows MCP 检查](validation.md#cross-assistant-notebooks)在独立数据库中验证了双向读取、更新、重启和并发追加。
 
@@ -137,7 +137,7 @@ notebook 以明文保存传给工具的内容。使用同一数据库的客户�
 
 比较原始请求与准备后的请求时，使用相同模型、任务、应用指令和准备预算，统计实际发送的全部文本，包括任务和 memory 的封装。比较答案时，也保持模型的回答设置一致。
 
-工具中的 `input_estimated_tokens` 和 `memory_estimated_tokens` 是历史与 memory 的词法估计，不包含整个宿主请求。可以运行仓库中的本地示例：
+工具结果里的 `details.input_estimated_tokens` 和 `details.memory_estimated_tokens`（0.3.0 起放在 `details` 下）是历史与 memory 的词法估计，不包含整个宿主请求。可以运行仓库中的本地示例：
 
 ```bash
 python examples/api_context.py

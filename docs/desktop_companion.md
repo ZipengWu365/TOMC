@@ -2,7 +2,7 @@
 
 [中文速查](#chinese-quickstart) · [macOS details](macos_usage.md) · [Install the assistant plugins](assistant_plugin.md)
 
-The desktop companion is a small cat on your screen. It shows how many tokens TOMC has saved,
+The desktop companion is a small cat on your screen. It shows how many tokens TOMC has removed (an estimate),
 what they are worth at each model's listed input price, and which conversations they came from.
 It also keeps the contexts TOMC prepared, organized by your original conversation names, so you can
 copy a continuation prompt for another assistant or move a context to another computer.
@@ -72,7 +72,7 @@ local `TOMC.app` from this checkout; automatic request processing is not availab
 
 ## Using the cat
 
-- **Click the cat** to see tokens saved, money saved per model and the last 14 days. Choose today,
+- **Click the cat** to see estimated tokens removed, their value at each model's listed input price and the last 14 days. These are estimates, not your bill. Choose today,
   the last seven days or all time.
 - **Analysis ›** opens a report: savings per conversation and per kind of work, a ranked table, how
   requests were handled, how much each compression removed, context lengths and 30 days of savings.
@@ -94,10 +94,18 @@ input price.
 ## Your data and privacy
 
 - Statistics, saved contexts and settings stay in `%USERPROFILE%\.tomc\memory.sqlite3`
-  (`~/.tomc` on macOS). Turn off context recording, or TOMC for one conversation, in
-  **All records › Settings and connections**.
-- The gateway listens on `127.0.0.1` only. Request bodies and sign-in headers are forwarded in memory
-  and never written to disk.
+  (`~/.tomc` on macOS), an owner-only file. Turn off context recording, or TOMC for one
+  conversation, in **All records › Settings and connections**. The first start shows a one-time
+  privacy notice.
+- The gateway listens on `127.0.0.1` only. Full request bodies and sign-in headers are forwarded in
+  memory and never written to disk. While **Save context records** is on (the default), it keeps the
+  compressed old conversation and your latest message, with common secrets replaced by
+  `[REDACTED]`, for 30 days (`tomc settings --retention-days N`). With the switch off, no
+  conversation text from the gateway reaches the disk. It always records request metadata (IDs,
+  model names, token counts, times).
+- **Erase all records…** next to the switches deletes notebooks, saved contexts, replay data and
+  request and session metadata (`tomc erase-all --yes` does the same). Numeric statistics stay.
+  Details: [Security and privacy](https://github.com/ZipengWu365/TOMC/blob/main/SECURITY.md).
 - **Send anonymous feedback** in the analysis report shows the complete report first. It contains
   kinds of work (coding, writing, papers …) and numbers only: no conversation names, content,
   folders or IDs. It is submitted only when you confirm it on GitHub, as a public pull request
@@ -116,8 +124,22 @@ py scripts\install_windows_companion.py --uninstall "<receipt path>"
 ```
 
 This restores the Codex and Claude Code settings it changed, stops the cat and the gateway, and
-removes the shortcuts and the programs it installed. If you have edited those settings since, it
-stops and says so instead of overwriting your changes. Your data in `.tomc` is kept. Receipts are
+removes the shortcuts and the programs it installed. Files nobody has touched since installation go
+back to their exact backup; if Codex or Claude Code edited them since, only TOMC Memory's keys are
+removed and everything else stays. Running it twice is safe (`already_restored`). Your data in
+`.tomc` is kept.
+
+If the gateway stops (process killed, sign-in startup disabled), Codex and Claude Code still point
+at it and their requests fail. Point them back at their providers; this works with TOMC Memory
+stopped:
+
+```powershell
+py -m tomc restore-direct                                 # from an environment with TOMC installed
+py scripts\install_windows_companion.py --restore-direct  # or from the checkout
+```
+
+The Start menu also has **TOMC Memory - Restore direct connection** (installed with `--gateway`).
+Then quit and reopen Codex and Claude Code. Receipts are
 under `%USERPROFILE%\.codex\tomc\archive\windows-install-*`.
 
 ## Chinese quickstart
@@ -140,6 +162,10 @@ py scripts\install_windows_companion.py --install --gateway  # 小猫 + 自动�
 py scripts\install_windows_companion.py --uninstall "<回执路径>"
 ```
 
-卸载会恢复它改过的 Codex / Claude Code 设置、移除快捷方式和安装的程序，保留 `.tomc` 里的数据；如果之后你手动改过这些设置，它会停下来说明，不覆盖你的修改。macOS 安装见 [macOS 说明](macos_usage.md#desktop-companion-beta-macos)。
+卸载会恢复它改过的 Codex / Claude Code 设置、移除快捷方式和安装的程序，保留 `.tomc` 里的数据。没被改过的文件恢复成安装前的备份；如果 Codex 或 Claude Code 之后改过这些文件，只删掉 TOMC Memory 加的那几项，其他内容不动。重复卸载也没问题。
 
-使用：点小猫看节省的 token 和钱；「分析报告 ›」看各对话和工作类型的节省；「全部记录 ›」管理上下文。退出请把鼠标移到小猫上，点猫头上的 ×，或右键选「退出 TOMC」；关闭其他窗口不会退出小猫。数据都保存在本机；「匿名提交反馈」只提交工作类型和数字，提交前会先给你看完整内容。
+网关停了（进程被关、开机启动被禁用）时，Codex 和 Claude Code 还指向它，请求会失败。用下面任一方式恢复直连，TOMC Memory 没运行也能用：开始菜单里的 **TOMC Memory - Restore direct connection**，或运行 `py scripts\install_windows_companion.py --restore-direct`，或 `py -m tomc restore-direct`。然后退出并重新打开 Codex 和 Claude Code。
+
+开启网关且「保存上下文记录」打开（默认）时，网关会把压缩后的旧对话和你最新的一句话存到本机，常见密钥先替换成 `[REDACTED]`，30 天后删除；关掉这个开关后，网关不再把对话文字写入磁盘。「清空全部记录…」按钮或 `tomc erase-all --yes` 会删除全部保存的记录。macOS 安装见 [macOS 说明](macos_usage.md#desktop-companion-beta-macos)。
+
+使用：点小猫看估算减少的 token 和按标价折算的金额（估算，不是账单）；「分析报告 ›」看各对话和工作类型的节省；「全部记录 ›」管理上下文。退出请把鼠标移到小猫上，点猫头上的 ×，或右键选「退出 TOMC」；关闭其他窗口不会退出小猫。数据都保存在本机；「匿名提交反馈」只提交工作类型和数字，提交前会先给你看完整内容。

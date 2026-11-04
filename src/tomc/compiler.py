@@ -17,9 +17,12 @@ from .strategies import (
     TOMCStrategy,
     TruncationStrategy,
 )
+from .strategies.latest import parent_id, split_long_units
 from .tokenization import TokenCounter, get_counter
 
 STRATEGIES = ("raw", "head", "tail", "rag", "tomc", "tomc2", "tomc_raw", "hybrid")
+# Line-selecting methods; their pieces of an over-long line keep IDs such as u12.1.
+SPLITTING = ("rag", "tomc", "tomc_raw")
 
 
 def compile_memory(
@@ -69,7 +72,14 @@ def compile_memory(
         implementation = builtins[actual]
     else:
         implementation = strategy
+    lines = units
+    if implementation.name in SPLITTING:
+        units = split_long_units(units, token_budget, counter)
     output = implementation.compress(history, units, query, token_budget, counter)
+    if units is not lines:
+        # Evidence stays whole input lines; the memory cites the pieces it kept.
+        cited = {parent_id(u.source_id) for u in output.evidence}
+        output.evidence = [u for u in lines if u.source_id in cited]
     before, after = counter.count(history), counter.count(output.text)
     if actual != "raw" and after > token_budget:
         raise RuntimeError("Strategy violated the selected tokenizer budget")
@@ -96,12 +106,14 @@ def compile_memory(
         after * price / 1e6 if price is not None else None,
         price,
     )
+    split = {parent_id(u.source_id) for u in units if "." in u.source_id}
     diagnostics = {
         **output.diagnostics,
+        **({"split_lines": len(split)} if split else {}),
         "selected_strategy": actual,
         "route_reason": route_reason,
         "deterministic_requested": deterministic,
-        "source_units": len(units),
+        "source_units": len(lines),
         "evidence_scope": "audit metadata outside the reader token budget",
     }
     return CompilationResult(

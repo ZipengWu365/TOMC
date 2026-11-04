@@ -196,11 +196,54 @@ def test_gateway_install_activates_after_health_and_uninstall_restores_hosts(
     assert windows["started"] == [shortcut]
     assert gateway["activation"] == str(activation)
     windows["run"].clear()
+    direct = str(layout.programs / installer.DIRECT_SHORTCUT)
+    assert windows["shortcuts"][direct]["arguments"].endswith('direct_connection.py"')
     report = installer.uninstall(layout, receipt.path)
     restore = windows["run"][0]
     assert restore[restore.index("--restore") + 1] == str(activation)
     assert "host settings" in report["restored"] and not runtime.exists()
     assert str(runtime) in windows["stopped"]
+    assert not Path(direct).exists()
+    # A second uninstall is harmless.
+    assert installer.uninstall(layout, receipt.path)["status"] == "already_restored"
+
+
+def test_uninstall_restores_host_settings_when_the_gateway_python_is_broken(
+    layout, windows, monkeypatch
+):
+    """The gateway's own environment is gone; only TOMC Memory's keys are removed."""
+    codex = layout.home / ".codex" / "config.toml"
+    claude = layout.home / ".claude" / "settings.json"
+    codex.parent.mkdir(parents=True)
+    claude.parent.mkdir(parents=True)
+    codex.write_text(
+        'model = "gpt-5"\nopenai_base_url = "http://127.0.0.1:43187/codex"\n'
+        '[projects."c:/new"]\ntrust_level = "trusted"\n',
+        encoding="utf-8",
+    )
+    claude.write_text(
+        json.dumps({"env": {"ANTHROPIC_BASE_URL": "http://127.0.0.1:43187/claude", "A": "b"}}),
+        encoding="utf-8",
+    )
+
+    def broken(command, **kwargs):
+        raise RuntimeError("python.exe failed")
+
+    monkeypatch.setattr(installer, "run", broken)
+    receipt = installer.Receipt(layout)
+    receipt.data["gateway"] = {
+        "runtime": str(layout.base / "gateway-old"),
+        "hosts": ["codex", "claude"],
+        "port": 43187,
+        "activation": str(layout.base / "archive" / "missing" / "receipt.json"),
+    }
+    receipt.save()
+    report = installer.uninstall(layout, receipt.path)
+    assert report["restored"] == ["host settings (endpoints only)"]
+    assert codex.read_text(encoding="utf-8") == (
+        'model = "gpt-5"\n[projects."c:/new"]\ntrust_level = "trusted"\n'
+    )
+    assert json.loads(claude.read_text(encoding="utf-8")) == {"env": {"A": "b"}}
 
 
 def test_unhealthy_gateway_never_changes_host_settings(layout, windows, monkeypatch):

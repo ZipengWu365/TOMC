@@ -1,11 +1,25 @@
-"""Recompute frozen BEAM statistics from numeric cluster aggregates, without APIs."""
+"""Recompute frozen BEAM statistics from numeric cluster aggregates, without APIs.
+
+Usage:
+    python benchmarks/reproduce/results.py           # recompute and rewrite the tracked outputs
+    python benchmarks/reproduce/results.py --check   # recompute and compare; writes nothing tracked
+
+Check mode compares benchmarks/HISTORICAL_BEAM.md exactly and
+benchmarks/aggregate_results/recomputed.json within a relative tolerance of 1e-12 (the last
+floating-point digit can differ between platforms). It draws the plot into a temporary folder
+to exercise the plotting code but does not compare image bytes, which vary with Matplotlib and
+font versions.
+"""
 
 from __future__ import annotations
 
+import argparse
 import csv
 import json
 import math
 import random
+import sys
+import tempfile
 from collections import defaultdict
 from pathlib import Path
 from statistics import mean
@@ -89,8 +103,8 @@ def rebuild() -> list[dict]:
     return results
 
 
-def render(results: list[dict]) -> None:
-    """Regenerate the result card and an exportable plot with uncertainty."""
+def card(results: list[dict]) -> str:
+    """The Markdown result card for the historical batch."""
     lines = [
         "# Historical four-reader BEAM comparison",
         "",
@@ -134,12 +148,11 @@ def render(results: list[dict]) -> None:
         "normalized parser or lexical BM25 baseline. See [boundaries](../docs/claims_and_limitations.md).",
         "",
     ]
-    (ROOT / "benchmarks/HISTORICAL_BEAM.md").write_text(
-        "\n".join(lines), encoding="utf-8", newline="\n"
-    )
-    (ROOT / "benchmarks/aggregate_results/recomputed.json").write_text(
-        json.dumps(results, indent=2) + "\n", encoding="utf-8", newline="\n"
-    )
+    return "\n".join(lines)
+
+
+def figure(results: list[dict], out: Path) -> None:
+    """Draw the exportable plot with uncertainty into ``out``."""
     import matplotlib
 
     matplotlib.use("Agg")
@@ -183,14 +196,67 @@ def render(results: list[dict]) -> None:
         fontsize=8,
     )
     fig.tight_layout(rect=[0, 0.07, 1, 1])
-    fig.savefig(ROOT / "assets/beam_readers.svg", metadata={"Date": None})
+    fig.savefig(out / "beam_readers.svg", metadata={"Date": None})
     fig.savefig(
-        ROOT / "assets/beam_readers.png",
+        out / "beam_readers.png",
         dpi=180,
         metadata={"Software": "TOMC results reconstruction"},
     )
     plt.close(fig)
 
 
+def render(results: list[dict]) -> None:
+    """Regenerate the result card, the recomputed JSON and the plot in the repository."""
+    (ROOT / "benchmarks/HISTORICAL_BEAM.md").write_text(
+        card(results), encoding="utf-8", newline="\n"
+    )
+    (ROOT / "benchmarks/aggregate_results/recomputed.json").write_text(
+        json.dumps(results, indent=2) + "\n", encoding="utf-8", newline="\n"
+    )
+    figure(results, ROOT / "assets")
+
+
+def same(a, b) -> bool:
+    """Equal structure; floats equal within a relative tolerance of 1e-12."""
+    if isinstance(a, dict) and isinstance(b, dict):
+        return a.keys() == b.keys() and all(same(a[k], b[k]) for k in a)
+    if isinstance(a, list) and isinstance(b, list):
+        return len(a) == len(b) and all(same(x, y) for x, y in zip(a, b))
+    if isinstance(a, float) or isinstance(b, float):
+        return (
+            isinstance(a, (int, float))
+            and isinstance(b, (int, float))
+            and math.isclose(a, b, rel_tol=1e-12, abs_tol=1e-15)
+        )
+    return a == b
+
+
+def check(results: list[dict]) -> int:
+    """Compare recomputed outputs with the tracked files without writing them."""
+    problems = []
+    if (ROOT / "benchmarks/HISTORICAL_BEAM.md").read_text(encoding="utf-8") != card(results):
+        problems.append("benchmarks/HISTORICAL_BEAM.md")
+    saved = json.loads(
+        (ROOT / "benchmarks/aggregate_results/recomputed.json").read_text(encoding="utf-8")
+    )
+    if not same(saved, json.loads(json.dumps(results))):
+        problems.append("benchmarks/aggregate_results/recomputed.json")
+    with tempfile.TemporaryDirectory() as tmp:
+        figure(results, Path(tmp))
+    if problems:
+        print("Historical BEAM outputs differ: " + ", ".join(problems), file=sys.stderr)
+        return 1
+    print("Historical BEAM card and recomputed.json match (plot drawn to a temporary folder).")
+    return 0
+
+
 if __name__ == "__main__":
-    render(rebuild())
+    parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
+    parser.add_argument(
+        "--check", action="store_true", help="compare with the tracked outputs; write nothing"
+    )
+    args = parser.parse_args()
+    results = rebuild()
+    if args.check:
+        raise SystemExit(check(results))
+    render(results)

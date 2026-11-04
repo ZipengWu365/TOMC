@@ -1,16 +1,16 @@
-"""Build the README BEAM tables in the paper's Table 1 format, extended with the 10M follow-up.
+"""Build the evidence-page BEAM tables in the paper's Table 1 format, extended with the 10M follow-up.
 
 Inputs are public: per-tier aggregates in benchmarks/current_paper/beam_comparisons.csv and the
 10M per-question pairs in benchmarks/beam_10m_20261010/paired_scores_10m.csv. Overall pools the
 original valid pairs with the 10M pairs within each reader and baseline. Relative changes are
 100 * (TOMC / baseline - 1); the mean column averages the three readers before rounding.
 
-The script writes booktabs LaTeX sources to assets/beam_table/ and the README blocks (the table
-images plus a collapsible text copy). With --render it also compiles the sources with pdflatex and
+The script writes booktabs LaTeX sources to assets/beam_table/ and the table blocks in
+docs/evidence.md and docs/evidence_zh.md (the table images plus a collapsible text copy). With --render it also compiles the sources with pdflatex and
 converts them to SVG/PNG with Poppler; rendering needs a local LaTeX installation.
 
-    python scripts/make_beam_table.py --render  # rewrite sources, README blocks and images
-    python scripts/make_beam_table.py --check   # fail if sources, README or images are stale
+    python scripts/make_beam_table.py --render  # rewrite sources, evidence-page blocks and images
+    python scripts/make_beam_table.py --check   # fail if sources, evidence pages or images are stale
 """
 
 from __future__ import annotations
@@ -247,6 +247,11 @@ TEXT = {
 }
 
 
+# The blocks live in docs/, so image links climb one level to the repository's assets/.
+ASSETS = "../assets/beam_table"
+PAGES = (("docs/evidence.md", "en"), ("docs/evidence_zh.md", "zh"))
+
+
 def readme_block(cells, lang):
     t = TEXT[lang]
     md, current = [t["head"], "|---|---:|:---|---:|:---|---:|:---|:---|"], None
@@ -265,12 +270,12 @@ def readme_block(cells, lang):
         md.append(f"| {label} | {overall:+.2f}% | {ten:+.2f}% |")
     return "\n".join(
         [
-            '<a href="assets/beam_table/beam_quality.png">',
-            f'  <img src="assets/beam_table/beam_quality.svg" alt="{t["alt_q"]}" width="900">',
+            f'<a href="{ASSETS}/beam_quality.png">',
+            f'  <img src="{ASSETS}/beam_quality.svg" alt="{t["alt_q"]}" width="900">',
             "</a>",
             "",
-            '<a href="assets/beam_table/beam_input.png">',
-            f'  <img src="assets/beam_table/beam_input.svg" alt="{t["alt_i"]}" width="760">',
+            f'<a href="{ASSETS}/beam_input.png">',
+            f'  <img src="{ASSETS}/beam_input.svg" alt="{t["alt_i"]}" width="760">',
             "</a>",
             "",
             f"<details>\n<summary>{t['summary']}</summary>\n",
@@ -332,11 +337,12 @@ def main():
             stale.append(path.relative_to(ROOT).as_posix())
             if not check:
                 path.write_text(tex, encoding="utf-8", newline="\n")
-    for path, lang in ((ROOT / "README.md", "en"), (ROOT / "README_zh.md", "zh")):
+    for name, lang in PAGES:
+        path = ROOT / name
         text = path.read_text(encoding="utf-8")
         new = replace_block(text, readme_block(cells, lang))
         if new != text:
-            stale.append(path.name)
+            stale.append(name)
             if not check:
                 path.write_bytes(new.encode("utf-8"))
     stamp_path = OUT / "RENDERED_FROM.sha256"

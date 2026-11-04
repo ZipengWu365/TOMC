@@ -1,0 +1,87 @@
+name: Replication report
+description: You reran one of TOMC Memory's published numbers. Successful, failed and partial reruns are all welcome.
+title: "[Replication] "
+labels: [replication]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for checking our numbers. Every report is listed in REPLICATIONS.md, including ones that disagree with us.
+        Offline checks: `make reproduce` (no model calls, under a minute). What each step checks: docs/reproducibility.md.
+  - type: dropdown
+    id: result
+    attributes:
+      label: Result
+      options:
+        - Matched (✓)
+        - Did not match (✗)
+        - Partial (some steps matched, some did not or could not run)
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: TOMC Memory version and commit
+      description: Output of `python -c "import tomc; print(tomc.__version__)"` and `git rev-parse HEAD`.
+      placeholder: 0.3.0, commit abc1234
+    validations:
+      required: true
+  - type: input
+    id: os
+    attributes:
+      label: Operating system
+      placeholder: macOS 15.1 / Ubuntu 24.04 / Windows 11
+    validations:
+      required: true
+  - type: input
+    id: python
+    attributes:
+      label: Python version
+      placeholder: "3.12.7"
+    validations:
+      required: true
+  - type: input
+    id: hardware
+    attributes:
+      label: Hardware
+      description: CPU model and core count; GPU and RAM if they matter for what you ran.
+    validations:
+      required: true
+  - type: textarea
+    id: commands
+    attributes:
+      label: Commands you ran
+      description: Exact commands, in order.
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: numbers
+    attributes:
+      label: Your numbers vs the published numbers
+      description: For each number, what you got, what we published, and a link to where we published it.
+    validations:
+      required: true
+  - type: textarea
+    id: paid
+    attributes:
+      label: Model and judge (paid runs only)
+      description: Model name and date, budget, number of runs, and the judge model if answers were scored.
+  - type: textarea
+    id: output
+    attributes:
+      label: Full output or attachments
+      description: Paste the output of `make reproduce` or the steps you ran, or attach files.
+      render: text
+  - type: input
+    id: credit
+    attributes:
+      label: How should we list you?
+      description: A name or handle, or "anonymous".
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: Privacy
+      options:
+        - label: I removed private content (API keys, local paths, real conversations) from this report.
+          required: true

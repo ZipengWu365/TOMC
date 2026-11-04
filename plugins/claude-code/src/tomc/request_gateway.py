@@ -20,7 +20,7 @@ from urllib.parse import unquote, urlsplit
 
 import httpx
 
-from .context_library import ContextLibrary
+from .context_library import ContextLibrary, startup_cleanup
 from .request_activity import RequestActivity
 from .session_store import SessionStore
 from .usage import UsageStore
@@ -183,6 +183,11 @@ class Gateway:
         from .anthropic_request import AnthropicAdapter
 
         self._claude = AnthropicAdapter(self.path)
+        self.prune()
+
+    def prune(self):
+        """Apply the retention limit at startup; a failure never stops the gateway."""
+        startup_cleanup(self.path)
 
     def close(self):
         self.client.close()
@@ -278,7 +283,16 @@ class Gateway:
 
                         plan = adapt_request(payload, **options)
                     else:
-                        plan = self._claude.adapt(payload, headers, enabled=enabled, **options)
+                        settings = self.sessions.settings()
+                        plan = self._claude.adapt(
+                            payload,
+                            headers,
+                            enabled=enabled,
+                            record=settings["save_contexts"],
+                            retention_days=settings["retention_days"],
+                            erase_generation=self.sessions.erase_generation(),
+                            **options,
+                        )
                 if plan is not None:
                     reason = plan.reason
                 if reason == "session_disabled" and not self.sessions.settings()["enabled"]:

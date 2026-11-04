@@ -26,6 +26,7 @@ UI_MODULES = (
     "model_detection.py",
     "impact_story.py",
     "ui_language.py",
+    "privacy.py",
 )
 
 

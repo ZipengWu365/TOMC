@@ -31,6 +31,10 @@ MODULES = (
     "responses_request.py",
     "anthropic_request.py",
     "request_activity.py",
+    "privacy.py",
+    "session_store.py",
+    "context_library.py",
+    "usage.py",
 )
 
 

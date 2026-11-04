@@ -8,6 +8,18 @@ from contextlib import contextmanager
 from datetime import datetime, timezone
 from pathlib import Path
 
+from .privacy import DEFAULT_RETENTION_DAYS, connect
+
+# Preferences live in their own name/value table so older TOMC Memory processes that
+# share this database keep writing their two-column switch row unchanged.
+PREFERENCES = {
+    # MCP prepare_context/recall_memory results are saved only after the user opts in.
+    "save_mcp_results": False,
+    # Days that automatically saved snapshots and Claude replay data are kept.
+    "retention_days": DEFAULT_RETENTION_DAYS,
+}
+MAX_RETENTION_DAYS = 3650
+
 
 def _text(value: str, label: str, maximum: int) -> str:
     if (
@@ -31,6 +43,33 @@ def _boolean(value: bool, label: str) -> bool:
     if not isinstance(value, bool):
         raise ValueError(f"{label} must be a boolean.")
     return value
+
+
+def _retention(value: int) -> int:
+    if (
+        isinstance(value, bool)
+        or not isinstance(value, int)
+        or not 1 <= value <= MAX_RETENTION_DAYS
+    ):
+        raise ValueError(f"retention_days must be an integer from 1 to {MAX_RETENTION_DAYS}.")
+    return value
+
+
+def preference(db, name: str):
+    """One stored preference, or its default when unset or unreadable."""
+    default = PREFERENCES[name]
+    try:
+        row = db.execute("SELECT value FROM tomc_preferences WHERE name=?", (name,)).fetchone()
+    except sqlite3.Error:
+        row = None
+    if row is None:
+        return default
+    if isinstance(default, bool):
+        return bool(row[0])
+    try:
+        return _retention(row[0])
+    except ValueError:
+        return default
 
 
 def _limit(value: int) -> int:
@@ -63,11 +102,14 @@ class SessionStore:
             "id INTEGER PRIMARY KEY CHECK(id=1), host TEXT NOT NULL, "
             "session_id TEXT NOT NULL, event_seq INTEGER NOT NULL)"
         )
+        db.execute(
+            "CREATE TABLE IF NOT EXISTS tomc_preferences ("
+            "name TEXT PRIMARY KEY, value INTEGER NOT NULL)"
+        )
 
     @contextmanager
     def _write(self):
-        self.path.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
-        db = sqlite3.connect(self.path, timeout=30)
+        db = connect(self.path, timeout=30)
         try:
             with db:
                 db.execute("BEGIN IMMEDIATE")
@@ -105,9 +147,14 @@ class SessionStore:
             if cls._has(db, "tomc_settings")
             else None
         )
+        stored = cls._has(db, "tomc_preferences")
         return {
             "enabled": bool(row[0]) if row else True,
             "save_contexts": bool(row[1]) if row else True,
+            **{
+                name: preference(db, name) if stored else default
+                for name, default in PREFERENCES.items()
+            },
         }
 
     def settings(self) -> dict:
@@ -115,24 +162,55 @@ class SessionStore:
         with self._read() as db:
             return self._settings(db)
 
-    def update_settings(self, enabled=None, save_contexts=None) -> dict:
-        if enabled is not None:
-            _boolean(enabled, "enabled")
-        if save_contexts is not None:
-            _boolean(save_contexts, "save_contexts")
-        if enabled is None and save_contexts is None:
+    def erase_generation(self) -> int:
+        """Changes after each erase-all, so other processes drop what they hold in memory."""
+        with self._read() as db:
+            if not self._has(db, "tomc_preferences"):
+                return 0
+            row = db.execute(
+                "SELECT value FROM tomc_preferences WHERE name='erase_generation'"
+            ).fetchone()
+            return int(row[0]) if row else 0
+
+    def update_settings(
+        self, enabled=None, save_contexts=None, save_mcp_results=None, retention_days=None
+    ) -> dict:
+        for value, label in (
+            (enabled, "enabled"),
+            (save_contexts, "save_contexts"),
+            (save_mcp_results, "save_mcp_results"),
+        ):
+            if value is not None:
+                _boolean(value, label)
+        if retention_days is not None:
+            _retention(retention_days)
+        if all(
+            value is None for value in (enabled, save_contexts, save_mcp_results, retention_days)
+        ):
             return self.settings()
         with self._write() as db:
             settings = self._settings(db)
-            if enabled is not None:
-                settings["enabled"] = enabled
-            if save_contexts is not None:
-                settings["save_contexts"] = save_contexts
-            db.execute(
-                "INSERT INTO tomc_settings VALUES (1,?,?) ON CONFLICT(id) "
-                "DO UPDATE SET enabled=excluded.enabled,save_contexts=excluded.save_contexts",
-                (int(settings["enabled"]), int(settings["save_contexts"])),
-            )
+            if enabled is not None or save_contexts is not None:
+                if enabled is not None:
+                    settings["enabled"] = enabled
+                if save_contexts is not None:
+                    settings["save_contexts"] = save_contexts
+                db.execute(
+                    "INSERT INTO tomc_settings VALUES (1,?,?) ON CONFLICT(id) "
+                    "DO UPDATE SET enabled=excluded.enabled,save_contexts=excluded.save_contexts",
+                    (int(settings["enabled"]), int(settings["save_contexts"])),
+                )
+            for name, value in (
+                ("save_mcp_results", save_mcp_results),
+                ("retention_days", retention_days),
+            ):
+                if value is not None:
+                    settings[name] = value
+                    db.execute(
+                        "INSERT INTO tomc_preferences VALUES (?,?) ON CONFLICT(name) "
+                        "DO UPDATE SET value=excluded.value",
+                        (name, int(value)),
+                    )
             return settings
 
     @staticmethod

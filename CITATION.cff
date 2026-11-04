@@ -5,8 +5,8 @@ title: "TOMC: Task-Oriented Memory Compilation"
 authors:
   - family-names: Wu
     given-names: Zipeng
-version: 0.1.0
-date-released: '2026-09-08'
+version: 0.3.0
+date-released: '2026-10-30'
 license: MIT
 repository-code: 'https://github.com/ZipengWu365/TOMC'
 abstract: "Task-oriented memory compilation for long-context language models, with source-linked records and raw evidence."

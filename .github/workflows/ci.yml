@@ -21,11 +21,12 @@ jobs:
       - run: ruff check . && ruff format --check .
       - run: python scripts/security_scan.py
       - run: python scripts/release_manifest.py --check
-      - run: python benchmarks/reproduce/current.py
-      - run: python benchmarks/reproduce/results.py
-      - run: python scripts/make_beam_table.py --check
+      - name: Offline reproduction checks (no tracked files rewritten)
+        run: |
+          before="$(git status --porcelain)"
+          make reproduce PY=python
+          test "$before" = "$(git status --porcelain)"
       - run: python scripts/build_claude_code_plugin.py --check
-      - run: python scripts/benchmarks/codex_retention_report.py --verify-published docs/validation_data/windows_codex_retention_20261005.json
       - run: mkdocs build --strict
       - run: python -m build
       - name: Desktop companion UI tests on macOS (offscreen Qt)

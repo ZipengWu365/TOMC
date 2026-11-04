@@ -842,3 +842,112 @@ def test_upstream_configuration_rejects_nonlocal_http_and_credential_urls(tmp_pa
             {"store": str(tmp_path / "unused.sqlite3"), "routes": {"codex": {"upstream": upstream}}}
         )
     assert not (tmp_path / "unused.sqlite3").exists()
+
+
+FAKE_SECRET = "sk-" + "FAKEgateway0123456789SECRETvalue"  # Split for the release scan.
+CODENAME = "the launch codename is Juniper Harbor"
+
+
+def secret_payload(host):
+    request = payload(host, "private-session")
+    key = "input" if host == "codex" else "messages"
+    request[key][2]["content"] += f"\nNote: {CODENAME}. OPENAI_API_KEY={FAKE_SECRET}"
+    request[key][-1]["content"] = "What is the launch codename and which key was used?"
+    return request
+
+
+def stored_bytes(path):
+    return b"".join(
+        candidate.read_bytes()
+        for candidate in (path, path.with_name(path.name + "-journal"))
+        if candidate.exists()
+    )
+
+
+@pytest.mark.parametrize("host", ["codex", "claude"])
+def test_recording_off_writes_no_conversation_text_to_disk(harness, host):
+    harness.gateway.sessions.update_settings(save_contexts=False)
+    raw = json.dumps(secret_payload(host)).encode()
+    harness.reply = response_body(host)
+    for _ in range(2):
+        assert harness.exchange(raw, host=host)[0] == 200
+        forwarded = harness.received[-1]["body"]
+        assert b"<tomc_history>" in forwarded and CODENAME.encode() in forwarded
+    if host == "claude":
+        # The second request replays the compiled prefix kept in memory only.
+        assert harness.gateway.activity.last()["reason"] == "replayed_prefix"
+    stored = stored_bytes(harness.gateway.path)
+    for text in (FAKE_SECRET, CODENAME, "launch codename", "Project decision"):
+        assert text.encode() not in stored
+    assert harness.gateway.library.list() == []
+
+
+def test_claude_replay_data_moves_off_disk_when_recording_is_turned_off(harness):
+    raw = json.dumps(secret_payload("claude")).encode()
+    harness.reply = response_body("claude")
+    assert harness.exchange(raw, host="claude")[0] == 200
+    with sqlite3.connect(harness.gateway.path) as db:
+        assert db.execute("SELECT COUNT(*) FROM tomc_anthropic_prefixes").fetchone()[0] == 1
+    harness.gateway.sessions.update_settings(save_contexts=False)
+    assert harness.exchange(raw, host="claude")[0] == 200
+    assert harness.gateway.activity.last()["reason"] == "replayed_prefix"
+    with sqlite3.connect(harness.gateway.path) as db:
+        assert db.execute("SELECT COUNT(*) FROM tomc_anthropic_prefixes").fetchone()[0] == 0
+
+
+@pytest.mark.parametrize("host", ["codex", "claude"])
+def test_recorded_contexts_and_replay_data_are_redacted_on_disk(harness, host):
+    raw = json.dumps(secret_payload(host)).encode()
+    harness.reply = response_body(host)
+    assert harness.exchange(raw, host=host)[0] == 200
+    # The provider still receives the conversation exactly as compiled.
+    assert FAKE_SECRET.encode() in harness.received[-1]["body"]
+    (snapshot,) = harness.gateway.library.list()
+    record = harness.gateway.library.get(snapshot["id"])
+    assert CODENAME in record["memory"] and "[REDACTED]" in record["memory"]
+    assert FAKE_SECRET.encode() not in stored_bytes(harness.gateway.path)
+
+
+def test_erase_all_also_clears_replay_data_held_by_the_running_gateway(harness):
+    raw = json.dumps(secret_payload("claude")).encode()
+    harness.reply = response_body("claude")
+    harness.gateway.sessions.update_settings(save_contexts=False)
+    assert harness.exchange(raw, host="claude")[0] == 200
+    assert harness.gateway._claude._memory
+    harness.gateway.library.erase_all()
+    assert harness.exchange(raw, host="claude")[0] == 200
+    # A fresh compilation, not a replay of what was held before the erase.
+    assert harness.gateway.activity.last()["reason"] == "old_history_compiled_cache_may_change"
+
+
+def test_gateway_start_applies_retention_and_owner_only_permissions(tmp_path):
+    import os
+    from datetime import datetime, timedelta, timezone
+
+    from tomc import prepare_context
+
+    path = tmp_path / "gateway.sqlite3"
+    harness = Harness(path)
+    try:
+        saved = harness.gateway.library.save(
+            prepare_context("old = expired fact", "continue"),
+            task="continue",
+            host="codex",
+            session_id="s",
+            preparation_id="p",
+        )
+    finally:
+        harness.close()
+    old = (datetime.now(timezone.utc) - timedelta(days=45)).isoformat()
+    with sqlite3.connect(path) as db:
+        db.execute("UPDATE tomc_context_snapshots SET created_utc=? WHERE id=?", (old, saved["id"]))
+    if os.name == "posix":
+        path.chmod(0o644)
+    harness = Harness(path)
+    try:
+        assert harness.gateway.library.list() == []
+        if os.name == "posix":
+            assert path.stat().st_mode & 0o777 == 0o600
+    finally:
+        harness.close()
+    assert b"expired fact" not in path.read_bytes()

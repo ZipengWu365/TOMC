@@ -55,7 +55,7 @@ python -m pip install -e '.[tokenizers]'
 python examples/api_context.py --tokenizer tiktoken:cl100k_base
 ```
 
-For the README's six-line migration history and 64-token lexical memory budget, the identical system/task framing yields 138 → 90 message-content tokens under the lexical estimate, or 147 → 108 under `cl100k_base`. Both paths count instructions and the task as well as history/memory text. Neither includes provider chat framing, tool schemas or hidden tokens. This synthetic example demonstrates request-text reduction; it is not billed usage or a general saving rate. The generated `messages` payload replaces the original history in the next request.
+For the six-line migration history in `examples/api_context.py` and its 64-token lexical memory budget, the identical system/task framing yields 138 → 90 message-content tokens under the lexical estimate, or 147 → 108 under `cl100k_base`. Both paths count instructions and the task as well as history/memory text. Neither includes provider chat framing, tool schemas or hidden tokens. This synthetic example demonstrates request-text reduction; it is not billed usage or a general saving rate. The generated `messages` payload replaces the original history in the next request.
 
 For local notebooks, see [assistant setup](assistant_setup.md).
 

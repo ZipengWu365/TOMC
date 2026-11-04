@@ -2,6 +2,8 @@
 
 Dated installation and model checks moved from the homepage. [Full validation record](validation.md)
 
+**Which version these checks cover.** Every check on this page used the 0.1.0 assistant previews (preview.2 to preview.4, 2026-10-02 to 2026-10-04), when TOMC had five tools. Real model calls were made in Codex (Windows and macOS) and in Claude Code (Windows, VS Code extension). Linux checks made no model calls. 0.2.x and 0.3.0 have not had a full cross-platform rerun; 0.3.0 was checked with the automated test suite and a live MCP server start on macOS only. Cursor, TRAE and WorkBuddy tool calls, and Claude Desktop GUI installation, have not been verified on a real machine.
+
 **Windows preview.4 — 2026-10-04:** the original release ZIP passed preflight and full native installation in the owner's personal Codex profile using the desktop-bundled CLI 0.160.0. The existing `gpt-6.1-sol` model called preparation, save and recall tools; a separate fresh chat recalled the correct values without receiving the history. No feature or MCP overrides were used. All five tools connected, host restart and exact test-notebook deletion passed, and the installation remains enabled. The default notebook database was empty before saving and after deleting the synthetic test notebook; its metadata changed. The GUI installation flow was not exercised. [Current acceptance record](validation.md#windows-codex-preview4).
 
 Earlier preview.3 checks covered isolated CLI 0.146.0/0.159.2 installation and direct tool calls. Preview.1 model trials used temporary MCP settings. Claude Desktop and Cursor have runtime checks only; their GUI acceptance remains pending.

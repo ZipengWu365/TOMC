@@ -114,7 +114,12 @@ def test_global_processing_recording_and_session_controls_are_independent(dialog
     dialog.sessions.register("claude", "b", title="Two")
     dialog.refresh()
     dialog.save_contexts.setChecked(False)
-    assert dialog.sessions.settings() == {"enabled": True, "save_contexts": False}
+    assert dialog.sessions.settings() == {
+        "enabled": True,
+        "save_contexts": False,
+        "save_mcp_results": False,
+        "retention_days": 30,
+    }
     item = next(
         dialog.session_list.item(i)
         for i in range(dialog.session_list.count())
@@ -187,6 +192,13 @@ def test_export_import_rename_delete_actions_use_selected_snapshot(dialog, tmp_p
     assert "未绑定" in dialog.message.text()
     dialog.import_bundle()
     assert "未重复" in dialog.message.text()
+    monkeypatch.setattr(QMessageBox, "exec", lambda self: QMessageBox.StandardButton.Cancel)
+    dialog.erase_all()
+    assert len(dialog.library.list()) == 1
+    monkeypatch.setattr(QMessageBox, "exec", lambda self: QMessageBox.StandardButton.Yes)
+    dialog.erase_all()
+    assert dialog.library.list() == [] and dialog.selected_record is None
+    assert "清空" in dialog.message.text()
 
 
 def test_companion_observed_switch_prompts_once_and_closes_child_windows(

@@ -34,7 +34,7 @@ response = session.create(
 
 保留原来的 client、密钥、模型、tools 和请求设置；返回原 response 或 stream，不额外调用模型，也不读取并消耗流。只替换本次请求的 `messages`。应用保留完整原始历史，不把上一份 TOMC 发送视图当作原历史继续输入。
 
-旧历史默认沿用约 80% 的词法预算、最低 1,024，并受模型/部署余量限制。系统与开发者指令、当前用户任务、最近消息和未结束的工具协议保留原样；已结束的较旧工具组一起处理。多模态、不支持的消息、不可解释的推理结构、未缩小的输出保持原请求。估计数不是提供商计费数，也不能保证所有请求都不超窗口。
+旧历史默认沿用词法估算的预算：约 1 万 token 以内保留 80%，越长保留越少，到 100 万降到 60%，最低 1,024，并受模型/部署余量限制。系统与开发者指令、当前用户任务、最近消息和未结束的工具协议保留原样；已结束的较旧工具组一起处理。多模态、不支持的消息、不可解释的推理结构、未缩小的输出保持原请求。估计数不是提供商计费数，也不能保证所有请求都不超窗口。
 
 正常在 SDK 请求中指定输出上限。省略时，`output_reserve` 只是规划余量（默认 8,192），不会改变提供商的实际输出限制；例如 Kimi K3 的公开默认值是 131,072。程序不会悄悄改写输出参数。
 
@@ -42,7 +42,7 @@ response = session.create(
 
 `session.on_native_event("codex", event)` 接收真实 app-server `contextCompaction` 开始/完成事件；`session.on_native_event("claude", event)` 接收 `PreCompact`/`PostCompact`。外层可信接入负责把正确会话的事件送进来。支持压缩、开启压缩或 usage 更新，不等于压缩事件；不需要持续轮询日志。
 
-本版本没有自动安装这些监听器、修改 Claude Code/Codex/WorkBuddy 设置或代理内置模型。MCP 保留外部历史处理和可选记忆本，其助手规则把当前聊天留给宿主；MCP 本身不是上述请求拦截入口。
+这个 SDK 包装器不会安装这些监听器、修改 Claude Code/Codex/WorkBuddy 设置或代理内置模型。另有一个可选的 Windows 请求网关（测试版，属于[桌面小猫](desktop_companion.md)）会这么做：开启后，它把 Codex 和 Claude Code 指向 `127.0.0.1`，在请求发出前压缩符合条件的旧历史；`tomc restore-direct` 可以撤销。MCP 保留外部历史处理和可选记忆本，其助手规则把当前聊天留给宿主；MCP 本身不是请求拦截入口。
 
 首版 SDK 包装器支持同步、文本 Chat Completions；Anthropic Messages 和 OpenAI Responses 需要对应传输适配，不能把签名推理或不透明的原生压缩项直接变成文本。GPT-6.1 Sol 的工具调用要求 Responses，见[官方模型页](https://developers.openai.com/api/docs/models/gpt-6.1-sol)。
 

@@ -1,9 +1,12 @@
-"""Render README result figures from the existing tables (Python standard library only)."""
+"""Render the assistant-trial figures from the evidence-page tables (Python standard library only).
+
+The tables used to live in README.md / README_zh.md; since 0.3.0 they live in docs/evidence.md and
+docs/evidence_zh.md, before the BEAM section.
+"""
 
 from __future__ import annotations
 
 import argparse
-import hashlib
 import json
 import re
 from html import escape
@@ -12,13 +15,8 @@ from xml.etree import ElementTree
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "assets" / "results"
-PAPER = '<a id="paper-explained"></a>'
+PAPER = '<a id="beam"></a>'
 COLORS = {"full": "#8893a4", "40": "#277cba", "60": "#83b4d8", "80": "#b5cadb"}
-
-
-def blob_sha(text: str) -> str:
-    data = text.encode("utf-8")
-    return hashlib.sha1(b"blob " + str(len(data)).encode() + b"\0" + data).hexdigest()
 
 
 def table_for(text: str, prefix: str) -> str:
@@ -289,120 +287,20 @@ def claude_svg(data: dict, lang: str) -> str:
     return "\n".join(p) + "\n"
 
 
-def rewrite(original: str, lang: str, codex: str, claude: str) -> str:
-    front, paper = original.split(PAPER, 1)
-    zh = lang == "zh"
-    for name, table, target, alt in [
-        (
-            "codex",
-            codex,
-            "docs/codex_retention_20261005_zh.md" if zh else "docs/codex_retention_20261005.md",
-            "Windows Codex：4 种预算下均为 45/45；平均请求输入及配对减少比例。"
-            if zh
-            else "Windows Codex: all four budgets score 45/45. Mean request input and paired reductions.",
-        ),
-        (
-            "claude",
-            claude,
-            "docs/validation.md#claude-code-windows-validation",
-            "Claude Code：10K、20K、40K 历史的请求费用；各展示条件均为 5/5。"
-            if zh
-            else "Claude Code: costs at 10K, 20K and 40K histories; all shown conditions score 5/5.",
-        ),
-    ]:
-        image = f"assets/results/{name}_savings_{lang}.svg"
-        if image not in front:
-            caption = "查看可复制的原始数值" if zh else "Exact values (copyable text)"
-            replacement = f"[![{alt}]({image})]({target})\n\n<details>\n<summary>{caption}</summary>\n\n{table}\n\n</details>"
-            if front.count(table) != 1:
-                raise ValueError("Result table is ambiguous")
-            front = front.replace(table, replacement, 1)
-    # Edit the new onboarding prose; leave code, numerical tables and paper text alone.
-    if zh:
-        front = re.sub(
-            r"^\*\*视频演示的流程：\*\*.*$",
-            "API 接入方在请求前调用 TOMC，发送准备好的上下文。Codex 和 Claude Code 通过工具保存或召回任务笔记。视频中的模型名单包含有记录的测试和作者报告的试用，未做统一的多模型评测，也没有模型提供商背书。",
-            front,
-            flags=re.M,
-        )
-        front = re.sub(
-            r"^\*\*可核验的实验数字：\*\*.*$",
-            "[实测结果](#实测节省)保留了 Codex、Claude Code 各自的实验条件和原始记录。",
-            front,
-            flags=re.M,
-        )
-        front = front.replace("**立即试用：** ", "")
-        front = front.replace("#### 首次试用：按你的使用场景选择入口", "#### 首次试用")
-        front = front.replace(
-            "这里验证的是**显式保存与召回**，不会自动记录当前聊天的全部历史。",
-            "笔记需要主动保存和召回，插件不会自动记录全部聊天。",
-        )
-        front = front.replace("**答案一样，请求更小。** 我们用", "我们用")
-        front = front.replace(
-            "答案与完整历史完全一致，请求费用降低一半以上：",
-            "这 5 个问题的答案与完整历史一致。费用如下：",
-        )
-        front = front.replace(
-            "这里的 `history`、`task`、`client` 和 `model` 来自你已有的应用。",
-            "`history`、`task`、`client` 和 `model` 来自你已有的应用。",
-        )
-    else:
-        front = re.sub(
-            r"^\*\*What the demo illustrates:\*\*.*$",
-            "API integrations call TOMC before the next request and send the prepared context. Codex and Claude Code use tools to save or recall task notes. The video includes recorded tests and author-reported trials; it has no uniform multi-model benchmark or provider endorsement.",
-            front,
-            flags=re.M,
-        )
-        front = re.sub(
-            r"^\*\*Results you can audit:\*\*.*$",
-            "The [measured results](#measured-savings) give the Codex and Claude Code protocols and their source records.",
-            front,
-            flags=re.M,
-        )
-        front = front.replace("**Try it:** ", "")
-        front = front.replace(
-            "#### First run — choose the path that fits your workflow", "#### First run"
-        )
-        front = front.replace(
-            "This tests **explicit** save/recall, not automatic recording of active chats.",
-            "Save and recall are explicit tool calls. The plugin does not record the whole chat automatically.",
-        )
-        front = front.replace("**Same answers, smaller requests.** On synthetic", "On synthetic")
-        front = front.replace(
-            "every answer matched the full history and the request cost fell by more than half:",
-            "all five answers matched the full-history condition. The answering-request costs were:",
-        )
-    updated = front + PAPER + paper
-    if original.split("</div>", 1)[0] != updated.split("</div>", 1)[0]:
-        raise ValueError("Star header changed")
-    if updated.split(PAPER, 1)[1] != paper:
-        raise ValueError("Paper section changed")
-    if re.findall(r"```.*?```", original, re.S) != re.findall(r"```.*?```", updated, re.S):
-        raise ValueError("Code block changed")
-    for table in (codex, claude):
-        if updated.count(table) != 1:
-            raise ValueError("Copyable data was lost or duplicated")
-    return updated
-
-
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "--check", action="store_true", help="check generated files without writing"
     )
-    parser.add_argument(
-        "--update-readmes", action="store_true", help="embed figures and edit onboarding prose"
-    )
     args = parser.parse_args()
-    source, tables, data = {}, {}, {}
+    tables, data = {}, {}
     for lang, filename, a, b in [
-        ("en", "README.md", "| Context sent |", "| History |"),
-        ("zh", "README_zh.md", "| 发送的上下文 |", "| 历史长度 |"),
+        ("en", "docs/evidence.md", "| Context sent |", "| History |"),
+        ("zh", "docs/evidence_zh.md", "| 发送的上下文 |", "| 历史长度 |"),
     ]:
         value = (ROOT / filename).read_text(encoding="utf-8")
         if value.count(PAPER) != 1:
-            raise ValueError(f"Paper marker missing or duplicated: {filename}")
-        source[lang] = (filename, value)
+            raise ValueError(f"BEAM section marker missing or duplicated: {filename}")
         tables[lang] = (table_for(value, a), table_for(value, b))
         data[lang] = numbers(*tables[lang])
     if data["en"] != data["zh"]:
@@ -418,7 +316,7 @@ def main() -> None:
     outputs[OUT / "data.json"] = (
         json.dumps(
             {
-                "source": "README measured-savings tables; original protocols linked in each README",
+                "source": "Assistant-trial tables in docs/evidence.md and docs/evidence_zh.md; protocols linked there",
                 **data["en"],
             },
             ensure_ascii=False,
@@ -426,19 +324,6 @@ def main() -> None:
         )
         + "\n"
     )
-    report = {}
-    for lang, (filename, original) in source.items():
-        modified = rewrite(original, lang, *tables[lang])
-        if args.update_readmes:
-            outputs[ROOT / filename] = modified
-        report[filename] = {
-            "source_blob": blob_sha(original),
-            "result_blob": blob_sha(modified),
-            "star_header_unchanged": True,
-            "paper_section_unchanged": True,
-            "code_blocks_unchanged": True,
-            "copyable_tables_preserved": True,
-        }
     for path, value in outputs.items():
         if args.check:
             if not path.is_file() or path.read_text(encoding="utf-8") != value:
@@ -446,7 +331,7 @@ def main() -> None:
         else:
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_text(value, encoding="utf-8")
-    print(json.dumps({"files": len(outputs), "checks": report}, ensure_ascii=False, indent=2))
+    print(json.dumps({"files": len(outputs), "checked": args.check}, ensure_ascii=False, indent=2))
 
 
 if __name__ == "__main__":

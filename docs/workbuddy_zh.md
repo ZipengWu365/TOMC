@@ -2,18 +2,17 @@
 
 [English](workbuddy.md) · [助手接入指南](assistant_setup.md) · [验证记录](validation.md)
 
-本文提供腾讯 WorkBuddy 的本地 MCP 手动配置。**WorkBuddy 图形界面安装及模型实际调用 TOMC 工具仍未验证**；此前 TOMC 后端检查保留各自范围。TOMC 尚未上架腾讯官方市场，也不代表获得腾讯背书。本次更新没有新增客户端实测。
+本文提供腾讯 WorkBuddy 的本地 MCP 手动配置。**WorkBuddy 的安装和 TOMC 工具调用还没在真机上验证**；此前 TOMC 服务的检查保留各自范围。TOMC 尚未上架腾讯官方市场，也不代表获得腾讯背书。
+
+最快的办法：在装好 `.[mcp]` 的源码环境里（Python 3.10 或更新）运行 `python -m tomc setup --client workbuddy --write`，再运行 `python -m tomc doctor`。下面的手动方法使用锁定运行环境。
 
 ## 使用锁定运行环境
 
 安装 [UV](https://docs.astral.sh/uv/getting-started/installation/)，确保 `uv` 在 PATH 中，再克隆公开仓库：
 
 ```bash
-git clone https://github.com/ZipengWu365/TOMC.git && printf '\n%s\n%s\n' \
-  '如果 TOMC 对你有帮助，欢迎 Star 支持（自愿）：' 'https://github.com/ZipengWu365/TOMC'
+git clone https://github.com/ZipengWu365/TOMC.git
 ```
-
-上面的 Bash / Git Bash 命令会在克隆成功后显示一次自愿 Star 邀请。直接使用普通 `git clone` 不会显示；克隆完成不代表已经安装。
 
 主仓库的 `plugins/claude-code` 目录包含共用的 TOMC 源码、`pyproject.toml`、`uv.lock` 和 `src/server.py`。WorkBuddy 可把它作为本地 stdio 服务启动，不需要安装 Claude Code。首次启动时，UV 可能下载兼容的 Python 和锁定依赖。TOMC 本身不需要额外模型 API Key 或 GPU。
 
@@ -36,11 +35,11 @@ uv sync --locked --directory "/absolute/path/to/TOMC/plugins/claude-code"
 
 `~` 表示当前用户的主目录。保存后查看服务状态；官方指南用绿色表示连接成功，红色表示配置或启动异常。模板显式设置 `stdio`，该类型见[官方连接器参考](https://open.workbuddy.cn/docs/connector)。
 
-备选方式是从当前 TOMC 源码安装 `.[mcp]`，再执行 `python -m tomc setup --client workbuddy`。命令打印当前 Python 环境的配置，不会修改 WorkBuddy 设置。可加 `--store /absolute/path/to/tomc-memory.sqlite3` 指定数据库。`workbuddy` 别名是当前源码新增入口；旧 ZIP/MCPB 预览包可能没有该选项，请更新源码或使用 UV 模板。`--link` 仍仅支持 Cursor。
+备选方式是从 TOMC 源码安装 `.[mcp]`，再执行 `python -m tomc setup --client workbuddy --write`。它先给 `~/.workbuddy/mcp.json` 留一份带时间戳的备份，再合并当前 Python 环境的配置，保留其他服务，重复运行不会再改；项目级文件加 `--config <项目目录>/.workbuddy/mcp.json`。不加 `--write` 时只打印配置。可加 `--store /absolute/path/to/tomc-memory.sqlite3` 指定数据库。`--link` 仍仅支持 Cursor。重启 WorkBuddy 后确认有十二个工具，再说 **试一下 TOMC Memory**。
 
 ## 工具、存储与反馈
 
-`prepare_context` 处理明确提供的历史，不保存该历史。可选记忆本工具为 `remember_memory`、`recall_memory`、`list_memories` 和 `forget_memory`。仅保存用户明确授权的文本，删除时只处理指定记忆本。
+0.3.0 共十二个工具。`try_tomc` 用内置样例试跑。`prepare_context` 处理明确提供的历史；它和 `recall_memory` 的结果默认都不保存，运行 `tomc settings --save-mcp-results on` 后才保存。记忆本工具为 `remember_memory`、`recall_memory`、`list_memories` 和 `forget_memory`；`erase_all_memory` 确认后删除全部记录。状态与上下文库工具为 `get_status`、`get_usage_stats`、`list_contexts`、`get_context` 和 `make_handoff`。仅保存用户明确授权的文本，删除时只处理指定记忆本。
 
 默认记忆本是明文 SQLite 文件 `~/.tomc/memory.sqlite3`。使用 UV 模板时，可将以下字段合并到 `command`、`args` 同级，指定独立文件：
 

@@ -1,13 +1,20 @@
-# TOMC 0.2.1 — 2026-10-24
+# Earlier packages
+
+This folder keeps only the earlier 0.1.x packages, unchanged. 0.2.x and 0.3.x packages are published only as release assets on GitHub:
+
+- **0.3.0 (current):** [release page](https://github.com/ZipengWu365/TOMC/releases/tag/v0.3.0-preview.1), with a `.sha256` file next to each package. What changed: [release notes](../../docs/release_notes_0.3.0.md). How to install: [installation guide](../../docs/assistant_plugin.md) · [中文安装指南](../../docs/assistant_plugin_zh.md).
+- 0.2.1 and 0.2.0: listed below.
+
+## TOMC 0.2.1 — 2026-10-24 (earlier release)
 
 0.2.1 fits each MCP result into one tool output, can send only the changes on a repeat call, and lets notes and documents stop below the budget when the evidence is clear. Like 0.2.0, the packages are [release assets](https://github.com/ZipengWu365/TOMC/releases/tag/v0.2.1-preview.1).
 
-| Current package | Download | Size | SHA-256 |
+| Package | Download | Size | SHA-256 |
 |---|---|---|---|
 | Claude MCP runtime 0.2.1 | [MCPB](https://github.com/ZipengWu365/TOMC/releases/download/v0.2.1-preview.1/tomc-memory-0.2.1.mcpb) | 7.6 MB | `0b2807382011bee9fe6dd7fa36b9f35f9a830b980964cfb650eccc651409bbed` |
 | Codex native plugin 0.2.1 | [ZIP](https://github.com/ZipengWu365/TOMC/releases/download/v0.2.1-preview.1/tomc-memory-codex-0.2.1.zip) | 7.6 MB | `1bab23d6978165c460bc6d30c8d9ecd02f0f57e2755ced6f3a5a6bbfbc68cf1f` |
 
-# TOMC 0.2.0 — 2026-10-24
+## TOMC 0.2.0 — 2026-10-24 (earlier release)
 
 The 0.2.0 packages include the desktop cat images, so at about 7.6 MB they are published as [release assets](https://github.com/ZipengWu365/TOMC/releases/tag/v0.2.0-preview.1) rather than in this folder. They add the context library tools, the savings dashboard data and the analysis report; the desktop companion itself is installed from a checkout ([guide](../../docs/desktop_companion.md)).
 
@@ -18,15 +25,15 @@ The 0.2.0 packages include the desktop cat images, so at about 7.6 MB they are p
 
 Packages below are earlier versions, kept unchanged.
 
-# Codex installation support prompt — 2026-10-16
+## Codex installation support prompt — 2026-10-16
 
 Codex packaging **0.1.2** adds an optional GitHub Star invitation after successful installation. It is shown once per successful installer run; `--no-support-message` hides it. Preflight, configure-only and failed installation paths do not show it. MCP tool output is unchanged. No new native-client or model acceptance is claimed. The 0.1.1 downloads remain available at their original paths.
 
-# Assistant workflow policy update — 2026-10-12
+## Assistant workflow policy update — 2026-10-12
 
 Plugin packaging **0.1.1** includes the host-managed active-chat policy. When native compaction is enabled or unknown, the assistant should leave that chat with the host. TOMC remains available for external task evidence and explicitly saved notebooks. This is assistant guidance, not a compaction-switch detector, automatic request hook or runtime prohibition. The compiler core remains 0.1.0.
 
-| Current package | Download | SHA-256 |
+| Earlier package (2026-10-12) | Download | SHA-256 |
 |---|---|---|
 | Codex native plugin 0.1.2 | [ZIP](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-codex-0.1.2.zip) | [Checksum](tomc-memory-codex-0.1.2.zip.sha256) |
 | Claude MCP runtime 0.1.1 | [MCPB](https://github.com/ZipengWu365/TOMC/raw/refs/heads/main/plugins/downloads/tomc-memory-0.1.1.mcpb) | [Checksum](tomc-memory-0.1.1.mcpb.sha256) |
@@ -37,7 +44,7 @@ The runtime also includes the opt-in API request-loop helper and output-equivale
 
 Earlier 0.1.0 packages are preserved unchanged below.
 
-# MIT-licensed assistant preview · 2026-10-10
+## MIT-licensed assistant preview · 2026-10-10
 
 These TOMC v0.1.0 packages were rebuilt after the copyright holder authorized the MIT License on 2026-10-10. They include the MIT license text and updated package documentation. The source remains a research preview; dated host/model validation is recorded in [validation](../../docs/validation.md).
 
