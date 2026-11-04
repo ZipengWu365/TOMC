@@ -23,7 +23,7 @@ body:
     attributes:
       label: TOMC Memory version and commit
       description: Output of `python -c "import tomc; print(tomc.__version__)"` and `git rev-parse HEAD`.
-      placeholder: 0.3.0, commit abc1234
+      placeholder: 0.3.1, commit abc1234
     validations:
       required: true
   - type: input

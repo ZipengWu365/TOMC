@@ -39,7 +39,7 @@ As an alternative, install `.[mcp]` from TOMC source and run `python -m tomc set
 
 ## Tools, storage and feedback
 
-0.3.0 has twelve tools. `try_tomc` runs a built-in sample. `prepare_context` prepares supplied history; neither it nor `recall_memory` saves its result unless you run `tomc settings --save-mcp-results on`. The notebook tools are `remember_memory`, `recall_memory`, `list_memories` and `forget_memory`; `erase_all_memory` deletes everything after confirmation. The status and library tools are `get_status`, `get_usage_stats`, `list_contexts`, `get_context` and `make_handoff`. Save only explicitly authorized text and delete only the requested notebook.
+0.3.1 has twelve tools. `try_tomc` runs a built-in sample. `prepare_context` prepares supplied history; neither it nor `recall_memory` saves its result unless you run `tomc settings --save-mcp-results on`. The notebook tools are `remember_memory`, `recall_memory`, `list_memories` and `forget_memory`; `erase_all_memory` deletes everything after confirmation. The status and library tools are `get_status`, `get_usage_stats`, `list_contexts`, `get_context` and `make_handoff`. Save only explicitly authorized text and delete only the requested notebook.
 
 Notebooks default to plaintext SQLite at `~/.tomc/memory.sqlite3`. For the UV template, merge this field alongside `command` and `args` to choose a different file:
 

@@ -21,11 +21,15 @@ theme:
 nav:
   - Overview: index.md
   - Install TOMC Memory: assistant_plugin.md
+  - What changed in 0.3.1: release_notes_0.3.1.md
+  - What changed in 0.3.1 (中文): release_notes_0.3.1_zh.md
   - What changed in 0.3.0: release_notes_0.3.0.md
   - What changed in 0.3.0 (中文): release_notes_0.3.0_zh.md
   - Evidence and claims ledger: evidence.md
   - Evidence and claims ledger (中文): evidence_zh.md
   - Desktop companion (beta): desktop_companion.md
+  - Weekly report card: share_card.md
+  - Weekly report card (中文): share_card_zh.md
   - macOS setup and tips: macos_usage.md
   - Manual MCP setup: assistant_setup.md
   - Cursor and TRAE setup: cursor_trae.md

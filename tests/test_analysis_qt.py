@@ -105,13 +105,18 @@ def test_analysis_tab_ranks_conversations_and_follows_the_period(dialog, app):
     assert dialog.tabs.currentWidget() is page
     assert page.summary.text() == "累计 · 2 个请求中压缩了 100%"
     # The privacy promise sits next to the button, not only at the bottom of the page.
-    assert page.feedback_button.text() == "匿名提交反馈 ›"
+    assert page.feedback_button.text() == "匿名反馈 ›"
+    # Feedback is a developer tool: a secondary button, not the page's primary one.
+    assert page.feedback_button.objectName() != "primary"
     assert "反馈是匿名的" in page.anonymity.text()
     assert "不含对话名称、对话内容、文件夹或任何 ID" in page.anonymity.text()
     assert page.table.rowCount() == 2
     assert [page.table.item(row, 0).text() for row in range(2)] == list(NAMES.values())
     assert [page.table.item(row, 1).text() for row in range(2)] == ["编程开发", "写作与文案"]
-    assert page.table.item(0, 4).text() == "20,000" and page.table.item(0, 5).text() == "$0.04"
+    assert page.table.item(0, 4).text() == "20K" and page.table.item(0, 5).text() == "≈ $0.04"
+    assert page.table.horizontalHeaderItem(5).text() == "按标价估算"
+    assert "不是账单" in page.table.horizontalHeaderItem(5).toolTip()
+    assert page.conversation_donut.center == ("21,000", "节省 tokens")
     assert [name for name, *_ in page.conversation_donut.parts] == list(NAMES.values())
     assert page.category_donut.center == ("2", "种工作")
     assert page.coverage_bars.rows[0][:2] == ("已压缩", 2)
@@ -142,7 +147,9 @@ def test_mac_refresh_keeps_visible_analysis_in_sync_with_new_requests(dialog, ap
     app.processEvents()
     assert dialog.analysis_page.report["totals"]["tokens_saved"] == 31_000
     assert dialog.analysis_page.report["totals"]["requests"] == 3
-    assert dialog.analysis_page.table.item(0, 4).text() == "30,000"
+    # Per-conversation rows use the compact format, like the legend and the cards.
+    assert dialog.analysis_page.table.item(0, 4).text() == "30K"
+    assert dialog.analysis_page.table.item(0, 4).toolTip() == "30,000 tokens"
     assert dialog.kpis["tokens"][0].text() == "31,000"
 
 

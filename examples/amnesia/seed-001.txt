@@ -1,0 +1,78 @@
+# id: seed-001
+# title: The API address changed three times in one long chat
+# status: 已复现（附命令） / reproduced
+# command: python -m pytest tests/test_amnesia_examples.py -k seed-001
+# credit: TOMC Memory maintainers (synthetic seed, not a user story)
+# assistant: any chat assistant
+# fact: API address
+# changes: 3
+# task: Which API base URL should the client call now?
+# key: api_base
+# latest: https://api.example.test/v4
+# stale: https://api.example.test/v1, https://api.example.test/v2, https://api.example.test/v3
+# budget: 200
+---
+user: We are building the invoice client this week. api_base = https://api.example.test/v1
+assistant: Noted. I will point the client at the v1 address.
+user: Reviewed the onboarding copy for the landing page and fixed two typos. (note 0)
+user: Discussed the sprint retro; people want shorter standups on Mondays. (note 1)
+user: Logged a flaky screenshot test in the design system storybook. (note 2)
+user: Someone asked about holiday coverage for the support rota next month. (note 3)
+user: Benchmarked image thumbnails; the resize step dominates upload time. (note 4)
+user: Talked through naming for the analytics events in the mobile app. (note 5)
+user: Paired on a CSS grid layout bug in the settings page sidebar. (note 6)
+user: Noted that the staging certificate renews automatically every quarter. (note 7)
+user: Moved the release checklist into the team wiki and linked it from the readme. (note 8)
+user: Asked design for a darker hover colour on the secondary buttons. (note 9)
+user: Reviewed the onboarding copy for the landing page and fixed two typos. (note 10)
+user: Discussed the sprint retro; people want shorter standups on Mondays. (note 11)
+user: Logged a flaky screenshot test in the design system storybook. (note 12)
+user: Someone asked about holiday coverage for the support rota next month. (note 13)
+user: Update: api_base = https://api.example.test/v2 because v1 is being retired.
+assistant: Switched the client config to v2.
+user: Benchmarked image thumbnails; the resize step dominates upload time. (note 14)
+user: Talked through naming for the analytics events in the mobile app. (note 15)
+user: Paired on a CSS grid layout bug in the settings page sidebar. (note 16)
+user: Noted that the staging certificate renews automatically every quarter. (note 17)
+user: Moved the release checklist into the team wiki and linked it from the readme. (note 18)
+user: Asked design for a darker hover colour on the secondary buttons. (note 19)
+user: Reviewed the onboarding copy for the landing page and fixed two typos. (note 20)
+user: Discussed the sprint retro; people want shorter standups on Mondays. (note 21)
+user: Logged a flaky screenshot test in the design system storybook. (note 22)
+user: Someone asked about holiday coverage for the support rota next month. (note 23)
+user: Benchmarked image thumbnails; the resize step dominates upload time. (note 24)
+user: Talked through naming for the analytics events in the mobile app. (note 25)
+user: Paired on a CSS grid layout bug in the settings page sidebar. (note 26)
+user: Noted that the staging certificate renews automatically every quarter. (note 27)
+user: The backend team moved again. api_base = https://api.example.test/v3
+assistant: Changed it to v3.
+user: Moved the release checklist into the team wiki and linked it from the readme. (note 28)
+user: Asked design for a darker hover colour on the secondary buttons. (note 29)
+user: Reviewed the onboarding copy for the landing page and fixed two typos. (note 30)
+user: Discussed the sprint retro; people want shorter standups on Mondays. (note 31)
+user: Logged a flaky screenshot test in the design system storybook. (note 32)
+user: Someone asked about holiday coverage for the support rota next month. (note 33)
+user: Benchmarked image thumbnails; the resize step dominates upload time. (note 34)
+user: Talked through naming for the analytics events in the mobile app. (note 35)
+user: Paired on a CSS grid layout bug in the settings page sidebar. (note 36)
+user: Noted that the staging certificate renews automatically every quarter. (note 37)
+user: Moved the release checklist into the team wiki and linked it from the readme. (note 38)
+user: Asked design for a darker hover colour on the secondary buttons. (note 39)
+user: Reviewed the onboarding copy for the landing page and fixed two typos. (note 40)
+user: Discussed the sprint retro; people want shorter standups on Mondays. (note 41)
+user: Correction: api_base = https://api.example.test/v4 from today; v3 never shipped.
+assistant: Understood, v4 it is.
+user: Logged a flaky screenshot test in the design system storybook. (note 42)
+user: Someone asked about holiday coverage for the support rota next month. (note 43)
+user: Benchmarked image thumbnails; the resize step dominates upload time. (note 44)
+user: Talked through naming for the analytics events in the mobile app. (note 45)
+user: Paired on a CSS grid layout bug in the settings page sidebar. (note 46)
+user: Noted that the staging certificate renews automatically every quarter. (note 47)
+user: Moved the release checklist into the team wiki and linked it from the readme. (note 48)
+user: Asked design for a darker hover colour on the secondary buttons. (note 49)
+user: Reviewed the onboarding copy for the landing page and fixed two typos. (note 50)
+user: Discussed the sprint retro; people want shorter standups on Mondays. (note 51)
+user: Logged a flaky screenshot test in the design system storybook. (note 52)
+user: Someone asked about holiday coverage for the support rota next month. (note 53)
+user: Benchmarked image thumbnails; the resize step dominates upload time. (note 54)
+user: Talked through naming for the analytics events in the mobile app. (note 55)

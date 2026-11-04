@@ -34,7 +34,7 @@ def main(argv=None):
     )
 
     from tomc.pet_art import PetArt
-    from tomc.pet_growth import STAGES, request_stage
+    from tomc.pet_growth import STAGES, saved_stage
     from tomc.ui_language import ui_font
 
     app = QApplication([])
@@ -62,7 +62,7 @@ def main(argv=None):
         column.addWidget(title)
         art = PetArt(window)
         art.setFixedSize(160, 178)
-        art.set_state(request_stage(max(1, threshold), "en"))
+        art.set_state(saved_stage(threshold, "en"))
         column.addWidget(art)
         arts.append(art)
         row.addLayout(column)

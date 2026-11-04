@@ -127,7 +127,7 @@ TOMC 从 `u0` 开始分配源编号，对应第一条非空行。历史原文里
 
 `remember_memory` 是追加，不会编辑某条旧记录。把已纠正的值和顺序说清楚，并检查下一次 recall。`forget_memory` 删除整个指定 notebook，以及由它准备出的上下文，工具不能撤销删除。如果要完全重建，先保留需要的原文，明确要求删除该名称，再保存替换内容。
 
-notebook 以明文保存传给工具的内容，文件只有你自己能读。使用同一数据库的客户端会共享它，卸载插件不会删除数据库；`tomc erase-all --yes` 会全部清空。只想临时准备一次上下文时，直接使用 `prepare_context`；0.3.0 中它的结果默认不保存，运行 `tomc settings --save-mcp-results on` 后才保存。
+notebook 以明文保存传给工具的内容，文件只有你自己能读。使用同一数据库的客户端会共享它，卸载插件不会删除数据库；`tomc erase-all --yes` 会全部清空。只想临时准备一次上下文时，直接使用 `prepare_context`；0.3.0 起它的结果默认不保存，运行 `tomc settings --save-mcp-results on` 后才保存。
 
 如果一个助手找不到记忆本，先在两边调用 `list_memories`，核对正在使用的服务和数据库路径。同名记忆本不代表两边打开了同一个文件。[Windows MCP 检查](validation.md#cross-assistant-notebooks)在独立数据库中验证了双向读取、更新、重启和并发追加。
 

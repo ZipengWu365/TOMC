@@ -10,9 +10,9 @@ TOMC 按任务准备上下文，让你用结果替换较长的历史。传入历
 
 <a id="current-version"></a>
 
-## 当前版本：0.3.0
+## 当前版本：0.3.1
 
-0.3.0 安装包共有十二个 MCP 工具：`try_tomc`、`prepare_context`、`remember_memory`、`recall_memory`、`list_memories`、`forget_memory`、`erase_all_memory`、`get_status`、`get_usage_stats`、`list_contexts`、`get_context`、`make_handoff`。每个结果第一行是一句 `summary`；所选方法、token 估算、警告等诊断信息放在 `details` 里。工具参数检查更严：多余的参数会被拒绝，`budget` 必须是正整数。客户端断开或父进程退出时，服务会自己退出。
+0.3.1 安装包共有十二个 MCP 工具：`try_tomc`、`prepare_context`、`remember_memory`、`recall_memory`、`list_memories`、`forget_memory`、`erase_all_memory`、`get_status`、`get_usage_stats`、`list_contexts`、`get_context`、`make_handoff`。每个结果第一行是一句 `summary`；所选方法、token 估算、警告等诊断信息放在 `details` 里。工具参数检查更严：多余的参数会被拒绝，`budget` 必须是正整数。客户端断开或父进程退出时，服务会自己退出。
 
 **0.3.0 改了保存方式。** 0.2.0 和 0.2.1 默认保存每次成功的准备和召回结果。0.3.0 只有两个开关都打开时才保存：**保存上下文记录** 和 **保存 MCP 结果**（`tomc settings --save-mcp-results on`，默认关）。保存的上下文会先把常见密钥替换成 `[REDACTED]`，30 天后自动删除（`tomc settings --retention-days N` 可改）。`forget_memory` 会一并删除由这本笔记准备出的上下文。`erase_all_memory`（需要 `confirm="ERASE ALL"`）、`tomc erase-all --yes` 或小猫上下文窗口里的 **清空全部记录…** 会删掉所有保存的记录。用 `remember_memory` 存的笔记原样保存在 `~/.tomc/memory.sqlite3`（或 `TOMC_MEMORY_PATH`），直到你删除。旧版本只存数字的统计无法还原过去的聊天正文。[安全与隐私](https://github.com/ZipengWu365/TOMC/blob/main/SECURITY.md)
 
@@ -35,7 +35,7 @@ TOMC 按任务准备上下文，让你用结果替换较长的历史。传入历
 | 腾讯 WorkBuddy | `tomc setup --client workbuddy --write`，或[手动配置](workbuddy_zh.md) | 工具调用还没在真机上验证 |
 | Codex | 运行 ZIP 内的安装助手，或 `tomc setup --client codex --write` | 原生安装和真实模型调用在 Windows（preview.4）和 macOS（preview.2）上通过，都是 0.1.x |
 
-从[发布页](https://github.com/ZipengWu365/TOMC/releases/tag/v0.3.0-preview.1)下载 0.3.0 安装包：[Claude `.mcpb`](https://github.com/ZipengWu365/TOMC/releases/download/v0.3.0-preview.1/tomc-memory-0.3.0.mcpb)（[校验文件](https://github.com/ZipengWu365/TOMC/releases/download/v0.3.0-preview.1/tomc-memory-0.3.0.mcpb.sha256)）、[Codex ZIP](https://github.com/ZipengWu365/TOMC/releases/download/v0.3.0-preview.1/tomc-memory-codex-0.3.0.zip)（[校验文件](https://github.com/ZipengWu365/TOMC/releases/download/v0.3.0-preview.1/tomc-memory-codex-0.3.0.zip.sha256)）。0.1.x 旧包保留在 [`plugins/downloads`](https://github.com/ZipengWu365/TOMC/tree/main/plugins/downloads)；0.2.x 和 0.3.x 只在 Releases 页面提供。带日期的宿主和模型验证保留原来的范围。
+从[发布页](https://github.com/ZipengWu365/TOMC/releases/tag/v0.3.1-preview.1)下载 0.3.1 安装包：[Claude `.mcpb`](https://github.com/ZipengWu365/TOMC/releases/download/v0.3.1-preview.1/tomc-memory-0.3.1.mcpb)（[校验文件](https://github.com/ZipengWu365/TOMC/releases/download/v0.3.1-preview.1/tomc-memory-0.3.1.mcpb.sha256)）、[Codex ZIP](https://github.com/ZipengWu365/TOMC/releases/download/v0.3.1-preview.1/tomc-memory-codex-0.3.1.zip)（[校验文件](https://github.com/ZipengWu365/TOMC/releases/download/v0.3.1-preview.1/tomc-memory-codex-0.3.1.zip.sha256)）。0.1.x 旧包保留在 [`plugins/downloads`](https://github.com/ZipengWu365/TOMC/tree/main/plugins/downloads)；0.2.x 和 0.3.x 只在 Releases 页面提供。带日期的宿主和模型验证保留原来的范围。
 
 <a id="setup-write"></a>
 
@@ -78,13 +78,13 @@ python -m pip install -e '.[mcp]'
 
 ## Claude Desktop
 
-0.3.0 下载包由本仓库源码构建为 `outputs/plugins/tomc-memory-0.3.0.mcpb`。它带有 TOMC 源码，采用官方 MCPB UV runtime，由支持该运行方式的客户端管理 Python 和依赖，创建独立环境。首次安装需要联网下载，并非离线安装包；用户不必先手动安装 Python。[官方 UV 安装包示例](https://github.com/modelcontextprotocol/mcpb/tree/main/examples/hello-world-uv)
+0.3.1 下载包由本仓库源码构建为 `outputs/plugins/tomc-memory-0.3.1.mcpb`。它带有 TOMC 源码，采用官方 MCPB UV runtime，由支持该运行方式的客户端管理 Python 和依赖，创建独立环境。首次安装需要联网下载，并非离线安装包；用户不必先手动安装 Python。[官方 UV 安装包示例](https://github.com/modelcontextprotocol/mcpb/tree/main/examples/hello-world-uv)
 
 维护者可以在仓库中构建和检查：
 
 ```bash
 python scripts/build_plugin.py
-python scripts/plugin_smoke.py outputs/plugins/tomc-memory-0.3.0.mcpb
+python scripts/plugin_smoke.py outputs/plugins/tomc-memory-0.3.1.mcpb
 ```
 
 第二条命令需要 `uv` 和 MCP 测试客户端（`.[mcp]`）。它在仓库外解压安装包并启动锁定的运行环境，不会安装到助手中，也不会更改助手配置。分享时提供 `.mcpb` 文件及其 `.sha256` 校验文件；不要把自己电脑生成的 Cursor 路径链接当成可移植安装包。
@@ -92,7 +92,7 @@ python scripts/plugin_smoke.py outputs/plugins/tomc-memory-0.3.0.mcpb
 1. 更新 Claude Desktop，取得 `.mcpb` 文件。
 2. 进入 **Settings → Extensions → Advanced settings → Install Extension…**。
 3. 选择文件，查看说明并按提示确认安装。
-4. 开启对话，检查 TOMC 工具是否可用（0.3.0 共十二个），然后说 **试一下 TOMC Memory**。
+4. 开启对话，检查 TOMC 工具是否可用（0.3.1 共十二个），然后说 **试一下 TOMC Memory**。
 
 这是[官方支持的自定义安装路径](https://support.claude.com/en/articles/10949351-getting-started-with-local-mcp-servers-on-claude-desktop)。完成打包和 MCP 协议检查，并不等于已通过所有桌面环境验收；macOS、Windows 上的实际 Claude Desktop 安装仍需验证。
 
@@ -113,7 +113,7 @@ python scripts/plugin_smoke.py outputs/plugins/tomc-memory-0.3.0.mcpb
 
 Claude Code 不能直接安装 `.mcpb` 文件，但可以把包里同一套锁定环境作为本地 stdio MCP 服务启动。
 
-1. 下载 `tomc-memory-0.3.0.mcpb`，核对 SHA-256，再解压（它是 ZIP 格式）到一个会长期保留的目录。
+1. 下载 `tomc-memory-0.3.1.mcpb`，核对 SHA-256，再解压（它是 ZIP 格式）到一个会长期保留的目录。
 2. 安装 [UV](https://docs.astral.sh/uv/getting-started/installation/)，确保 `uv` 在 PATH 中，再运行下文的命令。将示例路径替换为实际解压目录；路径包含空格时保留引号。
 3. 运行 `uv sync --locked --directory "/absolute/path/to/extracted"`，安装锁定的依赖。
 4. 注册服务，在所有项目中可用：
@@ -177,7 +177,7 @@ Cursor 官方支持安装链接，但这个链接只添加 MCP 配置，不负�
 
 ## Codex
 
-0.3.0 下载包构建为 `outputs/plugins/tomc-memory-codex-0.3.0.zip`。它包含 `.agents/plugins/marketplace.json` 本地市场目录、`install.py` 安装助手，以及 `plugins/tomc-memory/` 插件：其中有官方支持的 `.codex-plugin/plugin.json` 兼容 manifest、与 Claude 包相同的锁定 TOMC 运行环境和记忆 skill。兼容 manifest 声明随包提供的工具和 skill，安装助手则为当前安装生成启动路径。可以私下分享原始 ZIP，这并不意味着 TOMC 已上线公开插件目录。[OpenAI 官方插件打包与本地市场说明](https://developers.openai.com/plugins/build/plugins)
+0.3.1 下载包构建为 `outputs/plugins/tomc-memory-codex-0.3.1.zip`。它包含 `.agents/plugins/marketplace.json` 本地市场目录、`install.py` 安装助手，以及 `plugins/tomc-memory/` 插件：其中有官方支持的 `.codex-plugin/plugin.json` 兼容 manifest、与 Claude 包相同的锁定 TOMC 运行环境和记忆 skill。兼容 manifest 声明随包提供的工具和 skill，安装助手则为当前安装生成启动路径。可以私下分享原始 ZIP，这并不意味着 TOMC 已上线公开插件目录。[OpenAI 官方插件打包与本地市场说明](https://developers.openai.com/plugins/build/plugins)
 
 维护者可以在仓库中运行 `python scripts/build_codex_plugin.py` 构建候选包，再分享 ZIP 及其 `.sha256` 校验文件。
 
@@ -241,7 +241,7 @@ PATH 中的 CLI 可能与桌面应用内置引擎不同。安装助手默认选�
 uv run --no-project install.py --codex 'C:\path\to\codex.exe'
 ```
 
-目标 host 应同时支持插件命令和你的模型账户。安装成功提示说明完成了注册，不代表模型请求一定成功。新开会话后，先检查 TOMC 工具（0.3.0 共十二个），说 **试一下 TOMC Memory**，再运行[准备例子](#prepare-context)。明确要求调用 `prepare_context`，并查看实际工具结果。[Windows 反馈](windows_installation_feedback_zh.md)分别记录安装、运行和真实模型试用。
+目标 host 应同时支持插件命令和你的模型账户。安装成功提示说明完成了注册，不代表模型请求一定成功。新开会话后，先检查 TOMC 工具（0.3.1 共十二个），说 **试一下 TOMC Memory**，再运行[准备例子](#prepare-context)。明确要求调用 `prepare_context`，并查看实际工具结果。[Windows 反馈](windows_installation_feedback_zh.md)分别记录安装、运行和真实模型试用。
 
 若只希望生成本地启动配置、打印后续安装命令，而不注册市场或安装插件，可以执行：
 
@@ -307,7 +307,7 @@ Wednesday notes: the team checked the release checklist, added a rollback task, 
 
 这个例子使用显式赋值和复制。TOMC 准备 `framework = FastAPI`、`backup_framework = Flask` 两条记录，并保留来源链接。是否调用工具由客户端控制，回答由原来的模型生成。
 
-这个例子很短，本来就放得下，所以它展示的是记录，不是节省。0.3.0 的 MCP `prepare_context` 默认什么都不保存，打开 **保存 MCP 结果** 后才保存；保存时，已能放进预算的历史可能完整留在快照里。较长的普通文本可以使用检索，不一定产生结构化记录。后面某一行可能改了某个值、却没说清楚时，记录会标成 `STATE?`，并附上那一行。`budget` 按词法计数器限制记忆文本，任务和工具消息框架还会增加输入。
+这个例子很短，本来就放得下，所以它展示的是记录，不是节省。0.3.0 起，MCP `prepare_context` 默认什么都不保存，打开 **保存 MCP 结果** 后才保存；保存时，已能放进预算的历史可能完整留在快照里。较长的普通文本可以使用检索，不一定产生结构化记录。后面某一行可能改了某个值、却没说清楚时，记录会标成 `STATE?`，并附上那一行。`budget` 按词法计数器限制记忆文本，任务和工具消息框架还会增加输入。
 
 上面的 64-token 预算是明确指定的小例子。使用当前默认值时，省略 `budget`：约 1 万估算 token 以内保留 80%，越长保留越少，到 100 万降到 60%，最低为 1,024；本来就放得下的历史原样保留。这不是固定节省比例。
 
@@ -339,7 +339,7 @@ Wednesday notes: the team checked the release checklist, added a rollback task, 
 <details markdown="1">
 <summary>可选：跨聊天保存与取回历史</summary>
 
-记忆本保存传入的原始文本；`recall_memory` 在取回时按任务准备上下文。`prepare_context` 不需要记忆本。0.3.0 中，两条准备路径都只在打开"保存 MCP 结果"时保存结果（0.2.0 和 0.2.1 默认保存）。
+记忆本保存传入的原始文本；`recall_memory` 在取回时按任务准备上下文。`prepare_context` 不需要记忆本。0.3.0 起，两条准备路径都只在打开"保存 MCP 结果"时保存结果（0.2.0 和 0.2.1 默认保存）。
 
 ## 用两次对话试一下
 

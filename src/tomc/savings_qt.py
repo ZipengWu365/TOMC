@@ -11,6 +11,13 @@ from PySide6.QtWidgets import QFrame, QLabel, QSizePolicy, QToolTip, QWidget
 from .macos_ui import is_macos, text_style, tokens
 from .ui_language import ui_font
 
+# Number format rule, the same on every panel:
+# - the headline total of a surface (dashboard, library, analysis ring, bubble)
+#   uses ``total_tokens``: every digit below ten million, e.g. 656,000;
+# - per-item breakdowns (models, conversations, versions, legend and table rows)
+#   and the tiny pet capsule use ``compact_tokens``, e.g. 165K.
+# Money is always an estimate at list price; see ``money_short`` and friends.
+
 
 def compact_tokens(value):
     """12,345 → 12.3K and 1,234,567 → 1.23M; small counts keep every digit."""
@@ -40,6 +47,55 @@ def money_text(value):
     if 0 < value < 0.005:
         return sign + "<$0.01"
     return f"{sign}${value:,.2f}"
+
+
+def _say(language, zh, en, **values):
+    if hasattr(language, "tr"):
+        return language.tr(zh, en, **values)
+    text = en if getattr(language, "code", language) == "en" else zh
+    return text.format(**values) if values else text
+
+
+def money_short(value):
+    """ "≈ $3.39" for tight columns next to an estimate caption; "" when unknown."""
+    if value is None:
+        return ""
+    text = money_text(value)
+    # "<$0.01" already says "about"; "≈ <$0.01" would say it twice.
+    return text if "<" in text else "≈ " + text
+
+
+def money_phrase(value, language=None):
+    """The full estimate wording; "" when the amount is unknown, never "$0"."""
+    if value is None:
+        return ""
+    return _say(
+        language,
+        "按标价估算 {money}",
+        "{money} at list price (estimate)",
+        money=money_short(value),
+    )
+
+
+def money_caption(language=None):
+    """Caption above an "≈ $x" figure."""
+    return _say(language, "按标价估算", "At list price (estimate)")
+
+
+def money_tip(language=None):
+    """Every money figure carries this tooltip."""
+    return _say(
+        language,
+        "不是账单；有缓存或订阅时实际更少",
+        "Not a bill; less with caching or a subscription",
+    )
+
+
+def basis_text(mode, language=None):
+    """Which list price the estimate used; the same words on the dashboard and Pricing."""
+    if mode == "cached":
+        return _say(language, "按各模型的缓存读取标价", "Each model's cache-read list price")
+    return _say(language, "按各模型的输入标价", "Each model's input list price")
 
 
 def local_time(value):

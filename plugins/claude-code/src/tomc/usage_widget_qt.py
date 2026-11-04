@@ -10,8 +10,8 @@ import tempfile
 from collections import deque
 from pathlib import Path
 
-from PySide6.QtCore import QLockFile, QPoint, Qt, QTimer
-from PySide6.QtGui import QColor, QFontDatabase, QPainter, QPen
+from PySide6.QtCore import QEvent, QLockFile, QPoint, Qt, QTimer
+from PySide6.QtGui import QColor, QFontDatabase, QPainter, QPen, QPixmap
 from PySide6.QtWidgets import (
     QApplication,
     QFileDialog,
@@ -33,17 +33,21 @@ from .cost_estimate import load_pricing
 from .macos_ui import install_macos_style, is_macos, text_style, tokens
 from .oasis_qt import OasisCelebration
 from .pet_art import ACTIVE_WIDTH, IDLE_WIDTH, PetArt
-from .pet_growth import growth_state, request_stage
+from .pet_growth import growth_state, request_stage, saved_stage
 from .quota_qt import QuotaReader
 from .request_activity import RequestActivity
 from .savings import savings_report
 from .savings_qt import (
     ElidedLabel,
     SavingsChart,
+    basis_text,
     compact_tokens,
     discard,
     local_time,
+    money_caption,
+    money_short,
     money_text,
+    money_tip,
     rule,
     total_tokens,
 )
@@ -79,8 +83,13 @@ def label(text="", size=12, color="#443B35", bold=False):
 
 
 def growth_hint(growth, language):
-    # The helper owns the current request's input-length classification.
+    # The helper owns the cumulative-saving wording.
     return growth["hint"]
+
+
+def bucket_name(value):
+    names = {"codex": "Codex", "claude": "Claude Code", "claude_code": "Claude Code"}
+    return names.get(str(value).lower(), str(value))
 
 
 def quota_period(value, language):
@@ -95,6 +104,61 @@ def quota_period(value, language):
     if isinstance(value, str) and value.endswith("分钟"):
         return language.tr("{value}分钟", "{value} minutes", value=value[:-2])
     return str(value)
+
+
+def capsule_text(tokens_saved, language):
+    """The pet's always-on badge, e.g. "今日 −82K"; "" when nothing was saved today.
+
+    Only a positive number of tokens saved today (UTC, the same day the dashboard
+    calls "Today") is shown. No savings, an increase or an unreadable store show
+    nothing rather than a made-up or zero figure.
+    """
+    if isinstance(tokens_saved, bool) or not isinstance(tokens_saved, int) or tokens_saved <= 0:
+        return ""
+    return language.tr("今日 −{count}", "Today −{count}", count=compact_tokens(tokens_saved))
+
+
+class CompanionArt(PetArt):
+    """The pet head; it may keep its smiling frame after a preparation saved tokens."""
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.cheer = False
+        self._happy = {}
+
+    def set_cheer(self, value):
+        if self.cheer != bool(value):
+            self.cheer = bool(value)
+            self.update()
+
+    def happy_sprite(self):
+        # The strip holds two frames: left listless, right smiling. Idle painting
+        # uses the left frame, so give it a strip whose left frame is the smile.
+        key = self.sprite.cacheKey()
+        if key not in self._happy:
+            half = self.sprite.width() // 2
+            strip = QPixmap(self.sprite.size())
+            strip.fill(Qt.GlobalColor.transparent)
+            painter = QPainter(strip)
+            painter.drawPixmap(0, 0, self.sprite, half, 0, half, self.sprite.height())
+            painter.drawPixmap(half, 0, self.sprite, half, 0, half, self.sprite.height())
+            painter.end()
+            self._happy[key] = strip
+        return self._happy[key]
+
+    @property
+    def expression(self):
+        return "smiling" if self.phase is not None or self.cheer else "dejected"
+
+    def paintEvent(self, event):
+        if not self.cheer or self.phase is not None:
+            return super().paintEvent(event)
+        original = self.sprite
+        self.sprite = self.happy_sprite()
+        try:
+            super().paintEvent(event)
+        finally:
+            self.sprite = original
 
 
 class DismissButton(QPushButton):
@@ -234,6 +298,10 @@ class Details(QWidget):
         self.language = owner.language
         self.library = ContextLibrary(owner.store.path)
         self.quota_state = {"status": "unavailable", "windows": []}
+        self.quota_detail = ""
+        self.session_issue = None
+        self.session_detail = ""
+        self.request_state = None
         self.report = self.message = None
         self.failed = False
         self.records = []
@@ -308,15 +376,22 @@ class Details(QWidget):
         column.addWidget(self.caption)
         column.addWidget(self.total)
         hero.addLayout(column, 1)
-        column = QVBoxLayout()
+        self.money_column = QWidget()
+        column = QVBoxLayout(self.money_column)
+        column.setContentsMargins(0, 0, 0, 0)
         column.setSpacing(0)
         self.money_caption = label(size=10, color="#706659")
         self.money = label(size=22, bold=True)
         column.addWidget(self.money_caption)
         column.addWidget(self.money)
-        hero.addLayout(column, 1)
+        hero.addWidget(self.money_column, 1)
         body.addLayout(hero)
-        body.addSpacing(8)
+        self.empty_hint = label(size=11, color="#52705D")
+        self.empty_hint.setWordWrap(True)
+        self.empty_hint.hide()
+        body.addSpacing(4)
+        body.addWidget(self.empty_hint)
+        body.addSpacing(4)
         self.model_rows = QVBoxLayout()
         self.model_rows.setSpacing(3)
         body.addLayout(self.model_rows)
@@ -351,6 +426,11 @@ class Details(QWidget):
         self.analysis_button.setObjectName("link")
         self.analysis_button.clicked.connect(lambda: owner.open_context_library(tab="analysis"))
         stats.addWidget(self.analysis_button)
+        # Share-card hook: hidden until Companion.set_share_handler() wires it.
+        self.share_button = QPushButton()
+        self.share_button.setObjectName("link")
+        self.share_button.hide()
+        stats.addWidget(self.share_button)
         body.addLayout(stats)
         body.addSpacing(10)
         body.addWidget(rule())
@@ -387,17 +467,18 @@ class Details(QWidget):
         body.addSpacing(10)
         body.addWidget(rule())
         body.addSpacing(6)
-        self.mode_status = ElidedLabel(color="#52705D")
-        body.addWidget(self.mode_status)
-        self.request_status = ElidedLabel()
-        body.addWidget(self.request_status)
         footer = QHBoxLayout()
         footer.setSpacing(4)
+        # One status dot and one plain sentence; details live in the tooltip.
+        self.status_dot = QLabel("●")
+        self.status_dot.setTextFormat(Qt.TextFormat.PlainText)
+        footer.addWidget(self.status_dot)
+        self.request_status = ElidedLabel()
+        footer.addWidget(self.request_status, 1)
         self.quota_title = label(size=10, color="#706659")
         self.quota_value = label(size=10, color="#706659")
         footer.addWidget(self.quota_title)
         footer.addWidget(self.quota_value)
-        footer.addStretch()
         self.quit_button = QPushButton()
         self.quit_button.setObjectName("foot")
         self.quit_button.clicked.connect(owner.close)
@@ -412,9 +493,10 @@ class Details(QWidget):
         self.body.setAutoFillBackground(False)
         self.scroll_area.viewport().setAutoFillBackground(False)
         layout.addWidget(self.scroll_area)
-        self.request_status.setText(
-            self.language.tr("自动请求：尚未观察到", "Automatic requests: none observed")
-        )
+        self.session_issue = None
+        self.session_detail = ""
+        self.request_state = None
+        self.set_request_state(None)
         install_macos_style(self, variant="popover")
         self.retranslate()
         self.language.changed.connect(self.retranslate)
@@ -440,7 +522,9 @@ class Details(QWidget):
                 tr("查看{period}节省", "Show savings for {period}", period=tr(zh, en))
             )
         self.caption.setText(tr("节省 tokens", "Tokens saved"))
-        self.money_caption.setText(tr("省下的钱", "Money saved"))
+        self.money_caption.setText(money_caption(self.language))
+        for item in (self.money_caption, self.money):
+            item.setToolTip(money_tip(self.language))
         self.price_button.setText(tr("模型与估价 ›", "Models && pricing ›"))
         self.price_button.setToolTip(
             tr(
@@ -465,8 +549,17 @@ class Details(QWidget):
                 "Which conversations and kinds of work saved most, with optional anonymous feedback",
             )
         )
+        self.share_button.setText(tr("本周战报", "Weekly report"))
+        self.empty_hint.setText(
+            tr(
+                "还没开始省。接入 Codex 或 Claude Code 后照常聊天，对话变长时 TOMC 会自动压缩。",
+                "Nothing saved yet. Connect Codex or Claude Code and keep chatting; "
+                "TOMC compresses long chats automatically.",
+            )
+        )
         self.quit_button.setText(tr("退出 TOMC", "Quit TOMC"))
         self.set_quota(self.quota_state)
+        self.render_status()
         if self.failed:
             self.show_error()
         elif self.report is not None:
@@ -520,7 +613,7 @@ class Details(QWidget):
         windows = state.get("windows", []) if state.get("status") == "ready" else []
         if windows:
             selected = next((w for w in windows if w["bucket"] == "codex"), windows[0])
-            prefix = "Codex" if selected["bucket"] == "codex" else selected["bucket"]
+            prefix = bucket_name(selected["bucket"])
             self.quota_title.setText(f"{prefix} {quota_period(selected['period'], self.language)}")
             self.quota_value.setText(
                 tr("剩余 {value:g}%", "{value:g}% left", value=selected["remaining"])
@@ -529,7 +622,7 @@ class Details(QWidget):
                 tr(
                     "{bucket} {period}剩余 {value:g}%",
                     "{bucket} {period}: {value:g}% left",
-                    bucket=w["bucket"],
+                    bucket=bucket_name(w["bucket"]),
                     period=quota_period(w["period"], self.language),
                     value=w["remaining"],
                 )
@@ -547,16 +640,62 @@ class Details(QWidget):
         else:
             self.quota_title.setText(tr("Codex 额度", "Codex allowance"))
             self.quota_value.setText(
-                tr("读取中", "Loading")
+                tr("读取中", "loading")
                 if state.get("status") == "loading"
-                else tr("暂不可读", "Unavailable")
+                else tr("暂时读不到", "unavailable")
             )
             detail = tr(
                 "需要已登录的 Codex CLI 才能读取额度。",
                 "A signed-in Codex CLI is needed to read the allowance.",
             )
+        self.quota_detail = detail
         for item in (self.quota_title, self.quota_value):
             item.setToolTip(detail)
+            # Only a real allowance figure earns a place on the status line.
+            item.setVisible(bool(windows))
+        self.render_status()
+
+    STATUS_COLORS = {
+        "ok": "#507461",
+        "working": "#507461",
+        "warn": "#C08A4E",
+        "error": "#B8574F",
+        "idle": "#A49D92",
+    }
+
+    def set_request_state(self, state):
+        """state: (sentence, tooltip detail, tone) for the latest request, or None."""
+        self.request_state = state
+        self.render_status()
+
+    def set_session_state(self, issue, detail):
+        """issue: (sentence, tone) when sessions block work, else None."""
+        self.session_issue, self.session_detail = issue, detail
+        self.render_status()
+
+    def render_status(self):
+        if not hasattr(self, "request_status"):
+            return
+        tr = self.language.tr
+        if self.request_state is None:
+            text, detail, tone = (
+                tr("还没有请求经过 TOMC", "No request has gone through TOMC yet"),
+                "",
+                "idle",
+            )
+        else:
+            text, detail, tone = self.request_state
+        if self.session_issue:
+            text, tone = self.session_issue
+        self.request_status.setText(text)
+        self.request_status.setToolTip(
+            "\n".join(part for part in (detail, self.session_detail, self.quota_detail) if part)
+        )
+        self.status_dot.setToolTip(self.request_status.toolTip())
+        self.status_dot.setAccessibleName(text)
+        self.status_dot.setStyleSheet(
+            f"color: {self.STATUS_COLORS.get(tone, self.STATUS_COLORS['idle'])}; font-size: 10px;"
+        )
 
     def set_summary(self, summary, growth):
         """Statistics changed: reread the savings; saved contexts reload while open."""
@@ -588,22 +727,21 @@ class Details(QWidget):
         self.total.setStyleSheet(
             f"font-size: 22px; font-weight: 600; color: {'#866239' if saved < 0 else '#345743'};"
         )
-        self.money.setText(money_text(report["money"]))
+        self.money.setText(money_short(report["money"]))
         self.money.setStyleSheet("font-size: 22px; font-weight: 600; color: #443B35;")
         if is_macos():
             text_style(self.total, 22, "#866239" if saved < 0 else "#345743", True)
             text_style(self.money, 22, bold=True)
+        # Unknown money is hidden, never shown as $0 or a dash.
+        self.money_column.setVisible(report["money"] is not None)
         self.money.setToolTip(
             tr(
-                "按每次请求所用模型的列表价折算",
-                "Valued at the list price of the model each request used",
+                "按每次请求所用模型的标价估算。不是账单；有缓存或订阅时实际更少",
+                "Estimated at the list price of the model each request used. "
+                "Not a bill; less with caching or a subscription",
             )
         )
-        while self.model_rows.count():
-            row = self.model_rows.takeAt(0).layout()
-            while row.count():
-                discard(row.takeAt(0).widget())
-            row.deleteLater()
+        self.clear_model_rows()
         models = report["models"]
         shown = models[: self.MODEL_LIMIT]
         if len(models) > self.MODEL_LIMIT:
@@ -622,25 +760,26 @@ class Details(QWidget):
                 }
             ]
         for model in shown:
-            row = self.model_row(model, report["mode"])
+            row = self.model_row(model, report["mode"], report["money"] is not None)
             self.model_rows.addLayout(row)
             # A visible parent would show new children only on the next event
             # loop pass; show them now so the height measured below includes them.
             for index in range(row.count()):
                 row.itemAt(index).widget().show()
-        cached = report["mode"] == "cached"
+        empty = not models and not report["preparations"]
+        self.empty_hint.setVisible(empty)
+        self.chart.setVisible(not empty)
+        self.chart_title.setVisible(not empty)
+        self.chart_today.setVisible(not empty)
         if not models:
-            self.basis.setText(tr("暂无节省记录", "No savings yet"))
+            self.basis.setText("")
         elif report["money"] is None:
             self.basis.setText(
-                tr("选择参考模型后显示金额", "Choose a reference model to see money saved")
+                tr("选好参考模型后才估算金额", "Pick a reference model to estimate money")
             )
         else:
-            self.basis.setText(
-                tr("按各模型缓存读取价", "At each model's cached-read price")
-                if cached
-                else tr("按各模型输入价", "At each model's input price")
-            )
+            self.basis.setText(basis_text(report["mode"], self.language))
+        self.basis.setToolTip(money_tip(self.language))
         start = None
         if report["period"] != "all":
             days = 6 if report["period"] == "7d" else 0
@@ -652,7 +791,7 @@ class Details(QWidget):
         self.stats.setText(
             tr(
                 "{count:,} 次压缩 · 平均每次节省 {average:,} tokens",
-                "{count:,} compressions · {average:,} tokens saved each on average",
+                "{count:,} compressions · avg. {average:,} saved",
                 count=count,
                 average=round(saved / count) if count else 0,
             )
@@ -668,7 +807,14 @@ class Details(QWidget):
             )
         )
 
-    def model_row(self, model, mode):
+    def clear_model_rows(self):
+        while self.model_rows.count():
+            row = self.model_rows.takeAt(0).layout()
+            while row.count():
+                discard(row.takeAt(0).widget())
+            row.deleteLater()
+
+    def model_row(self, model, mode, show_money=True):
         tr = self.language.tr
         from .context_library_qt import host_label
 
@@ -680,14 +826,16 @@ class Details(QWidget):
         tokens = label(compact_tokens(model["tokens_saved"]), 11, "#52705D")
         tokens.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
         tokens.setFixedWidth(66 if is_macos() else 54)
-        money = label(money_text(model["money"]), 11, "#443B35")
+        money = label(money_short(model["money"]), 11, "#443B35")
         money.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
         money.setFixedWidth(72 if is_macos() else 58)
+        money.setVisible(show_money)
         rates = model.get("rates") or []
         if model["money"] is None:
             tip = tr(
-                "未找到这个模型的价格；可在「模型与估价」选择参考模型。",
-                "No price was found for this model; choose a reference model in Models & pricing.",
+                "没找到这个模型的标价，不估算金额；可在「模型与估价」选一个参考模型。",
+                "No list price for this model, so no money estimate; "
+                "pick a reference model in Models & pricing.",
             )
         else:
             price = " / ".join(f"${rate:g}" for rate in rates)
@@ -705,12 +853,14 @@ class Details(QWidget):
                 else tr("按选择的参考模型", "selected reference model")
             )
             tip = tr(
-                "{name}：{price} / {unit}（{source}）",
-                "{name}: {price} {unit} ({source})",
+                "{name}：{price} / {unit}（{source}）\n按标价估算 ≈ {money}；{note}",
+                "{name}: {price} {unit} ({source})\n≈ {money} at list price (estimate). {note}",
                 name=name,
                 price=price,
                 unit=unit,
                 source=source,
+                money=money_text(model["money"]),
+                note=money_tip(self.language),
             )
             if len(rates) > 1:
                 tip += tr(
@@ -823,7 +973,7 @@ class Details(QWidget):
         return (
             conversation["title"]
             or conversation["first_title"]
-            or self.language.tr("未命名对话", "Untitled conversation")
+            or self.language.tr("未命名对话", "Untitled chat")
         )
 
     def import_bundle(self):
@@ -859,11 +1009,8 @@ class Details(QWidget):
 
     def set_stage(self, stage):
         self.portrait.set_state(stage)
-        self.stage.setText(
-            f"Lv.{stage['level']}"
-            if stage.get("length_known")
-            else self.language.tr("长度待定", "Length pending")
-        )
+        # No saving record yet shows nothing rather than a placeholder.
+        self.stage.setText(f"Lv.{stage['level']}" if stage.get("known") else "")
         self.stage.setToolTip(stage["hint"])
         self.progress.show()
         self.progress.setValue(round(stage["progress"] * 1000))
@@ -877,16 +1024,25 @@ class Details(QWidget):
         self.stage.setToolTip("")
         self.progress.hide()
         self.progress.setToolTip("")
-        self.progress.setAccessibleName(tr("本次长度暂不可读", "Current input length unavailable"))
+        self.progress.setAccessibleName(tr("累计节省暂不可读", "Total saving unavailable"))
         for key, button in self.buttons.items():
             button.setChecked(key == self.owner.period)
-        self.total.setText(tr("暂不可读", "Unavailable"))
+        self.total.setText(tr("暂时读不到", "Unavailable"))
         self.total.setStyleSheet("font-size: 18px; font-weight: 600; color: #866239;")
         if is_macos():
             text_style(self.total, 18, "#866239", True)
-        self.money.setText("—")
+        # Clear everything derived from the old numbers so nothing stale remains.
+        self.money.setText("")
+        self.money_column.hide()
+        self.clear_model_rows()
+        self.chart.set_days([], None)
+        for item in (self.chart, self.chart_title, self.chart_today):
+            item.hide()
+        self.empty_hint.hide()
         self.basis.setText(tr("统计读取失败，正在自动重试", "Could not read statistics · Retrying"))
+        self.basis.setToolTip("")
         self.stats.setText("")
+        self.stats.setToolTip("")
         self.resize_to_content()
 
     def paintEvent(self, event):
@@ -946,9 +1102,9 @@ class Companion(QWidget):
             self.event_cursor = self.store.event_cursor()
         except (OSError, sqlite3.Error, ValueError):
             pass
-        self.idle_stage = request_stage(None, self.language)
-        self.latest_prepared_report = None
-        self.latest_prepared_at = ""
+        self.idle_stage = saved_stage(None, self.language)
+        # A level-up waits for any saving bubble to close, then shows once.
+        self.pending_growth = None
         self.activity_signature = None
         from .context_library_qt import SessionNotice
         from .session_store import SessionStore
@@ -968,19 +1124,27 @@ class Companion(QWidget):
         self.last_signature = None
         self.drag_origin = None
         self.was_dragged = False
-        self.art = PetArt(self)
+        self.art = CompanionArt(self)
         self.art.compact_idle = True
         self.art.setGeometry(0, 0, 140, 156)
         self.art.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
         self.art.setAccessibleName(
             self.language.tr(
-                "TOMC 小猫；拖动移动，点击查看本次上下文长度",
-                "TOMC cat; drag to move, click to view this input length",
+                "TOMC 小猫；拖动移动，点击查看统计",
+                "TOMC cat; drag to move, click for statistics",
             )
         )
         self.materialization = QGraphicsOpacityEffect(self.art)
         self.art.setGraphicsEffect(self.materialization)
-        self.growth_opacity = 0.35
+        self.growth_opacity = self.IDLE_OPACITY
+        self.today_saved = None
+        # Always-on badge under the head: today's tokens saved, or nothing.
+        self.capsule = QLabel(self)
+        self.capsule.setTextFormat(Qt.TextFormat.PlainText)
+        self.capsule.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.capsule.setFont(ui_font())
+        self.capsule.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
+        self.capsule.hide()
         self.art.collecting.connect(lambda: self.layout_report(False))
         self.art.collected.connect(self.finish_collection)
         self.card = QPushButton(self)
@@ -997,18 +1161,17 @@ class Companion(QWidget):
         self.number.setGeometry(13, 26, 128, 30)
         for child in (self.caption, self.number):
             child.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
+        # Stage progress toward the next length band; kept for accessibility only.
+        # The bubble no longer draws it: an empty bar told users nothing.
         self.progress = QProgressBar(self)
-        self.progress.setGeometry(105, 77, 121, 3)
         self.progress.setRange(0, 1000)
         self.progress.setTextVisible(False)
         self.progress.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
-        self.latest = label(size=10, color="#443B35")
-        self.latest.setParent(self)
-        self.latest.setGeometry(102, 90, 144, 19)
-        # A light backing keeps the tiny latest-call text readable on any desktop.
-        self.latest.setStyleSheet(
-            "background: transparent; color: #74685D; padding-left: 4px; font-size: 10px;"
-        )
+        self.progress.hide()
+        # The secondary line sits in the card, aligned with the caption above it.
+        self.latest = label(size=10, color="#74685D")
+        self.latest.setParent(self.card)
+        self.latest.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
         self.close_button = QPushButton("×", self)
         self.close_button.setGeometry(223, 0, 24, 20)
         self.close_button.setAccessibleName("关闭TOMC")
@@ -1036,16 +1199,23 @@ class Companion(QWidget):
             action.setCheckable(True)
             action.triggered.connect(lambda checked=False, value=code: self.set_ui_language(value))
             self.language_actions[code] = action
-        self.pet_menu.addSeparator()
-        self.quit_action = self.pet_menu.addAction("退出 TOMC", self.close)
         self.details = Details(self)
         self.oasis = OasisCelebration(self)
-        self.oasis_action = self.pet_menu.addAction("重播皇冠绿洲", self.oasis.start)
         self.reference_sheet = None
         self.pricing_action = self.pet_menu.addAction("模型与估价", self.open_reference)
         self.story_action = self.pet_menu.addAction(
             "绿洲的故事", lambda: self.open_reference(tab=1)
         )
+        self.oasis_action = self.pet_menu.addAction("重播皇冠绿洲", self.oasis.start)
+        # Share-card hook: hidden until set_share_handler() wires it.
+        self.share_action = self.pet_menu.addAction("本周战报", self.share)
+        self.share_action.setVisible(False)
+        self.share_handler = None
+        self.details.share_button.clicked.connect(self.share)
+        self.share_path = Path(path)
+        self.pet_menu.addSeparator()
+        # Quit is always the last item.
+        self.quit_action = self.pet_menu.addAction("退出 TOMC", self.close)
         self.quota_reader = None
         quota_enabled = connect_quota if connect_quota is not None else not test_mode
         if quota_enabled:
@@ -1102,14 +1272,15 @@ class Companion(QWidget):
         )
         self.art.setAccessibleName(
             tr(
-                "TOMC 小猫；拖动移动，点击查看本次上下文长度",
-                "TOMC cat; drag to move, click to view this input length",
+                "TOMC 小猫；拖动移动，点击查看统计",
+                "TOMC cat; drag to move, click for statistics",
             )
         )
         self.close_button.setAccessibleName(tr("关闭 TOMC", "Close TOMC"))
         self.statistics_action.setText(tr("查看统计", "View statistics"))
         self.library_action.setText(tr("上下文与接续", "Contexts && handoff"))
         self.quit_action.setText(tr("退出 TOMC", "Quit TOMC"))
+        self.share_action.setText(tr("本周战报", "Weekly report"))
         self.oasis_action.setText(tr("重播皇冠绿洲", "Replay the crown oasis"))
         self.pricing_action.setText(tr("模型与估价", "Models & pricing"))
         self.story_action.setText(tr("绿洲的故事", "The oasis story"))
@@ -1117,6 +1288,31 @@ class Companion(QWidget):
             action.setChecked(key == self.language.code)
         self.session_signature = self.activity_signature = self.last_signature = None
         self.refresh()
+
+    IDLE_OPACITY = 0.8
+    SESSION_NOTICE_KEY = "session_notice_shown"
+
+    def set_share_handler(self, callback):
+        """Share-card hook for the integrator: one call shows all three entries.
+
+        The dashboard button next to "Analysis ›", the right-click menu item and the
+        analysis page's primary button all call ``callback()``. Pass None to hide them.
+        """
+        self.share_handler = callback
+        self.details.share_button.setVisible(callback is not None)
+        self.share_action.setVisible(callback is not None)
+        if self.context_dialog is not None:
+            self.context_dialog.analysis_page.set_share_handler(callback)
+
+    def share(self, *_):
+        if self.share_handler is not None:
+            self.share_handler()
+
+    def open_share_card(self):
+        """This week's card for this database; in test mode it carries the demo watermark."""
+        from .share_card_qt import show_share_card
+
+        return show_share_card(self, self.share_path)
 
     def open_reference(self, checked=False, tab=0):
         from .pricing_qt import ReferenceSheet
@@ -1141,6 +1337,8 @@ class Companion(QWidget):
                 self.store.path, self, sessions=self.session_store
             )
             self.context_dialog.changed.connect(self.refresh_session_state)
+            if self.share_handler is not None:
+                self.context_dialog.analysis_page.set_share_handler(self.share_handler)
             if select_id:
                 self.context_dialog.refresh(select_id=select_id)
         else:
@@ -1157,28 +1355,36 @@ class Companion(QWidget):
             active = self.session_store.active()
             settings = self.session_store.settings()
         except (OSError, sqlite3.Error, ValueError):
-            self.details.mode_status.setText(
-                tr("TOMC · 会话状态暂不可读", "TOMC · Session status unavailable")
+            self.session_signature = None
+            self.details.set_session_state(
+                (tr("对话开关暂时读不到，正在重试", "Chat switches unreadable; retrying"), "warn"),
+                "",
             )
             return
         enabled = settings.get("enabled", True)
-        state = (
-            tr("处理开启", "Processing on")
-            if enabled
-            else tr("全局处理暂停", "Processing paused globally")
-        )
-        if active:
-            state += (
-                tr(" · 最近会话开启", " · Latest session on")
-                if active.get("enabled", True)
-                else tr(" · 最近会话已关闭", " · Latest session off")
-            )
-        else:
-            state += tr(" · 未取得会话事件", " · No session event yet")
-        signature = json.dumps([settings, active], sort_keys=True)
+        signature = json.dumps([settings, active, self.language.code], sort_keys=True)
         if signature != self.session_signature:
             self.session_signature = signature
-            self.details.mode_status.setText(f"TOMC · {state}")
+            issue = None
+            if not enabled:
+                issue = (
+                    tr("TOMC 已暂停，不会压缩新请求", "TOMC is paused; no new compression"),
+                    "warn",
+                )
+            elif active and not active.get("enabled", True):
+                issue = (tr("最近的对话关掉了 TOMC", "TOMC is off for the latest chat"), "warn")
+            detail = (
+                tr("TOMC 处理：开启", "TOMC processing: on")
+                if enabled
+                else tr("TOMC 处理：已暂停", "TOMC processing: paused")
+            )
+            if active:
+                detail += (
+                    tr("；最近的对话：开启", "; latest chat: on")
+                    if active.get("enabled", True)
+                    else tr("；最近的对话：已关闭", "; latest chat: off")
+                )
+            self.details.set_session_state(issue, detail)
             self.details.resize_to_content()
         self.session_event_seq = active.get("event_seq") if active else None
         notice_event = (
@@ -1203,10 +1409,16 @@ class Companion(QWidget):
             and identity[0] in {"codex", "claude"}
             and identity[1]
             and identity not in self.notified_sessions
+            and not self.language.setting(self.SESSION_NOTICE_KEY, False)
         ):
             # These exact events come from session_hook; model_request and
             # background tool/completion events do not establish foreground focus.
+            # The notice explains the per-chat switch once, then never interrupts again.
             self.notified_sessions.add(identity)
+            try:
+                self.language.remember(self.SESSION_NOTICE_KEY, True)
+            except OSError:
+                pass
             self.session_notice.present(active)
             self.position_session_notice()
 
@@ -1232,6 +1444,7 @@ class Companion(QWidget):
             events = self.store.recent_events(self.event_cursor, limit=500)
         except (OSError, sqlite3.Error, ValueError):
             summary, error = None, "read_failed"
+        today = self.read_today_saved() if not error else None
         signature = json.dumps(
             [
                 summary,
@@ -1239,6 +1452,7 @@ class Companion(QWidget):
                 self.period,
                 self.pricing,
                 events[-1]["seq"] if not error and events else self.event_cursor,
+                today,
             ],
             sort_keys=True,
         )
@@ -1246,6 +1460,7 @@ class Companion(QWidget):
             return
         self.last_signature = signature
         self.summary, self.error = summary, error
+        self.update_capsule(today)
         if error:
             # A transient statistics read error must not discard real pending
             # compressions or interrupt the animation already being displayed.
@@ -1256,9 +1471,7 @@ class Companion(QWidget):
             self.number.setText(tr("暂不可读", "Unavailable"))
             self.latest.setText(tr("统计读取失败，自动重试", "Read failed · Retrying"))
             self.latest.setToolTip("")
-            self.progress.setAccessibleName(
-                tr("本次长度暂不可读", "Current input length unavailable")
-            )
+            self.progress.setAccessibleName(tr("累计节省暂不可读", "Total saving unavailable"))
             self.card.setAccessibleName(
                 tr("TOMC 统计暂不可读，正在重试", "TOMC statistics unavailable, retrying")
             )
@@ -1291,8 +1504,46 @@ class Companion(QWidget):
                 encoding="utf-8",
             )
 
+    def read_today_saved(self):
+        """Tokens saved today (UTC, like the dashboard's "Today"); None if unreadable."""
+        try:
+            return savings_report(self.store.path, "today", days=1)["tokens_saved"]
+        except (OSError, sqlite3.Error, ValueError, KeyError):
+            return None
+
+    def update_capsule(self, today):
+        self.today_saved = today
+        text = capsule_text(today, self.language)
+        self.capsule.setText(text)
+        if text:
+            tip = self.language.tr(
+                "今天 TOMC 少发了约 {count:,} tokens（本机估算）",
+                "TOMC sent about {count:,} fewer tokens today (local estimate)",
+                count=today,
+            )
+            self.capsule.setToolTip(tip)
+            self.capsule.setAccessibleName(tip)
+        self.style_capsule()
+        self.layout_report(self.bubble_visible)
+
+    def style_capsule(self):
+        if is_macos():
+            colors = tokens(self)
+            background, border, color = colors["surface"], colors["border"], colors["accent"]
+        else:
+            background, border, color = "#FFFCF7", "#E3DED3", "#345743"
+        self.capsule.setStyleSheet(
+            f"QLabel {{ background: {background}; border: 1px solid {border}; "
+            f"border-radius: 9px; color: {color}; font-size: 11px; font-weight: 600; "
+            "padding: 0 7px; }"
+        )
+
     def refresh_request_activity(self):
-        from .context_library_qt import request_activity_text
+        from .context_library_qt import (
+            request_activity_sentence,
+            request_activity_text,
+            request_activity_tooltip,
+        )
 
         tr = self.language.tr
 
@@ -1304,11 +1555,11 @@ class Companion(QWidget):
         except (OSError, sqlite3.Error, ValueError):
             self.preparing_request = None
             self.activity_signature = None
-            self.details.request_status.setText(
-                tr("自动请求状态暂不可读", "Request status unavailable")
+            self.details.set_request_state(
+                (tr("请求状态暂时读不到", "Request status unavailable"), "", "warn")
             )
             if self.active_report is None:
-                self.apply_pet_stage(request_stage(None, self.language))
+                self.apply_pet_stage(self.idle_stage)
                 self.caption.setText(tr("自动请求", "Automatic request"))
                 self.number.setText(tr("状态未知", "Status unknown"))
                 self.latest.setText(tr("状态读取失败，自动重试", "Status read failed · Retrying"))
@@ -1322,9 +1573,12 @@ class Companion(QWidget):
         signature = json.dumps([active, latest], sort_keys=True)
         if signature != self.activity_signature:
             self.activity_signature = signature
-            status = request_activity_text(active or latest, self.language)
-            self.details.request_status.setText(status)
-            detail = status
+            shown = active or latest
+            status = request_activity_sentence(shown, self.language)
+            detail = request_activity_text(shown, self.language)
+            code = request_activity_tooltip(shown, self.language)
+            if code:
+                detail += "\n" + code
             if latest:
                 before, after = latest.get("before_tokens"), latest.get("after_tokens")
                 if before is not None and after is not None:
@@ -1352,7 +1606,19 @@ class Companion(QWidget):
                         "\n模型实测用量尚未返回。", "\nProvider usage has not been returned yet."
                     )
             # The footer shows one line; hovering it shows the request's numbers.
-            self.details.request_status.setToolTip(detail)
+            state = (shown or {}).get("state")
+            tone = (
+                "idle"
+                if not shown
+                else "warn"
+                if shown.get("stale")
+                else "error"
+                if state == "failed"
+                else "working"
+                if state == "preparing"
+                else "ok"
+            )
+            self.details.set_request_state((status, detail, tone))
         previous = self.preparing_request
         self.preparing_request = active
         if active:
@@ -1398,9 +1664,6 @@ class Companion(QWidget):
             self.receipts.record(
                 "queued", event["request_id"], context_input_tokens=event["context_input_tokens"]
             )
-            self.latest_prepared_report = stage_report
-            self.latest_prepared_at = event["prepared_utc"]
-            self.idle_stage = growth_state({"last_preparation": stage_report}, self.language)
             self.enqueue_report(stage_report)
             self.prepared_cursor = event["seq"]
         self.start_collection()
@@ -1410,11 +1673,7 @@ class Companion(QWidget):
             return
         tr = self.language.tr
         if self.active_report is None:
-            self.apply_pet_stage(
-                request_stage(
-                    (self.preparing_request or {}).get("context_input_tokens"), self.language
-                )
-            )
+            self.apply_pet_stage(self.playing_stage(self.preparing_request))
         self.caption.setText(
             (tr("演示 · ", "Demo · ") if self.test_mode else "")
             + tr("自动请求", "Automatic request")
@@ -1431,16 +1690,17 @@ class Companion(QWidget):
     def render_summary(self, summary, events=()):
         tr = self.language.tr
         growth = growth_state(summary, self.language)
-        if self.latest_prepared_report is not None and self.latest_prepared_at > (
-            summary.get("last_preparation") or {}
-        ).get("recorded_at", ""):
-            growth = growth_state({"last_preparation": self.latest_prepared_report}, self.language)
+        if (
+            self.initialized
+            and growth["known"]
+            and self.idle_stage["known"]
+            and growth["level"] > self.idle_stage["level"]
+        ):
+            self.pending_growth = growth
         hint = growth_hint(growth, self.language)
         self.idle_stage = growth
         self.oasis_action.setVisible(growth["level"] == 4 or self.test_mode)
-        self.number.setStyleSheet("font-size: 20px; font-weight: 600; color: #443B35;")
-        if is_macos():
-            self.number.setStyleSheet("font-size: 20px; font-weight: 600;")
+        self.style_number(20)
         self.number.setText("—")
         self.caption.setText(tr("上下文压缩", "Context compression"))
         last = summary.get("last_preparation")
@@ -1503,12 +1763,39 @@ class Companion(QWidget):
         self.restore_displayed_stage()
         if self.preparing_request:
             self.show_request_busy()
+        else:
+            self.show_pending_growth()
+
+    def show_pending_growth(self):
+        """One bubble when cumulative saving crosses into a new form."""
+        growth = self.pending_growth
+        if growth is None or self.active_report is not None or self.pending_reports:
+            return
+        if self.preparing_request is not None:
+            return
+        self.pending_growth = None
+        tr = self.language.tr
+        self.caption.setText(
+            (tr("演示 · ", "Demo · ") if self.test_mode else "") + tr("小猫长大了", "TOMC grew")
+        )
+        self.style_number(22, "#345743")
+        self.number.setText(tr("第 {level} 阶段", "Stage {level}/4", level=growth["level"]))
+        self.latest.setText(
+            tr(
+                "累计少发 ≈ {count:,} tokens",
+                "≈ {count:,} tokens saved in total",
+                count=growth["saved_tokens"],
+            )
+        )
+        self.art.set_cheer(True)
+        self.layout_report(True)
+        self.report_timer.start(6000)
 
     def start_collection(self):
         if self.active_report or not self.pending_reports:
             return
         self.active_report = self.pending_reports.popleft()
-        stage = growth_state({"last_preparation": self.active_report}, self.language)
+        stage = self.playing_stage(self.active_report)
         self.apply_pet_stage(stage)
         identifier = self.active_report.get("request_id")
         envelope = any(
@@ -1582,11 +1869,20 @@ class Companion(QWidget):
                     return
         self.pending_reports.append(dict(report))
 
+    def style_number(self, size, color="#443B35"):
+        self.number.setStyleSheet(f"font-size: {size}px; font-weight: 600; color: {color};")
+        if is_macos():
+            # Semantic tone from the Mac palette; the size stays as given.
+            tone = {"#345743": "accent", "#866239": "secondary"}.get(color, "text")
+            self.number.setProperty("tomcTone", tone)
+            self.number.setStyleSheet(f"font-size: {size}px; font-weight: 600;")
+            self.number.style().unpolish(self.number)
+            self.number.style().polish(self.number)
+
     def report_text(self, report):
         tr = self.language.tr
-        self.number.setStyleSheet("font-size: 18px; font-weight: 600; color: #443B35;")
-        if is_macos():
-            self.number.setStyleSheet("font-size: 18px; font-weight: 600;")
+        self.art.set_cheer(False)
+        self.style_number(18)
         context = report.get("context_input_tokens")
         if type(context) is not int or context < 0:
             # A whole-request (envelope) count is not the compressed context length.
@@ -1596,7 +1892,7 @@ class Companion(QWidget):
             )
             context = None if envelope else report.get("input_tokens")
         if report.get("stage_only"):
-            stage = growth_state({"last_preparation": report}, self.language)
+            stage = self.playing_stage(report)
             self.caption.setText(tr("上下文已压缩", "Context compressed"))
             self.number.setText(tr("第 {level} 阶段", "Stage {level}/4", level=stage["level"]))
             self.latest.setText(
@@ -1613,23 +1909,20 @@ class Companion(QWidget):
                 (tr("演示 · ", "Demo · ") if self.test_mode else "")
                 + (tr("本次增加", "Added") if delta < 0 else tr("本次节省", "Saved"))
             )
+            # "Saved" is the one big number; the context size is a small second line.
             self.number.setText(tr("{count:,} tokens", "{count:,} tokens", count=abs(delta)))
+            self.style_number(22, "#866239" if delta < 0 else "#345743")
+            self.art.set_cheer(delta > 0)
             if context is None:
                 self.latest.setText(tr("上下文已压缩", "Context compressed"))
-            elif delta < 0:
-                self.latest.setText(
-                    tr("上下文 {count:,} tokens", "Context {count:,} tokens", count=context)
-                )
             else:
                 self.latest.setText(
-                    tr("压缩上下文 {count:,} tokens", "Compressed {count:,} tokens", count=context)
+                    tr("原上下文 {count:,} tokens", "Context was {count:,} tokens", count=context)
                 )
             return
         self.caption.setText(tr("本次准备", "Latest preparation"))
         self.number.setText(tr("无可用输出", "No usable output"))
-        self.number.setStyleSheet("font-size: 16px; font-weight: 600; color: #443B35;")
-        if is_macos():
-            self.number.setStyleSheet("font-size: 16px; font-weight: 600;")
+        self.style_number(16)
         self.latest.setText(tr("本次未压缩", "Not compressed"))
 
     def estimate_note(self):
@@ -1657,28 +1950,45 @@ class Companion(QWidget):
         self.bubble_visible = visible
         pet_width = ACTIVE_WIDTH if self.art.phase is not None else IDLE_WIDTH
         pet_height = round(pet_width * 156 / 140)
-        height = max(110, pet_height) if visible else pet_height
-        pet_x, pet_y = (185 if visible else 0), (height - pet_height) // 2
-        if is_macos() and visible:
-            height = max(118, pet_height)
-            pet_x, pet_y = 235, (height - pet_height) // 2
-        self.setFixedSize(pet_x + pet_width, height)
+        # The capsule sits below the head, never over it.
+        shown = bool(self.capsule.text())
+        self.capsule.setVisible(shown)
+        capsule_width = capsule_height = 0
+        if shown:
+            self.capsule.adjustSize()
+            capsule_height = 18
+            capsule_width = max(self.capsule.sizeHint().width(), 44)
+        side = max(0, (capsule_width - pet_width + 1) // 2)
+        bubble_x = 235 if is_macos() else 205
+        pet_x = (bubble_x if visible else 0) + side
+        column = pet_height + (capsule_height + 2 if shown else 0)
+        height = max(118 if is_macos() else 110, column) if visible else column
+        pet_y = (height - column) // 2
+        self.setFixedSize(pet_x + pet_width + side, height)
         self.art.setGeometry(pet_x, pet_y, pet_width, pet_height)
-        self.card.setGeometry(8, 8, 170, 94)
-        self.caption.setGeometry(13, 8, 144, 17)
-        self.number.setGeometry(13, 26, 144, 30)
-        self.progress.setGeometry(23, 65, 140, 3)
-        self.latest.setGeometry(12, 81, 166, 20)
+        if shown:
+            self.capsule.setGeometry(
+                pet_x + (pet_width - capsule_width) // 2,
+                pet_y + pet_height + 2,
+                capsule_width,
+                capsule_height,
+            )
+        # Card children share one left edge so the lines align.
+        self.card.setGeometry(8, 8, 190, 94)
+        self.caption.setGeometry(13, 9, 170, 17)
+        self.number.setGeometry(13, 27, 170, 32)
+        self.latest.setGeometry(13, 64, 170, 20)
         if is_macos():
             self.card.setGeometry(8, 8, 220, 104)
-            self.caption.setGeometry(13, 9, 194, 20)
-            self.number.setGeometry(13, 30, 194, 32)
-            self.progress.setGeometry(23, 78, 190, 3)
-            self.latest.setGeometry(12, 88, 212, 20)
+            self.caption.setGeometry(14, 10, 194, 20)
+            self.number.setGeometry(14, 31, 194, 36)
+            self.latest.setGeometry(14, 72, 194, 22)
+        self.card.move(8, max(8, (height - self.card.height()) // 2))
         self.close_button.setGeometry(pet_x + pet_width - 20, 0, 20, 20)
         self.close_button.setVisible(self.underMouse())
-        for part in (self.card, self.caption, self.number, self.progress, self.latest):
+        for part in (self.card, self.caption, self.number, self.latest):
             part.setVisible(visible)
+        self.progress.hide()
         point = anchor - self.art.geometry().center()
         area = self.screen().availableGeometry()
         point.setX(max(area.left(), min(point.x(), area.right() - self.width() + 1)))
@@ -1690,8 +2000,10 @@ class Companion(QWidget):
     def update_materialization(self):
         # Keep actual work legible even when the cosmetic idle form is faint.
         # Language changes and summary refreshes must not dim an active animation.
+        # Idle is never fainter than IDLE_OPACITY: a 35% cat looked unloaded.
         working = self.preparing_request is not None or self.art.phase is not None
-        self.materialization.setOpacity(1.0 if working else self.growth_opacity)
+        idle = min(1.0, max(self.IDLE_OPACITY, self.growth_opacity))
+        self.materialization.setOpacity(1.0 if working else idle)
 
     def apply_pet_stage(self, stage):
         self.art.set_state(stage)
@@ -1701,20 +2013,40 @@ class Companion(QWidget):
         self.details.set_stage(stage)
         self.update_materialization()
 
+    def playing_stage(self, report):
+        # The earned form plays every request; only the paper follows its length.
+        report = report or {}
+        if "usable" not in report:
+            # A request still being prepared has a length but no result yet.
+            report = {**report, "usable": True}
+        return request_stage(report, self.idle_stage, self.language)
+
     def restore_displayed_stage(self):
         if self.active_report is not None:
-            stage = growth_state({"last_preparation": self.active_report}, self.language)
+            stage = self.playing_stage(self.active_report)
         elif self.preparing_request is not None:
-            stage = request_stage(self.preparing_request.get("context_input_tokens"), self.language)
+            stage = self.playing_stage(self.preparing_request)
         else:
             stage = self.idle_stage
         self.apply_pet_stage(stage)
 
     def hide_report(self):
+        self.art.set_cheer(False)
         self.layout_report(False)
         self.active_report = None
         self.start_collection()
         self.restore_displayed_stage()
+        self.show_pending_growth()
+
+    def changeEvent(self, event):
+        super().changeEvent(event)
+        # A light/dark switch repaints the capsule with the new palette.
+        if event.type() in (
+            QEvent.Type.PaletteChange,
+            QEvent.Type.ApplicationPaletteChange,
+            QEvent.Type.StyleChange,
+        ) and hasattr(self, "capsule"):
+            self.style_capsule()
 
     def enterEvent(self, event):
         self.close_button.show()
@@ -1831,6 +2163,7 @@ def run(path, test_mode=False, state_file=None, host="codex"):
         connect_quota=host == "codex" and not test_mode,
     )
     widget.set_host(host)
+    widget.set_share_handler(widget.open_share_card)
     widget.show()
     if not test_mode:
         QTimer.singleShot(600, lambda: show_privacy_notice(widget, path))

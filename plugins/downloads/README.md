@@ -2,7 +2,7 @@
 
 This folder keeps only the earlier 0.1.x packages, unchanged. 0.2.x and 0.3.x packages are published only as release assets on GitHub:
 
-- **0.3.0 (current):** [release page](https://github.com/ZipengWu365/TOMC/releases/tag/v0.3.0-preview.1), with a `.sha256` file next to each package. What changed: [release notes](../../docs/release_notes_0.3.0.md). How to install: [installation guide](../../docs/assistant_plugin.md) · [中文安装指南](../../docs/assistant_plugin_zh.md).
+- **0.3.1 (current):** [release page](https://github.com/ZipengWu365/TOMC/releases/tag/v0.3.1-preview.1), with a `.sha256` file next to each package. What changed: [release notes](../../docs/release_notes_0.3.0.md). How to install: [installation guide](../../docs/assistant_plugin.md) · [中文安装指南](../../docs/assistant_plugin_zh.md).
 - 0.2.1 and 0.2.0: listed below.
 
 ## TOMC 0.2.1 — 2026-10-24 (earlier release)

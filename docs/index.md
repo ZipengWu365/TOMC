@@ -2,7 +2,7 @@
 
 # TOMC Memory
 
-**English** | [简体中文](https://github.com/ZipengWu365/TOMC/blob/main/README_zh.md) · v0.3.0 research preview · MIT
+**English** | [简体中文](https://github.com/ZipengWu365/TOMC/blob/main/README_zh.md) · v0.3.1 research preview · MIT
 
 **When a fact changes, only the latest version comes back.** TOMC Memory prepares a smaller, task-specific context from a long history or from notes you saved, on CPU, with each kept value linked to its source line. It works as an MCP server for Codex, Claude Code and other MCP clients, and as a Python API before your own LLM call.
 
@@ -12,7 +12,7 @@ After installing, say **"Try TOMC Memory"** to your assistant, or run `tomc try`
 
 - [Install TOMC Memory](assistant_plugin.md): Claude Code, Codex, Claude Desktop, Cursor, TRAE, WorkBuddy; `tomc setup --write` and `tomc doctor`.
 - [Before you use it](https://github.com/ZipengWu365/TOMC#before-you-use-it): what it does not do, what it stores, which clients are checked.
-- [What changed in 0.3.0](release_notes_0.3.0.md) · [中文更新说明](release_notes_0.3.0_zh.md)
+- [What changed in 0.3.1](release_notes_0.3.1.md) · [中文更新说明](release_notes_0.3.1_zh.md) · [0.3.0](release_notes_0.3.0.md)
 - [Evidence and claims ledger](evidence.md): every number with its source, model, sample size and version, plus the negative results. [中文](evidence_zh.md)
 - [Switch assistants](usage_tips.md#reuse-notebooks): save project notes in one client, recall them in another on the same computer.
 - [Use before an API call](api_reference.md#prepare-context-before-your-api-call): send prepared messages in place of the original history.

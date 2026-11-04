@@ -72,6 +72,22 @@ def main(argv: list[str] | None = None) -> int:
     )
     doctor.add_argument("--store", type=Path)
     doctor.add_argument("--json", action="store_true", help="Print the checks as JSON")
+    card = commands.add_parser(
+        "share-card",
+        help="Make this week's report card as a PNG on this computer; nothing is uploaded",
+    )
+    card.add_argument(
+        "--out", type=Path, default=Path("."), help="Folder or .png file (default: this folder)"
+    )
+    card.add_argument("--landscape", action="store_true", help="1200x630 instead of 1080x1350")
+    card.add_argument("--hide-money", action="store_true", help="Leave out the money estimate")
+    card.add_argument(
+        "--lang", choices=("zh", "en"), help="Card language (default: terminal locale)"
+    )
+    card.add_argument("--store", type=Path)
+    card.add_argument(
+        "--demo", action="store_true", help="Mark the card as demo data (adds the watermark)"
+    )
     switch = {"on": True, "off": False}
     settings = commands.add_parser(
         "settings", help="Show or change TOMC Memory's saving and retention settings"
@@ -192,6 +208,8 @@ def main(argv: list[str] | None = None) -> int:
                 else result["card"] + "\n"
             )
             return 0
+        if args.command == "share-card":
+            return share_card(parser, args)
         if args.command == "doctor":
             from .doctor import check, passed, render
 
@@ -280,4 +298,41 @@ def main(argv: list[str] | None = None) -> int:
             f"tomc: {type(exc).__name__}: invalid input or unavailable tokenizer; "
             "check the file, text-message schema, budget, and installation.\n",
         )
+    return 0
+
+
+SHARE_CARD_NEEDS_QT = (
+    "tomc share-card draws the image with PySide6, which is not installed in this Python. "
+    "Install the widget extra: {python} -m pip install 'tomc-memory[widget]'\n"
+)
+
+
+def share_card(parser, args) -> int:
+    """Render the card offscreen and print where it went plus a one-line summary."""
+    import os
+
+    if not os.environ.get("QT_QPA_PLATFORM"):
+        # Draw without a window or display; nothing is shown on screen.
+        os.environ["QT_QPA_PLATFORM"] = "offscreen"
+    try:
+        from PySide6.QtGui import QGuiApplication
+
+        from .share_card_qt import render_card, save_card
+    except ImportError:
+        parser.exit(2, SHARE_CARD_NEEDS_QT.format(python=sys.executable))
+    from .share_card import card_data, default_filename, summary_line
+    from .tryout import system_language
+
+    _app = QGuiApplication.instance() or QGuiApplication(sys.argv[:1])
+    data = card_data(args.store, args.lang or system_language(), demo=args.demo or None)
+    out = Path(args.out).expanduser()
+    target = out if out.suffix.lower() == ".png" else out / default_filename(data)
+    image = render_card(
+        data, "landscape" if args.landscape else "portrait", hide_money=args.hide_money
+    )
+    try:
+        save_card(image, target)
+    except OSError:
+        parser.exit(2, f"tomc share-card: could not write {target}; choose another --out.\n")
+    sys.stdout.write(f"{target.resolve()}\n{summary_line(data, hide_money=args.hide_money)}\n")
     return 0

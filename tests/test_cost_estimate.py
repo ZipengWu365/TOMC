@@ -58,6 +58,7 @@ def test_display_helper_language_does_not_change_numeric_semantics():
 
     summary = {
         "last_preparation": {"input_tokens": 4000, "usable": True},
+        "growth": [{"counter": "estimate", "net_tokens": 94_000, "peak_net_tokens": 94_000}],
         "by_counter": [
             {
                 "reduced_tokens": -10,

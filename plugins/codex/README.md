@@ -6,7 +6,7 @@ TOMC is free to use, including commercially, under the MIT License in `plugins/t
 
 ## Install
 
-Install a current Codex CLI with plugin support and [UV](https://docs.astral.sh/uv/getting-started/installation/). Extract `tomc-memory-codex-0.3.0.zip` to a permanent directory, open a terminal in that directory, then run:
+Install a current Codex CLI with plugin support and [UV](https://docs.astral.sh/uv/getting-started/installation/). Extract `tomc-memory-codex-0.3.1.zip` to a permanent directory, open a terminal in that directory, then run:
 
 ```bash
 uv run --no-project --python 3.12 install.py --check
@@ -51,13 +51,13 @@ Leave active-chat compaction with the host. When native compaction is enabled or
 
 Ask Codex to call TOMC's `prepare_context` with your supplied history, next task and memory budget, then answer using the returned memory. No notebook is needed. Histories that fit the budget stay intact, so a short example shows no saving; longer input can use task records and source retrieval. When a later line may have changed a value, the record is marked `STATE?` and that line is included.
 
-The 0.3.0 runtime includes twelve tools: `try_tomc`, `prepare_context`, `remember_memory`, `recall_memory`, `list_memories`, `forget_memory`, `erase_all_memory`, `get_status`, `get_usage_stats`, `list_contexts`, `get_context` and `make_handoff`. Each result starts with a one-line `summary`; diagnostics are under `details`. The skill explains when to prepare context and how to use its sources. Counts and the budget cover memory text under a lexical estimate, excluding task text, tool envelopes and provider framing.
+The 0.3.1 runtime includes twelve tools: `try_tomc`, `prepare_context`, `remember_memory`, `recall_memory`, `list_memories`, `forget_memory`, `erase_all_memory`, `get_status`, `get_usage_stats`, `list_contexts`, `get_context` and `make_handoff`. Each result starts with a one-line `summary`; diagnostics are under `details`. The skill explains when to prepare context and how to use its sources. Counts and the budget cover memory text under a lexical estimate, excluding task text, tool envelopes and provider framing.
 
 In an API integration, your application sends the prepared context instead of the original history in its next request. In Codex, a tool call does not delete the host's existing chat history or automatically intercept API requests. Short inputs can stay the same size, and record metadata can add overhead; savings depend on what you actually send.
 
 ## Saved context and session controls
 
-In 0.3.0, `prepare_context` and `recall_memory` results are **not saved** unless both **Save context records** and **Save MCP results** are on (`tomc settings --save-mcp-results on`). 0.2.0 and 0.2.1 saved them by default. Saved contexts are redacted for common secrets and deleted after 30 days (`tomc settings --retention-days N`). `forget_memory` also deletes contexts prepared from that notebook; `erase_all_memory` (with `confirm="ERASE ALL"`) or `tomc erase-all --yes` deletes everything. Old statistics that recorded numbers only cannot reconstruct past chat bodies.
+Since 0.3.0, `prepare_context` and `recall_memory` results are **not saved** unless both **Save context records** and **Save MCP results** are on (`tomc settings --save-mcp-results on`). 0.2.0 and 0.2.1 saved them by default. Saved contexts are redacted for common secrets and deleted after 30 days (`tomc settings --retention-days N`). `forget_memory` also deletes contexts prepared from that notebook; `erase_all_memory` (with `confirm="ERASE ALL"`) or `tomc erase-all --yes` deletes everything. Old statistics that recorded numbers only cannot reconstruct past chat bodies.
 
 Processing is on by default globally and for newly registered sessions. User-level installation makes tools available across projects; it does not force a tool call in every chat. Session registration and per-session pause require the TOMC hooks to be installed and loaded. Codex requires review and trust in `/hooks`; the installer does not change trust or approval settings. The panel follows startup/resume and prompt events, not arbitrary UI tab switches. See [host integration validation](https://github.com/ZipengWu365/TOMC/blob/main/docs/host_integration_validation_20261022.md).
 

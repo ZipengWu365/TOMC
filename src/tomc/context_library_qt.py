@@ -42,12 +42,17 @@ from .savings import request_savings, savings_report
 from .savings_qt import (
     ElidedLabel,
     SavingsChart,
+    basis_text,
     compact_tokens,
     discard,
     local_time,
-    money_text,
+    money_caption,
+    money_phrase,
+    money_short,
+    money_tip,
     total_tokens,
 )
+from .status_text import code_tooltip, reason_or_unchanged, reason_text
 from .ui_language import UiLanguage
 
 
@@ -112,186 +117,65 @@ def short_date(value, language=None):
 
 
 def request_activity_text(record, language=None):
-    """Describe observed request work without claiming unmeasured cost savings."""
+    """Describe observed request work in plain words, never as a raw code.
+
+    Unknown reason codes read "Sent unchanged"; see ``request_activity_tooltip``
+    for where the code itself is shown.
+    """
 
     def t(zh, en, **values):
         return _tr(language, zh, en, **values)
 
     if not record:
-        return t(
-            "自动请求：尚未观察到代理请求", "Automatic requests: no gateway request observed yet"
-        )
-    reasons = {
-        "session_disabled": ("本会话已关闭 TOMC", "TOMC is disabled for this session"),
-        "global_disabled": ("全局处理已暂停", "Processing is paused globally"),
-        "disabled": ("TOMC 已暂停", "TOMC is paused"),
-        "identity_required": ("会话身份待关联", "Session identity is not linked"),
-        "no_current_user_task": ("本次请求没有新的用户任务", "This request has no new user task"),
-        "no_readable_old_history": ("没有可读取的较早历史", "No readable earlier history"),
-        "history_not_supported_by_compiler": (
-            "保留暂不支持处理的历史内容",
-            "History format retained without compression",
-        ),
-        "no_complete_memory_fits": (
-            "预算不足以保留完整上下文记录",
-            "The budget cannot fit a complete context record",
-        ),
-        "invalid_adapter_options": (
-            "处理设置不可用，保留原文",
-            "Processing settings unavailable; original content retained",
-        ),
-        "native_context_management": ("由宿主管理上下文", "Context is managed by the host"),
-        "auxiliary_request": ("宿主辅助请求", "Host auxiliary request"),
-        "subagent_request": ("子代理请求，保留原文", "Subagent request; original content retained"),
-        "unassociated_session": ("会话身份待关联", "Session identity is not linked"),
-        "missing_messages": ("请求中没有对话消息", "The request contains no conversation messages"),
-        "stored_prefix_unreadable": (
-            "已有上下文暂时无法读取，保留原文",
-            "Saved context unavailable; original content retained",
-        ),
-        "original_prefix_changed": (
-            "较早上下文已变化，保留原文",
-            "Earlier context changed; original content retained",
-        ),
-        "prefix_store_unavailable": (
-            "上下文存储暂时不可用，保留原文",
-            "Context storage unavailable; original content retained",
-        ),
-        "unsupported_endpoint": ("此类请求保持原样", "This request type is forwarded unchanged"),
-        "unsupported_input": ("保留原有输入格式", "Original input format retained"),
-        "invalid_tool_pairing": (
-            "工具调用与结果需保持完整",
-            "Tool calls and results must remain together",
-        ),
-        "unsupported_tool_protocol": ("保留原有工具协议", "Original tool protocol retained"),
-        "unsupported_message_fields": ("保留原有消息字段", "Original message fields retained"),
-        "unsupported_message_role": ("保留原有消息角色", "Original message roles retained"),
-        "unsupported_content": ("保留原有内容格式", "Original content format retained"),
-        "unsupported_content_type": ("保留原有内容类型", "Original content types retained"),
-        "unsupported_thinking_fields": (
-            "保留原有推理内容与签名",
-            "Original reasoning content and signatures retained",
-        ),
-        "unsupported_text_fields": ("保留原有文本字段", "Original text fields retained"),
-        "unsupported_tool_use": ("保留原有工具调用", "Original tool calls retained"),
-        "unsupported_tool_result": ("保留原有工具结果", "Original tool results retained"),
-        "unsupported_tool_result_content": (
-            "保留原有工具结果内容",
-            "Original tool result content retained",
-        ),
-        "no_eligible_old_history": ("没有可处理的较早历史", "No eligible earlier history"),
-        "history_fits_memory_budget": ("短上下文无需压缩", "Short context needs no compression"),
-        "nonshrinking": ("处理后未变短", "Processing did not shorten the request"),
-        "already_optimized_input": ("已是 TOMC 上下文", "The input is already TOMC context"),
-        "compilation_failed": (
-            "准备失败，保留原文",
-            "Preparation failed; original content retained",
-        ),
-        "native_compaction_active": ("宿主正在整理上下文", "The host is compacting context"),
-        "native_compaction_completed": ("宿主刚完成整理", "The host just completed compaction"),
-        "native_compaction_cooldown": (
-            "宿主整理后的观察期",
-            "Observation period after host compaction",
-        ),
-        "unsupported_message_content": ("保留原有内容协议", "Original content protocol retained"),
-        "unsupported_message_schema": ("保留原有消息协议", "Original message protocol retained"),
-        "explicit_cache_control": ("保留缓存边界", "Cache boundaries retained"),
-        "cache_control": ("保留缓存边界", "Cache boundaries retained"),
-        "previous_response_id": (
-            "保留服务端会话上下文",
-            "Server-side conversation context retained",
-        ),
-        "identity_unavailable": ("会话身份待关联", "Session identity is not linked"),
-        "non_main_request": ("宿主辅助请求", "Host auxiliary request"),
-        "native_compaction": ("保留宿主原生上下文整理", "Host native compaction retained"),
-        "preparation_failed": (
-            "准备失败，保留原文",
-            "Preparation failed; original content retained",
-        ),
-        "upstream_failed": ("上游返回失败", "Upstream request failed"),
-        "transport_failed": ("连接或响应传输中断", "Connection or response stream interrupted"),
-        "unsupported_request_encoding_or_json": (
-            "保留原有编码与内容",
-            "Original encoding and content retained",
-        ),
-        "history_below_threshold": ("短上下文无需压缩", "Short context needs no compression"),
-        "insufficient_old_history": ("没有足够的较早历史", "Not enough earlier history"),
-        "protected_system_history": (
-            "保留宿主系统指令与工具定义",
-            "Host system instructions and tool definitions retained",
-        ),
-        "retained_thinking_requires_original_prefix": (
-            "保留推理签名所需的原始前缀",
-            "Original prefix retained for signed reasoning",
-        ),
-        "no_request_size_reduction": ("处理后未变短", "Processing did not shorten the request"),
-        "server_side_or_incremental_history": (
-            "保留服务端会话上下文",
-            "Server-side conversation context retained",
-        ),
-        "native_or_unknown_request": (
-            "宿主整理或辅助请求，保留原文",
-            "Host compaction or auxiliary request; original content retained",
-        ),
-        "native_compaction_reset": (
-            "宿主已整理上下文，旧映射已清除",
-            "Host context compacted; old prefix mapping cleared",
-        ),
-        "host_compaction_request": (
-            "宿主自身的压缩请求，TOMC 不参与",
-            "The host's own compaction request; TOMC not involved",
-        ),
-        "native_compaction_state": (
-            "宿主原生管理：含不透明压缩状态，TOMC 本次未压缩",
-            "Host-managed: opaque compaction state present; TOMC did not compress this request",
-        ),
-        "unknown_request_metadata": (
-            "宿主请求元数据无法识别，保留原文",
-            "Unrecognized host request metadata; original content retained",
-        ),
-        "upstream_transport_failed": (
-            "上游连接或响应中断",
-            "Upstream connection or response interrupted",
-        ),
-    }
+        return t("还没有请求经过 TOMC", "No request has gone through TOMC yet")
     state = record.get("state")
     if record.get("stale"):
         return t(
-            "自动请求：准备状态已中断，等待新的请求事件",
-            "Automatic requests: preparation interrupted; waiting for a new request",
+            "上一次准备被打断了，等下一个请求",
+            "The last preparation was interrupted; waiting for the next request",
         )
     if state == "preparing":
-        return t("正在检查 / 准备请求上下文", "Checking / preparing request context")
+        return t("正在准备上下文", "Preparing context")
     if state == "prepared":
-        return t("上下文已准备，等待上游转发", "Context prepared; waiting for upstream forwarding")
+        return t("上下文已准备好，正在发给模型", "Context prepared; sending to the model")
     if state == "forwarded":
         if record.get("reason") == "disabled_compatible_replay":
             return t(
-                "已转发已有签名兼容上下文 · 本会话关闭，不进行新的压缩",
-                "Existing context forwarded to preserve signatures · Session disabled; no new compression",
+                "本会话已关闭，沿用之前的上下文发送，没有新的压缩",
+                "Chat is off; earlier context reused, no new compression",
             )
         if record.get("reason") == "replayed_prefix":
-            return t("已复用并转发已有上下文", "Existing context reused and forwarded")
-        return t("已观察到处理后请求转发", "A processed request was observed being forwarded")
+            return t("沿用之前压缩好的上下文发送", "Earlier compressed context reused and sent")
+        return t("已压缩并发给模型", "Compressed and sent to the model")
     reason = record.get("reason")
     if reason == "client_disconnected":
-        return t("请求已由宿主取消或断开", "Request cancelled or disconnected by the host")
-    detail = (
-        t(*reasons[reason])
-        if reason in reasons
-        else (reason or t("未提供原因", "No reason provided"))
-    )
+        return reason_text(reason, language)
+    detail = reason_text(reason, language)
     facts = protocol_detail_text(record.get("protocol_detail"), language)
-    if facts:
+    if detail and facts:
         detail = f"{detail} · {facts}"
     if state == "passthrough":
         status = (
-            t("请求已原样转发", "Request forwarded unchanged")
+            t("已原样发送", "Sent unchanged")
             if record.get("sent")
-            else t("请求将原样转发", "Request will be forwarded unchanged")
+            else t("将原样发送", "Will be sent unchanged")
         )
-        return f"{status} · {detail}"
-    return t("请求失败 · {detail}", "Request failed · {detail}", detail=detail)
+        return f"{status} · {detail}" if detail else status
+    if detail:
+        return t("请求失败 · {detail}", "Request failed · {detail}", detail=detail)
+    return t("请求失败", "Request failed")
+
+
+def request_activity_sentence(record, language=None):
+    """The dashboard's one short sentence; passthrough shows only the plain reason."""
+    if record and record.get("state") == "passthrough" and not record.get("stale"):
+        return reason_or_unchanged(record.get("reason"), language)
+    return request_activity_text(record, language)
+
+
+def request_activity_tooltip(record, language=None):
+    """The raw reason code, kept out of visible text."""
+    return code_tooltip((record or {}).get("reason"), language)
 
 
 def protocol_detail_text(detail, language=None):
@@ -428,52 +312,51 @@ class SessionNotice(QWidget):
         return self.language.tr(zh, en, **values)
 
     def retranslate(self, *_):
-        self.setWindowTitle(self.t("TOMC 会话状态", "TOMC session status"))
+        self.setWindowTitle(self.t("TOMC 对话开关", "TOMC chat switch"))
         if self._macos:
             self.setFixedWidth(430 if self.language.code == "en" else 370)
         else:
             self.setFixedWidth(390 if self.language.code == "en" else 330)
         self.heading.setText(
-            self.t(
-                "本会话 TOMC 默认开启，要关闭吗？", "TOMC is enabled for this session. Turn it off?"
-            )
+            self.t("TOMC 会处理这个新对话", "TOMC will work on this new chat")
             if self.target_enabled
-            else self.t("本会话 TOMC 已关闭", "TOMC is disabled for this session")
+            else self.t("这个对话关掉了 TOMC", "TOMC is off for this chat")
         )
         self.keep_button.setText(
-            self.t("保持开启", "Keep enabled")
-            if self.target_enabled
-            else self.t("保持关闭", "Keep disabled")
+            self.t("知道了", "Got it") if self.target_enabled else self.t("保持关闭", "Keep off")
         )
         self.toggle_button.setText(
-            self.t("关闭本会话", "Disable session")
+            self.t("这个对话不用 TOMC", "Turn off for this chat")
             if self.target_enabled
-            else self.t("重新开启本会话", "Re-enable session")
+            else self.t("重新开启", "Turn back on")
         )
         session = self._shown_session
         if session:
-            title = session.get("title") or session["session_id"]
+            # Never show a raw session ID; a chat without a name is just "Untitled chat".
+            title = (session.get("title") or "").strip() or self.t("未命名对话", "Untitled chat")
             short_title = title if len(title) <= 72 else title[:71] + "…"
             detail = f"{host_label(session['host'], self.language)} · {short_title}"
             self.detail.setToolTip(
                 self.t(
-                    "最近宿主事件：{event}\n{title}\n根据宿主事件显示，不表示已观测桌面焦点或已经压缩。",
-                    "Latest host event: {event}\n{title}\nBased on host events; this does not prove desktop focus or compression.",
-                    event=session.get("event") or self.t("未提供", "Not provided"),
+                    "{title}\n根据 Codex / Claude Code 发来的对话事件显示，不代表已经压缩。",
+                    "{title}\nBased on chat events from Codex / Claude Code; "
+                    "it does not mean anything was compressed.",
                     title=title,
                 )
             )
             if self.target_enabled:
                 detail += self.t(
-                    "\n不操作将保持开启；只处理实际经 TOMC 的请求。",
-                    "\nStays enabled unless changed; only requests routed through TOMC are processed.",
+                    "\n不用操作，TOMC 会继续处理这个对话。这个提示只出现这一次；"
+                    "以后可以在「上下文与接续 › 设置与连接」里逐个开关。",
+                    "\nNothing to do; TOMC keeps working on this chat. You will see this "
+                    "only once; switch chats on or off later in Contexts › Settings.",
                 )
                 if not session.get("effective_enabled", True):
-                    detail += self.t("全局处理当前已暂停。", " Processing is paused globally.")
+                    detail += self.t("TOMC 现在整体暂停中。", " TOMC is paused right now.")
             else:
                 detail += self.t(
-                    "\n此会话保留关闭设置，可在这里重新开启。",
-                    "\nThis session stays disabled. You can re-enable it here.",
+                    "\n这个对话保持关闭，可以在这里重新开启。",
+                    "\nThis chat stays off. You can turn it back on here.",
                 )
             self.detail.setText(detail)
         if self._error:
@@ -1311,7 +1194,7 @@ class ContextLibraryDialog(QDialog):
         self.price_button.setText(t("模型与估价 ›", "Models && pricing ›"))
         for key, zh, en in (
             ("tokens", "节省 tokens", "Tokens saved"),
-            ("money", "省下的钱", "Money saved"),
+            ("money", "按标价估算", "At list price (estimate)"),
             ("compressions", "压缩次数", "Compressions"),
             ("conversations", "对话", "Conversations"),
         ):
@@ -1327,7 +1210,7 @@ class ContextLibraryDialog(QDialog):
         )
         for index, (zh, en) in enumerate(
             (
-                ("全部宿主", "All hosts"),
+                ("全部助手", "All assistants"),
                 ("Codex", "Codex"),
                 ("Claude Code", "Claude Code"),
                 ("未关联或导入", "Unlinked or imported"),
@@ -1400,8 +1283,9 @@ class ContextLibraryDialog(QDialog):
         )
         self.session_hint.setText(
             t(
-                "存在关闭会话时，身份未关联的准备会暂停，需重新加载宿主接入。",
-                "When a session is disabled, preparation without a session identity pauses until the host integration is reloaded.",
+                "只要有对话关掉了 TOMC，认不出属于哪个对话的请求也会先暂停；重开 Codex / Claude Code 后恢复。",
+                "While any chat is switched off, requests TOMC can't match to a chat are paused too; "
+                "reopen Codex / Claude Code to resume.",
             )
         )
         self.refresh()
@@ -1435,8 +1319,8 @@ class ContextLibraryDialog(QDialog):
                 imported=self.library.conversation_titles(),
             )
             self.refresh_sessions(registered)
-            self.refresh_status(settings)
             self.report = savings_report(self.path, self.period, reference=self.pricing)
+            self.refresh_status(settings)
         except (OSError, sqlite3.Error, ValueError) as exc:
             self.show_message(
                 "目录暂不可读：{error}",
@@ -1467,22 +1351,32 @@ class ContextLibraryDialog(QDialog):
             button.setChecked(key == self.period)
         report = self.report
         tokens, money = self.kpis["tokens"][0], self.kpis["money"][0]
+        known = report is not None and report["money"] is not None
+        # Unknown money is hidden with its caption, never shown as $0 or a dash.
+        money.setVisible(known)
+        self.kpis["money"][1].setVisible(known)
+        self.kpis["money"][1].setText(money_caption(self.language))
+        for item in self.kpis["money"]:
+            item.setToolTip(money_tip(self.language))
         if report is None:
             tokens.setText("—")
-            money.setText("—")
+            money.setText("")
             self.kpis["compressions"][0].setText("—")
             self.basis.setText(t("统计暂不可读", "Statistics unavailable"))
             self.chart.set_days([], None)
         else:
             saved = report["tokens_saved"]
             tokens.setText(total_tokens(saved))
-            money.setText(money_text(report["money"]))
+            money.setText(money_short(report["money"]))
             self.kpis["compressions"][0].setText(f"{report['preparations']:,}")
             self.basis.setText(
-                t("按各模型缓存读取价折算", "At each model's cached-read price")
-                if report["mode"] == "cached"
-                else t("按各模型输入价折算", "At each model's input price")
+                basis_text(report["mode"], self.language)
+                if known
+                else t("选好参考模型后才估算金额", "Pick a reference model to estimate money")
+                if report["models"]
+                else ""
             )
+            self.basis.setToolTip(money_tip(self.language))
             start = None
             if report["period"] != "all":
                 days = 6 if report["period"] == "7d" else 0
@@ -1496,16 +1390,17 @@ class ContextLibraryDialog(QDialog):
         for model in (report or {}).get("models", [])[:5]:
             chip = plain(
                 f"{model['label'] or t('未定价', 'Unpriced')}  {compact_tokens(model['tokens_saved'])}"
-                + (f" · {money_text(model['money'])}" if model["money"] is not None else ""),
+                + (f" · {money_short(model['money'])}" if model["money"] is not None else ""),
                 name="modelChip",
             )
             rates = " / ".join(f"${rate:g}" for rate in model.get("rates", []))
             chip.setToolTip(
                 t(
-                    "节省 {count:,} tokens · {rates} / 百万 tokens",
-                    "{count:,} tokens saved · {rates} per million tokens",
+                    "节省 {count:,} tokens · 标价 {rates} / 百万 tokens\n{note}",
+                    "{count:,} tokens saved · list price {rates} per million tokens\n{note}",
                     count=model["tokens_saved"],
                     rates=rates or "—",
+                    note=money_tip(self.language),
                 )
             )
             self.model_chips.addWidget(chip)
@@ -1526,36 +1421,35 @@ class ContextLibraryDialog(QDialog):
         if configured:
             mode_text = (
                 self.t(
-                    "自动接入已配置，重开客户端后等待请求",
-                    "Automatic routing configured; reopen the client and send a request",
+                    "已设置自动接入。重开 Codex / Claude Code 后发一条消息试试。",
+                    "Automatic routing is set up. Reopen Codex / Claude Code and send a message.",
                 )
                 if not activity_summary["sent_requests"]
                 else self.t(
-                    "自动接入已配置 · 已观察到本地代理转发",
-                    "Automatic routing configured · Local forwarding observed",
+                    "已接入：请求会先经过 TOMC 再发给模型。",
+                    "Connected: requests go through TOMC before reaching the model.",
                 )
             )
             service = {
-                "online": (" · 转发服务可达", " · Gateway reachable"),
+                "online": ("转发服务正常。", " The local relay is running."),
                 "offline": (
-                    " · 转发服务不可达，请启动服务",
-                    " · Gateway unreachable; start the service",
+                    "转发服务没有运行，请先启动它。",
+                    " The local relay is not running; start it first.",
                 ),
-            }.get(
-                mode.get("gateway_service"),
-                (" · 转发服务待核验", " · Gateway status unverified"),
-            )
-            mode_text += self.t(*service)
+            }.get(mode.get("gateway_service"))
+            if service:
+                mode_text += self.t(*service)
         else:
             mode_text = (
                 self.t(
-                    "按需工具可用 · 代理尚未观察到实际转发",
-                    "On-demand tools available · No gateway forwarding observed",
+                    "还没设置自动接入；也可以在 Codex / Claude Code 里直接调用 TOMC 工具。",
+                    "Automatic routing is not set up; you can still call TOMC tools "
+                    "from Codex / Claude Code.",
                 )
                 if not activity_summary["sent_requests"]
                 else self.t(
-                    "已观察到本地代理转发 · 仅覆盖实际经过代理的请求",
-                    "Local forwarding observed · Only requests routed through the gateway are covered",
+                    "已接入：只处理经过 TOMC 的请求。",
+                    "Connected: only requests that go through TOMC are handled.",
                 )
             )
         self.mode.setText(mode_text)
@@ -1564,44 +1458,41 @@ class ContextLibraryDialog(QDialog):
             detail += f" · {host_label(latest['host'], self.language)} · {local_time(latest['started_utc'])}"
             if latest.get("provider_input_tokens") is not None:
                 detail += self.t(
-                    " · 实测 provider 输入 {count:,} tokens",
-                    " · Measured provider input {count:,} tokens",
+                    " · 模型实际收到 {count:,} tokens",
+                    " · model received {count:,} tokens",
                     count=latest["provider_input_tokens"],
                 )
                 if latest.get("provider_cached_tokens") is not None:
                     detail += self.t(
-                        "（缓存 {count:,}）",
-                        " (cached {count:,})",
+                        "（其中缓存 {count:,}）",
+                        " ({count:,} cached)",
                         count=latest["provider_cached_tokens"],
                     )
         self.activity_status.setText(
-            self.t("最近请求：{detail}", "Latest request: {detail}", detail=detail)
+            self.t("最近一次请求：{detail}", "Latest request: {detail}", detail=detail)
         )
+        self.activity_status.setToolTip(code_tooltip((latest or {}).get("reason"), self.language))
         for host, label in self.integration_labels.items():
             item = status.get(host, {})
-            runtime = (
-                self.t("运行已验证", "Runtime verified")
-                if item.get("runtime_verified")
-                else self.t("连接待验证", "Connection unverified")
-            )
-            if ("claude" if host == "claude_code" else host) in observed_hosts:
-                runtime = self.t("代理转发曾被观察", "Gateway forwarding observed")
+            short = "claude" if host == "claude_code" else host
             state = item.get("state") or {
                 "已配置": "enabled",
                 "配置已启用": "enabled",
                 "未配置": "not_configured",
                 "已禁用": "disabled",
             }.get(item.get("label"), "unknown")
-            labels = {
-                "enabled": ("配置已启用", "Configuration enabled"),
-                "not_configured": ("未配置", "Not configured"),
-                "disabled": ("已禁用", "Disabled"),
-                "unknown": ("未知", "Unknown"),
-            }
-            configured_label = self.t(*labels.get(state, labels["unknown"]))
-            if ("claude" if host == "claude_code" else host) in mode.get("configured_hosts", []):
-                configured_label = self.t("自动接入已配置", "Automatic routing configured")
-            label.setText(f"{host_label(host, self.language)} · {configured_label} · {runtime}")
+            observed = short in observed_hosts
+            connected = observed or state == "enabled" or short in mode.get("configured_hosts", [])
+            if connected:
+                text = self.t("已接入", "Connected")
+                if not observed and not item.get("runtime_verified"):
+                    text += self.t(" · 还没有请求经过", " · no requests yet")
+            elif state == "unknown":
+                text = self.t("状态读不到", "Status unavailable")
+            else:
+                text = self.t("未接入", "Not connected")
+            label.setText(f"{host_label(host, self.language)} · {text}")
+        preparations = (self.report or {}).get("preparations", 0)
         if not settings.get("enabled", True):
             self.status_chip.setObjectName("paused")
             self.status_chip.setText(self.t("● TOMC 已暂停", "● TOMC paused"))
@@ -1612,11 +1503,15 @@ class ContextLibraryDialog(QDialog):
                 for host in ("codex", "claude")
                 if host in observed_hosts
             ]
-            self.status_chip.setText(
-                self.t("● 运行中 · {hosts}", "● Running · {hosts}", hosts=" · ".join(hosts))
-                if hosts
-                else self.t("● 等待第一个请求", "● Waiting for the first request")
-            )
+            if hosts:
+                text = self.t("● 运行中 · {hosts}", "● Running · {hosts}", hosts=" · ".join(hosts))
+            elif preparations or self.records:
+                # Compressions already happened (for example through the tools),
+                # so "waiting for the first request" would contradict the page.
+                text = self.t("● 运行中", "● Running")
+            else:
+                text = self.t("● 等待第一个请求", "● Waiting for the first request")
+            self.status_chip.setText(text)
         self.status_chip.setToolTip(f"{mode_text}\n{detail}")
         # The style sheet selects on the object name; re-polish after changing it.
         self.status_chip.style().unpolish(self.status_chip)
@@ -1651,7 +1546,7 @@ class ContextLibraryDialog(QDialog):
                 None,
             )
         )
-        return title or self.t("未命名对话", "Untitled conversation"), place
+        return title or self.t("未命名对话", "Untitled chat"), place
 
     def refresh_sessions(self, registered=None):
         self.session_list.blockSignals(True)
@@ -1696,22 +1591,22 @@ class ContextLibraryDialog(QDialog):
                 )
                 item.setToolTip(
                     self.t(
-                        "勾选表示允许 TOMC 处理这个对话；不修改宿主权限。\n会话 ID：{identity}",
-                        "Checked lets TOMC process this conversation; host permissions are unchanged.\nSession ID: {identity}",
-                        identity=row["session_id"],
+                        "勾选后 TOMC 会处理这个对话；不改动 Codex / Claude Code 的权限。",
+                        "Checked lets TOMC work on this chat; Codex / Claude Code permissions are unchanged.",
                     )
                 )
                 self.session_list.addItem(item)
             self.session_note.setText(
                 self.t(
-                    "{count} 个对话；勾选表示允许 TOMC 处理。全局暂停时，已开启的对话也不会处理。",
+                    "{count} 个对话；勾选的对话由 TOMC 处理。TOMC 整体暂停时，勾选的也不处理。",
                     "Conversations: {count}. Checked ones allow TOMC processing; a global pause also stops enabled ones.",
                     count=len(rows),
                 )
                 if rows
                 else self.t(
-                    "尚未收到会话事件。配置 hooks 后，新建、恢复或活动事件可登记会话；旧聊天不会凭空补全。",
-                    "No session events received yet. After hooks are configured, start, resume or activity events register sessions. Old chats are not reconstructed.",
+                    "还没有对话。在 Codex / Claude Code 里开始或继续一个对话后，它会出现在这里；以前的聊天不会补进来。",
+                    "No chats yet. Start or continue a chat in Codex / Claude Code and it appears here; "
+                    "older chats are not added.",
                 )
             )
         finally:
@@ -1724,7 +1619,7 @@ class ContextLibraryDialog(QDialog):
             return conversation["title"]
         if conversation["kind"] == "unlinked":
             return self.t("未关联对话的上下文", "Contexts without a conversation")
-        return conversation["first_title"] or self.t("未命名对话", "Untitled conversation")
+        return conversation["first_title"] or self.t("未命名对话", "Untitled chat")
 
     def describe_conversation(self, conversation):
         parts = [host_label(conversation["host"], self.language)]
@@ -1795,7 +1690,7 @@ class ContextLibraryDialog(QDialog):
                 tokens=compact_tokens(conversation["tokens_saved"]),
             )
             if conversation["money"] is not None:
-                stats += f" · {money_text(conversation['money'])}"
+                stats += f" · {money_short(conversation['money'])}"
             card = ConversationCard(
                 self.display_title(conversation),
                 self.describe_conversation(conversation),
@@ -1828,8 +1723,8 @@ class ContextLibraryDialog(QDialog):
             )
             if self.records
             else self.t(
-                "还没有保存的上下文\n\nTOMC 压缩对话后，会按对话整理在这里：\n可以复制接续提示词给另一个 Agent，或导出到另一台电脑。\n旧版数字统计不含正文，无法还原历史上下文。",
-                "No saved contexts yet\n\nAfter TOMC compresses a conversation, its contexts appear here.\nCopy a handoff prompt for another agent, or export one to another computer.\nOlder numeric statistics contain no text and cannot restore past contexts.",
+                "还没有保存的上下文\n\nTOMC 压缩对话后，会按对话整理在这里：\n可以复制接续提示词给另一个 Agent，或导出到另一台电脑。",
+                "No saved contexts yet\n\nAfter TOMC compresses a conversation, its contexts appear here.\nCopy a handoff prompt for another agent, or export one to another computer.",
             )
         )
         if self.visible:
@@ -1866,11 +1761,12 @@ class ContextLibraryDialog(QDialog):
                 "{tokens} tokens saved",
                 tokens=compact_tokens(conversation["tokens_saved"]),
             ),
-            money_text(conversation["money"]) if conversation["money"] is not None else "",
+            money_phrase(conversation["money"], self.language),
         ]
         for chip, text in zip(self.conversation_chips, chips):
             chip.setText(text)
             chip.setVisible(bool(text))
+        self.conversation_chips[2].setToolTip(money_tip(self.language))
         self.conversation_chips[1].setToolTip(
             self.t(
                 "这个对话所有被压缩的请求合计（含没有保存正文的请求）",
@@ -1897,7 +1793,7 @@ class ContextLibraryDialog(QDialog):
                 " · 节省 {tokens} tokens", " · {tokens} tokens saved", tokens=compact_tokens(saved)
             )
             if request and request["money"] is not None:
-                meta += f" · {money_text(request['money'])}"
+                meta += f" · {money_short(request['money'])}"
             card = VersionCard(
                 record.get("title") or self.t("未命名上下文", "Untitled context"),
                 meta,
@@ -1992,18 +1888,23 @@ class ContextLibraryDialog(QDialog):
             )
             if request["money"] is not None:
                 text += self.t(
-                    " · 约 {money}（{model}）",
-                    " · about {money} ({model})",
-                    money=money_text(request["money"]),
+                    " · {money}（{model}）",
+                    " · {money} ({model})",
+                    money=money_phrase(request["money"], self.language),
                     model=request["model"],
                 )
             self.request_status.setText(text)
+            self.request_status.setToolTip(money_tip(self.language))
         else:
             self.request_status.setText(
                 self.t("此快照的请求用量：未关联", "Request usage for this snapshot: not linked")
             )
-        if self.pricing and not (request and request["money"] is not None):
-            value = input_value(delta, self.pricing)
+        value = (
+            input_value(delta, self.pricing)
+            if self.pricing and not (request and request["money"] is not None)
+            else None
+        )
+        if value is not None:
             model = (
                 (self.pricing.get("label") if self.language.code == "zh" else None)
                 or self.pricing.get("model")
@@ -2011,15 +1912,17 @@ class ContextLibraryDialog(QDialog):
             )
             self.record_cost.setText(
                 self.t(
-                    "参考输入金额{direction} {value} · {model}",
-                    "Reference input value {direction} {value} · {model}",
+                    "按参考模型标价估算：{direction} {value} · {model}",
+                    "At the reference list price (estimate): {direction} {value} · {model}",
                     direction=self.t("节省", "saved") if delta >= 0 else self.t("增加", "added"),
-                    value=money_text(abs(value)) if value is not None else "—",
+                    value=money_short(abs(value)),
                     model=model,
                 )
             )
-            self.record_cost.setToolTip(explanation(self.pricing, self.language))
-            self.record_cost.show()
+            self.record_cost.setToolTip(
+                money_tip(self.language) + "\n\n" + explanation(self.pricing, self.language)
+            )
+            self.record_cost.setVisible(True)
         else:
             self.record_cost.clear()
             self.record_cost.hide()
@@ -2203,7 +2106,7 @@ class ContextLibraryDialog(QDialog):
             dialog.setWindowTitle(self.t("删除本地上下文", "Delete local context"))
             dialog.setText(
                 self.t(
-                    "删除选中的本地快照？\n既有数字统计、宿主聊天和已导出的文件不受影响。",
+                    "删除选中的本地快照？\n已有的数字统计、Codex / Claude Code 里的聊天和导出的文件都不受影响。",
                     "Delete the selected local snapshot?\nNumeric statistics, host chats and exported files will remain unchanged.",
                 )
             )
@@ -2223,7 +2126,7 @@ class ContextLibraryDialog(QDialog):
             self.library.delete(self.selected_record["id"])
             self.refresh()
             self.show_message(
-                "本地快照已删除；数字统计、宿主聊天和已导出文件保留。",
+                "本地快照已删除；数字统计、Codex / Claude Code 里的聊天和导出的文件都还在。",
                 "Local snapshot deleted. Numeric statistics, host chats and exported files are retained.",
             )
         except (OSError, sqlite3.Error, ValueError, KeyError) as exc:
@@ -2240,7 +2143,7 @@ class ContextLibraryDialog(QDialog):
         dialog.setText(
             self.t(
                 "删除 TOMC Memory 在本机保存的全部笔记本、上下文和对话记录？此操作不能撤销。"
-                "开关、数字统计、宿主聊天和已导出的文件不受影响。",
+                "开关、数字统计、Codex / Claude Code 里的聊天和导出的文件都不受影响。",
                 "Delete all notebooks, contexts and conversation records TOMC Memory saved on "
                 "this computer? This cannot be undone. Switches, numeric statistics, host chats "
                 "and exported files stay.",

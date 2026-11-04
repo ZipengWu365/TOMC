@@ -6,7 +6,7 @@ import math
 import sqlite3
 from pathlib import Path
 
-from PySide6.QtCore import QRect, QRectF, QSize, Qt, QUrl
+from PySide6.QtCore import QEvent, QRect, QRectF, QSize, Qt, QUrl
 from PySide6.QtGui import QColor, QDesktopServices, QFont, QPainter, QPen
 from PySide6.QtWidgets import (
     QAbstractItemView,
@@ -48,7 +48,15 @@ from .analysis import (
 from .categories import CODES
 from .categories import label as category_label
 from .macos_ui import install_macos_style, is_macos, tokens
-from .savings_qt import ElidedLabel, SavingsChart, compact_tokens, money_text
+from .savings_qt import (
+    ElidedLabel,
+    SavingsChart,
+    compact_tokens,
+    money_caption,
+    money_short,
+    money_tip,
+    total_tokens,
+)
 
 PALETTE = (
     "#507461",
@@ -62,7 +70,7 @@ PALETTE = (
 )
 OTHER_COLOR = "#D8D2C6"
 _MAC_LIGHT_CHART = (
-    "#3876CA",
+    "#3F6B53",
     "#B78037",
     "#399088",
     "#AD6684",
@@ -72,7 +80,7 @@ _MAC_LIGHT_CHART = (
     "#4D9585",
 )
 _MAC_DARK_CHART = (
-    "#84B6FF",
+    "#8FC3A5",
     "#E5B778",
     "#8DD0C9",
     "#E5A4BD",
@@ -391,7 +399,7 @@ class Legend(QWidget):
 
 
 def conversation_name(row, t):
-    name = row["title"] or t("未命名对话", "Untitled conversation")
+    name = row["title"] or t("未命名对话", "Untitled chat")
     return f"{name} · {t('子代理', 'subagent')}" if row.get("agent") else name
 
 
@@ -417,16 +425,18 @@ class AnalysisPage(QWidget):
         self.report = None
         outer = QVBoxLayout(self)
         outer.setContentsMargins(0, 8, 0, 0)
-        scroll = QScrollArea()
+        scroll = self.scroll = QScrollArea()
         scroll.setWidgetResizable(True)
         scroll.setFrameShape(QFrame.Shape.NoFrame)
         scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         # The page background matches the window; the cards stay white.
         scroll.viewport().setObjectName("analysisSurface")
         outer.addWidget(scroll)
-        body = QWidget()
+        body = self.body = QWidget()
         body.setObjectName("analysisSurface")
         scroll.setWidget(body)
+        # The page scrolls instead of squeezing: see fit_body().
+        scroll.viewport().installEventFilter(self)
         layout = QVBoxLayout(body)
         layout.setContentsMargins(0, 0, 6, 6)
         layout.setSpacing(12)
@@ -436,10 +446,17 @@ class AnalysisPage(QWidget):
         self.copy_button = QPushButton()
         self.copy_button.clicked.connect(self.copy_report)
         header.addWidget(self.copy_button)
+        # Feedback is for the developer, so it is a secondary button.
         self.feedback_button = QPushButton()
-        self.feedback_button.setObjectName("primary")
         self.feedback_button.clicked.connect(self.open_feedback)
         header.addWidget(self.feedback_button)
+        # Share-card hook: the page's primary button, hidden until set_share_handler().
+        self.share_button = QPushButton()
+        self.share_button.setObjectName("primary")
+        self.share_button.hide()
+        self.share_handler = None
+        self.share_button.clicked.connect(self.share)
+        header.addWidget(self.share_button)
         layout.addLayout(header)
         # Next to the button, so nobody has to wonder what leaves the computer.
         self.anonymity = notice()
@@ -530,10 +547,53 @@ class AnalysisPage(QWidget):
     def t(self, zh, en, **values):
         return self.language.tr(zh, en, **values)
 
+    def set_share_handler(self, callback):
+        """Share-card hook: show the primary button and call ``callback()`` on click."""
+        self.share_handler = callback
+        self.share_button.setVisible(callback is not None)
+
+    def share(self):
+        if self.share_handler is not None:
+            self.share_handler()
+
+    def eventFilter(self, watched, event):
+        if watched is self.scroll.viewport() and event.type() == QEvent.Type.Resize:
+            self.fit_body()
+        return super().eventFilter(watched, event)
+
+    def fit_table(self):
+        # Up to eight rows without an inner scrollbar. The header's geometry is not
+        # settled before the page is first shown, so this reruns from fit_body().
+        rows = self.table.rowCount()
+        self.table.setFixedHeight(
+            self.table.horizontalHeader().sizeHint().height()
+            + sum(self.table.rowHeight(i) for i in range(min(rows, 8)))
+            + 2 * self.table.frameWidth()
+            + 6
+        )
+
+    def fit_body(self):
+        """Give the page its full height so cards keep their size and the page scrolls.
+
+        A resizable scroll area shrinks its widget to the minimum size hint, which
+        ignores wrapped text; the table then overlapped the note below it.
+        """
+        self.fit_table()
+        layout = self.body.layout()
+        width = self.scroll.viewport().width()
+        layout.activate()
+        height = (
+            layout.totalHeightForWidth(width)
+            if layout.hasHeightForWidth()
+            else layout.totalSizeHint().height()
+        )
+        self.body.setMinimumHeight(max(height, layout.totalSizeHint().height()))
+
     def retranslate(self, *_):
         t = self.t
+        self.share_button.setText(t("生成本周战报", "Make this week's report"))
         self.copy_button.setText(t("复制匿名报告", "Copy anonymous report"))
-        self.feedback_button.setText(t("匿名提交反馈 ›", "Send anonymous feedback ›"))
+        self.feedback_button.setText(t("匿名反馈 ›", "Anonymous feedback ›"))
         self.feedback_button.setToolTip(
             t(
                 "先看完整的匿名报告，确认后才在 GitHub 上提交",
@@ -566,9 +626,10 @@ class AnalysisPage(QWidget):
                 t("压缩次数", "Compressions"),
                 t("上下文", "Contexts"),
                 t("节省 tokens", "Tokens saved"),
-                t("金额", "Money"),
+                money_caption(self.language),
             ]
         )
+        self.table.horizontalHeaderItem(5).setToolTip(money_tip(self.language))
         self.privacy.setText(
             t(
                 "这份分析只在本机计算，不会自动上传任何内容。",
@@ -624,8 +685,9 @@ class AnalysisPage(QWidget):
             rows, self.conversation_name, lambda row: row["tokens_saved"], other=other
         )
         total = sum(amount for _, amount, _ in parts)
+        # The ring's center is this page's headline total: full digits, like the dashboard.
         self.conversation_donut.set_parts(
-            parts, compact_tokens(total), t("节省 tokens", "tokens saved")
+            parts, total_tokens(total), t("节省 tokens", "tokens saved")
         )
         self.conversation_legend.set_parts(parts, total)
         kinds = donut_parts(
@@ -641,14 +703,15 @@ class AnalysisPage(QWidget):
         )
         self.category_legend.set_parts(kinds, total)
         self.table.setRowCount(len(rows))
+        self.table.setColumnHidden(5, not any(row["money"] is not None for row in rows))
         for index, row in enumerate(rows):
             values = (
                 self.conversation_name(row),
                 category_label(row["category"], self.language),
                 f"{row['compressions']:,}",
                 f"{row['contexts']:,}",
-                f"{row['tokens_saved']:,}",
-                money_text(row["money"]),
+                compact_tokens(row["tokens_saved"]),
+                money_short(row["money"]),
             )
             for column, value in enumerate(values):
                 item = QTableWidgetItem(value)
@@ -658,13 +721,12 @@ class AnalysisPage(QWidget):
                     )
                 if column == 0:
                     item.setToolTip(" · ".join(part for part in (value, row.get("folder")) if part))
+                elif column == 4:
+                    item.setToolTip(f"{row['tokens_saved']:,} tokens")
+                elif column == 5:
+                    item.setToolTip(money_tip(self.language))
                 self.table.setItem(index, column, item)
-        # The header's own geometry is not settled before the page is first shown.
-        self.table.setFixedHeight(
-            self.table.horizontalHeader().sizeHint().height()
-            + sum(self.table.rowHeight(i) for i in range(min(len(rows), 8)))
-            + 6
-        )
+        self.fit_table()
         self.table.setVisible(bool(rows))
         unattributed = totals["unattributed_tokens"]
         if not rows:
@@ -683,10 +745,10 @@ class AnalysisPage(QWidget):
             self.table_note.setText(t("按节省 tokens 从多到少排列。", "Sorted by tokens saved."))
         names = {
             "compressed": ("已压缩", "Compressed"),
-            "host_managed": ("宿主自己管理上下文", "Managed by the host"),
+            "host_managed": ("助手自己管理上下文", "Managed by the assistant"),
             "short": ("历史太短", "History too short"),
             "unsupported": ("内容格式暂不支持", "Content not yet supported"),
-            "auxiliary": ("宿主辅助请求", "Host auxiliary requests"),
+            "auxiliary": ("助手的辅助请求", "Assistant helper requests"),
             "switched_off": ("TOMC 已关闭", "TOMC switched off"),
             "failed": ("取消或失败", "Cancelled or failed"),
         }
@@ -719,8 +781,8 @@ class AnalysisPage(QWidget):
         self.stage_bars.set_rows(
             (
                 t(
-                    "第 {n} 阶段 {range}",
-                    "Stage {n} {range}",
+                    "第 {n} 档 {range}",
+                    "Band {n} {range}",
                     n=row["stage"],
                     range=thresholds[row["stage"] - 1],
                 ),
@@ -732,13 +794,14 @@ class AnalysisPage(QWidget):
         )
         self.notes["stages"].setText(
             t(
-                "每次压缩的历史长度，对应小猫的四个阶段。",
-                "The history length of each compression, matching the cat's four stages.",
+                "每次压缩的历史有多长。小猫的样子看的是累计省下多少，不看这个。",
+                "How long the history was in each compression. The cat's form follows total saving, not this.",
             )
         )
         self.daily.set_days(report["daily"], None)
         for widget in (self.feedback_button, self.copy_button):
             widget.setEnabled(bool(rows) or totals["compressions"] > 0)
+        self.fit_body()
 
     def copy_report(self):
         if self.report is None:

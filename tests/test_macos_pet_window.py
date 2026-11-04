@@ -45,7 +45,7 @@ def test_companion_remains_a_tool_and_only_mac_uses_persistent_visibility(
         app.sendPostedEvents(None, QEvent.Type.DeferredDelete)
 
 
-def test_preview_uses_all_four_input_length_forms_without_writing_usage(app, tmp_path, monkeypatch):
+def test_preview_uses_all_four_saving_forms_without_writing_usage(app, tmp_path, monkeypatch):
     path = Path(__file__).resolve().parents[1] / "scripts/desktop_pet_stages.py"
     spec = importlib.util.spec_from_file_location("tomc_stage_preview", path)
     module = importlib.util.module_from_spec(spec)
@@ -58,7 +58,7 @@ def test_preview_uses_all_four_input_length_forms_without_writing_usage(app, tmp
         assert not player.testAttribute(Qt.WidgetAttribute.WA_ShowWithoutActivating)
         assert not player.windowFlags() & Qt.WindowType.WindowStaysOnTopHint
         player.show_stats(3)
-        assert "1,000,000" in player.stats.text()
+        assert "10,000,000" in player.stats.text()
         assert "不执行压缩" in player.stats.text()
         assert not list(tmp_path.glob("*.sqlite3"))
     finally:

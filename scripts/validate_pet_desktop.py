@@ -37,8 +37,9 @@ def write_report(path, report):
 def animation_identity(pet, stage_for_report):
     # A newer request can be preparing while an earlier report is playing.
     # The active report, never the newest request, owns the displayed animation.
+    # The form is the earned one; the length is the active report's own.
     active = pet.active_report or {}
-    stage = stage_for_report({"last_preparation": active})
+    stage = stage_for_report(active)
     return {
         "request_id": active.get("request_id") or pet.request_animation_id,
         "context_input_tokens": stage.get("input_tokens"),
@@ -74,7 +75,6 @@ def main(argv=None):
     from PySide6.QtCore import QLockFile, Qt, QTimer
     from PySide6.QtWidgets import QApplication
 
-    from tomc.pet_growth import growth_state
     from tomc.ui_language import ui_font
     from tomc.usage_widget_qt import Companion
 
@@ -157,7 +157,7 @@ def main(argv=None):
 
     def collect():
         nonlocal current_animation
-        identity = animation_identity(pet, growth_state)
+        identity = animation_identity(pet, pet.playing_stage)
         current_animation = {
             "index": len(report["animations"]),
             "identity": identity,

@@ -10,7 +10,7 @@ Build it from the TOMC checkout:
 python scripts/build_plugin.py
 ```
 
-The output is `outputs/plugins/tomc-memory-0.3.0.mcpb`. In a current Claude Desktop with MCPB UV support, open **Settings → Extensions → Advanced settings → Install Extension…**, select the file, and follow its installation prompts. The first launch needs network access to download Python and pinned dependencies. No extra model API key, GPU or manual JSON editing is needed. Start a new chat and say **Try TOMC Memory** (or **试一下 TOMC Memory**): it runs a built-in sample and saves nothing.
+The output is `outputs/plugins/tomc-memory-0.3.1.mcpb`. In a current Claude Desktop with MCPB UV support, open **Settings → Extensions → Advanced settings → Install Extension…**, select the file, and follow its installation prompts. The first launch needs network access to download Python and pinned dependencies. No extra model API key, GPU or manual JSON editing is needed. Start a new chat and say **Try TOMC Memory** (or **试一下 TOMC Memory**): it runs a built-in sample and saves nothing.
 
 ## Host-managed conversations
 
@@ -24,7 +24,7 @@ Counts and the budget cover memory text under a lexical estimate, excluding task
 
 ## Saved context and controls
 
-The 0.3.0 runtime exposes twelve tools: `try_tomc`, `prepare_context`, `remember_memory`, `recall_memory`, `list_memories`, `forget_memory`, `erase_all_memory`, `get_status`, `get_usage_stats`, `list_contexts`, `get_context` and `make_handoff`. `prepare_context` and `recall_memory` results are **not saved** unless both **Save context records** and **Save MCP results** are on (`tomc settings --save-mcp-results on`); 0.2.0 and 0.2.1 saved them by default. Saved contexts are redacted for common secrets and deleted after 30 days. `forget_memory` also deletes contexts prepared from that notebook; `erase_all_memory` requires `confirm="ERASE ALL"` and deletes everything. Old numeric-only statistics cannot reconstruct earlier chats.
+The 0.3.1 runtime exposes twelve tools: `try_tomc`, `prepare_context`, `remember_memory`, `recall_memory`, `list_memories`, `forget_memory`, `erase_all_memory`, `get_status`, `get_usage_stats`, `list_contexts`, `get_context` and `make_handoff`. `prepare_context` and `recall_memory` results are **not saved** unless both **Save context records** and **Save MCP results** are on (`tomc settings --save-mcp-results on`); 0.2.0 and 0.2.1 saved them by default. Saved contexts are redacted for common secrets and deleted after 30 days. `forget_memory` also deletes contexts prepared from that notebook; `erase_all_memory` requires `confirm="ERASE ALL"` and deletes everything. Old numeric-only statistics cannot reconstruct earlier chats.
 
 Global processing and newly registered sessions default to on. Session-specific controls require a supported host's TOMC hooks to be installed and loaded; the Claude Desktop MCPB alone does not establish Claude Code hook support. The optional Codex/Claude Code integration registers metadata and guards TOMC calls, without automatically replacing model requests. Codex additionally requires `/hooks` trust review. See [host integration validation](https://github.com/ZipengWu365/TOMC/blob/main/docs/host_integration_validation_20261022.md).
 

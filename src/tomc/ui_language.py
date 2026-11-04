@@ -62,11 +62,16 @@ class UiLanguage(QObject):
         text = zh if self._code == "zh" else en
         return text.format(**values) if values else text
 
-    def set_language(self, code: str) -> None:
-        if code not in ("zh", "en"):
-            raise ValueError("UI language must be 'zh' or 'en'")
-        # Persist even when the default was selected explicitly. A later change
-        # to the system locale must not discard the user's preference.
+    def setting(self, key: str, default=None):
+        """A small UI preference stored next to the language, e.g. a one-time notice."""
+        try:
+            settings = json.loads(self.path.read_text(encoding="utf-8"))
+        except (OSError, ValueError, UnicodeError):
+            return default
+        return settings.get(key, default) if isinstance(settings, dict) else default
+
+    def remember(self, key: str, value) -> None:
+        """Persist one UI preference atomically, keeping every other key."""
         settings = {}
         try:
             previous = json.loads(self.path.read_text(encoding="utf-8"))
@@ -74,7 +79,7 @@ class UiLanguage(QObject):
                 settings = previous
         except (OSError, ValueError, UnicodeError):
             pass
-        settings["language"] = code
+        settings[key] = value
         self.path.parent.mkdir(parents=True, exist_ok=True)
         temporary = None
         try:
@@ -95,6 +100,13 @@ class UiLanguage(QObject):
         finally:
             if temporary is not None:
                 temporary.unlink(missing_ok=True)
+
+    def set_language(self, code: str) -> None:
+        if code not in ("zh", "en"):
+            raise ValueError("UI language must be 'zh' or 'en'")
+        # Persist even when the default was selected explicitly. A later change
+        # to the system locale must not discard the user's preference.
+        self.remember("language", code)
         if code != self._code:
             self._code = code
             self.changed.emit(code)

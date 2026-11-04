@@ -1,7 +1,7 @@
 <div align="center">
   <img src="assets/tomc_logo_20261002.png" alt="TOMC Memory" width="320">
   <h1>TOMC Memory</h1>
-  <p><strong>English</strong> | <a href="README_zh.md">简体中文</a> · v0.3.0 research preview · MIT · Python 3.10+</p>
+  <p><strong>English</strong> | <a href="README_zh.md">简体中文</a> · v0.3.1 research preview · MIT · Python 3.10+</p>
 </div>
 
 I got tired of re-explaining my project to every new AI chat, and then getting the old version of a decision back.
@@ -50,7 +50,7 @@ Start a new session, check `/mcp` for `plugin:tomc-memory:tomc`, then say "Try T
 
 ### Codex
 
-Download [tomc-memory-codex-0.3.0.zip](https://github.com/ZipengWu365/TOMC/releases/download/v0.3.0-preview.1/tomc-memory-codex-0.3.0.zip), unzip it into a folder you will keep, and run there:
+Download [tomc-memory-codex-0.3.1.zip](https://github.com/ZipengWu365/TOMC/releases/download/v0.3.1-preview.1/tomc-memory-codex-0.3.1.zip), unzip it into a folder you will keep, and run there:
 
 ```bash
 uv run --no-project --python 3.12 install.py --check
@@ -103,9 +103,9 @@ For a source install, add `-i https://pypi.tuna.tsinghua.edu.cn/simple` to the `
 ## Go deeper
 
 - [Evidence and claims ledger](docs/evidence.md): every number, its source file, model, sample size and version, plus the negative results.
-- [What changed in 0.3.0](docs/release_notes_0.3.0.md) · [Reproduce the offline checks](docs/reproducibility.md) · [Independent replications](REPLICATIONS.md)
+- [What changed in 0.3.1](docs/release_notes_0.3.1.md) · [in 0.3.0](docs/release_notes_0.3.0.md) · [Reproduce the offline checks](docs/reproducibility.md) · [Independent replications](REPLICATIONS.md)
 - [Switch assistants and keep your notes](docs/usage_tips.md#reuse-notebooks): save in Codex, continue in Claude Code, on one computer.
-- [Desktop companion (beta)](docs/desktop_companion.md): a small cat that shows estimated context reduction; Windows and macOS. The optional request gateway is Windows only. Linux has the plugins and MCP server only.
+- [Desktop companion (beta)](docs/desktop_companion.md): a small cat that shows today's estimated context reduction and makes a [weekly report card](docs/share_card.md) you can share; Windows and macOS. The optional request gateway is Windows only. Linux has the plugins and MCP server only.
 - [Local demo](docs/quickstart.md) · [How it works](docs/method.md) · [Automatic API request loop](docs/context_ownership.md) · [Usage tips](docs/usage_tips.md) · [Validation record](docs/validation.md)
 - [Video overview (1:37)](launch/media/v13/videos/TOMC_Overview_EN.mp4). One Codex number in the video has no protocol in this repository; see [media notes](launch/media/v13/README.md).
 

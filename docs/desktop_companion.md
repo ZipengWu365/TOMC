@@ -72,6 +72,8 @@ local `TOMC.app` from this checkout; automatic request processing is not availab
 
 ## Using the cat
 
+- **The label under the cat** shows today's estimated saving, such as "Today −82K". It is hidden
+  on days with no saving.
 - **Click the cat** to see estimated tokens removed, their value at each model's listed input price and the last 14 days. These are estimates, not your bill. Choose today,
   the last seven days or all time.
 - **Analysis ›** opens a report: savings per conversation and per kind of work, a ranked table, how
@@ -80,8 +82,12 @@ local `TOMC.app` from this checkout; automatic request processing is not availab
   saved context with copy, export, rename and delete, and import of a package from another computer.
 - **Right-click the cat** for the menu. To quit, hover over the cat and click the **×** on its head,
   or choose **Quit TOMC**. Closing other windows never quits the cat; it restarts at sign-in.
+- **Weekly report** (menu, dashboard or analysis page) draws the last 7 days as an image you can
+  copy or save. It is made on your computer and never uploaded; see [Weekly report card](share_card.md).
 
-The cat grows through four stages with the length of the contexts it has compressed.
+The cat grows through four stages as your estimated total saving passes about 100K, 1M and 10M
+tokens, and a stage once reached is kept. A short bubble says when it grows. The length of each
+context only changes how much paper flies in that one animation.
 
 ## What to expect
 
@@ -168,4 +174,4 @@ py scripts\install_windows_companion.py --uninstall "<回执路径>"
 
 开启网关且「保存上下文记录」打开（默认）时，网关会把压缩后的旧对话和你最新的一句话存到本机，常见密钥先替换成 `[REDACTED]`，30 天后删除；关掉这个开关后，网关不再把对话文字写入磁盘。「清空全部记录…」按钮或 `tomc erase-all --yes` 会删除全部保存的记录。macOS 安装见 [macOS 说明](macos_usage.md#desktop-companion-beta-macos)。
 
-使用：点小猫看估算减少的 token 和按标价折算的金额（估算，不是账单）；「分析报告 ›」看各对话和工作类型的节省；「全部记录 ›」管理上下文。退出请把鼠标移到小猫上，点猫头上的 ×，或右键选「退出 TOMC」；关闭其他窗口不会退出小猫。数据都保存在本机；「匿名提交反馈」只提交工作类型和数字，提交前会先给你看完整内容。
+使用：猫头下面常驻今天估算少发了多少（比如「今日 −82K」，没省到就不显示）；点小猫看估算减少的 token 和「按标价估算 ≈」的金额（不是账单）；右键或看板里的「本周战报」把最近 7 天画成一张图，可以复制或存成 PNG，不上传，见[本周战报](share_card_zh.md)；「分析报告 ›」看各对话和工作类型的节省；「全部记录 ›」管理上下文。退出请把鼠标移到小猫上，点猫头上的 ×，或右键选「退出 TOMC」；关闭其他窗口不会退出小猫。数据都保存在本机；「匿名提交反馈」只提交工作类型和数字，提交前会先给你看完整内容。

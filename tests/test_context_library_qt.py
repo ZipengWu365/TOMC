@@ -68,11 +68,11 @@ def test_empty_browser_does_not_create_db_or_invent_records(dialog):
     assert not dialog.library.path.exists()
     assert dialog.conversation_list.count() == 0
     assert "还没有保存的上下文" in dialog.empty.text()
-    assert "无法还原" in dialog.empty.text()
+    assert "无法还原" not in dialog.empty.text()  # legacy note meant nothing to new users
     assert not dialog.copy_button.isEnabled()
     assert dialog.enabled.isChecked() and dialog.save_contexts.isChecked()
-    assert "连接待验证" in dialog.integration_labels["codex"].text()
-    assert "尚未观察" in dialog.mode.text()
+    assert dialog.integration_labels["codex"].text() == "Codex · 已接入 · 还没有请求经过"
+    assert "还没设置自动接入" in dialog.mode.text()
 
 
 def test_search_preview_and_untruncated_self_contained_copy(dialog, app):
@@ -105,7 +105,8 @@ def test_estimate_keeps_negative_change_separate_from_unmeasured_request(dialog)
     dialog.pricing = {"rate": 2, "label": "Fixture rate", "model": "fixture", "mode": "input"}
     dialog.refresh()
     assert "增加 200" in dialog.record_tokens.text()
-    assert "参考输入金额增加 <$0.01" in dialog.record_cost.text()
+    assert "按参考模型标价估算：增加 <$0.01" in dialog.record_cost.text()
+    assert "不是账单" in dialog.record_cost.toolTip()
     assert "请求用量：未关联" in dialog.request_status.text()
 
 
@@ -150,8 +151,8 @@ def test_notice_timeout_preserves_default_and_click_is_bound_to_displayed_sessio
     assert store.effective_enabled("claude", "b")
     store.register("codex", "a", event="resume")
     notice.present(store.active())
-    assert "已关闭" in notice.heading.text()
-    assert notice.toggle_button.text() == "重新开启本会话"
+    assert "关掉了" in notice.heading.text()
+    assert notice.toggle_button.text() == "重新开启"
     notice.keep_button.click()
     assert not store.effective_enabled("codex", "a")
     notice.present(store.active())
@@ -225,7 +226,8 @@ def test_companion_observed_switch_prompts_once_and_closes_child_windows(
     assert pet.session_event_seq == sequence and not pet.session_notice.isVisible()
     pet.session_store.register("claude", "b", title="Two", event="UserPromptSubmit")
     pet.refresh_session_state()
-    assert pet.session_notice.isVisible() and pet.session_notice.target == ("claude", "b")
+    # The notice appears once ever; a second new chat does not interrupt again.
+    assert not pet.session_notice.isVisible() and pet.session_notice.target == ("codex", "a")
     pet.open_context_library()
     assert pet.context_dialog.isVisible()
     pet.close()
@@ -320,13 +322,17 @@ def test_manager_distinguishes_configured_from_observed_proxy_usage(dialog):
         after_tokens=80,
     )
     dialog.refresh()
-    assert "连接待验证" in dialog.integration_labels["claude_code"].text()
-    assert "将原样转发" in dialog.activity_status.text()
+    assert (
+        dialog.integration_labels["claude_code"].text() == "Claude Code · 已接入 · 还没有请求经过"
+    )
+    assert "将原样发送" in dialog.activity_status.text()
+    assert "history_fits_memory_budget" not in dialog.activity_status.text()
+    assert "history_fits_memory_budget" in dialog.activity_status.toolTip()
     dialog.activity.sent("request-demo")
     dialog.activity.usage("request-demo", provider_input_tokens=120, provider_cached_tokens=0)
     dialog.refresh()
-    assert "代理转发曾被观察" in dialog.integration_labels["claude_code"].text()
-    assert "实测 provider 输入 120" in dialog.activity_status.text()
+    assert dialog.integration_labels["claude_code"].text() == "Claude Code · 已接入"
+    assert "模型实际收到 120" in dialog.activity_status.text()
     assert "不是节省差额" not in dialog.activity_status.text()
 
 
@@ -340,14 +346,15 @@ def test_configured_gateway_without_request_is_visible_and_not_claimed_connected
         },
     }
     dialog.refresh()
-    assert "自动接入已配置" in dialog.mode.text()
-    assert "重开客户端后等待请求" in dialog.mode.text()
-    assert "服务不可达" in dialog.mode.text()
-    assert "连接待验证" in dialog.integration_labels["codex"].text()
+    assert "已设置自动接入" in dialog.mode.text()
+    assert "重开 Codex / Claude Code" in dialog.mode.text()
+    assert "转发服务没有运行" in dialog.mode.text()
+    # Configured is not "connected and used": no request has gone through yet.
+    assert "还没有请求经过" in dialog.integration_labels["codex"].text()
     dialog.integrations["mode"]["gateway_service"] = "online"
     dialog.refresh()
-    assert "服务可达" in dialog.mode.text()
-    assert "连接待验证" in dialog.integration_labels["codex"].text()
+    assert "转发服务正常" in dialog.mode.text()
+    assert "还没有请求经过" in dialog.integration_labels["codex"].text()
 
 
 def test_health_check_is_short_loopback_only_and_does_not_claim_session_verified(monkeypatch):
@@ -460,8 +467,8 @@ def test_language_switch_updates_all_authored_text_without_resetting_filters(dia
     assert dialog.selected_record["id"] == row["id"]
     assert dialog.library.get(row["id"]) == original
     assert dialog.copy_button.text() == "Copy handoff prompt"
-    assert "Measured provider input 250" in dialog.activity_status.text()
-    assert "tool definitions retained" in dialog.activity_status.text()
+    assert "model received 250" in dialog.activity_status.text()
+    assert "tool definitions kept" in dialog.activity_status.text()
     texts = [dialog.windowTitle(), dialog.task.toPlainText()]
     for widget in (
         dialog.findChildren(QLabel)
@@ -482,7 +489,7 @@ def test_language_switch_updates_all_authored_text_without_resetting_filters(dia
     assert not [text for text in texts if re.search(r"[\u3400-\u9fff]", text)]
     dialog.language.set_language("zh")
     assert dialog.copy_button.text() == "复制接续提示词"
-    assert "实测 provider 输入 250" in dialog.activity_status.text()
+    assert "模型实际收到 250" in dialog.activity_status.text()
 
 
 def test_selected_language_controls_handoff_but_never_translates_user_text(dialog, app):
@@ -507,7 +514,7 @@ def test_selected_language_controls_handoff_but_never_translates_user_text(dialo
 def test_empty_error_and_disabled_messages_retranslate_immediately(dialog, monkeypatch):
     dialog.language.set_language("en")
     assert "No saved contexts yet" in dialog.empty.text()
-    assert "No session events received" in dialog.session_note.text()
+    assert "No chats yet" in dialog.session_note.text()
     row = save_fixture(dialog.library)
     dialog.sessions.register("codex", "a", title="Test")
     dialog.refresh()
@@ -537,9 +544,9 @@ def test_notice_uses_owner_language_and_keeps_bound_target_and_timer(dialog):
     dialog.sessions.register("claude", "b", title="Another session")
     dialog.language.set_language("en")
     assert notice.target == ("codex", "a")
-    assert "TOMC is enabled" in notice.heading.text()
+    assert "TOMC will work on this new chat" in notice.heading.text()
     assert "用户会话标题" in notice.detail.text()
-    assert notice.toggle_button.text() == "Disable session"
+    assert notice.toggle_button.text() == "Turn off for this chat"
     assert 0 <= notice.timer.remainingTime() <= remaining
     notice.toggle_button.click()
     assert not dialog.sessions.effective_enabled("codex", "a")
@@ -684,7 +691,7 @@ def test_dashboard_numbers_models_and_conversation_switch(dialog, fixed_prices):
     kpis = {key: value.text() for key, (value, _caption) in dialog.kpis.items()}
     assert kpis == {
         "tokens": "50,000",
-        "money": "$0.50",
+        "money": "≈ $0.50",
         "compressions": "2",
         "conversations": "1",
     }
@@ -693,12 +700,13 @@ def test_dashboard_numbers_models_and_conversation_switch(dialog, fixed_prices):
         for i in range(dialog.model_chips.count())
         if dialog.model_chips.itemAt(i).widget()
     ]
-    assert chips == ["gpt-6-astra  50K · $0.50"]
+    assert chips == ["gpt-6-astra  50K · ≈ $0.50"]
+    assert dialog.kpis["money"][1].text() == "按标价估算"
     # The conversation counts every compressed request of the chat, saved or not.
     assert [chip.text() for chip in dialog.conversation_chips] == [
         "1 份上下文",
         "节省 50K tokens",
-        "$0.50",
+        "按标价估算 ≈ $0.50",
     ]
     assert "整个请求节省 40,000 tokens" in dialog.request_status.text()
     assert "上下文 9,000 → 7,000 tokens" in dialog.record_tokens.text()

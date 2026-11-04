@@ -2,15 +2,15 @@
 
 TOMC prepares task-specific context that you can send in place of a long history. Supply the history, the next task and a memory budget. It selects source text, computes supported state, relation or count records, and returns text for your existing assistant. Preparation runs on CPU without training. The plugin itself needs no extra model API key, GPU or model service.
 
-After installation, start a new chat and say **Try TOMC Memory** (or run `tomc try` in a terminal). It runs a built-in sample and saves nothing. Then call `prepare_context` on your own history, inspect the result and hand it to a new chat or an application request. Short histories can stay unchanged; records and prompt overhead can sometimes increase input. In 0.3.0 the MCP server does not save `prepare_context` or `recall_memory` results unless you turn that on. Notes you save with `remember_memory` are stored locally. For direct request integration, see the [Python API](api_reference.md#prepare-context-before-your-api-call).
+After installation, start a new chat and say **Try TOMC Memory** (or run `tomc try` in a terminal). It runs a built-in sample and saves nothing. Then call `prepare_context` on your own history, inspect the result and hand it to a new chat or an application request. Short histories can stay unchanged; records and prompt overhead can sometimes increase input. Since 0.3.0 the MCP server does not save `prepare_context` or `recall_memory` results unless you turn that on. Notes you save with `remember_memory` are stored locally. For direct request integration, see the [Python API](api_reference.md#prepare-context-before-your-api-call).
 
 The host owns active-chat compaction. Do not proactively use TOMC to recompact that same conversation when native compaction is active or unknown. External-history preparation and explicit notebook workflows remain available. This is the plugin's assistant policy; optional lifecycle hooks register session metadata and enforce TOMC controls, not automatic model-request replacement. [Context ownership](context_ownership.md).
 
 <a id="current-version"></a>
 
-## Current version: 0.3.0
+## Current version: 0.3.1
 
-The 0.3.0 packages have twelve MCP tools: `try_tomc`, `prepare_context`, `remember_memory`, `recall_memory`, `list_memories`, `forget_memory`, `erase_all_memory`, `get_status`, `get_usage_stats`, `list_contexts`, `get_context` and `make_handoff`. Every result starts with a one-line `summary`; diagnostics such as the selected method, token estimates and warnings are under `details`. Tool arguments are checked strictly: unknown arguments are rejected and `budget` must be a positive whole number. The server exits when the client closes the connection or its parent process ends.
+The 0.3.1 packages have twelve MCP tools: `try_tomc`, `prepare_context`, `remember_memory`, `recall_memory`, `list_memories`, `forget_memory`, `erase_all_memory`, `get_status`, `get_usage_stats`, `list_contexts`, `get_context` and `make_handoff`. Every result starts with a one-line `summary`; diagnostics such as the selected method, token estimates and warnings are under `details`. Tool arguments are checked strictly: unknown arguments are rejected and `budget` must be a positive whole number. The server exits when the client closes the connection or its parent process ends.
 
 **Saving changed in 0.3.0.** Versions 0.2.0 and 0.2.1 saved every successful preparation and recall by default. 0.3.0 saves them only when both switches are on: **Save context records** and **Save MCP results** (`tomc settings --save-mcp-results on`; off by default). Saved contexts have common secrets replaced with `[REDACTED]` and are deleted after 30 days (`tomc settings --retention-days N`). `forget_memory` also deletes contexts prepared from that notebook. `erase_all_memory` (with `confirm="ERASE ALL"`), `tomc erase-all --yes` or **Erase all records…** in the companion delete all saved records. Notebooks you save with `remember_memory` are kept as written in `~/.tomc/memory.sqlite3` (or `TOMC_MEMORY_PATH`) until you forget or erase them. Old statistics that hold numbers only cannot rebuild past chat text. [Security and privacy](https://github.com/ZipengWu365/TOMC/blob/main/SECURITY.md)
 
@@ -33,7 +33,7 @@ If TOMC proves useful after your first successful tool call, you can [Star the m
 | Tencent WorkBuddy | `tomc setup --client workbuddy --write` or [manual configuration](workbuddy.md) | Tool calls not yet verified on a real machine |
 | Codex | Run the ZIP's installation helper, or `tomc setup --client codex --write` | Native installation and real model calls passed on Windows (preview.4) and macOS (preview.2), both 0.1.x |
 
-Download the 0.3.0 packages from the [release page](https://github.com/ZipengWu365/TOMC/releases/tag/v0.3.0-preview.1): [Claude `.mcpb`](https://github.com/ZipengWu365/TOMC/releases/download/v0.3.0-preview.1/tomc-memory-0.3.0.mcpb) ([checksum](https://github.com/ZipengWu365/TOMC/releases/download/v0.3.0-preview.1/tomc-memory-0.3.0.mcpb.sha256)) or [Codex ZIP](https://github.com/ZipengWu365/TOMC/releases/download/v0.3.0-preview.1/tomc-memory-codex-0.3.0.zip) ([checksum](https://github.com/ZipengWu365/TOMC/releases/download/v0.3.0-preview.1/tomc-memory-codex-0.3.0.zip.sha256)). Older 0.1.x packages are kept in [`plugins/downloads`](https://github.com/ZipengWu365/TOMC/tree/main/plugins/downloads); 0.2.x and 0.3.x are only on the Releases page. Dated host and model checks keep their historical scope.
+Download the 0.3.1 packages from the [release page](https://github.com/ZipengWu365/TOMC/releases/tag/v0.3.1-preview.1): [Claude `.mcpb`](https://github.com/ZipengWu365/TOMC/releases/download/v0.3.1-preview.1/tomc-memory-0.3.1.mcpb) ([checksum](https://github.com/ZipengWu365/TOMC/releases/download/v0.3.1-preview.1/tomc-memory-0.3.1.mcpb.sha256)) or [Codex ZIP](https://github.com/ZipengWu365/TOMC/releases/download/v0.3.1-preview.1/tomc-memory-codex-0.3.1.zip) ([checksum](https://github.com/ZipengWu365/TOMC/releases/download/v0.3.1-preview.1/tomc-memory-codex-0.3.1.zip.sha256)). Older 0.1.x packages are kept in [`plugins/downloads`](https://github.com/ZipengWu365/TOMC/tree/main/plugins/downloads); 0.2.x and 0.3.x are only on the Releases page. Dated host and model checks keep their historical scope.
 
 <a id="setup-write"></a>
 
@@ -52,13 +52,13 @@ There is no published PyPI package or public marketplace listing. Updates must b
 
 ## Claude Desktop
 
-The 0.3.0 download is built from this source as `outputs/plugins/tomc-memory-0.3.0.mcpb`. It contains TOMC's source and uses the official MCPB UV runtime: a supported host downloads Python and installs dependencies in an isolated environment. The first installation needs network access; it is not an offline bundle. [Official UV bundle example](https://github.com/modelcontextprotocol/mcpb/tree/main/examples/hello-world-uv)
+The 0.3.1 download is built from this source as `outputs/plugins/tomc-memory-0.3.1.mcpb`. It contains TOMC's source and uses the official MCPB UV runtime: a supported host downloads Python and installs dependencies in an isolated environment. The first installation needs network access; it is not an offline bundle. [Official UV bundle example](https://github.com/modelcontextprotocol/mcpb/tree/main/examples/hello-world-uv)
 
 Maintainers can build and check the package from the checkout:
 
 ```bash
 python scripts/build_plugin.py
-python scripts/plugin_smoke.py outputs/plugins/tomc-memory-0.3.0.mcpb
+python scripts/plugin_smoke.py outputs/plugins/tomc-memory-0.3.1.mcpb
 ```
 
 The second command needs `uv` and the MCP test client (`.[mcp]`). It extracts the archive outside the checkout and launches its locked runtime; it does not install into or alter your assistant. Share the `.mcpb` file and its `.sha256` checksum file with collaborators. A Cursor link containing your own local paths is not a portable installation package.
@@ -66,7 +66,7 @@ The second command needs `uv` and the MCP test client (`.[mcp]`). It extracts th
 1. Update Claude Desktop and obtain the `.mcpb` file.
 2. Open **Settings → Extensions → Advanced settings → Install Extension…**.
 3. Select the file, review its information and follow the installation prompts.
-4. Start a chat and check the TOMC tools: the 0.3.0 runtime exposes twelve. Then say **Try TOMC Memory**.
+4. Start a chat and check the TOMC tools: the 0.3.1 runtime exposes twelve. Then say **Try TOMC Memory**.
 
 These are the [official custom-extension installation steps](https://support.claude.com/en/articles/10949351-getting-started-with-local-mcp-servers-on-claude-desktop). Bundle construction and MCP protocol checks do not establish that the desktop installation works on every platform. Claude Desktop GUI installation remains to be tested on macOS and Windows.
 
@@ -87,7 +87,7 @@ Start a new session, or reload the VS Code window, and run `/mcp`: the server ap
 
 Claude Code does not install `.mcpb` files, but it can launch the same locked runtime as a local stdio MCP server.
 
-1. Download `tomc-memory-0.3.0.mcpb`, check its SHA-256 and extract it (it is a ZIP archive) to a directory you will keep.
+1. Download `tomc-memory-0.3.1.mcpb`, check its SHA-256 and extract it (it is a ZIP archive) to a directory you will keep.
 2. Install [UV](https://docs.astral.sh/uv/getting-started/installation/) and make `uv` available on PATH before running the commands below. Replace the example path with your actual extracted directory; keep paths quoted when they contain spaces.
 3. Install the locked dependencies with `uv sync --locked --directory "/absolute/path/to/extracted"`.
 4. Register the server for all your projects:
@@ -151,7 +151,7 @@ Follow the [WorkBuddy guide](workbuddy.md) to add the locked local runtime throu
 
 ## Codex
 
-The 0.3.0 download is built as `outputs/plugins/tomc-memory-codex-0.3.0.zip`. It includes a local marketplace at `.agents/plugins/marketplace.json`, an `install.py` helper and a `plugins/tomc-memory/` package containing the supported `.codex-plugin/plugin.json` compatibility manifest, the same locked TOMC runtime and a memory skill. The compatibility manifest declares the bundled tools and skill; the helper prepares their launch paths for your installation. You can share the original ZIP privately; this does not list TOMC in the public plugin directory. [Official plugin packaging and local marketplaces](https://developers.openai.com/plugins/build/plugins)
+The 0.3.1 download is built as `outputs/plugins/tomc-memory-codex-0.3.1.zip`. It includes a local marketplace at `.agents/plugins/marketplace.json`, an `install.py` helper and a `plugins/tomc-memory/` package containing the supported `.codex-plugin/plugin.json` compatibility manifest, the same locked TOMC runtime and a memory skill. The compatibility manifest declares the bundled tools and skill; the helper prepares their launch paths for your installation. You can share the original ZIP privately; this does not list TOMC in the public plugin directory. [Official plugin packaging and local marketplaces](https://developers.openai.com/plugins/build/plugins)
 
 Maintainers can build the candidate from the checkout with `python scripts/build_codex_plugin.py`; share the resulting ZIP and its `.sha256` checksum file.
 
@@ -215,7 +215,7 @@ The CLI on PATH can differ from the engine bundled with a desktop application. T
 uv run --no-project install.py --codex 'C:\path\to\codex.exe'
 ```
 
-Use a host that supports both plugin commands and your model account. A successful installer message establishes registration, not a successful model request. In a new session, first check the TOMC tools (twelve in 0.3.0), say **Try TOMC Memory**, then try the [preparation example](#prepare-context). Ask for `prepare_context` explicitly and check the tool result. The [Windows feedback](windows_installation_feedback.md) records installation, runtime and real model results separately.
+Use a host that supports both plugin commands and your model account. A successful installer message establishes registration, not a successful model request. In a new session, first check the TOMC tools (twelve in 0.3.1), say **Try TOMC Memory**, then try the [preparation example](#prepare-context). Ask for `prepare_context` explicitly and check the tool result. The [Windows feedback](windows_installation_feedback.md) records installation, runtime and real model results separately.
 
 To prepare the local launch configuration and print the follow-up installation commands without registering a marketplace or installing a plugin, use:
 
@@ -279,7 +279,7 @@ Wednesday notes: the team checked the release checklist, added a rollback task, 
 
 This example uses explicit assignments and a snapshot copy. TOMC prepares `framework = FastAPI` and `backup_framework = Flask`, with source links. The host controls tool use; your existing model generates the answer.
 
-This short example fits easily, so it shows the records rather than a saving. In 0.3.0 the MCP `prepare_context` tool saves nothing unless you turn on **Save MCP results**; when it does save, histories that already fit can remain intact in the saved result. Longer prose can use retrieval instead of typed records. When a later line may have changed a value without saying it plainly, the record is marked `STATE?` and that later line is included. The `budget` covers memory under the lexical counter; task text and tool framing add overhead.
+This short example fits easily, so it shows the records rather than a saving. Since 0.3.0 the MCP `prepare_context` tool saves nothing unless you turn on **Save MCP results**; when it does save, histories that already fit can remain intact in the saved result. Longer prose can use retrieval instead of typed records. When a later line may have changed a value without saying it plainly, the record is marked `STATE?` and that later line is included. The `budget` covers memory under the lexical counter; task text and tool framing add overhead.
 
 The 64-token budget above is an explicit small example. For the current default, omit `budget`: TOMC keeps 80% of the history's lexical-estimate length up to about 10,000 tokens, sliding to 60% at a million, with a minimum budget of 1,024. Histories that fit that budget remain intact; this is not a guaranteed saving rate.
 
@@ -309,7 +309,7 @@ In an application, send `prepared.messages` instead of the original history. In 
 <details markdown="1">
 <summary>Optional: keep history across chats</summary>
 
-The notebook stores supplied text in its original form. `recall_memory` prepares it for the requested task. `prepare_context` needs no notebook. In 0.3.0 neither route saves its prepared result unless **Save MCP results** is on (0.2.0 and 0.2.1 saved them by default).
+The notebook stores supplied text in its original form. `recall_memory` prepares it for the requested task. `prepare_context` needs no notebook. Since 0.3.0 neither route saves its prepared result unless **Save MCP results** is on (0.2.0 and 0.2.1 saved them by default).
 
 ## Try two chats
 

@@ -1,7 +1,7 @@
 <div align="center">
   <img src="assets/tomc_logo_20261002.png" alt="TOMC Memory" width="320">
   <h1>TOMC Memory</h1>
-  <p><a href="README.md">English</a> | <strong>简体中文</strong> · v0.3.0 研究预览版 · MIT 开源 · Python 3.10+</p>
+  <p><a href="README.md">English</a> | <strong>简体中文</strong> · v0.3.1 研究预览版 · MIT 开源 · Python 3.10+</p>
 </div>
 
 每开一个新的 AI 对话，我都要把项目从头讲一遍。讲完它还报给我一个早就改掉的旧方案。我受够了，就做了这个。
@@ -50,7 +50,7 @@
 
 ### Codex
 
-下载 [tomc-memory-codex-0.3.0.zip](https://github.com/ZipengWu365/TOMC/releases/download/v0.3.0-preview.1/tomc-memory-codex-0.3.0.zip)，解压到一个不会删的文件夹，在里面运行：
+下载 [tomc-memory-codex-0.3.1.zip](https://github.com/ZipengWu365/TOMC/releases/download/v0.3.1-preview.1/tomc-memory-codex-0.3.1.zip)，解压到一个不会删的文件夹，在里面运行：
 
 ```bash
 uv run --no-project --python 3.12 install.py --check
@@ -103,9 +103,9 @@ python3 -m uv run --no-project --python 3.12 install.py   # Codex 安装器，�
 ## 想了解更多
 
 - [证据与数字台账](docs/evidence_zh.md)：每个数字的来源文件、模型、样本量和版本，以及没做好的结果。
-- [0.3.0 更新说明](docs/release_notes_0.3.0_zh.md) · [离线复查](docs/reproducibility.md) · [独立复现记录](REPLICATIONS.md)
+- [0.3.1 更新说明](docs/release_notes_0.3.1_zh.md) · [0.3.0](docs/release_notes_0.3.0_zh.md) · [离线复查](docs/reproducibility.md) · [独立复现记录](REPLICATIONS.md)
 - [换助手接着干](docs/usage_tips_zh.md#reuse-notebooks)：在 Codex 里存，到 Claude Code 里取，同一台电脑。
-- [桌面小猫（测试版）](docs/desktop_companion.md#chinese-quickstart)：显示估算的上下文减少量，支持 Windows 和 macOS；可选的请求网关只支持 Windows。Linux 只有插件和 MCP 服务。
+- [桌面小猫（测试版）](docs/desktop_companion.md#chinese-quickstart)：常驻显示今天估算少发了多少，还能生成一张可以分享的[本周战报](docs/share_card_zh.md)，支持 Windows 和 macOS；可选的请求网关只支持 Windows。Linux 只有插件和 MCP 服务。
 - [本地 Demo](docs/quickstart.md) · [原理](docs/method.md) · [中文使用技巧](docs/usage_tips_zh.md) · [验证记录](docs/validation.md)
 - [视频介绍（1 分 28 秒）](launch/media/v13/videos/TOMC_Overview_ZH.mp4)。视频里有一个 Codex 数字在仓库里找不到测试记录，见[素材说明](launch/media/v13/README.md)。
 

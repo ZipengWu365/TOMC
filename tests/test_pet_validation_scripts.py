@@ -9,7 +9,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from tomc.pet_growth import growth_state
+from tomc.pet_growth import request_stage, saved_stage
 
 
 @pytest.fixture
@@ -32,7 +32,10 @@ def test_real_recorder_identifies_displayed_report_not_newer_busy_request(script
         request_animation_id="displayed",
         art=SimpleNamespace(level=3),
     )
-    identity = scripts["validate_pet_desktop"].animation_identity(pet, growth_state)
+    earned = saved_stage(2_000_000)
+    identity = scripts["validate_pet_desktop"].animation_identity(
+        pet, lambda report: request_stage(report, earned)
+    )
     assert identity == {
         "request_id": "displayed",
         "context_input_tokens": 100000,

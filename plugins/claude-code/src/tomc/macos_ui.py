@@ -14,7 +14,10 @@ def is_macos():
 
 
 def tokens(widget=None):
-    """Follow system appearance; a window override is useful for isolated UI previews."""
+    """Follow system appearance; a window override is useful for isolated UI previews.
+
+    The accent is the brand ink green (#345743; #8FC3A5 in dark mode), not system blue.
+    """
     appearance = None
     current = widget
     while current is not None:
@@ -40,10 +43,10 @@ def tokens(widget=None):
             secondary="#C0C2C9",
             muted="#A0A3AD",
             border="#484A52",
-            accent="#84B6FF",
-            accent_text="#102B4C",
-            selection="#28456D",
-            selection_text="#F3F7FF",
+            accent="#8FC3A5",
+            accent_text="#14281C",
+            selection="#2C4A39",
+            selection_text="#EEF6F0",
             danger="#FF9690",
             hover="#3D3F46",
             field="#202125",
@@ -57,10 +60,10 @@ def tokens(widget=None):
         secondary="#555963",
         muted="#666B76",
         border="#D5D8DF",
-        accent="#075FC8",
+        accent="#345743",
         accent_text="#FFFFFF",
-        selection="#DCEAFF",
-        selection_text="#154478",
+        selection="#DDEBE1",
+        selection_text="#294735",
         danger="#B82D27",
         hover="#E5E8EE",
         field="#FFFFFF",

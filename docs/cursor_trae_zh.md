@@ -46,6 +46,6 @@ uv sync --locked --directory "/absolute/path/to/TOMC/plugins/claude-code"
 }
 ```
 
-使用同一路径的客户端可共用显式保存的笔记。TOMC 不会收集其他聊天，也不提供云同步。0.3.0 共十二个工具：`try_tomc`、`prepare_context`、`remember_memory`、`recall_memory`、`list_memories`、`forget_memory`、`erase_all_memory`、`get_status`、`get_usage_stats`、`list_contexts`、`get_context`、`make_handoff`。只有你要求时才保存笔记；`prepare_context` 和 `recall_memory` 的结果默认不保存，要保存得运行 `tomc settings --save-mcp-results on`。删除单本用 `forget_memory`，全部清空用 `erase_all_memory` 或 `tomc erase-all --yes`。返回内容进入宿主助手的上下文，遵循其数据政策。工具调用不会删除宿主已有的聊天历史。
+使用同一路径的客户端可共用显式保存的笔记。TOMC 不会收集其他聊天，也不提供云同步。0.3.1 共十二个工具：`try_tomc`、`prepare_context`、`remember_memory`、`recall_memory`、`list_memories`、`forget_memory`、`erase_all_memory`、`get_status`、`get_usage_stats`、`list_contexts`、`get_context`、`make_handoff`。只有你要求时才保存笔记；`prepare_context` 和 `recall_memory` 的结果默认不保存，要保存得运行 `tomc settings --save-mcp-results on`。删除单本用 `forget_memory`，全部清空用 `erase_all_memory` 或 `tomc erase-all --yes`。返回内容进入宿主助手的上下文，遵循其数据政策。工具调用不会删除宿主已有的聊天历史。
 
 欢迎通过 [GitHub Issues](https://github.com/ZipengWu365/TOMC/issues)反馈安装情况，请提供客户端及地区版本、版本号、操作系统、配置方式和报错。不要附 API Key、私人历史或记忆本内容。

@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "tomc-memory"
-version = "0.3.0"
+version = "0.3.1"
 description = "Keeps the latest version of facts that changed: CPU context preparation and task memory for MCP assistants and LLM APIs, with source-linked records"
 readme = "README.md"
 requires-python = ">=3.10"

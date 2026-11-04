@@ -1,6 +1,6 @@
 {
   "name": "tomc-memory",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Keeps the latest version of facts that changed: prepares pasted history and saved local notes for your next task, on CPU.",
   "author": {
     "name": "Zipeng Wu"

@@ -81,10 +81,12 @@ def test_estimate_sheet_switches_live_without_changing_selection_or_value(owner,
     owner.language.set_language("en")
     app.processEvents()
     assert sheet.tabs.tabText(0) == "Models && estimates"
-    assert sheet.host_label.text() == "Host"
+    assert sheet.host_label.text() == "Assistant"
     assert sheet.mode.currentText() == "Use uncached input rate"
     assert sheet.models.currentData() == key and sheet.selected()["rate"] == value
-    assert "$0.0100" in sheet.preview.text()
+    # Same wording as the dashboard: an estimate at list price, never a bill.
+    assert sheet.preview.text() == "All time · ≈ $0.01 at list price (estimate)"
+    assert "Not a bill" in sheet.preview.toolTip()
     assert sheet.table.horizontalHeaderItem(2).text() == "Cache read"
     assert sheet.models.accessibleName() == "Reference model and tier"
     assert not re.search(r"[\u3400-\u9fff]", sheet.basis.toPlainText() + sheet.story.toPlainText())
@@ -161,7 +163,7 @@ def test_mac_theme_and_language_changes_keep_model_selection_and_saved_settings(
         app.processEvents()
         assert sheet.models.currentData() == RATE["key"]
         assert sheet.selected()["rate"] == RATE["cached"]
-        assert "$0.0010" in sheet.preview.text()
+        assert "<$0.01" in sheet.preview.text()
         assert not target.exists()
     sheet.save()
     result = json.loads(target.read_text(encoding="utf-8"))

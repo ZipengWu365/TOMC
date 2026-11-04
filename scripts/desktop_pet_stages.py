@@ -26,7 +26,7 @@ from PySide6.QtWidgets import (  # noqa: E402
 )
 
 from tomc.pet_art import PetArt  # noqa: E402
-from tomc.pet_growth import STAGES, request_stage  # noqa: E402
+from tomc.pet_growth import STAGES, saved_stage  # noqa: E402
 from tomc.usage_widget_qt import STYLE, load_preview_fonts  # noqa: E402
 
 
@@ -80,7 +80,7 @@ class StagePlayer(QWidget):
             col.addWidget(label)
             art = ClickCat()
             art.setFixedSize(186, 207)
-            state = request_stage(max(1, threshold))
+            state = saved_stage(threshold)
             art.set_state(state)
             opacity = QGraphicsOpacityEffect(art)
             opacity.setOpacity(state["opacity"])
@@ -190,7 +190,7 @@ class StagePlayer(QWidget):
     def show_stats(self, index):
         threshold = STAGES[index][0]
         self.stats.setText(
-            f"素材预览 · 第 {index + 1} 阶段    示例输入 {max(1, threshold):,} 估算 tokens\n"
+            f"素材预览 · 第 {index + 1} 阶段    累计少发 ≈ {threshold:,} tokens 起\n"
             "这里只播放动作，不执行压缩、不写统计，也不代表真实聊天已经接入。"
         )
 

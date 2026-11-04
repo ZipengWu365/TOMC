@@ -39,7 +39,7 @@ uv sync --locked --directory "/absolute/path/to/TOMC/plugins/claude-code"
 
 ## 工具、存储与反馈
 
-0.3.0 共十二个工具。`try_tomc` 用内置样例试跑。`prepare_context` 处理明确提供的历史；它和 `recall_memory` 的结果默认都不保存，运行 `tomc settings --save-mcp-results on` 后才保存。记忆本工具为 `remember_memory`、`recall_memory`、`list_memories` 和 `forget_memory`；`erase_all_memory` 确认后删除全部记录。状态与上下文库工具为 `get_status`、`get_usage_stats`、`list_contexts`、`get_context` 和 `make_handoff`。仅保存用户明确授权的文本，删除时只处理指定记忆本。
+0.3.1 共十二个工具。`try_tomc` 用内置样例试跑。`prepare_context` 处理明确提供的历史；它和 `recall_memory` 的结果默认都不保存，运行 `tomc settings --save-mcp-results on` 后才保存。记忆本工具为 `remember_memory`、`recall_memory`、`list_memories` 和 `forget_memory`；`erase_all_memory` 确认后删除全部记录。状态与上下文库工具为 `get_status`、`get_usage_stats`、`list_contexts`、`get_context` 和 `make_handoff`。仅保存用户明确授权的文本，删除时只处理指定记忆本。
 
 默认记忆本是明文 SQLite 文件 `~/.tomc/memory.sqlite3`。使用 UV 模板时，可将以下字段合并到 `command`、`args` 同级，指定独立文件：
 

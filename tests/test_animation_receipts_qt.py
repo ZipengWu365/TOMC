@@ -58,11 +58,12 @@ def test_prepared_request_leaves_queued_started_completed_and_late_usage_is_skip
     monkeypatch.setattr(widget.art, "collect", lambda: setattr(widget.art, "phase", 0))
     prepare(widget, "real-1", 250_000)
     widget.refresh_request_activity()
-    assert events(widget, "real-1") == [("queued", None, None), ("started", 3, None)]
+    # Nothing saved yet in this database: every request plays the first form.
+    assert events(widget, "real-1") == [("queued", None, None), ("started", 1, None)]
     widget.art.phase = None
     widget.finish_collection()
     widget.hide_report()
-    assert events(widget, "real-1")[-1] == ("completed", 3, None)
+    assert events(widget, "real-1")[-1] == ("completed", 1, None)
     # The numeric usage receipt for the same request must not replay the animation.
     widget.enqueue_report(
         {
@@ -76,7 +77,7 @@ def test_prepared_request_leaves_queued_started_completed_and_late_usage_is_skip
         }
     )
     widget.start_collection()
-    assert events(widget, "real-1")[-1] == ("skipped", 3, "already_animated")
+    assert events(widget, "real-1")[-1] == ("skipped", 1, "already_animated")
     receipts = widget.receipts.read(["real-1"])
     assert all(row["demo"] is True for row in receipts)  # This fixture runs in test mode.
     assert {key for row in receipts for key in row} <= {
@@ -91,12 +92,12 @@ def test_prepared_request_leaves_queued_started_completed_and_late_usage_is_skip
     }
 
 
-def test_shorter_next_request_steps_down_and_each_plays_once(widget, monkeypatch):
+def test_long_and_short_requests_play_the_same_earned_form_once_each(widget, monkeypatch):
     monkeypatch.setattr(widget.art, "collect", lambda: setattr(widget.art, "phase", 0))
     for request_id, length in (("long", 1_200_000), ("short", 9_000)):
         prepare(widget, request_id, length)
     widget.refresh_request_activity()
-    for request_id, stage in (("long", 4), ("short", 1)):
+    for request_id, stage in (("long", 1), ("short", 1)):
         assert ("started", stage, None) in events(widget, request_id)
         widget.art.phase = None
         widget.finish_collection()
@@ -142,11 +143,13 @@ def test_status_names_host_compaction_separately_from_tomc_work():
         "protocol_detail": {"compaction_items": 1, "window": 2, "agent": "subagent"},
     }
     zh = request_activity_text(state, "zh")
-    assert "宿主原生管理" in zh and "TOMC 本次未压缩" in zh
+    assert "助手自己管理" in zh and "TOMC 本次未压缩" in zh and "宿主" not in zh
     assert "压缩代次 2" in zh and "1 个不透明状态项" in zh and "子代理" in zh
     en = request_activity_text(state, "en")
     assert (
-        "Host-managed" in en and "compaction generation 2" in en and "1 opaque state item(s)" in en
+        "Managed by the assistant" in en
+        and "compaction generation 2" in en
+        and "1 opaque state item(s)" in en
     )
     compaction = {
         "state": "passthrough",
@@ -155,18 +158,18 @@ def test_status_names_host_compaction_separately_from_tomc_work():
         "protocol_detail": {"compaction_trigger": "auto", "compaction_phase": "pre_turn"},
     }
     assert request_activity_text(compaction, "en") == (
-        "Request forwarded unchanged · The host's own compaction request; TOMC not involved"
+        "Sent unchanged · The assistant's own compaction request; TOMC not involved"
         " · automatic, before the turn"
     )
     assert "自动，回合开始前" in request_activity_text(compaction, "zh")
     assert (
         request_activity_text({"state": "failed", "reason": "client_disconnected"}, "en")
-        == "Request cancelled or disconnected by the host"
+        == "The assistant cancelled or disconnected"
     )
-    assert "上游连接或响应中断" in request_activity_text(
+    assert "和模型服务的连接中断" in request_activity_text(
         {"state": "failed", "reason": "upstream_transport_failed"}, "zh"
     )
     # Historical rows written before the split keep their original wording.
-    assert "Host native compaction retained" in request_activity_text(
+    assert "The assistant's own compaction kept" in request_activity_text(
         {"state": "passthrough", "sent": True, "reason": "native_compaction"}, "en"
     )

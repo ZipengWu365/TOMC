@@ -108,7 +108,8 @@ def test_mac_charts_and_table_follow_appearance_without_changing_statistics(host
     assert page.table.palette().color(QPalette.ColorRole.Base) == QColor(colors["field"])
     assert not page.table.styleSheet()
     assert page.report == before
-    assert page.conversation_donut.center == ("45K", "tokens saved")
+    # The ring's center is the page's headline total: full digits, like the dashboard.
+    assert page.conversation_donut.center == ("45,000", "tokens saved")
     image = page.conversation_donut.grab().toImage()
     expected = QColor(colors["text"])
     ratio = image.devicePixelRatio()

@@ -40,8 +40,8 @@ For a separate, synthetic four-stage preview:
 .venv/bin/python scripts/desktop_pet_stages.py /tmp/tomc-animation-preview
 ```
 
-This opens a normal preview window on macOS. Each form is selected from its example
-input length, and no compression or production statistics are written.
+This opens a normal preview window on macOS. Each form is shown at the total saving that
+unlocks it, and no compression or production statistics are written.
 
 **2026-10-23 Mac check:** the native Cocoa companion was visible as a single floating
 cat, and remained visible after switching to another application. The macOS tool-window
@@ -70,11 +70,11 @@ codex --version
 codex plugin --help
 ```
 
-2. Download the ZIP and its checksum from the [0.3.0 release](https://github.com/ZipengWu365/TOMC/releases/tag/v0.3.0-preview.1), then extract to a directory you will keep. On macOS, check the downloaded bytes before extracting:
+2. Download the ZIP and its checksum from the [0.3.1 release](https://github.com/ZipengWu365/TOMC/releases/tag/v0.3.1-preview.1), then extract to a directory you will keep. On macOS, check the downloaded bytes before extracting:
 
 ```bash
-shasum -a 256 -c tomc-memory-codex-0.3.0.zip.sha256
-unzip tomc-memory-codex-0.3.0.zip -d tomc-codex
+shasum -a 256 -c tomc-memory-codex-0.3.1.zip.sha256
+unzip tomc-memory-codex-0.3.1.zip -d tomc-codex
 cd tomc-codex
 ```
 
@@ -120,7 +120,7 @@ Open **http://127.0.0.1:7860**, choose **Use now**, then click **Try demo**. For
 - **Give TOMC the next task.** Preparation selects evidence for that question. Inspect the returned source links and keep the original history available for omitted details. A small history can remain intact, and extra record labels can add overhead.
 - **Use explicit syntax for structured state.** The reference parser supports forms such as `framework = Flask` and `backup_framework copies framework`. The copy is a snapshot, so a later `framework = FastAPI` leaves the backup as Flask. Implicit updates and paraphrases can miss this parser; ordinary prose may use retrieval and retained source text.
 - **Measure the request you send.** The budget covers memory under a lexical estimate. Task text, tools and provider framing add input. Token counts from a lexical estimate and a model tokenizer are different measurements; the same saving percentage does not apply to every task or model.
-- **Save notes only when persistence is needed.** `prepare_context` does not save history; in 0.3.0 its prepared result is saved only if you turn on `tomc settings --save-mcp-results on`. `remember_memory` appends supplied original text to a local notebook; `recall_memory` prepares that text for a task without rewriting the stored source. `list_memories`, `forget_memory` and `erase_all_memory` find and delete notebooks. The plugin sees content supplied to these tools rather than capturing all chats. Notes are stored as local plaintext and enter the host's context when recalled.
+- **Save notes only when persistence is needed.** `prepare_context` does not save history; since 0.3.0 its prepared result is saved only if you turn on `tomc settings --save-mcp-results on`. `remember_memory` appends supplied original text to a local notebook; `recall_memory` prepares that text for a task without rewriting the stored source. `list_memories`, `forget_memory` and `erase_all_memory` find and delete notebooks. The plugin sees content supplied to these tools rather than capturing all chats. Notes are stored as local plaintext and enter the host's context when recalled.
 
 The measured example used the same instruction and English task on both sides:
 
@@ -163,7 +163,7 @@ Stop the demo and TOMC sessions. You can then delete the extracted trial package
 - 应用中用 `prepared.messages` **替换原历史**，保留必要的应用指令；追加在原历史后面会增加输入。在长聊天中调用工具不会清除旧消息，手动使用时可把准备后的结果交给新聊天。
 - 给出具体的下一步任务，并检查来源链接。结构化状态使用 `key = value`、`B copies A` 等支持的形式；普通文本可能使用检索。短历史可能不缩短，记录标签也可能增加输入。
 - 英文例子按 `cl100k_base` 得到 **147 → 108 token，减少 26.53%**；Demo 词法估计是英文 138 → 90、中文任务 140 → 92。它们都是消息文本计数，不含供应商封装、工具 schema 或隐藏 token，也不是账单用量或固定节省率。上面的 `--tokenizer tiktoken:cl100k_base` 命令可复现 BPE 计数。
-- `prepare_context` 不保存历史；0.3.0 中它的准备结果也默认不保存，运行 `tomc settings --save-mcp-results on` 后才保存。需要跨聊天时才用 `remember_memory` 保存原文，再用 `recall_memory` 按任务取回；取回不会改写原文。用 `--store` 为试用选择独立数据库，避免混入已有记忆本。
+- `prepare_context` 不保存历史；0.3.0 起它的准备结果也默认不保存，运行 `tomc settings --save-mcp-results on` 后才保存。需要跨聊天时才用 `remember_memory` 保存原文，再用 `recall_memory` 按任务取回；取回不会改写原文。用 `--store` 为试用选择独立数据库，避免混入已有记忆本。
 - 试用结束，先执行上面的 `codex plugin remove` 与 `codex plugin marketplace remove` 两条命令。停止会话后可删除解压目录，以及确认不再需要的独立测试数据库。默认 `~/.tomc/memory.sqlite3` 在卸载后保留，不要为了卸载而删除已有笔记。
 
 更完整的步骤见[中文安装指南](assistant_plugin_zh.md)。

@@ -147,19 +147,24 @@ def test_dashboard_shows_tokens_money_and_each_model(app, tmp_path, monkeypatch)
         details = pet.details
         assert details.caption.text() == "节省 tokens"
         assert details.total.text() == "50,000"
-        assert details.money_caption.text() == "省下的钱"
-        assert details.money.text() == "$0.44"
+        # Money is always labelled as an estimate at list price, never a bill.
+        assert details.money_caption.text() == "按标价估算"
+        assert details.money.text() == "≈ $0.44"
+        assert "不是账单" in details.money.toolTip()
         rows = [details.model_rows.itemAt(i).layout() for i in range(details.model_rows.count())]
         cells = [[row.itemAt(j).widget().text() for j in range(row.count())] for row in rows]
-        assert cells == [["gpt-6-astra", "40K", "$0.40"], ["Claude Opus 5.5", "10K", "$0.04"]]
+        assert cells == [["gpt-6-astra", "40K", "≈ $0.40"], ["Claude Opus 5.5", "10K", "≈ $0.04"]]
         tip = rows[0].itemAt(0).widget().toolTip()
         assert "$10" in tip and "按请求记录的模型" in tip and "Codex" in tip
-        assert details.basis.text() == "按各模型输入价"
+        assert "估算" in tip and "不是账单" in tip
+        assert details.basis.text() == "按各模型的输入标价"
         assert details.stats.text() == "2 次压缩 · 平均每次节省 25,000 tokens"
         assert details.chart_today.text() == "今天 50K"
         pet.set_ui_language("en")
         assert details.caption.text() == "Tokens saved"
-        assert details.basis.text() == "At each model's input price"
+        assert details.basis.text() == "Each model's input list price"
+        assert details.money_caption.text() == "At list price (estimate)"
+        assert "Not a bill" in details.money.toolTip()
         assert not [text for text in texts(details) if re.search(r"[㐀-鿿]", text)]
     finally:
         close(app, pet)
@@ -192,8 +197,9 @@ def test_unpriced_savings_point_to_pricing(app, tmp_path, monkeypatch):
     pet.details.price_button.clicked.disconnect()
     pet.details.price_button.clicked.connect(pet.open_reference)
     try:
-        assert pet.details.money.text() == "—"
-        assert pet.details.basis.text() == "选择参考模型后显示金额"
+        # Unknown money is hidden, never "$0" or a dash.
+        assert pet.details.money.text() == "" and pet.details.money_column.isHidden()
+        assert pet.details.basis.text() == "选好参考模型后才估算金额"
         row = pet.details.model_rows.itemAt(0).layout()
         assert row.itemAt(0).widget().text() == "未定价"
         pet.details.price_button.click()
@@ -375,8 +381,11 @@ def test_empty_dashboard_explains_where_records_come_from(app, tmp_path, monkeyp
         pet.show_details()
         app.processEvents()
         details = pet.details
-        assert details.total.text() == "0" and details.money.text() == "—"
-        assert details.basis.text() == "No savings yet"
+        assert details.total.text() == "0" and details.money_column.isHidden()
+        # One sentence saying what to do next, instead of an empty chart.
+        assert details.empty_hint.isVisible()
+        assert "Connect Codex or Claude Code" in details.empty_hint.text()
+        assert details.chart.isHidden()
         assert details.stats.text() == "No compressions in this period"
         assert details.records_empty.isVisible()
         assert "Copy a prompt" in details.records_empty.text()

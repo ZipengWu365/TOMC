@@ -1,0 +1,114 @@
+name: AI 失忆现场 / AI amnesia story
+description: AI 在长对话里把改过的事记错了？讲讲经过。 / An AI mixed up a fact that changed in a long chat? Tell us what happened.
+title: "[AI 失忆现场 / AI amnesia] "
+labels: ["ai-amnesia"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        讲一次 AI 在长对话里记错事的经历：一件事改过几次，AI 却说了旧的，或者编了一个。
+        Tell us about a time an AI mixed up a fact in a long chat: something changed a few times and the AI gave the old version or made one up.
+
+        - 只说发生了什么，不用点名批评哪个产品。 / Just say what happened; no need to blame a product.
+        - 请删掉名字、公司、路径、密钥、真实对话原文。用假数据改写也完全可以。 / Remove names, companies, paths, keys and real chat text. A rewrite with made-up values is fine.
+        - 好的故事会被改写成合成例子放进测试，提供者署名。这些故事是自愿投稿，不会被算成"多少 % 的 AI 会失忆"。 / Good stories become synthetic test cases, with credit. Stories are volunteered, so they are never turned into "X% of AIs forget".
+  - type: input
+    id: assistant
+    attributes:
+      label: 用的助手和版本 / Assistant and version
+      placeholder: "例如 Codex 0.x / Claude Code 2.x / 网页版聊天 · e.g. Codex 0.x, Claude Code 2.x, a web chat"
+    validations:
+      required: true
+  - type: dropdown
+    id: length
+    attributes:
+      label: 聊天大概多长 / Rough chat length
+      options:
+        - 不到 50 条消息 / Under 50 messages
+        - 50–200 条 / 50–200 messages
+        - 200 条以上 / Over 200 messages
+        - 用过压缩或自动总结 / It had been compacted or summarized
+        - 不清楚 / Not sure
+    validations:
+      required: true
+  - type: dropdown
+    id: fact
+    attributes:
+      label: 改过的是哪类事 / What kind of fact changed
+      multiple: true
+      options:
+        - 日期或时间 / Date or time
+        - 接口、地址或版本 / API, URL or version
+        - 文件名或路径 / File name or path
+        - 偏好或规则 / Preference or rule
+        - 其他 / Other
+    validations:
+      required: true
+  - type: dropdown
+    id: changes
+    attributes:
+      label: 一共改过几次 / How many times it changed
+      options:
+        - "1"
+        - "2"
+        - "3"
+        - 4 次以上 / 4 or more
+        - 不记得 / Don't remember
+    validations:
+      required: true
+  - type: dropdown
+    id: answer
+    attributes:
+      label: AI 最后说的是 / What the AI said
+      options:
+        - 最新的（没记错） / The latest (it got it right)
+        - 旧的 / An old version
+        - 编的 / Something made up
+        - 新旧混在一起 / A mix of old and new
+    validations:
+      required: true
+  - type: dropdown
+    id: tomc
+    attributes:
+      label: 当时有没有用 TOMC Memory / Were you using TOMC Memory
+      options:
+        - 没用 / No
+        - 用了，答对了 / Yes, and the answer was right
+        - 用了，还是错了 / Yes, and it was still wrong
+    validations:
+      required: true
+  - type: textarea
+    id: story
+    attributes:
+      label: 经过 / What happened
+      description: |
+        按顺序写：最早的值 → 每次改成了什么 → 你问了什么 → AI 怎么答。用假的值就好。
+        In order: first value → each change → what you asked → what the AI said. Made-up values are fine.
+      placeholder: |
+        第 3 条：接口地址 = api.example.test/v1
+        第 40 条：改成 v2
+        第 120 条：改成 v3
+        问"现在用哪个地址"，AI 说 v1。
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: 能复现吗（可选） / Can you reproduce it (optional)
+      description: 命令、步骤或合成历史文件。没有也没关系。 / A command, steps or a synthetic history file. Fine to leave empty.
+  - type: input
+    id: credit
+    attributes:
+      label: 署名 / Credit
+      description: 改写成测试例子时怎么写你的名字。 / How to credit you if this becomes a test case.
+      placeholder: "GitHub 用户名、昵称，或写 匿名 · your GitHub handle, a nickname, or anonymous"
+    validations:
+      required: true
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: 隐私 / Privacy
+      options:
+        - label: 我已删掉私人内容 / I removed private content
+          required: true
+        - label: 可以把这个故事改写成合成例子放进 TOMC Memory 的测试 / OK to rewrite this as a synthetic TOMC Memory test case

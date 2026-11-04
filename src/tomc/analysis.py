@@ -20,7 +20,7 @@ from urllib.parse import quote, urlencode
 from . import __version__
 from .categories import CODES, classify
 from .conversation_names import resolve
-from .pet_growth import STAGES
+from .pet_growth import LENGTH_BANDS
 from .savings import PERIODS, request_savings, savings_report
 
 REPOSITORY = "ZipengWu365/TOMC"
@@ -91,7 +91,7 @@ def _period_start(period, today):
 
 
 def _activity(path, start):
-    coverage, stages = dict.fromkeys(COVERAGE_ORDER, 0), [0] * len(STAGES)
+    coverage, stages = dict.fromkeys(COVERAGE_ORDER, 0), [0] * len(LENGTH_BANDS)
     if not Path(path).exists():
         return coverage, stages
     with closing(
@@ -114,7 +114,7 @@ def _activity(path, start):
                 "WHERE ? IS NULL OR substr(prepared_utc,1,10)>=?",
                 (start, start),
             ):
-                stages[max(i for i, stage in enumerate(STAGES) if tokens >= stage[0])] += 1
+                stages[max(i for i, floor in enumerate(LENGTH_BANDS) if tokens >= floor)] += 1
     return coverage, stages
 
 

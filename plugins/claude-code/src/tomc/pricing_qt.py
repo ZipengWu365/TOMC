@@ -1,6 +1,7 @@
 """Separate, on-demand reference sheet; the cat's small popover stays small."""
 
 import json
+import sqlite3
 from html import escape
 
 from PySide6.QtCore import QEvent, Qt
@@ -23,10 +24,76 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from .cost_estimate import SETTINGS, dollars, explanation, input_value, is_english
+from .cost_estimate import SETTINGS, input_value, is_english, reference_note
 from .impact_story import story_html
 from .macos_ui import install_macos_style, is_macos, tokens
 from .pricing_catalog import all_rates
+from .savings_qt import basis_text, money_phrase, money_short, money_tip
+
+HOSTS = (
+    ("claude", "Claude Code"),
+    ("codex", "Codex"),
+    ("cursor", "Cursor"),
+    ("其他 / API", "其他 / API"),
+)
+
+
+def basis_explanation(pricing, language=None):
+    """How the dashboard and this page estimate money; plain text, one shared rule."""
+    english = is_english(language)
+    if english:
+        rule = (
+            "How the money estimate works\n"
+            "• Each request is valued at the list price of the model it actually used. "
+            "If that model is unknown, TOMC uses the default model detected at install, "
+            "then the reference model chosen here.\n"
+            "• Estimate = input tokens not sent × that model's uncached input "
+            "(or cache-read) list price.\n"
+            "• Not a bill: with caching or a subscription you pay less, and a subscription "
+            "fee does not go down.\n"
+            "• Token counts are local text estimates; output and tool overhead are not included."
+        )
+    else:
+        rule = (
+            "金额怎么估算\n"
+            "• 每次请求按它实际用的模型的标价估算；认不出模型时，用安装时识别到的默认模型，"
+            "再认不出，才用这里选的参考模型。\n"
+            "• 估算金额 = 少发的输入 tokens × 该模型的未缓存输入标价（或缓存读取标价）。\n"
+            "• 不是账单：有缓存或订阅时，实际花得更少；订阅月费也不会因此降低。\n"
+            "• tokens 是本机文本估算，不含输出和工具开销。"
+        )
+    if not pricing:
+        return rule + (
+            "\n\nNo reference model is selected. Requests whose model can't be recognized "
+            "get no money estimate until you pick one above."
+            if english
+            else "\n\n现在没有选参考模型：认不出模型的请求暂不估算金额，在上面选一个后就会按它估算。"
+        )
+    kind = (
+        ("cache read" if english else "缓存读取")
+        if pricing.get("mode") == "cached"
+        else ("uncached input" if english else "未缓存输入")
+    )
+    synced = pricing.get("sync_status") == "live"
+    lines = [
+        (
+            f"Reference: {pricing.get('label') or pricing['model']} · {kind} "
+            f"${pricing['rate']:g} per million tokens"
+            if english
+            else f"参考模型：{pricing.get('label') or pricing['model']} · {kind} "
+            f"${pricing['rate']:g} / 百万 tokens"
+        ),
+        reference_note(pricing.get("evidence", ""), language),
+        (
+            f"Prices checked {pricing.get('verified_at', 'unknown')} · "
+            + ("last sync succeeded" if synced else "offline or older snapshot; check the date")
+            if english
+            else f"价格核对于 {pricing.get('verified_at', '未知')} · "
+            + ("上次同步成功" if synced else "离线或旧快照，请核对日期")
+        ),
+        pricing.get("source", ""),
+    ]
+    return rule + "\n\n" + "\n".join(line for line in lines if line)
 
 
 class Choice(QComboBox):
@@ -102,8 +169,8 @@ class ReferenceSheet(QDialog):
         self.tabs.addTab(page, "模型与估价")
         row = QHBoxLayout()
         self.host = Choice()
-        for name in ("claude", "codex", "cursor", "其他 / API"):
-            self.host.addItem(name, name)
+        for key, name in HOSTS:
+            self.host.addItem(name, key)
         self.provider = Choice()
         for key, name in (
             ("anthropic", "Claude 官方"),
@@ -112,7 +179,7 @@ class ReferenceSheet(QDialog):
             ("cursor", "Cursor"),
         ):
             self.provider.addItem(name, key)
-        self.host_label = QLabel("宿主")
+        self.host_label = QLabel("助手")
         if self._mac:
             self.provider_label = QLabel()
             self.models_label = QLabel()
@@ -168,7 +235,7 @@ class ReferenceSheet(QDialog):
         layout.addWidget(self.preview)
         self.table = QTableWidget(0, 5)
         self.table.setHorizontalHeaderLabels(
-            ["参考模型 / 档位", "输入", "缓存读", "输出", "折算 USD"]
+            ["参考模型 / 档位", "输入", "缓存读", "输出", "全按此价估算"]
         )
         self.table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
         self.table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
@@ -316,37 +383,51 @@ class ReferenceSheet(QDialog):
         self.setWindowTitle(self.tr_text("TOMC · 模型与估价", "TOMC · Models & estimates"))
         self.tabs.setTabText(0, self.tr_text("模型与估价", "Models && estimates"))
         self.tabs.setTabText(1, self.tr_text("绿洲的故事", "The oasis story"))
-        self.host_label.setText(self.tr_text("宿主", "Host"))
+        self.host_label.setText(self.tr_text("助手", "Assistant"))
         if self._mac:
             self.provider_label.setText(self.tr_text("价格供应商", "Price provider"))
             self.models_label.setText(self.tr_text("参考模型与档位", "Reference model / tier"))
             self.mode_label.setText(self.tr_text("计价方式", "Pricing basis"))
         self.host.setItemText(3, self.tr_text("其他 / API", "Other / API"))
+        self.host.setToolTip(
+            self.tr_text(
+                "选择要看额度的助手（Codex / Claude Code）",
+                "Which assistant (Codex / Claude Code) the allowance is shown for",
+            )
+        )
         self.provider.setItemText(0, self.tr_text("Claude 官方", "Anthropic / Claude"))
         self.mode.setItemText(0, self.tr_text("按未缓存输入折算", "Use uncached input rate"))
         self.mode.setItemText(1, self.tr_text("按缓存读取折算", "Use cache-read rate"))
         self.table.setHorizontalHeaderLabels(
             self.tr_text(
-                ["参考模型 / 档位", "输入", "缓存读", "输出", "折算 USD"],
-                ["Reference model / tier", "Input", "Cache read", "Output", "Value (USD)"],
+                ["参考模型 / 档位", "输入", "缓存读", "输出", "全按此价估算"],
+                ["Reference model / tier", "Input", "Cache read", "Output", "If all at this price"],
             )
         )
-        if self._mac:
-            for column in range(self.table.columnCount()):
-                self.table.horizontalHeaderItem(column).setTextAlignment(
-                    (Qt.AlignmentFlag.AlignLeft if column == 0 else Qt.AlignmentFlag.AlignRight)
-                    | Qt.AlignmentFlag.AlignVCenter
-                )
+        self.table.horizontalHeaderItem(4).setToolTip(
+            self.tr_text(
+                "假设少发的 tokens 全部按这一行的标价估算。" + "不是账单；有缓存或订阅时实际更少",
+                "If every saved token were valued at this row's list price. "
+                "Not a bill; less with caching or a subscription",
+            )
+        )
+        # Numbers and money right-aligned on every platform, headers included.
+        for column in range(self.table.columnCount()):
+            self.table.horizontalHeaderItem(column).setTextAlignment(
+                (Qt.AlignmentFlag.AlignLeft if column == 0 else Qt.AlignmentFlag.AlignRight)
+                | Qt.AlignmentFlag.AlignVCenter
+            )
         self.units.setText(
             self.tr_text(
-                "单价：USD / 百万 tokens · 折算使用当前统计范围；负值表示增加",
-                "Rates: USD per million tokens. Values use the current range; negative values indicate an increase.",
+                "标价：美元 / 百万 tokens · 估算用的是当前统计范围；负数表示变多了",
+                "List prices: USD per million tokens. Estimates use the current range; "
+                "a negative value means more tokens were sent.",
             )
         )
         self.detected_button.setText(self.tr_text("使用已识别模型", "Use detected model"))
         self.close_button.setText(self.tr_text("收起", "Close"))
         self._set_browser_html(self.story, story_html(self.language))
-        self.host.setAccessibleName(self.tr_text("参考模型宿主", "Reference model host"))
+        self.host.setAccessibleName(self.tr_text("参考模型所属助手", "Reference model assistant"))
         self.provider.setAccessibleName(self.tr_text("参考价格供应商", "Reference price provider"))
         self.models.setAccessibleName(self.tr_text("参考模型与档位", "Reference model and tier"))
         self.mode.setAccessibleName(
@@ -361,8 +442,8 @@ class ReferenceSheet(QDialog):
         )
         self.models.setToolTip(
             self.tr_text(
-                "只选择参考价格，不切换宿主实际模型。",
-                "Selects a reference price; it does not change the host's actual model.",
+                "只选参考价格，不会切换助手实际用的模型。",
+                "Selects a reference price; it does not change the assistant's actual model.",
             )
         )
         self.detected_button.setToolTip(
@@ -383,7 +464,7 @@ class ReferenceSheet(QDialog):
             text = self.tr_text("演示不保存设置", "Demo: settings are not saved")
         elif self.applied:
             text = self.tr_text(
-                "已应用 · 宿主额度下次启动切换", "Applied · Allowance host changes on restart"
+                "已应用 · 额度显示在下次启动后切换", "Applied · Allowance view switches on restart"
             )
         else:
             text = self.tr_text("应用参考模型", "Apply reference model")
@@ -412,7 +493,8 @@ class ReferenceSheet(QDialog):
         self.models.clear()
         self.models.addItem(
             self.tr_text(
-                "未确认 / Auto（不估算金额）", "Unconfirmed / Auto (no monetary estimate)"
+                "不选参考模型（按每次请求的模型估算）",
+                "No reference (use each request's own model)",
             ),
             None,
         )
@@ -430,13 +512,12 @@ class ReferenceSheet(QDialog):
             ]
             for column, value in enumerate(values):
                 item = QTableWidgetItem("—" if value is None else str(value))
-                if self._mac:
-                    item.setTextAlignment(
-                        (Qt.AlignmentFlag.AlignLeft if column == 0 else Qt.AlignmentFlag.AlignRight)
-                        | Qt.AlignmentFlag.AlignVCenter
-                    )
-                    if column == 0:
-                        item.setToolTip(item.text())
+                item.setTextAlignment(
+                    (Qt.AlignmentFlag.AlignLeft if column == 0 else Qt.AlignmentFlag.AlignRight)
+                    | Qt.AlignmentFlag.AlignVCenter
+                )
+                if self._mac and column == 0:
+                    item.setToolTip(item.text())
                 self.table.setItem(index, column, item)
         self.table.blockSignals(False)
         self.models.blockSignals(False)
@@ -454,13 +535,41 @@ class ReferenceSheet(QDialog):
             "evidence": self.evidence,
         }
 
+    def dashboard_money(self, pricing):
+        """The figure the dashboard shows for this period with this reference selected."""
+        store = getattr(self.owner, "store", None)
+        if store is None:
+            return input_value(self.delta(), pricing)
+        try:
+            from .savings import savings_report
+
+            report = savings_report(
+                store.path, getattr(self.owner, "period", "all"), reference=pricing
+            )
+        except (OSError, ValueError, sqlite3.Error):
+            return None
+        return report["money"]
+
     def update_preview(self):
         pricing = self.selected()
+        period = {
+            "today": ("今天", "Today"),
+            "7d": ("近七天", "Last 7 days"),
+            "all": ("累计", "All time"),
+        }.get(getattr(self.owner, "period", "all"), ("累计", "All time"))
+        value = self.dashboard_money(pricing)
+        # Same number and words as the dashboard; unknown money is not shown as $0.
         self.preview.setText(
-            self.tr_text("当前范围参考价值  ", "Reference value for this range  ")
-            + dollars(input_value(self.delta(), pricing))
+            self.tr_text(*period)
+            + " · "
+            + (
+                money_phrase(value, self.language)
+                or self.tr_text("暂不估算金额", "No money estimate yet")
+            )
         )
-        text = escape(explanation(pricing, self.language)).replace("\n", "<br>")
+        mode = (pricing or {}).get("mode") or self.mode.currentData()
+        self.preview.setToolTip(money_tip(self.language) + "\n" + basis_text(mode, self.language))
+        text = escape(basis_explanation(pricing, self.language)).replace("\n", "<br>")
         if self.notice:
             text = escape(self.tr_text(*self.notice)) + "<br><br>" + text
         if pricing and pricing.get("source"):
@@ -471,9 +580,7 @@ class ReferenceSheet(QDialog):
         for index, row in enumerate(getattr(self, "rows", [])):
             rate = row.get(self.mode.currentData())
             value = input_value(self.delta(), {"rate": rate}) if rate is not None else None
-            self.table.item(index, 4).setText(
-                ("−" if value is not None and value < 0 else "") + dollars(value)
-            )
+            self.table.item(index, 4).setText(money_short(value))
 
     def select_table(self):
         row = self.table.currentRow()

@@ -96,7 +96,7 @@ def test_background_session_switches_never_open_notices(widget, monkeypatch):
     assert widget.session_store.settings()["enabled"] is True
 
 
-def test_explicit_session_notices_once_per_host_and_id_preserve_policy(widget, monkeypatch):
+def test_session_notice_appears_once_ever_and_preserves_policy(widget, monkeypatch):
     notices = []
     monkeypatch.setattr(
         widget.session_notice,
@@ -113,11 +113,13 @@ def test_explicit_session_notices_once_per_host_and_id_preserve_policy(widget, m
         widget.session_store.register(host, session_id, event=event)
         widget.refresh_session_state()
         widget.set_ui_language("en")
-    assert notices == [("codex", "same-id"), ("claude", "same-id"), ("codex", "another-id")]
+    # The notice explains the per-chat switch once; later new chats do not interrupt.
+    assert notices == [("codex", "same-id")]
+    assert widget.language.setting("session_notice_shown") is True
     widget.session_store.set_enabled("codex", "another-id", False)
     widget.session_store.update_settings(enabled=False)
     widget.refresh_session_state()
-    assert len(notices) == 3
+    assert len(notices) == 1
     assert widget.session_store.settings()["enabled"] is False
     assert widget.session_store.get("codex", "another-id")["enabled"] is False
 
@@ -189,7 +191,7 @@ def test_visible_language_switch_persists_without_touching_policy_or_replaying_a
     assert not played and not widget.pending_reports
     assert widget.details.total.text() == "800"
     assert widget.details.caption.text() == "Tokens saved"
-    assert widget.details.money_caption.text() == "Money saved"
+    assert widget.details.money_caption.text() == "At list price (estimate)"
     assert widget.details.language_buttons["en"].isChecked()
     assert widget.details.library_button.text() == "All records ›"
     assert widget.details.price_button.text() == "Models && pricing ›"
@@ -203,14 +205,14 @@ def test_visible_language_switch_persists_without_touching_policy_or_replaying_a
 def test_dashboard_sums_counters_and_values_unattributed_savings_at_the_reference(widget):
     assert widget.details.total.text() == "800"
     # No request model or host is known, so the reference rate applies: 800 × $15 / 1M.
-    assert widget.details.money.text() == "$0.01"
+    assert widget.details.money.text() == "≈ $0.01"
     record(widget.store, counter="another-counter")
     widget.refresh()
     assert widget.details.total.text() == "1,600"
-    assert widget.details.money.text() == "$0.02"
+    assert widget.details.money.text() == "≈ $0.02"
     assert widget.details.stats.text() == "2 次压缩 · 平均每次节省 800 tokens"
     widget.set_ui_language("en")
-    assert widget.details.stats.text() == "2 compressions · 800 tokens saved each on average"
+    assert widget.details.stats.text() == "2 compressions · avg. 800 saved"
     assert_english(widget)
 
 
@@ -273,7 +275,8 @@ def test_unknown_busy_waits_for_real_context_length_then_animates_once(widget, m
         context_input_tokens=15000,
     )
     widget.refresh_request_activity()
-    assert widget.art.phase is not None and widget.art.level == 2
+    # The fixture saved 800 tokens in total: the earned form stays first, the paper follows 15,000.
+    assert widget.art.phase is not None and widget.art.level == 1 and widget.art.notes == 6
     animation_id = widget.request_animation_id
     seen_ids = list(widget.animated_request_ids)
     widget.set_ui_language("en")
@@ -284,12 +287,13 @@ def test_unknown_busy_waits_for_real_context_length_then_animates_once(widget, m
     widget.art.phase = None
     widget.finish_collection()
     assert widget.caption.text() == "Context compressed"
-    assert widget.number.text() == "Stage 2/4"
+    assert widget.number.text() == "Stage 1/4"
     assert widget.latest.text() == "Compressed 15,000 tokens"
     widget.hide_report()
     assert widget.art.phase is None and widget.request_animation_id is None
-    assert widget.art.level == 2
-    assert widget.materialization.opacity() == usage_widget_qt.request_stage(15000)["opacity"]
+    assert widget.art.level == 1
+    # Idle is never fainter than 0.8, whatever the stage's own opacity.
+    assert widget.materialization.opacity() == max(0.8, usage_widget_qt.saved_stage(800)["opacity"])
     played = []
     monkeypatch.setattr(widget.art, "collect", lambda: played.append(True))
     widget.store.record(
@@ -304,11 +308,29 @@ def test_unknown_busy_waits_for_real_context_length_then_animates_once(widget, m
         }
     )
     widget.refresh()
+    # 499,800 saved: the total passes 100,000 and the cat grows to its second form.
     assert not played and widget.art.level == 2
     # The numeric receipt states the saving directly, with the compressed context length.
     assert widget.caption.text() == "Demo · Saved"
     assert widget.number.text() == "499,800 tokens"
-    assert widget.latest.text() == "Compressed 15,000 tokens"
+    assert widget.latest.text() == "Context was 15,000 tokens"
+    # Saved is the dominant number: larger than the context line, and it makes the cat smile.
+    assert "font-size: 22px" in widget.number.styleSheet()
+    assert "font-size: 22px" not in widget.latest.styleSheet()
+    assert widget.art.expression == "smiling"
+    assert widget.latest.geometry().left() == widget.caption.geometry().left()
+    assert widget.latest.parent() is widget.card and not widget.progress.isVisible()
+    widget.hide_report()
+    # The level-up waited for the saving bubble and shows once, then the cat goes idle.
+    assert widget.caption.text() == "Demo · TOMC grew" and widget.number.text() == "Stage 2/4"
+    # The fixture's 800 is another counter's count and is never added in.
+    assert widget.latest.text() == "≈ 499,800 tokens saved in total"
+    assert widget.art.expression == "smiling" and widget.bubble_visible
+    widget.hide_report()
+    assert widget.art.expression == "dejected" and not widget.bubble_visible
+    widget.last_signature = None
+    widget.refresh()
+    assert not widget.bubble_visible
     assert "not" not in widget.card.toolTip().lower()
 
 
@@ -332,18 +354,17 @@ def test_dashboard_scrolls_without_clipping_on_a_short_screen(widget, app, monke
 
 
 @pytest.mark.parametrize(
-    "length,level",
-    [(0, 1), (9999, 1), (10000, 2), (99999, 2), (100000, 3), (999999, 3), (1000000, 4)],
+    "saved,level",
+    [(0, 1), (99_999, 1), (100_000, 2), (999_999, 2), (1_000_000, 3), (10_000_000, 4)],
 )
-def test_current_context_length_selects_stage_not_cumulative_totals(
-    widget, monkeypatch, length, level
-):
+def test_total_saving_selects_stage_not_the_current_length(widget, monkeypatch, saved, level):
     summary = deepcopy(widget.summary)
+    # Two counters are never added together; the larger one decides.
     summary["growth"] = [
-        {"counter": "first-counter", "net_tokens": 90000000, "peak_net_tokens": 90000000},
-        {"counter": "second-counter", "net_tokens": 90000000, "peak_net_tokens": 90000000},
+        {"counter": "first-counter", "net_tokens": saved, "peak_net_tokens": saved},
+        {"counter": "second-counter", "net_tokens": saved // 2, "peak_net_tokens": saved // 2},
     ]
-    summary["last_preparation"]["context_input_tokens"] = length
+    summary["last_preparation"]["context_input_tokens"] = 2_000_000
     monkeypatch.setattr(widget.store, "summary", lambda period: summary)
     celebrations = []
     monkeypatch.setattr(widget.oasis, "start", lambda: celebrations.append(True))
@@ -355,14 +376,14 @@ def test_current_context_length_selects_stage_not_cumulative_totals(
     assert widget.art.level == level
     assert widget.details.progress.value() == round(state["progress"] * 1000)
     assert not widget.details.progress.isHidden()
-    assert widget.materialization.opacity() == state["opacity"]
+    assert widget.materialization.opacity() == max(0.8, state["opacity"])
     widget.set_ui_language("en")
     assert widget.details.stage.text() == f"Lv.{level}"
     assert_english(widget)
     assert not celebrations
 
 
-def test_each_queued_report_uses_its_own_length_and_restores_latest_idle(widget, monkeypatch):
+def test_each_queued_report_uses_its_own_length_and_keeps_the_earned_form(widget, monkeypatch):
     lengths = [1000000, 9999, 100000, 10000]
     reports = [
         {
@@ -380,22 +401,22 @@ def test_each_queued_report_uses_its_own_length_and_restores_latest_idle(widget,
     seen = []
 
     def collect():
-        seen.append(widget.art.level)
+        seen.append((widget.art.level, widget.art.notes))
         widget.art.phase = 0
 
     monkeypatch.setattr(widget.art, "collect", collect)
     widget.pending_reports.extend(reports)
     widget.start_collection()
-    for index, level in enumerate([4, 1, 3, 2]):
-        assert widget.art.level == level
+    for index, notes in enumerate([18, 5, 11, 6]):
+        assert widget.art.level == 1 and widget.art.notes == notes
         if index == 0:
             widget.set_ui_language("en")
-            assert widget.art.level == 4 and widget.art.phase == 0
+            assert widget.art.notes == 18 and widget.art.phase == 0
         widget.art.phase = None
         widget.finish_collection()
         widget.hide_report()
-    assert seen == [4, 1, 3, 2]
-    assert widget.art.level == 1  # Latest actual store entry is the 1,000-token fixture.
+    assert seen == [(1, 18), (1, 5), (1, 11), (1, 6)]
+    assert widget.art.level == 1  # The fixture saved 800 tokens in total.
 
 
 def test_unknown_replay_reports_counts_without_playing_another_compilation(widget, monkeypatch):
@@ -415,7 +436,7 @@ def test_unknown_replay_reports_counts_without_playing_another_compilation(widge
     widget.start_collection()
     assert not played and not widget.animated_request_ids
     assert widget.art.level == 1
-    assert widget.details.stage.text() == "长度待定"
+    assert widget.details.stage.text() == "Lv.1"  # the earned form, no "length pending" placeholder
 
 
 def test_startup_does_not_replay_previously_prepared_request(widget, monkeypatch):
@@ -433,7 +454,7 @@ def test_all_concurrent_preparations_play_once_even_with_other_request_busy(widg
     played = []
 
     def collect():
-        played.append((widget.active_report["request_id"], widget.art.level))
+        played.append((widget.active_report["request_id"], widget.art.notes))
         widget.art.phase = 0
 
     monkeypatch.setattr(widget.art, "collect", collect)
@@ -444,15 +465,15 @@ def test_all_concurrent_preparations_play_once_even_with_other_request_busy(widg
     widget.request_activity.start("still-preparing", "claude", "other-session")
     widget.refresh_request_activity()
     assert len(widget.pending_reports) == 2
-    for expected in (2, 3, 4):
-        assert widget.art.level == expected and widget.art.phase == 0
+    for expected in (7, 12, 18):
+        assert widget.art.level == 1 and widget.art.notes == expected and widget.art.phase == 0
         widget.art.phase = None
         widget.finish_collection()
         assert widget.report_timer.isActive()
         widget.refresh_request_activity()
         assert widget.report_timer.isActive()  # Busy polling must not stop queue advancement.
         widget.hide_report()
-    assert played == [(f"concurrent-{i}", level) for i, level in enumerate((2, 3, 4))]
+    assert played == [(f"concurrent-{i}", notes) for i, notes in enumerate((7, 12, 18))]
     widget.refresh_request_activity()
     assert len(played) == 3 and widget.art.level == 1
 
@@ -507,7 +528,7 @@ def test_numeric_receipts_merge_with_prepared_queue_and_late_receipts_do_not_rep
     widget.enqueue_report(receipt)
     assert len(widget.pending_reports) == 1
     widget.start_collection()
-    assert played == ["paired"] and widget.art.level == 2
+    assert played == ["paired"] and widget.art.notes == 6
     widget.enqueue_report(receipt)
     assert not widget.pending_reports
     widget.art.phase = None
@@ -570,7 +591,7 @@ def test_numeric_receipt_preserves_known_prepared_length(
         widget.start_collection()
     widget.restore_displayed_stage()
     assert widget.active_report["context_input_tokens"] == expected
-    assert widget.art.level == (2 if expected == 15000 else 3)
+    assert widget.art.level == 1 and widget.art.notes == (6 if expected == 15000 else 11)
     assert widget.art.phase == 0
 
 
@@ -624,7 +645,7 @@ def test_activity_read_failure_clears_stale_busy_and_preserves_animation(widget,
     assert widget.preparing_request is None
     assert widget.number.text() == "状态未知"
     assert widget.art.phase is None and widget.art.level == 1
-    assert widget.materialization.opacity() == 0.35
+    assert widget.materialization.opacity() == 0.8
     widget.pending_reports.extend(
         [
             {
@@ -638,10 +659,10 @@ def test_activity_read_failure_clears_stale_busy_and_preserves_animation(widget,
     )
     monkeypatch.setattr(widget.art, "collect", lambda: setattr(widget.art, "phase", 0))
     widget.refresh_request_activity()
-    assert widget.art.phase == 0 and widget.art.level == 2
+    assert widget.art.phase == 0 and widget.art.notes == 6
     widget.preparing_request = {"request_id": "busy"}
     widget.refresh_request_activity()
     assert widget.preparing_request is None
     assert widget.active_report["request_id"] == "0" and len(widget.pending_reports) == 1
-    assert widget.art.phase == 0 and widget.art.level == 2
+    assert widget.art.phase == 0 and widget.art.notes == 6
     assert widget.materialization.opacity() == 1
