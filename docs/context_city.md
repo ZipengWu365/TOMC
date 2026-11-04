@@ -2,7 +2,7 @@
 
 Updated November 3, 2026.
 
-![TOMC skyline and 31-entry ecosystem directory](../assets/context-city/tomc_context_city.png)
+![TOMC skyline and 31-entry ecosystem directory](https://raw.githubusercontent.com/ZipengWu365/TOMC/4d021e547cf14d39646438ae8574746e494cbda2/assets/context-city/tomc_context_city.png)
 
 ## What the skyline measures
 
@@ -26,11 +26,11 @@ The **18/18 higher means** statement counts reader × baseline cells in which TO
 
 ## Benchmark sources
 
-- [10M evaluation configuration and limitations](../benchmarks/beam_10m_20261010/README.md)
-- [Public paired scores](../benchmarks/beam_10m_20261010/paired_scores_10m.csv)
-- [Derived skyline scores](../assets/context-city/city_scores.csv)
-- [Machine-readable provenance, formulas and asset URLs](../assets/context-city/city_sources.json)
-- [MIT license](../LICENSE)
+- [10M evaluation configuration and limitations](https://github.com/ZipengWu365/TOMC/blob/4d021e547cf14d39646438ae8574746e494cbda2/benchmarks/beam_10m_20261010/README.md)
+- [Public paired scores](https://github.com/ZipengWu365/TOMC/blob/4d021e547cf14d39646438ae8574746e494cbda2/benchmarks/beam_10m_20261010/paired_scores_10m.csv)
+- [Derived skyline scores](https://github.com/ZipengWu365/TOMC/blob/4d021e547cf14d39646438ae8574746e494cbda2/assets/context-city/city_scores.csv)
+- [Machine-readable provenance, formulas and asset URLs](https://github.com/ZipengWu365/TOMC/blob/4d021e547cf14d39646438ae8574746e494cbda2/assets/context-city/city_sources.json)
+- [MIT license](https://github.com/ZipengWu365/TOMC/blob/4d021e547cf14d39646438ae8574746e494cbda2/LICENSE)
 
 ## Ecosystem directory
 
@@ -93,6 +93,6 @@ The Microsoft mark identifies the LLMLingua family. BRIEF-Pro uses the [UCLA NLP
 
 ## Downloads
 
-- [PNG](../assets/context-city/tomc_context_city.png)
-- [SVG with linked project names](../assets/context-city/tomc_context_city.svg)
-- [PDF](../assets/context-city/tomc_context_city.pdf)
+- [PNG](https://github.com/ZipengWu365/TOMC/blob/4d021e547cf14d39646438ae8574746e494cbda2/assets/context-city/tomc_context_city.png)
+- [SVG with linked project names](https://github.com/ZipengWu365/TOMC/blob/4d021e547cf14d39646438ae8574746e494cbda2/assets/context-city/tomc_context_city.svg)
+- [PDF](https://github.com/ZipengWu365/TOMC/blob/4d021e547cf14d39646438ae8574746e494cbda2/assets/context-city/tomc_context_city.pdf)

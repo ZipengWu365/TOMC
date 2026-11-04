@@ -35,6 +35,8 @@ PATTERNS = {
 }
 # Exact, known-fake test fixture values; they are removed before pattern matching.
 KNOWN_FIXTURES = (b"Bearer fixture-only-never-a-real-token",)
+MAX_RELEASE_BYTES = 5_000_000
+HISTORY_SIZE_BASELINE = "scripts/security_history_size_baseline.json"
 
 
 def candidates(root: Path = ROOT) -> list[Path]:
@@ -52,21 +54,54 @@ def candidates(root: Path = ROOT) -> list[Path]:
     )
 
 
-def inspect_blob(data: bytes, label: str) -> list[str]:
+def inspect_blob(data: bytes, label: str, *, enforce_size: bool = True) -> list[str]:
     """Only report category and file/blob label, never matching bytes."""
     scanned = data
     for fixture in KNOWN_FIXTURES:
         scanned = scanned.replace(fixture, b"")
     findings = [f"{label}: {name}" for name, pattern in PATTERNS.items() if pattern.search(scanned)]
-    if len(data) > 5_000_000:
+    if enforce_size and len(data) > MAX_RELEASE_BYTES:
         findings.append(f"{label}: file larger than 5 MB")
     return findings
+
+
+def history_size_baseline(root: Path) -> dict[str, dict]:
+    """Load exact legacy object sizes; this never exempts credentials or names."""
+    path = root / HISTORY_SIZE_BASELINE
+    if not path.exists():
+        return {}
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    if payload.get("schema_version") != 1 or not isinstance(
+        payload.get("historical_large_blobs"), list
+    ):
+        raise ValueError("Invalid historical size baseline schema")
+    baseline = {}
+    for record in payload["historical_large_blobs"]:
+        oid = record.get("oid", "")
+        size = record.get("bytes")
+        old_path = record.get("path", "")
+        if (
+            not isinstance(oid, str)
+            or not re.fullmatch(r"[0-9a-f]{40}", oid)
+            or oid in baseline
+            or type(size) is not int
+            or size <= MAX_RELEASE_BYTES
+            or not isinstance(old_path, str)
+            or not old_path
+            or Path(old_path).is_absolute()
+            or ".." in Path(old_path).parts
+            or not isinstance(record.get("reason"), str)
+            or not record["reason"].strip()
+        ):
+            raise ValueError("Invalid exact historical size baseline entry")
+        baseline[oid] = record
+    return baseline
 
 
 def scan() -> dict:
     """Scan release scope and history; fail closed on unsafe artifacts or credential patterns."""
     findings = []
-    paths = candidates()
+    paths = candidates(ROOT)
     for path in paths:
         relative = str(path.relative_to(ROOT))
         if path.is_symlink():
@@ -78,6 +113,8 @@ def scan() -> dict:
         if path.is_file():
             findings += inspect_blob(path.read_bytes(), relative)
     history_blobs = 0
+    baseline_used = []
+    baseline = history_size_baseline(ROOT)
     if (ROOT / ".git").is_dir():
         result = subprocess.run(
             ["git", "rev-list", "--objects", "--all"],
@@ -97,7 +134,13 @@ def scan() -> dict:
             data = subprocess.run(
                 ["git", "cat-file", "blob", oid], cwd=ROOT, capture_output=True, check=True
             ).stdout
-            findings += inspect_blob(data, f"history:{oid[:12]}")
+            record = baseline.get(oid)
+            legacy_size = record is not None and record["bytes"] == len(data)
+            findings += inspect_blob(data, f"history:{oid[:12]}", enforce_size=not legacy_size)
+            if legacy_size:
+                # Free-form provenance stays in the versioned baseline, never
+                # echoed here in case a future note accidentally contains a key.
+                baseline_used.append({"oid": oid, "bytes": len(data)})
             if FORBIDDEN.search(path) or (
                 Path(path).name.startswith(".env") and Path(path).name != ".env.example"
             ):
@@ -106,8 +149,10 @@ def scan() -> dict:
         "status": "pass" if not findings else "fail",
         "files_scanned": len(paths),
         "history_blobs_scanned": history_blobs,
+        "history_size_baseline_used": sorted(baseline_used, key=lambda record: record["oid"]),
         "findings": findings,
-        "scope": "release files and reachable Git blobs; patterns are not proof of absence",
+        "scope": "release files and reachable Git blobs; exact historical size baseline only; "
+        "patterns are not proof of absence",
     }
     print(json.dumps(result, indent=2))
     if findings:

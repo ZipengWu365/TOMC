@@ -50,6 +50,8 @@ nav:
   - LLMLingua comparison: comparison_with_llmlingua.md
   - Current paper results: paper_results.md
   - Claims and limitations: claims_and_limitations.md
+  - Context engineering city: context_city.md
+  - Directory listings and verification: listings_verification.md
   - Reproducibility: reproducibility.md
   - Legacy compatibility: legacy_extensions.md
   - Data and licensing: data_and_license.md
