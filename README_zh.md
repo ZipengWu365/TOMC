@@ -119,7 +119,7 @@ python3 -m uv run --no-project --python 3.12 install.py   # Codex 安装器，�
 
 <p><a href="https://github.com/ZipengWu365/TOMC/stargazers"><img src="assets/traffic/stars.svg" alt="GitHub Stars" height="20"></a> <a href="docs/traffic_metrics.md"><img src="assets/traffic/clones-total.svg" alt="Cumulative recorded clones" height="20"></a></p>
 <!-- traffic-status:start -->
-  <p>累计克隆 · 自 2026-10-02 起记录 · 更新于 2026-11-08 UTC。 <a href="docs/traffic_metrics.md">统计口径与更新</a></p>
+  <p>累计克隆 · 自 2026-10-02 起记录 · 更新于 2026-11-09 UTC。 <a href="docs/traffic_metrics.md">统计口径与更新</a></p>
 <!-- traffic-status:end -->
 
 MIT 许可：可以免费使用、修改、分发，包括商用，保留版权和许可声明即可。如果 TOMC Memory 对你的研究有帮助，请用 [CITATION.cff](CITATION.cff) 引用（GitHub 页面上的 "Cite this repository"）。示例都是合成数据；仓库只放测评的汇总数字，不含题目原文、回答和 API 请求内容。[数据来源](DATA_PROVENANCE.md) · [数据与许可](docs/data_and_license.md)

@@ -119,7 +119,7 @@ Follow [Zipeng Wu](https://github.com/ZipengWu365) for work across time-series r
 
 <p><a href="https://github.com/ZipengWu365/TOMC/stargazers"><img src="assets/traffic/stars.svg" alt="GitHub Stars" height="20"></a> <a href="docs/traffic_metrics.md"><img src="assets/traffic/clones-total.svg" alt="Cumulative recorded clones" height="20"></a></p>
 <!-- traffic-status:start -->
-  <p>Cumulative clones · recorded since 2026-10-02 · updated 2026-11-08 UTC. <a href="docs/traffic_metrics.md">Method and updates</a></p>
+  <p>Cumulative clones · recorded since 2026-10-02 · updated 2026-11-09 UTC. <a href="docs/traffic_metrics.md">Method and updates</a></p>
 <!-- traffic-status:end -->
 
 MIT License: free to use, change and ship, including commercially; keep the copyright and license notice. If TOMC Memory helps your research, please cite it with [CITATION.cff](CITATION.cff) (GitHub's "Cite this repository" button). Examples are synthetic; the repository holds numeric benchmark aggregates only, without question text, answers or API payloads. [Data provenance](DATA_PROVENANCE.md) · [Data and licensing](docs/data_and_license.md)
