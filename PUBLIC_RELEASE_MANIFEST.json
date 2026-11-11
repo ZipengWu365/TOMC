@@ -117,12 +117,12 @@
     {
       "path": "README.md",
       "bytes": 9286,
-      "sha256": "a71df949689adc85d302dbd2516b19b12bd10f0df81c9797141819c0b3e3fd3d"
+      "sha256": "48ec8357478256a69f88e5866f29f4d23f4b2d295555c1b732de17a26a22bef1"
     },
     {
       "path": "README_zh.md",
       "bytes": 9338,
-      "sha256": "e1dfa2c2bdee299bea4b8256fdc1b85c66e9c0d71ce97b3023a5ac9b25ec48bb"
+      "sha256": "7fb52669e44b79251a497338bda1546441b4241170debcdbe6f1830f251d4585"
     },
     {
       "path": "REPLICATIONS.md",
@@ -467,7 +467,7 @@
     {
       "path": "assets/traffic/clones-total.svg",
       "bytes": 452,
-      "sha256": "d7cf180a009d98e2cafc4804a420d26299d51503a59965b7b0ff04df9c550984"
+      "sha256": "8c790e5ce220c769fa707dfe987c6754796739753412e160e097f0e421b8df49"
     },
     {
       "path": "assets/traffic/clones.svg",
@@ -482,12 +482,12 @@
     {
       "path": "assets/traffic/unique-cloners.svg",
       "bytes": 464,
-      "sha256": "21aaa5caf0e60f069dc8f3e02e54b7315c8f685d69e867effe5a45c0074f29be"
+      "sha256": "a621e3afff733136728debdb142a645f74b83b3466163ef0afd2c3af9c8114ca"
     },
     {
       "path": "assets/traffic/updated.svg",
       "bytes": 473,
-      "sha256": "49c4f61fe0ab0cabdcb997bdda68e93f6dd481b66b0ba15e6c7f8fee53316e99"
+      "sha256": "82bca0331f5d2c8c0525974eb1b49316059a0c88440a24f9843ec073e114901d"
     },
     {
       "path": "benchmarks/HISTORICAL_BEAM.md",
@@ -1626,13 +1626,13 @@
     },
     {
       "path": "metrics/traffic/cumulative.json",
-      "bytes": 2691,
-      "sha256": "5c9da76046fa66fc3365e9eba0f6fb9303b510d521fe291552961f4d21c56795"
+      "bytes": 2750,
+      "sha256": "d93252597096c707856ab0bbaf95102335817b0bdf0bd1d74431e785fa965855"
     },
     {
       "path": "metrics/traffic/latest.json",
       "bytes": 1579,
-      "sha256": "ab5dd05c297460f08b76b6c79bdad77c4ff72b57657cd967c469b3e7dcd6f6d1"
+      "sha256": "e0efd590165bd9e122061ac43388b9c233830216f110440a62e733d3c157c4db"
     },
     {
       "path": "metrics/traffic/snapshots/2026-10-16-github_traffic_api.json",
@@ -1770,9 +1770,14 @@
       "sha256": "ab5dd05c297460f08b76b6c79bdad77c4ff72b57657cd967c469b3e7dcd6f6d1"
     },
     {
+      "path": "metrics/traffic/snapshots/2026-11-11-github_traffic_api.json",
+      "bytes": 1579,
+      "sha256": "e0efd590165bd9e122061ac43388b9c233830216f110440a62e733d3c157c4db"
+    },
+    {
       "path": "metrics/traffic/stars.json",
       "bytes": 138,
-      "sha256": "0f8a7e5b82f3ab724175b3a4c66bebaac6c277519ba1a7f785a83048afb2af0c"
+      "sha256": "e4465a6763dd2546ca37c3b117cb64c8ca82f955aa2773b35d601a06960ee126"
     },
     {
       "path": "mkdocs.yml",
@@ -3570,7 +3575,7 @@
       "sha256": "be8dbb0aa75e27d1625255b99019c1b078833d1afc864951da7d6de1c4b70807"
     }
   ],
-  "total_bytes": 148582302,
+  "total_bytes": 148583940,
   "self_excluded": [
     "PUBLIC_RELEASE_MANIFEST.json",
     "SHA256SUMS"

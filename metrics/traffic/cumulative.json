@@ -2,10 +2,10 @@
   "schema": "tomc-cumulative-clones-v1",
   "repository": "ZipengWu365/TOMC",
   "source": "archived_github_traffic_api_daily_counts",
-  "observed_at": "2026-11-10T15:03:56+00:00",
+  "observed_at": "2026-11-11T14:35:30+00:00",
   "first_recorded_date": "2026-10-02",
-  "last_recorded_date": "2026-11-09",
-  "count": 3364,
+  "last_recorded_date": "2026-11-10",
+  "count": 3404,
   "daily": [
     {
       "date": "2026-10-02",
@@ -162,6 +162,10 @@
     {
       "date": "2026-11-09",
       "count": 57
+    },
+    {
+      "date": "2026-11-10",
+      "count": 40
     }
   ],
   "scope": "Sum of recorded UTC dates, each counted once; unavailable history is excluded."
