@@ -4,6 +4,8 @@
   <p><strong>English</strong> | <a href="README_zh.md">简体中文</a> · v0.3.1 research preview · MIT · Python 3.10+</p>
 </div>
 
+[![ZipengWu365/TOMC MCP server](https://glama.ai/mcp/servers/ZipengWu365/TOMC/badges/score.svg)](https://glama.ai/mcp/servers/ZipengWu365/TOMC)
+
 I got tired of re-explaining my project to every new AI chat, and then getting the old version of a decision back.
 
 **When a fact changes, only the latest version comes back.**

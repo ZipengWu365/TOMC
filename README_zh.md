@@ -4,6 +4,8 @@
   <p><a href="README.md">English</a> | <strong>简体中文</strong> · v0.3.1 研究预览版 · MIT 开源 · Python 3.10+</p>
 </div>
 
+[![ZipengWu365/TOMC MCP server](https://glama.ai/mcp/servers/ZipengWu365/TOMC/badges/score.svg)](https://glama.ai/mcp/servers/ZipengWu365/TOMC)
+
 每开一个新的 AI 对话，我都要把项目从头讲一遍。讲完它还报给我一个早就改掉的旧方案。我受够了，就做了这个。
 
 **改过的事，只记最新的。**
