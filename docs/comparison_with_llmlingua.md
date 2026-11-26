@@ -69,3 +69,20 @@ For LLMLingua or LongLLMLingua, supply a compatible official causal compressor a
 If official output exceeds the chosen TOMC counter's budget, the adapter reports additional clipping. The clipped output differs from the untouched official result. Without a configured compressor, it raises `AdapterUnavailable` instead of substituting another method.
 
 See [data and licensing](data_and_license.md) for dependency and source records.
+
+## ctxprune as an LLMLingua-2 comparison row
+
+[ctxprune](https://github.com/riceharvest/ctxprune) 0.4 is a token-selection compressor. It exposes an LLMLingua-compatible API as `ctxprune.compat.PromptCompressor`, with a CPU int8 ONNX model of about 142 MB. It is not a TOMC adapter and is not part of this repository.
+
+Its held-out LongBench gate (270 unseen items, Gemma-4-31B reader, matched budgets, frozen configuration) is published with its per-item outputs and review in [BENCHMARKS.md](https://github.com/riceharvest/ctxprune/blob/main/docs/BENCHMARKS.md). Paired differences, macro-averaged over 9 tasks unless noted, with 95% bootstrap intervals:
+
+| Comparison | Difference |
+|---|---|
+| ctxprune query-aware vs LLMLingua-2-large | +2.36 [−0.70, +5.51] (level; interval includes 0) |
+| ctxprune query-aware vs same-budget BM25 | +0.71 [−1.77, +3.40] (level) |
+| ctxprune query-aware vs query-blind | +3.64 [+1.06, +6.31] |
+| ctxprune query-blind vs LLMLingua-2-large | −1.28 [−4.12, +1.55] on 9 tasks; **−3.73 [−6.52, −1.14] on 8 tasks** (without `passage_retrieval_en`), worse |
+
+Per task, it is higher on `passage_retrieval_en` (+20.0 [+6.7, +33.3]) and `multifieldqa_en` (+8.5 [+3.3, +14.7]), and lower on `hotpotqa` (−6.1 [−17.0, +4.0]) and `qasper` (−2.7 [−8.7, +3.6]). The `passage_retrieval_en` lead comes from the question matching its paragraph lexically. Without that task, the query-aware difference from LLMLingua-2-large is +0.15 [−2.76, +3.42]. The query-blind mode, which is the use case LLMLingua-2 is built for, is worse than LLMLingua-2-large on those 8 tasks.
+
+These are results for the configuration named in BENCHMARKS.md and do not generalize beyond it. Comparing TOMC and ctxprune would need the same budgets, reader and items, and is not reported here.
